@@ -102,7 +102,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        leadingWidth: 20,
+        leadingWidth: 30,
         elevation: 0,
         actions: [
           IconButton(

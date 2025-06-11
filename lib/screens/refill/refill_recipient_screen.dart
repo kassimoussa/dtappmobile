@@ -1,28 +1,19 @@
-// lib/screens/forfait_recipient_screen.dart
 import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/routes/custom_route_transitions.dart';
-import 'package:dtapp3/screens/forfait_autre_numero_screen.dart';
-import 'package:dtapp3/screens/forfait_categories_screen.dart';
 import 'package:dtapp3/widgets/appbar_widget.dart';
 import 'package:flutter/material.dart';
 
-class ForfaitRecipientScreen extends StatelessWidget { 
+class RefillRecipientScreen extends StatelessWidget {
   final String? phoneNumber;
-  final double soldeActuel;
-  final VoidCallback? onRefreshSolde;
-  const ForfaitRecipientScreen({
-    super.key,
-    this.phoneNumber,
-    required this.soldeActuel,
-    this.onRefreshSolde,
-  });
+  const RefillRecipientScreen({super.key, this.phoneNumber});
 
   @override
-  Widget build(BuildContext context) { 
-
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBarWidget(title: 'Achat de forfait', showAction: false, value: soldeActuel),
+      appBar: AppBarWidget(
+        title: 'Rechage de crédit',
+        showAction: false, 
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -45,17 +36,7 @@ class ForfaitRecipientScreen extends StatelessWidget {
                     'Mon numéro',
                     AppTheme.dtBlue2,
                     Icons.arrow_upward,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        CustomRouteTransitions.slideRightRoute(
-                          page: ForfaitCategoriesScreen(
-                            phoneNumber: phoneNumber,
-                            soldeActuel: soldeActuel,
-                            onRefreshSolde: onRefreshSolde,
-                          ),
-                        ),
-                      );
+                    onTap: () { 
                     },
                   ),
                 ),
@@ -67,15 +48,7 @@ class ForfaitRecipientScreen extends StatelessWidget {
                     AppTheme.dtBlue2,
                     Icons.arrow_outward,
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        CustomRouteTransitions.slideRightRoute(
-                          page: ForfaitAutreNumeroScreen(
-                            phoneNumber: phoneNumber,
-                            soldeActuel: soldeActuel, 
-                          ),
-                        ),
-                      );
+                       
                     },
                   ),
                 ),
@@ -117,7 +90,11 @@ class ForfaitRecipientScreen extends StatelessWidget {
                     border: Border.all(color: AppTheme.dtYellow),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.smartphone, size: 30, color: AppTheme.dtBlue2),
+                  child: Icon(
+                    Icons.smartphone,
+                    size: 30,
+                    color: AppTheme.dtBlue2,
+                  ),
                 ),
                 Positioned(
                   bottom: 0,

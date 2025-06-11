@@ -4,6 +4,7 @@ import 'package:dtapp3/screens/forfaits_actifs_screen.dart';
 import 'package:dtapp3/screens/login_screen.dart';
 import 'package:dtapp3/screens/money_transfer_page.dart';
 import 'package:dtapp3/screens/my_line_screen.dart';
+import 'package:dtapp3/screens/refill/refill_recipient_screen.dart';
 import 'package:dtapp3/services/balance_service.dart';
 import 'package:dtapp3/services/user_session.dart';
 import 'package:flutter/material.dart';
@@ -170,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _buildAccountCard(
                       icon: Icons.account_balance_wallet_outlined,
                       label: 'Main Account',
-                      balance: "${_solde.toStringAsFixed(2)} DJF",
+                      balance: "${_solde.toStringAsFixed(0)} DJF",
                       showBalance: _showMainBalance,
                       onToggleVisibility:
                           () => setState(
@@ -183,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _buildAccountCard(
                       icon: Icons.add_card,
                       label: 'Solde D-Money',
-                      balance: '0.00',
+                      balance: '0',
                       showBalance: _showBonusBalance,
                       onToggleVisibility:
                           () => setState(
@@ -429,7 +430,14 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildActionButton(
               icon: Icons.add_circle,
               label: "Recharge \nde crédit",
-              onTap: () => _showComingSoonDialog('Recharge de crédit'),
+              onTap: () =>  Navigator.push(
+                    context,
+                    CustomRouteTransitions.slideRightRoute(
+                      page: RefillRecipientScreen(
+                        phoneNumber: _normalPhoneNumber, 
+                      ),
+                    ),
+                  ),
             ),
             _buildActionButton(
               icon: Icons.timer,
