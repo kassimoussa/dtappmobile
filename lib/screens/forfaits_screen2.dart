@@ -34,7 +34,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
   // Liste des forfaits Internet
   final List<Forfait> forfaitsInternet = [
     Forfait(
-       id: 13,
+      id: 13,
       nom: 'Forfait Express',
       data: '1 Go',
       prix: 200,
@@ -43,7 +43,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
       code: '*164*2*1*1#',
     ),
     Forfait(
-       id: 15,
+      id: 15,
       nom: 'Forfait Découverte',
       data: '5 Go',
       prix: 500,
@@ -52,7 +52,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
       code: '*164*2*2*1#',
     ),
     Forfait(
-       id: 16,
+      id: 16,
       nom: 'Forfait Evasion',
       data: '12 Go',
       prix: 1000,
@@ -61,7 +61,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
       code: '*164*2*3*1#',
     ),
     Forfait(
-       id: 17,
+      id: 17,
       nom: 'Forfait Comfort',
       data: '20 Go',
       prix: 3000,
@@ -75,7 +75,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
   // Liste des forfaits Combo
   final List<Forfait> forfaitsCombo = [
     Forfait(
-       id: 10,
+      id: 10,
       nom: 'Forfait Classic',
       minutes: '35',
       sms: '50',
@@ -86,7 +86,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
       code: '*164*1*1*1#',
     ),
     Forfait(
-       id: 11,
+      id: 11,
       nom: 'Forfait Median',
       minutes: '75',
       sms: '100',
@@ -98,7 +98,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
       code: '*164*1*2*1#',
     ),
     Forfait(
-       id: 12,
+      id: 12,
       nom: 'Forfait Premium',
       minutes: '155',
       sms: '250',

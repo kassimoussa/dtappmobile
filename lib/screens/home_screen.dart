@@ -1,10 +1,12 @@
-// lib/screens/home_screen.dart
-import 'package:dtapp3/screens/forfait_recipient_screen.dart';
+// lib/screens/home_screen.dart 
+import 'package:dtapp3/screens/achat_forfait/forfait_recipient_screen.dart';
 import 'package:dtapp3/screens/forfaits_actifs_screen.dart';
 import 'package:dtapp3/screens/login_screen.dart';
 import 'package:dtapp3/screens/money_transfer_page.dart';
 import 'package:dtapp3/screens/my_line_screen.dart';
+import 'package:dtapp3/screens/refill/refill_api%C3%A8test.dart';
 import 'package:dtapp3/screens/refill/refill_recipient_screen.dart';
+import 'package:dtapp3/screens/test_forfait_success_screen.dart';
 import 'package:dtapp3/services/balance_service.dart';
 import 'package:dtapp3/services/user_session.dart';
 import 'package:flutter/material.dart';
@@ -472,12 +474,12 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildActionButton(
-              icon: Icons.timer,
-              label: 'Transfert\nde crédit',
+              icon: Icons.add,
+              label: 'Test recharge',
               onTap: () => Navigator.push(
                     context,
                     CustomRouteTransitions.slideRightRoute(
-                      page: TransferCreditScreen()
+                      page: RefillApiTest()
                     ),
                   ),
             ),

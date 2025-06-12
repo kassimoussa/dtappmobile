@@ -1,7 +1,7 @@
 // lib/models/forfait_actif2.dart
 class ForfaitActif2 {
   final int id;
-  final int offre_id;
+  final int offreId;
   final String nom;
   final int type;
   final String typeTexte;
@@ -14,7 +14,7 @@ class ForfaitActif2 {
 
   ForfaitActif2({
     required this.id,
-    required this.offre_id,
+    required this.offreId,
     required this.nom,
     required this.type,
     required this.typeTexte,
@@ -54,7 +54,7 @@ class ForfaitActif2 {
   factory ForfaitActif2.fromJson(Map<String, dynamic> json) {
     return ForfaitActif2(
       id: json['produit_id'],
-      offre_id: json['id'],
+      offreId: json['id'],
       nom: json['nom'],
       type: json['type'],
       typeTexte: json['type_texte'],

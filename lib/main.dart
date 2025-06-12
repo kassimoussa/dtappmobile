@@ -11,13 +11,13 @@ void main() {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
-  ]);
+  ]); 
   // Personnaliser la barre de statut
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
-    ),
+    ), 
   );
   
   runApp(const MyApp());
@@ -96,7 +96,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         scaffoldBackgroundColor: Colors.white,
         fontFamily: 'Roboto',
       ),
-      home: Builder(
+      home: Builder( 
         builder: (context) {
           // Initialiser le responsive size
           ResponsiveSize.init(context);
