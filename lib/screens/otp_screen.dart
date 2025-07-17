@@ -8,7 +8,7 @@ import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
 import '../routes/custom_route_transitions.dart';
 import '../services/otp_service.dart';
-import 'home_screen.dart';
+import 'main_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;
@@ -199,7 +199,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
             if (!mounted) return;
             Navigator.of(context).pushAndRemoveUntil(
               CustomRouteTransitions.fadeScaleRoute(
-                page: HomeScreen(),
+                page: const MainScreen(),
               ),
               (route) => false,
             );

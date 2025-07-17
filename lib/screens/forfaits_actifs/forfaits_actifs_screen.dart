@@ -4,8 +4,8 @@ import 'package:dtapp3/services/forfait_actif_service.dart';
 import 'package:dtapp3/widgets/cards/forfait_actif_card2.dart';
 import 'package:flutter/material.dart';
 
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart'; 
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart'; 
 
 class ForfaitsActifsScreen extends StatefulWidget {
   const ForfaitsActifsScreen({super.key});

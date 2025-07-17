@@ -1,13 +1,14 @@
 // lib/screens/forfait_confirmation_screen.dart
-import 'package:dtapp3/services/purchase_offer_service.dart';
-import 'package:dtapp3/widgets/appbar_widget.dart';
+import 'package:dtapp3/constants/app_theme.dart';
+import 'package:dtapp3/extensions/color_extensions.dart';
+import 'package:dtapp3/models/forfait.dart';
+import 'package:dtapp3/routes/custom_route_transitions.dart';
+import 'package:dtapp3/screens/_unused/forfaits_screen2.dart';
+import 'package:dtapp3/screens/achat_forfait/forfait_success_screen.dart';
+import 'package:dtapp3/services/purchase_offer_service.dart'; 
+import 'package:dtapp3/utils/responsive_size.dart';
+import 'package:dtapp3/widgets/appbar_widget.dart'; 
 import 'package:flutter/material.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../extensions/color_extensions.dart';
-import '../models/forfait.dart';
-import '../routes/custom_route_transitions.dart';
-import 'forfait_success_screen.dart';
 
 class ForfaitConfirmationScreen2 extends StatefulWidget {
   final Forfait forfait;

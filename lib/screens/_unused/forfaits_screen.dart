@@ -1,20 +1,20 @@
 // lib/screens/forfaits_screen.dart
+import 'package:dtapp3/constants/app_theme.dart';
+import 'package:dtapp3/extensions/color_extensions.dart';
+import 'package:dtapp3/models/forfait.dart'; 
+import 'package:dtapp3/utils/responsive_size.dart';
 import 'package:dtapp3/widgets/appbar_widget.dart';
+import 'package:dtapp3/widgets/cards/forfait_card.dart'; 
 import 'package:flutter/material.dart';
-import '../models/forfait.dart';
-import '../widgets/cards/forfait_card.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../extensions/color_extensions.dart';
 
-class ForfaitsScreen2 extends StatefulWidget {
+class ForfaitsScreen extends StatefulWidget {
   final double? soldeActuel;
   final Function()? onRefreshSolde;
   final String? phoneNumber; 
   final String initialType;
   final String forfaitTitle;
 
-  const ForfaitsScreen2({
+  const ForfaitsScreen({
     super.key,
     this.soldeActuel,
     this.onRefreshSolde,
@@ -24,17 +24,17 @@ class ForfaitsScreen2 extends StatefulWidget {
   });
 
   @override
-  State<ForfaitsScreen2> createState() => _ForfaitsScreen2State();
+  State<ForfaitsScreen> createState() => _ForfaitsScreenState();
 }
 
-class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
+class _ForfaitsScreenState extends State<ForfaitsScreen> {
   late String _selectedType;
-  bool _isLoading = false; 
+  bool _isLoading = false;
 
   // Liste des forfaits Internet
   final List<Forfait> forfaitsInternet = [
     Forfait(
-      id: 13,
+       id: 13,
       nom: 'Forfait Express',
       data: '1 Go',
       prix: 200,
@@ -43,7 +43,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
       code: '*164*2*1*1#',
     ),
     Forfait(
-      id: 15,
+       id: 15,
       nom: 'Forfait Découverte',
       data: '5 Go',
       prix: 500,
@@ -52,7 +52,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
       code: '*164*2*2*1#',
     ),
     Forfait(
-      id: 16,
+       id: 16,
       nom: 'Forfait Evasion',
       data: '12 Go',
       prix: 1000,
@@ -61,7 +61,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
       code: '*164*2*3*1#',
     ),
     Forfait(
-      id: 17,
+       id: 17,
       nom: 'Forfait Comfort',
       data: '20 Go',
       prix: 3000,
@@ -75,7 +75,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
   // Liste des forfaits Combo
   final List<Forfait> forfaitsCombo = [
     Forfait(
-      id: 10,
+       id: 10,
       nom: 'Forfait Classic',
       minutes: '35',
       sms: '50',
@@ -86,7 +86,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
       code: '*164*1*1*1#',
     ),
     Forfait(
-      id: 11,
+       id: 11,
       nom: 'Forfait Median',
       minutes: '75',
       sms: '100',
@@ -98,7 +98,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
       code: '*164*1*2*1#',
     ),
     Forfait(
-      id: 12,
+       id: 12,
       nom: 'Forfait Premium',
       minutes: '155',
       sms: '250',
@@ -113,8 +113,8 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
   @override
   void initState() {
     super.initState();
-    _selectedType = widget.initialType; 
-  } 
+    _selectedType = widget.initialType;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +126,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
 
     // Liste des forfaits à afficher
     final forfaitsToDisplay =
-        _selectedType == 'internet' ? forfaitsInternet : forfaitsCombo; 
+        _selectedType == 'internet' ? forfaitsInternet : forfaitsCombo;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -148,7 +148,7 @@ class _ForfaitsScreen2State extends State<ForfaitsScreen2> {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [ 
+              children: [
                 Text(
                   'Choisissez votre forfait',
                   style: TextStyle(

@@ -1,12 +1,13 @@
 // lib/screens/home_screen.dart 
 import 'package:dtapp3/screens/achat_forfait/forfait_recipient_screen.dart';
-import 'package:dtapp3/screens/forfaits_actifs_screen.dart';
+import 'package:dtapp3/screens/forfaits_actifs/forfaits_actifs_screen.dart';
 import 'package:dtapp3/screens/login_screen.dart';
-import 'package:dtapp3/screens/money_transfer_page.dart';
+import 'package:dtapp3/screens/transfer_credit/transfer_input_screen.dart';
 import 'package:dtapp3/screens/my_line_screen.dart';
 import 'package:dtapp3/screens/refill/refill_api%C3%A8test.dart';
 import 'package:dtapp3/screens/refill/refill_recipient_screen.dart';
 import 'package:dtapp3/screens/test_forfait_success_screen.dart';
+import 'package:dtapp3/screens/topup/topup_home_screen.dart';
 import 'package:dtapp3/services/balance_service.dart';
 import 'package:dtapp3/services/user_session.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentNavIndex = 0;
   final bool _isLoading = false;
   // Données statiques au lieu de l'USSD
   double _solde = 0.0;
@@ -165,7 +165,6 @@ class _HomeScreenState extends State<HomeScreen> {
               // Section de bienvenue
               _buildWelcomeSection(),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-
               // Cartes des comptes
               Row(
                 children: [
@@ -225,7 +224,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
@@ -459,7 +457,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   () => Navigator.push(
                     context,
                     CustomRouteTransitions.slideRightRoute(
-                      page: MoneyTransferScreen(
+                      page: TransferInputScreen(
                         phoneNumber: _normalPhoneNumber,
                         soldeActuel: _solde,
                         onRefreshSolde: _loadBalance,
@@ -520,49 +518,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  BottomNavigationBar _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      currentIndex: _currentNavIndex,
-      onTap: (index) {
-        setState(() {
-          _currentNavIndex = index;
-        });
-
-        // Navigation vers les écrans correspondants
-        if (index == 0) {
-          // Accueil - Déjà sur cet écran, ne rien faire
-        } else if (index == 1) {
-          // Historique
-          _showComingSoonDialog('Historique des transactions');
-        } else if (index == 2) {
-          // Mes forfaits
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (context) => MyLineScreen(phoneNumber: _formattedPhoneNumber),
-            ),
-          );
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: AppTheme.dtBlue,
-      backgroundColor: Colors.white,
-      unselectedItemColor: Colors.grey,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Accueil'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.description_outlined),
-          label: 'Historique',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline_rounded),
-          label: 'Ma ligne',
-        ),
-      ],
     );
   }
 

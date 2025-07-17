@@ -1,6 +1,6 @@
 // lib/widgets/forfait_actif_card.dart
 import 'package:dtapp3/models/forfait_actif2.dart';
-import 'package:dtapp3/screens/forfait_detail_screen.dart';
+import 'package:dtapp3/screens/forfaits_actifs/forfait_detail_screen.dart';
 import 'package:flutter/material.dart'; 
 import 'progress_bar.dart';
 import 'package:intl/intl.dart';
@@ -20,7 +20,7 @@ class ForfaitActifCard2 extends StatelessWidget {
       final inputFormat = DateFormat("dd/MM/yyyy HH:mm:ss");
       final date = inputFormat.parse(dateString);
       
-      // Format de sortie: "15 mai 2025"
+      // Format de sortie: "15/05/2025"
       final outputFormat = DateFormat("dd/MM/yyyy");
       return outputFormat.format(date);
     } catch (e) {
@@ -41,7 +41,7 @@ class ForfaitActifCard2 extends StatelessWidget {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => ForfaitDetailScreen(
-                forfaitId: forfait.id,
+                forfait: forfait,
               ),
             ),
           );
@@ -109,7 +109,7 @@ class ForfaitActifCard2 extends StatelessWidget {
                 const SizedBox(height: 12),
                 ProgressBar(
                   label: 'Minutes d\'appel',
-                  value: '${forfait.minutesCompteur!.vrLisible} / ${forfait.minutesCompteur!.seuilsLisible}',
+                  value: '${forfait.minutesCompteur!.vrLisibleSansSecondes} / ${forfait.minutesCompteur!.seuilsLisibleSansSecondes}',
                   percentage: forfait.minutesCompteur!.pourcentageUtilisation,
                   color: Colors.green,
                 ),

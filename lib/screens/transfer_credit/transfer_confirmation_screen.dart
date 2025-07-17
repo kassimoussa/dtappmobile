@@ -1,95 +1,35 @@
-// lib/screens/forfait_confirmation_screen.dart
-import 'package:dtapp3/services/purchase_offer_service.dart';
+import 'package:dtapp3/constants/app_theme.dart';
+import 'package:dtapp3/screens/transfer_credit/transfer_success_screen.dart';
+import 'package:dtapp3/services/transfer_credit_service.dart';
+import 'package:dtapp3/utils/responsive_size.dart';
 import 'package:dtapp3/widgets/appbar_widget.dart';
 import 'package:flutter/material.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../extensions/color_extensions.dart';
-import '../models/forfait.dart';
-import '../routes/custom_route_transitions.dart';
-import 'forfait_success_screen.dart';
 
-class ForfaitConfirmationScreen extends StatefulWidget {
-  final Forfait forfait;
+class TransferConfirmationScreen extends StatefulWidget {
   final String phoneNumber;
+  final String recipient;
+  final double amount;
+  final double transferFee;
   final double soldeActuel;
-  final VoidCallback? onAchatReussi;
+  final VoidCallback? onRefreshSolde;
 
-  const ForfaitConfirmationScreen({
+  const TransferConfirmationScreen({
     super.key,
-    required this.forfait,
     required this.phoneNumber,
+    required this.recipient,
+    required this.amount,
+    required this.transferFee,
     required this.soldeActuel,
-    this.onAchatReussi,
+    this.onRefreshSolde,
   });
 
   @override
-  State<ForfaitConfirmationScreen> createState() => _ForfaitConfirmationScreenState();
+  State<TransferConfirmationScreen> createState() => _TransferConfirmationScreenState();
 }
 
-class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
+class _TransferConfirmationScreenState extends State<TransferConfirmationScreen> {
   bool _isLoading = false;
-
-  Future<void> _confirmerAchat() async {
-  if (_isLoading) return;
-  
-  setState(() {
-    _isLoading = true;
-  });
-  
-  try {
-    // Appel à l'API d'achat d'offre
-    final result = await PurchaseOfferService.purchaseOffer(widget.forfait.id);
-    
-    if (mounted) {
-      // L'API retourne 'succes' : true en cas de succès
-      if (result['succes'] == true) {
-        // Appeler le callback de rafraîchissement du solde si fourni
-        widget.onAchatReussi?.call();
-        
-        // Navigation vers l'écran de succès
-        Navigator.pushReplacement(
-          context,
-          CustomRouteTransitions.fadeScaleRoute(
-            page: ForfaitSuccessScreen(
-              forfait: widget.forfait,
-              phoneNumber: widget.phoneNumber,
-              ancienSolde: widget.soldeActuel,
-            ),
-          ),
-        );
-      } else {
-        // Afficher l'erreur retournée par l'API
-        setState(() {
-          _isLoading = false;
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(result['erreur'] ?? 'Erreur lors de l\'achat'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 4),
-          ),
-        );
-      }
-    }
-  } catch (e) {
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-      
-      // Afficher l'erreur de connexion ou autre
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erreur de connexion: ${e.toString().replaceAll('Exception: ', '')}'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 4),
-        ),
-      );
-    }
-  }
-}
+  final TransferService _transferService = TransferService();
 
   @override
   Widget build(BuildContext context) {
@@ -97,22 +37,26 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
     
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBarWidget(title: "Confirmation d'achat", showAction: true, value: widget.soldeActuel),
+      appBar: AppBarWidget(
+        title: "Confirmation de transfert", 
+        showAction: true, 
+        value: widget.soldeActuel
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Entête
+            // Entête avec icône
             Center(
               child: Container(
                 padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
                 decoration: BoxDecoration(
-                  color: AppTheme.dtBlue.withOpacityValue(0.1),
+                  color: AppTheme.dtBlue.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  widget.forfait.type == 'internet' ? Icons.wifi : Icons.phone_android,
+                  Icons.send_rounded,
                   color: AppTheme.dtBlue,
                   size: ResponsiveSize.getFontSize(60),
                 ),
@@ -121,10 +65,10 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
             
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
             
-            // Titre et sous-titre
+            // Titre
             Center(
               child: Text(
-                widget.forfait.nom,
+                'Transfert de crédit',
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(24),
                   fontWeight: FontWeight.bold,
@@ -137,7 +81,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
             
             Center(
               child: Text(
-                'Valide pendant ${widget.forfait.validite}',
+                'Vérifiez les détails du transfert',
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(16),
                   color: Colors.grey[600],
@@ -147,7 +91,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
             
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
             
-            // Détails du forfait
+            // Détails du transfert
             Container(
               padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
               decoration: BoxDecoration(
@@ -157,37 +101,30 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
               ),
               child: Column(
                 children: [
-                  _buildConfirmationDetailRow('Numéro', widget.phoneNumber),
+                  _buildDetailRow('De', '+253 ${widget.phoneNumber}'),
                   Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                  _buildConfirmationDetailRow('Prix', '${widget.forfait.prix} FDJ'),
+                  _buildDetailRow('Vers', '+253 ${widget.recipient}'),
                   Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                  _buildConfirmationDetailRow('Internet', widget.forfait.data!),
-                  
-                  if (widget.forfait.type == 'combo' && widget.forfait.minutes != null) ...[
-                    Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                    _buildConfirmationDetailRow('Appels', '${widget.forfait.minutes} min'),
-                  ],
-                  
-                  if (widget.forfait.type == 'combo' && widget.forfait.sms != null) ...[
-                    Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                    _buildConfirmationDetailRow('SMS', '${widget.forfait.sms} SMS'),
-                  ],
-                  
+                  _buildDetailRow('Montant', '${widget.amount.toStringAsFixed(0)} DJF'),
                   Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                  _buildConfirmationDetailRow('Validité', widget.forfait.validite),
+                  _buildDetailRow('Frais (5%)', '${widget.transferFee.toStringAsFixed(0)} DJF'),
+                  Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                  _buildDetailRow('Total à débiter', '${(widget.amount + widget.transferFee).toStringAsFixed(0)} DJF', isTotal: true),
+                  Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                  _buildDetailRow('Date', _getCurrentDate()),
                 ],
               ),
             ),
             
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
             
-            // Information sur le solde après achat
+            // Information sur le solde après transfert
             Container(
               padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
               decoration: BoxDecoration(
-                color: AppTheme.dtYellow.withOpacityValue(0.1),
+                color: AppTheme.dtYellow.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-                border: Border.all(color: AppTheme.dtYellow.withOpacityValue(0.3)),
+                border: Border.all(color: AppTheme.dtYellow.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
@@ -202,7 +139,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Solde actuel: ${widget.soldeActuel.toStringAsFixed(0)} FDJ',
+                          'Solde actuel: ${widget.soldeActuel.toStringAsFixed(0)} DJF',
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(14),
                             color: Colors.grey[800],
@@ -210,7 +147,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
                         ),
                         SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
                         Text(
-                          'Solde après achat: ${(widget.soldeActuel - widget.forfait.prix).toStringAsFixed(0)} FDJ',
+                          'Solde après transfert: ${(widget.soldeActuel - widget.amount - widget.transferFee).toStringAsFixed(0)} DJF',
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(16),
                             fontWeight: FontWeight.bold,
@@ -218,6 +155,39 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
+            
+            // Note importante
+            Container(
+              padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+              decoration: BoxDecoration(
+                color: AppTheme.dtBlue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                border: Border.all(color: AppTheme.dtBlue.withOpacity(0.3)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: AppTheme.dtBlue,
+                    size: ResponsiveSize.getFontSize(20),
+                  ),
+                  SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+                  Expanded(
+                    child: Text(
+                      'Ce transfert est immédiat et irréversible. Vérifiez bien le numéro du destinataire.',
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(14),
+                        color: AppTheme.dtBlue,
+                        height: 1.4,
+                      ),
                     ),
                   ),
                 ],
@@ -254,7 +224,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
                 
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _confirmerAchat,
+                    onPressed: _isLoading ? null : _processTransfer,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.dtBlue,
                       foregroundColor: AppTheme.dtYellow,
@@ -273,7 +243,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
                             ),
                           )
                         : Text(
-                            'Confirmer l\'achat',
+                            'Confirmer le transfert',
                             style: TextStyle(
                               fontSize: ResponsiveSize.getFontSize(16),
                               fontWeight: FontWeight.bold,
@@ -288,8 +258,8 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
       ),
     );
   }
-  
-  Widget _buildConfirmationDetailRow(String label, String value) {
+
+  Widget _buildDetailRow(String label, String value, {bool isTotal = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -297,7 +267,8 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
           label,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
-            color: Colors.grey[600],
+            color: isTotal ? AppTheme.dtBlue : Colors.grey[600],
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
           ),
         ),
         Text(
@@ -305,10 +276,77 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen> {
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
             fontWeight: FontWeight.bold,
-            color: AppTheme.dtBlue,
+            color: isTotal ? AppTheme.dtBlue : AppTheme.dtBlue,
           ),
         ),
       ],
     );
+  }
+
+  String _getCurrentDate() {
+    final now = DateTime.now();
+    return '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+  }
+
+  void _processTransfer() async {
+    if (_isLoading) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Remplacer la simulation par l'appel API réel
+      final result = await _transferService.transferCredit(
+        senderMsisdn: widget.phoneNumber,
+        receiverMsisdn: widget.recipient,
+        amount: widget.amount,
+      );
+      
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        
+        if (result['success']) {
+          // Transfert réussi - Navigation vers l'écran de succès
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TransferSuccessScreen(
+                phoneNumber: widget.phoneNumber,
+                recipient: widget.recipient,
+                amount: widget.amount,
+                ancienSolde: widget.soldeActuel, 
+                transferFee: widget.transferFee,
+              ),
+            ),
+          );
+        } else {
+          // Transfert échoué - Afficher l'erreur
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erreur: ${result['error']}'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors du transfert: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
   }
 }

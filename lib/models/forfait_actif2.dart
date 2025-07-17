@@ -100,6 +100,17 @@ class Compteur {
   // Pourcentage restant (pour un affichage alternatif)
   double get pourcentageRestant => seuils > 0 ? (valeurRestante / seuils) * 100 : 0;
 
+  // Formatage des minutes sans secondes
+  String get vrLisibleSansSecondes => _removeSecondsFromTime(vrLisible);
+  String get seuilsLisibleSansSecondes => _removeSecondsFromTime(seuilsLisible);
+  String get vuLisibleSansSecondes => _removeSecondsFromTime(vuLisible);
+
+  // Fonction helper pour supprimer les secondes des formats de temps
+  String _removeSecondsFromTime(String timeString) {
+    // Supprimer les secondes du format "2h 30m 0s" -> "2h 30m"
+    return timeString.replaceAll(RegExp(r'\s+0s$'), '').replaceAll(RegExp(r'\s+\d+s$'), '');
+  }
+
   // Factory constructor pour créer à partir de JSON
   factory Compteur.fromJson(Map<String, dynamic> json) {
     return Compteur(

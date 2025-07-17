@@ -5,15 +5,15 @@ import 'package:dtapp3/widgets/cards/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart'; 
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart'; 
 
 class ForfaitDetailScreen extends StatefulWidget {
-  final int forfaitId;
+  final ForfaitActif2 forfait;
 
   const ForfaitDetailScreen({
     super.key,
-    required this.forfaitId,
+    required this.forfait,
   });
 
   @override
@@ -21,40 +21,47 @@ class ForfaitDetailScreen extends StatefulWidget {
 }
 
 class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
-  ForfaitActif2? _forfait;
-  bool _isLoading = true;
+  late ForfaitActif2 _forfait;
+  bool _isLoading = false;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _loadForfaitDetails();
+    _forfait = widget.forfait;
   }
 
-  Future<void> _loadForfaitDetails() async {
+  Future<void> _refreshForfaitDetails() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final forfait = await ForfaitActifService.getForfaitById(widget.forfaitId);
+      // Récupérer tous les forfaits et trouver celui qui correspond
+      final forfaits = await ForfaitActifService.getForfaitsActifs(useCache: false);
+      final updatedForfait = forfaits.firstWhere(
+        (f) => f.id == _forfait.id,
+        orElse: () => _forfait,
+      );
       
       setState(() {
-        _forfait = forfait;
+        _forfait = updatedForfait;
         _isLoading = false;
       });
-      
-      if (forfait == null) {
-        setState(() {
-          _errorMessage = 'Forfait non trouvé';
-        });
-      }
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
       });
+      
+      // Afficher un message d'erreur temporaire
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Impossible de rafraîchir les données: ${e.toString()}'),
+          backgroundColor: Colors.orange,
+        ),
+      );
     }
   }
 
@@ -74,13 +81,6 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
     }
   }
 
-  // Conversion d'octets en format lisible
-  String _formatBytes(int bytes) {
-    if (bytes < 1024) return '$bytes o';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} Ko';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} Mo';
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} Go';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +90,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
       backgroundColor: AppTheme.backgroundGrey,
       appBar: AppBar(
         title: Text(
-          _forfait?.nom ?? 'Détails du forfait',
+          _forfait.nom,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -102,7 +102,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             color: AppTheme.dtYellow,
-            onPressed: _isLoading ? null : _loadForfaitDetails,
+            onPressed: _isLoading ? null : _refreshForfaitDetails,
           ),
         ],
       ),
@@ -114,15 +114,15 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return _buildLoadingState();
-    }
-    
-    if (_errorMessage != null) {
-      return _buildErrorState();
-    }
-    
-    if (_forfait == null) {
-      return _buildForfaitNotFoundState();
+      return Stack(
+        children: [
+          _buildForfaitDetails(),
+          Container(
+            color: Colors.black.withOpacity(0.3),
+            child: _buildLoadingState(),
+          ),
+        ],
+      );
     }
     
     return _buildForfaitDetails();
@@ -172,7 +172,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
             ElevatedButton.icon(
-              onPressed: _loadForfaitDetails,
+              onPressed: _refreshForfaitDetails,
               icon: const Icon(Icons.refresh),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
@@ -244,7 +244,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
   }
 
   Widget _buildForfaitDetails() {
-    final forfait = _forfait!;
+    final forfait = _forfait;
     final bool isCombo = forfait.minutesCompteur != null;
     
     return SingleChildScrollView(
@@ -259,9 +259,6 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
           // Consommation détaillée
           _buildConsommationCard(forfait),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          
-          // Détails techniques
-          _buildTechnicalDetailsCard(forfait),
         ],
       ),
     );
@@ -366,7 +363,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
               Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
               _buildInfoRow(
                 'Minutes d\'appel:',
-                '${forfait.minutesCompteur!.vrLisible} restantes / ${forfait.minutesCompteur!.seuilsLisible}',
+                '${forfait.minutesCompteur!.vrLisibleSansSecondes} restantes / ${forfait.minutesCompteur!.seuilsLisibleSansSecondes}',
                 Icons.phone,
               ),
             ],
@@ -442,7 +439,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
               ProgressBar(
                 label: 'Minutes d\'appel',
-                value: '${forfait.minutesCompteur!.vrLisible} / ${forfait.minutesCompteur!.seuilsLisible}',
+                value: '${forfait.minutesCompteur!.vrLisibleSansSecondes} / ${forfait.minutesCompteur!.seuilsLisibleSansSecondes}',
                 percentage: forfait.minutesCompteur!.pourcentageUtilisation,
                 color: Colors.green,
               ),
@@ -452,17 +449,17 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
                 children: [
                   _buildDataInfoContainer(
                     'Utilisé',
-                    forfait.minutesCompteur!.vuLisible,
+                    forfait.minutesCompteur!.vuLisibleSansSecondes,
                     Colors.orange,
                   ),
                   _buildDataInfoContainer(
                     'Restant',
-                    forfait.minutesCompteur!.vrLisible,
+                    forfait.minutesCompteur!.vrLisibleSansSecondes,
                     Colors.green,
                   ),
                   _buildDataInfoContainer(
                     'Total',
-                    forfait.minutesCompteur!.seuilsLisible,
+                    forfait.minutesCompteur!.seuilsLisibleSansSecondes,
                     AppTheme.dtBlue,
                   ),
                 ],
@@ -506,79 +503,6 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
     );
   }
 
-  // Carte des détails techniques
-  Widget _buildTechnicalDetailsCard(ForfaitActif2 forfait) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Détails techniques',
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(18),
-                fontWeight: FontWeight.bold,
-                color: AppTheme.dtBlue,
-              ),
-            ),
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-            
-            _buildTechInfoRow('Identifiant', '${forfait.id}'),
-            Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-            _buildTechInfoRow('Type', '${forfait.type} (${forfait.typeTexte})'),
-            Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-            _buildTechInfoRow('État', '${forfait.etat} (${forfait.etatTexte})'),
-            Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-            _buildTechInfoRow('ID Produit', '${forfait.produitId}'),
-            
-            // Afficher les compteurs avec leurs valeurs brutes
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-            Text(
-              'Détails des compteurs',
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(16),
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-            
-            for (var compteur in forfait.compteurs) ...[
-              Container(
-                margin: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingS)),
-                padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Compteur ID: ${compteur.id}',
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(14),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
-                    Text('Valeur utilisée: ${_formatBytes(compteur.valeurUtilisee)} (${compteur.vuLisible})'),
-                    Text('Valeur restante: ${_formatBytes(compteur.valeurRestante)} (${compteur.vrLisible})'),
-                    Text('Seuil total: ${_formatBytes(compteur.seuils)} (${compteur.seuilsLisible})'),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
 
   // Widget pour une ligne d'information
   Widget _buildInfoRow(String label, String value, IconData icon) {
@@ -610,29 +534,6 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
     );
   }
 
-  // Widget pour une ligne d'information technique
-  Widget _buildTechInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(14),
-            color: AppTheme.textSecondary,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(14),
-            fontWeight: FontWeight.bold,
-            color: AppTheme.textPrimary,
-          ),
-        ),
-      ],
-    );
-  }
 
   // Widget pour afficher des informations de consommation
   Widget _buildDataInfoContainer(String label, String value, Color color) {

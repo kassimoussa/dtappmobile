@@ -1,11 +1,11 @@
 // lib/screens/forfait_categories_screen.dart
-import 'package:dtapp3/screens/forfaits_screen2.dart';
-import 'package:dtapp3/widgets/appbar_widget.dart';
+import 'package:dtapp3/constants/app_theme.dart';
+import 'package:dtapp3/extensions/color_extensions.dart';
+import 'package:dtapp3/routes/custom_route_transitions.dart';
+import 'package:dtapp3/screens/_unused/forfaits_screen2.dart'; 
+import 'package:dtapp3/utils/responsive_size.dart';
+import 'package:dtapp3/widgets/appbar_widget.dart'; 
 import 'package:flutter/material.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../extensions/color_extensions.dart';
-import '../routes/custom_route_transitions.dart'; 
 
 class ForfaitCategoriesScreen2 extends StatelessWidget {
   final String? phoneNumber;

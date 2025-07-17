@@ -1,5 +1,5 @@
 // lib/screens/splash_screen.dart
-import 'package:dtapp3/screens/home_screen.dart';
+import 'package:dtapp3/screens/main_screen.dart';
 import 'package:dtapp3/services/user_session.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
@@ -68,7 +68,7 @@ Future<void> _navigateAfterSplash() async {
     // Utilisateur authentifié, rediriger vers l'écran principal
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => HomeScreen(), // Ajustez selon votre écran
+        builder: (context) => const MainScreen(), // Ajustez selon votre écran
       ),
     );
   } else {

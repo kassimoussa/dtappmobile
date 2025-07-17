@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    _requestPermissions();
+    _requestPermissions(); 
     
     // Ajouter l'observateur pour le cycle de vie de l'application
     WidgetsBinding.instance.addObserver(this);

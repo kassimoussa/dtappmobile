@@ -1,16 +1,17 @@
 import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/screens/transfer_confirmation_screen.dart';
+import 'package:dtapp3/screens/transfer_credit/transfer_confirmation_screen.dart';
 import 'package:dtapp3/utils/responsive_size.dart';
+import 'package:dtapp3/utils/phone_number_validator.dart';
 import 'package:dtapp3/widgets/appbar_widget.dart';
 import 'package:dtapp3/widgets/phone_number_selector.dart';
 import 'package:flutter/material.dart';
 
-class MoneyTransferScreen extends StatefulWidget {
+class TransferInputScreen extends StatefulWidget {
   final String phoneNumber;
   final double soldeActuel;
   final VoidCallback? onRefreshSolde;
 
-  const MoneyTransferScreen({
+  const TransferInputScreen({
     super.key,
     required this.phoneNumber,
     required this.soldeActuel,
@@ -18,10 +19,10 @@ class MoneyTransferScreen extends StatefulWidget {
   });
 
   @override
-  State<MoneyTransferScreen> createState() => _MoneyTransferScreenState();
+  State<TransferInputScreen> createState() => _TransferInputScreenState();
 }
 
-class _MoneyTransferScreenState extends State<MoneyTransferScreen> {
+class _TransferInputScreenState extends State<TransferInputScreen> {
   final TextEditingController _recipientController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   String? _recipientError;
@@ -251,10 +252,10 @@ class _MoneyTransferScreenState extends State<MoneyTransferScreen> {
       return;
     }
 
-    final cleanNumber = DjiboutiPhoneValidator.cleanPhoneNumber(value);
+    final cleanNumber = PhoneNumberValidator.cleanPhoneNumber(value);
     
     // Validation du format
-    final phoneValidation = DjiboutiPhoneValidator.validatePhoneNumber(cleanNumber);
+    final phoneValidation = PhoneNumberValidator.validatePhoneNumber(cleanNumber);
     if (phoneValidation != null) {
       setState(() {
         _recipientError = phoneValidation;
@@ -314,7 +315,7 @@ class _MoneyTransferScreenState extends State<MoneyTransferScreen> {
 
   void _validateAndSendTransfer() {
     // Validation finale du destinataire
-    final recipient = DjiboutiPhoneValidator.cleanPhoneNumber(_recipientController.text);
+    final recipient = PhoneNumberValidator.cleanPhoneNumber(_recipientController.text);
     
     if (recipient.isEmpty) {
       setState(() {
@@ -324,7 +325,7 @@ class _MoneyTransferScreenState extends State<MoneyTransferScreen> {
     }
 
     // Validation du numéro
-    final phoneValidation = DjiboutiPhoneValidator.validatePhoneNumber(recipient);
+    final phoneValidation = PhoneNumberValidator.validatePhoneNumber(recipient);
     if (phoneValidation != null) {
       setState(() {
         _recipientError = phoneValidation;
@@ -371,4 +372,3 @@ class _MoneyTransferScreenState extends State<MoneyTransferScreen> {
     );
   }
 }
-
