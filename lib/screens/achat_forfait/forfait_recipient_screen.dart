@@ -1,27 +1,30 @@
+// lib/screens/forfait_recipient_screen.dart
 import 'package:dtapp3/constants/app_theme.dart';
 import 'package:dtapp3/routes/custom_route_transitions.dart';
-import 'package:dtapp3/screens/refill/refill_code_screen.dart';
+import 'package:dtapp3/screens/achat_forfait/forfait_categories_screen.dart'; 
 import 'package:dtapp3/utils/responsive_size.dart';
 import 'package:dtapp3/widgets/appbar_widget.dart';
 import 'package:dtapp3/widgets/phone_number_selector.dart';
 import 'package:dtapp3/enums/purchase_enums.dart';
 import 'package:flutter/material.dart';
 
-class RefillRecipientScreen extends StatefulWidget {
-  final String? phoneNumber; 
+class ForfaitRecipientScreen extends StatefulWidget {
+  final String? phoneNumber;
+  final double soldeActuel;
   final VoidCallback? onRefreshSolde;
 
-  const RefillRecipientScreen({
+  const ForfaitRecipientScreen({
     super.key,
-    this.phoneNumber, 
+    this.phoneNumber,
+    required this.soldeActuel,
     this.onRefreshSolde,
   });
 
   @override
-  State<RefillRecipientScreen> createState() => _RefillRecipientScreenState();
+  State<ForfaitRecipientScreen> createState() => _ForfaitRecipientScreenState();
 }
 
-class _RefillRecipientScreenState extends State<RefillRecipientScreen>
+class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
     with SingleTickerProviderStateMixin {
   bool _showPhoneInput = false;
   final TextEditingController _phoneController = TextEditingController();
@@ -89,49 +92,19 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
         _phoneController.text.trim()
       );
       
-      // Navigation vers l'écran de recharge pour autre numéro
+      // Navigation vers l'écran de catégories pour autre numéro
       Navigator.push(
         context,
         CustomRouteTransitions.slideRightRoute(
-          page: RefillCodeScreen(
-            phoneNumber: cleanPhoneNumber, 
+          page: ForfaitCategoriesScreen(
+            phoneNumber: cleanPhoneNumber,
+            soldeActuel: widget.soldeActuel,
             onRefreshSolde: widget.onRefreshSolde,
-            isGift: true,
+            purchaseMode: PurchaseMode.gift,
           ),
         ),
       );
-      
-      // Temporaire - afficher un message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Recharge pour $cleanPhoneNumber'),
-          backgroundColor: AppTheme.dtBlue2,
-        ),
-      );
     }
-  }
-
-  void _navigateToMyNumber() {
-    // Navigation vers l'écran de recharge pour mon numéro
-    // Pour "Mon numéro"
-    Navigator.push(
-      context,
-      CustomRouteTransitions.slideRightRoute(
-        page: RefillCodeScreen(
-          phoneNumber: widget.phoneNumber!, 
-          onRefreshSolde: widget.onRefreshSolde,
-          isGift: false,
-        ),
-      ),
-    );
-    
-    // Temporaire - afficher un message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Recharge pour mon numéro: ${widget.phoneNumber}'),
-        backgroundColor: AppTheme.dtBlue2,
-      ),
-    );
   }
 
   @override
@@ -141,7 +114,7 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: 'Recharge de crédit', 
+        title: 'Achat de forfait', 
         showAction: false,
         showCancelToHome: true, // Affiche le bouton Annuler
       ),
@@ -174,7 +147,18 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
                           'Mon numéro',
                           AppTheme.dtBlue2,
                           Icons.arrow_upward,
-                          onTap: _navigateToMyNumber,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              CustomRouteTransitions.slideRightRoute(
+                                page: ForfaitCategoriesScreen(
+                                  phoneNumber: widget.phoneNumber,
+                                  soldeActuel: widget.soldeActuel,
+                                  onRefreshSolde: widget.onRefreshSolde,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                       SizedBox(width: ResponsiveSize.getWidth(16)),

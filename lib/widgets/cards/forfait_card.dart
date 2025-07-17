@@ -1,19 +1,19 @@
-// lib/widgets/cards/forfait_card.dart
-import 'package:dtapp3/screens/forfait_confirmation_screen2.dart';
-import 'package:dtapp3/services/user_session.dart';
-import 'package:flutter/material.dart';
-import '../../constants/app_theme.dart';
-import '../../models/forfait.dart';
-import '../../utils/responsive_size.dart';
-import '../../extensions/color_extensions.dart';
-import '../../routes/custom_route_transitions.dart';
-import '../../screens/forfait_confirmation_screen.dart';
+// lib/widgets/cards/forfait_card.dart 
+import 'package:dtapp3/constants/app_theme.dart';
+import 'package:dtapp3/enums/purchase_enums.dart';
+import 'package:dtapp3/extensions/color_extensions.dart';
+import 'package:dtapp3/models/forfait.dart';
+import 'package:dtapp3/routes/custom_route_transitions.dart';
+import 'package:dtapp3/screens/achat_forfait/forfait_confirmation_screen.dart';
+import 'package:dtapp3/utils/responsive_size.dart';
+import 'package:flutter/material.dart'; 
 
 class ForfaitCard extends StatefulWidget {
   final Forfait forfait;
   final double soldeActuel;
   final Function()? onAchatReussi;
   final String? phoneNumber;
+  final PurchaseMode purchaseMode;
 
   const ForfaitCard({
     super.key,
@@ -21,6 +21,7 @@ class ForfaitCard extends StatefulWidget {
     required this.soldeActuel,
     this.onAchatReussi,
     this.phoneNumber,
+    this.purchaseMode = PurchaseMode.personal,
   });
 
   @override
@@ -28,36 +29,7 @@ class ForfaitCard extends StatefulWidget {
 }
 
 class _ForfaitCardState extends State<ForfaitCard> {
-
   bool _isProcessing = false;
-  
-  bool _isLoading = false;
-  String? userNumber;
-
-  @override
-  void initState() {
-    super.initState(); 
-    _loadPhoneNumber();
-  }
-
-  Future<void> _loadPhoneNumber() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final phoneNumber = await UserSession.getPhoneNumber();
-      setState(() {
-        userNumber = phoneNumber;
-        _isLoading = false;
-      });
-    } catch (e) {
-      debugPrint('Erreur lors du chargement du numéro: $e');
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
 
   Future<void> _handleAchat(BuildContext context) async {
     if (_isProcessing) return; // Éviter les clics multiples
@@ -77,34 +49,23 @@ class _ForfaitCardState extends State<ForfaitCard> {
         return;
       }
 
-      // Navigation vers l'écran de confirmation
+      // Navigation vers l'écran de confirmation unifié
       if (!mounted) return;
       
-      if(widget.phoneNumber != userNumber){
-        Navigator.push(
-          context,
-          CustomRouteTransitions.slideRightRoute(
-            page: ForfaitConfirmationScreen2(
-              forfait: widget.forfait,
-              phoneNumber: widget.phoneNumber ?? '77XXXXXX', // Utiliser le numéro fourni ou une valeur par défaut
-              soldeActuel: widget.soldeActuel,
-              onAchatReussi: widget.onAchatReussi,
-            ),
+      Navigator.push(
+        context,
+        CustomRouteTransitions.slideRightRoute(
+          page: ForfaitConfirmationScreen(
+            forfait: widget.forfait,
+            phoneNumber: widget.phoneNumber ?? '77XXXXXX',
+            soldeActuel: widget.soldeActuel,
+            onAchatReussi: widget.onAchatReussi,
+            purchaseType: widget.purchaseMode == PurchaseMode.gift 
+                ? PurchaseType.gift 
+                : PurchaseType.personal,
           ),
-        );
-      } else{
-        Navigator.push(
-          context,
-          CustomRouteTransitions.slideRightRoute(
-            page: ForfaitConfirmationScreen(
-              forfait: widget.forfait,
-              phoneNumber: widget.phoneNumber ?? '77XXXXXX', // Utiliser le numéro fourni ou une valeur par défaut
-              soldeActuel: widget.soldeActuel,
-              onAchatReussi: widget.onAchatReussi,
-            ),
-          ),
-        );
-      }
+        ),
+      );
 
     } catch (e) {
       _showMessage(
@@ -214,10 +175,8 @@ class _ForfaitCardState extends State<ForfaitCard> {
                 
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
 
-                // Détails du forfait
-                widget.forfait.type == 'internet'
-                    ? _buildInternetDetails()
-                    : _buildComboDetails(),
+                // Détails du forfait selon le type
+                _buildForfaitDetails(),
                     
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
                 
@@ -295,8 +254,22 @@ class _ForfaitCardState extends State<ForfaitCard> {
     );
   }
 
+  Widget _buildForfaitDetails() {
+    switch (widget.forfait.type) {
+      case 'internet':
+        return _buildInternetDetails();
+      case 'combo':
+        return _buildComboDetails();
+      case 'tempo':
+        return _buildTempoDetails();
+      default:
+        return _buildInternetDetails();
+    }
+  }
+
   Widget _buildDetailItem(IconData icon, String text) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           icon,
@@ -304,11 +277,14 @@ class _ForfaitCardState extends State<ForfaitCard> {
           color: Colors.grey[600],
         ),
         SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingXS)),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(14),
-            color: Colors.grey[800],
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: ResponsiveSize.getFontSize(14),
+              color: Colors.grey[800],
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
@@ -323,10 +299,10 @@ class _ForfaitCardState extends State<ForfaitCard> {
         borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildDetailItem(Icons.wifi, widget.forfait.data!),
-          _buildDetailItem(Icons.access_time, widget.forfait.validite),
+          Expanded(child: _buildDetailItem(Icons.wifi, widget.forfait.data ?? 'Aucune data')),
+          SizedBox(width: ResponsiveSize.getWidth(8)),
+          Expanded(child: _buildDetailItem(Icons.access_time, widget.forfait.validite)),
         ],
       ),
     );
@@ -342,10 +318,10 @@ class _ForfaitCardState extends State<ForfaitCard> {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildDetailItem(Icons.phone, '${widget.forfait.minutes} min'),
-              _buildDetailItem(Icons.message, '${widget.forfait.sms} SMS'),
+              Expanded(child: _buildDetailItem(Icons.phone, '${widget.forfait.minutes} min')),
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              Expanded(child: _buildDetailItem(Icons.message, '${widget.forfait.sms} SMS')),
             ],
           ),
           Divider(
@@ -353,12 +329,37 @@ class _ForfaitCardState extends State<ForfaitCard> {
             color: Colors.grey[300],
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildDetailItem(Icons.wifi, widget.forfait.data!),
-              _buildDetailItem(Icons.access_time, widget.forfait.validite),
+              Expanded(child: _buildDetailItem(Icons.wifi, widget.forfait.data ?? 'Aucune data')),
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              Expanded(child: _buildDetailItem(Icons.access_time, widget.forfait.validite)),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTempoDetails() {
+    return Container(
+      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
+      decoration: BoxDecoration(
+        color: Colors.orange[50],
+        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+        border: Border.all(color: Colors.orange[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: _buildDetailItem(Icons.phone, '${widget.forfait.minutes} min')),
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              Expanded(child: _buildDetailItem(Icons.weekend, 'Week-end')),
+            ],
+          ),
+          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
+          _buildDetailItem(Icons.schedule, widget.forfait.validite),
         ],
       ),
     );

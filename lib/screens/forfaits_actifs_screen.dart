@@ -391,19 +391,19 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
             
-            // Progression totale des données
+            // Progression totale des données - CORRIGÉE pour afficher le DISPONIBLE
             LinearProgressIndicator(
               value: totalDataAvailableGo > 0 
-                  ? totalDataUsedGo / totalDataAvailableGo
+                  ? totalDataRemainingGo / totalDataAvailableGo  // Pourcentage RESTANT (sera pleine si tout est dispo)
                   : 0,
-              backgroundColor: Colors.blue.withOpacity(0.2),
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+              backgroundColor: Colors.grey.withOpacity(0.2), // Fond gris = consommé
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue), // Bleu = disponible
               minHeight: ResponsiveSize.getHeight(10),
               borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusXS)),
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-            
-            // Texte de progression
+
+            // Texte de progression - CORRECT (restant / total)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -415,7 +415,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
                   ),
                 ),
                 Text(
-                  '${totalDataRemainingGo.toStringAsFixed(1)} Go / ${totalDataAvailableGo.toStringAsFixed(1)} Go',
+                  '${totalDataRemainingGo.toStringAsFixed(1)} Go / ${totalDataAvailableGo.toStringAsFixed(1)} Go', // Restant / Total
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(14),
                     fontWeight: FontWeight.bold,
