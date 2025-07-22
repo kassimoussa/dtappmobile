@@ -108,6 +108,93 @@ class TopUpApiService {
       throw TopUpException.fromResponse(response);
     }
   }
+
+  /// Récupère les packages disponibles pour un numéro fixe
+  Future<TopUpPackageResponse> getPackages({
+    required String msisdn,
+    required String isdn,
+    required int type,
+    bool useCache = true,
+  }) async {
+    // Validation des entrées
+    TopUpValidator.validateMobile(msisdn);
+    TopUpValidator.validateFixed(isdn);
+    
+    // Valider le type (4 = données, 6 = voix)
+    if (type != 4 && type != 6) {
+      throw TopUpException.validationError('Type de package invalide. Utilisez 4 pour données ou 6 pour voix');
+    }
+    
+    final cacheKey = 'packages_${msisdn}_${isdn}_$type';
+    
+    // Vérifier le cache si demandé
+    if (useCache) {
+      final cachedData = await _getCachedResponse(cacheKey);
+      if (cachedData != null) {
+        try {
+          final cachedResponse = TopUpPackageResponse.fromJson(cachedData);
+          debugPrint('TopUp API - Cache packages valide - Succès: ${cachedResponse.success}, Packages: ${cachedResponse.totalPackages}');
+          return cachedResponse;
+        } catch (e) {
+          debugPrint('TopUp API - Cache packages corrompu pour $cacheKey: $e');
+          debugPrint('TopUp API - Données cache: $cachedData');
+          // Nettoyer le cache corrompu
+          await _clearSpecificCache(cacheKey);
+        }
+      }
+    }
+    
+    // Préparer la requête
+    final requestBody = {
+      'msisdn': msisdn,
+      'isdn': isdn,
+      'type': type,
+    };
+    
+    debugPrint('TopUp API - Consultation packages: $msisdn -> $isdn (type: $type)');
+    debugPrint('TopUp API - URL: $baseUrl/packages');
+    debugPrint('TopUp API - Payload: ${json.encode(requestBody)}');
+    
+    // Exécuter la requête avec retry
+    final response = await _executeWithRetry(() async {
+      return await _client.post(
+        Uri.parse('$baseUrl/packages'),
+        headers: _headers,
+        body: json.encode(requestBody),
+      ).timeout(_timeout);
+    });
+    
+    // Traiter la réponse
+    debugPrint('TopUp API - Statut HTTP: ${response.statusCode}');
+    
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      debugPrint('TopUp API - Parsing packages avec format standard...');
+      
+      // Mettre en cache la réponse (5 minutes pour les packages)
+      if (useCache) {
+        await _cacheResponse(cacheKey, responseData, const Duration(minutes: 5));
+      }
+      
+      try {
+        final packageResponse = TopUpPackageResponse.fromJson(responseData);
+        debugPrint('TopUp API - Succès: ${packageResponse.success}, Packages: ${packageResponse.totalPackages}');
+        
+        if (!packageResponse.success) {
+          debugPrint('TopUp API - ÉCHEC packages: ${packageResponse.message}');
+        }
+        
+        return packageResponse;
+      } catch (e) {
+        debugPrint('TopUp API - ERREUR PARSING packages: $e');
+        debugPrint('TopUp API - Données problématiques: $responseData');
+        rethrow;
+      }
+    } else {
+      debugPrint('TopUp API - Erreur HTTP packages: ${response.statusCode} - ${response.body}');
+      throw TopUpException.fromResponse(response);
+    }
+  }
   
   /// Exécute une requête avec retry automatique
   Future<http.Response> _executeWithRetry(Future<http.Response> Function() operation) async {

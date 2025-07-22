@@ -7,7 +7,9 @@ import '../../models/topup_balance.dart';
 import '../../services/topup_api_service.dart';
 import '../../services/user_session.dart';
 import '../../services/topup_session.dart';
-import '../../exceptions/topup_exception.dart'; 
+import '../../exceptions/topup_exception.dart';
+import '../../routes/custom_route_transitions.dart';
+import 'topup_package_screen.dart'; 
 
 class TopUpHomeScreen extends StatefulWidget {
   const TopUpHomeScreen({super.key});
@@ -206,7 +208,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
       backgroundColor: AppTheme.backgroundGrey,
       appBar: AppBar(
         title: const Text(
-          'TopUp - Soldes Fixes',
+          'Ma ligne',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -245,6 +247,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               // Résultats (toujours affichés s'ils existent)
               if (_balanceResponse != null) ...[
                 _buildBalanceSummary(),
+                _buildExpirationInfo(),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
                 _buildActionButtons(),
               ],
@@ -431,7 +434,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Soldes TopUp',
+                        'Soldes Fix',
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(18),
                           fontWeight: FontWeight.bold,
@@ -447,25 +450,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                       ),
                     ],
                   ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(AppTheme.spacingS),
-                    vertical: ResponsiveSize.getHeight(4),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
-                  ),
-                  child: Text(
-                    '${response.totalBalances} solde${response.totalBalances > 1 ? 's' : ''}',
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(12),
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                ),
+                ), 
               ],
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
@@ -533,6 +518,40 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     );
   }
 
+  Widget _buildExpirationInfo() {
+    final response = _balanceResponse!;
+    
+    // Chercher les données prépayées (type data)
+    TopUpBalance? dataBalance;
+    try {
+      dataBalance = response.balances.firstWhere(
+        (balance) => balance.isDataType,
+      );
+    } catch (e) {
+      // Si aucune donnée trouvée, prendre le premier balance disponible
+      dataBalance = response.balances.isNotEmpty ? response.balances.first : null;
+    }
+
+    if (dataBalance == null || dataBalance.expireDateFormatted.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(
+        top: ResponsiveSize.getHeight(AppTheme.spacingS),
+        left: ResponsiveSize.getWidth(AppTheme.spacingM),
+        right: ResponsiveSize.getWidth(AppTheme.spacingM),
+      ),
+      child: Text(
+        "Expire le ${dataBalance.expireDateFormatted}",
+        style: TextStyle(
+          color: Colors.grey[600],
+          fontSize: ResponsiveSize.getFontSize(12),
+        ),
+      ),
+    );
+  }
+
   Widget _buildActionButtons() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -549,7 +568,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildActionButton(
                 icon: Icons.add_box,
@@ -562,12 +581,17 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 },
               ),
               _buildActionButton(
-                icon: Icons.wifi,
-                label: 'Forfait\nFixe',
+                icon: Icons.shopping_cart,
+                label: 'Acheter\npackages',
                 onTap: () {
-                  // TODO: Implémenter forfait fixe
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Forfait fixe - À implémenter')),
+                  Navigator.push(
+                    context,
+                    CustomRouteTransitions.slideRightRoute(
+                      page: TopUpPackageScreen(
+                        fixedNumber: _currentFixedNumber!,
+                        mobileNumber: _userMobile!,
+                      ),
+                    ),
                   );
                 },
               ),

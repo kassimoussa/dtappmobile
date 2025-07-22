@@ -240,4 +240,273 @@ class TopUpBalanceDetails {
     };
   }
 }
- 
+
+// TopUp Package Models
+class TopUpPackageResponse {
+  final bool success;
+  final String message;
+  final String msisdn;
+  final String isdn;
+  final int type;
+  final String typeDescription;
+  final String returnCode;
+  final String description;
+  final List<TopUpPackage> packages;
+  final int totalPackages;
+  final TopUpPackageSummary summary;
+  final TopUpPackageDetails details;
+
+  TopUpPackageResponse({
+    required this.success,
+    required this.message,
+    required this.msisdn,
+    required this.isdn,
+    required this.type,
+    required this.typeDescription,
+    required this.returnCode,
+    required this.description,
+    required this.packages,
+    required this.totalPackages,
+    required this.summary,
+    required this.details,
+  });
+
+  factory TopUpPackageResponse.fromJson(Map<String, dynamic> json) {
+    return TopUpPackageResponse(
+      success: json['success'] ?? false,
+      message: json['message'] ?? '',
+      msisdn: json['msisdn'] ?? '',
+      isdn: json['isdn'] ?? '',
+      type: int.parse(json['type']?.toString() ?? '0'),
+      typeDescription: json['type_description'] ?? '',
+      returnCode: json['return_code'] ?? '',
+      description: json['description'] ?? '',
+      packages: (json['packages'] as List<dynamic>?)
+          ?.map((item) => TopUpPackage.fromJson(item))
+          .toList() ?? [],
+      totalPackages: json['total_packages'] ?? 0,
+      summary: TopUpPackageSummary.fromJson(json['summary'] ?? {}),
+      details: TopUpPackageDetails.fromJson(json['details'] ?? {}),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'success': success,
+      'message': message,
+      'msisdn': msisdn,
+      'isdn': isdn,
+      'type': type.toString(),
+      'type_description': typeDescription,
+      'return_code': returnCode,
+      'description': description,
+      'packages': packages.map((package) => package.toJson()).toList(),
+      'total_packages': totalPackages,
+      'summary': summary.toJson(),
+      'details': details.toJson(),
+    };
+  }
+}
+
+class TopUpPackage {
+  final String packageCode;
+  final String description;
+  final String descriptionEn;
+  final int price;
+  final String formattedPrice;
+  final int validityDays;
+  final String formattedValidity;
+  final String profileCode;
+  final bool dataUnlimited;
+  final int dataQuantityGb;
+  final int voiceQuantityMinutes;
+  final int voiceFixedSeconds;
+  final int voiceMobileSeconds;
+  final bool voiceFixedUnlimited;
+  final String formattedData;
+  final String formattedVoice;
+  final String category;
+  final bool isAffordable;
+
+  TopUpPackage({
+    required this.packageCode,
+    required this.description,
+    required this.descriptionEn,
+    required this.price,
+    required this.formattedPrice,
+    required this.validityDays,
+    required this.formattedValidity,
+    required this.profileCode,
+    required this.dataUnlimited,
+    required this.dataQuantityGb,
+    required this.voiceQuantityMinutes,
+    required this.voiceFixedSeconds,
+    required this.voiceMobileSeconds,
+    required this.voiceFixedUnlimited,
+    required this.formattedData,
+    required this.formattedVoice,
+    required this.category,
+    required this.isAffordable,
+  });
+
+  factory TopUpPackage.fromJson(Map<String, dynamic> json) {
+    return TopUpPackage(
+      packageCode: json['package_code'] ?? '',
+      description: json['description'] ?? '',
+      descriptionEn: json['description_en'] ?? '',
+      price: json['price'] ?? 0,
+      formattedPrice: json['formatted_price'] ?? '',
+      validityDays: json['validity_days'] ?? 0,
+      formattedValidity: json['formatted_validity'] ?? '',
+      profileCode: json['profile_code'] ?? '',
+      dataUnlimited: json['data_unlimited'] ?? false,
+      dataQuantityGb: json['data_quantity_gb'] ?? 0,
+      voiceQuantityMinutes: json['voice_quantity_minutes'] ?? 0,
+      voiceFixedSeconds: json['voice_fixed_seconds'] ?? 0,
+      voiceMobileSeconds: json['voice_mobile_seconds'] ?? 0,
+      voiceFixedUnlimited: json['voice_fixed_unlimited'] ?? false,
+      formattedData: json['formatted_data'] ?? '',
+      formattedVoice: json['formatted_voice'] ?? '',
+      category: json['category'] ?? '',
+      isAffordable: json['is_affordable'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'package_code': packageCode,
+      'description': description,
+      'description_en': descriptionEn,
+      'price': price,
+      'formatted_price': formattedPrice,
+      'validity_days': validityDays,
+      'formatted_validity': formattedValidity,
+      'profile_code': profileCode,
+      'data_unlimited': dataUnlimited,
+      'data_quantity_gb': dataQuantityGb,
+      'voice_quantity_minutes': voiceQuantityMinutes,
+      'voice_fixed_seconds': voiceFixedSeconds,
+      'voice_mobile_seconds': voiceMobileSeconds,
+      'voice_fixed_unlimited': voiceFixedUnlimited,
+      'formatted_data': formattedData,
+      'formatted_voice': formattedVoice,
+      'category': category,
+      'is_affordable': isAffordable,
+    };
+  }
+
+  // Helpers pour l'interface utilisateur
+  bool get isDataPackage => dataQuantityGb > 0;
+  bool get isVoicePackage => voiceQuantityMinutes > 0;
+  
+  String get displayName => description.isNotEmpty ? description : packageCode;
+  
+  String get mainFeature {
+    if (isDataPackage) {
+      return formattedData;
+    } else if (isVoicePackage) {
+      return formattedVoice;
+    }
+    return 'Package';
+  }
+}
+
+class TopUpPackageSummary {
+  final int totalPackages;
+  final Map<String, int> categories;
+  final TopUpPriceRange priceRange;
+  final int affordablePackages;
+
+  TopUpPackageSummary({
+    required this.totalPackages,
+    required this.categories,
+    required this.priceRange,
+    required this.affordablePackages,
+  });
+
+  factory TopUpPackageSummary.fromJson(Map<String, dynamic> json) {
+    return TopUpPackageSummary(
+      totalPackages: json['total_packages'] ?? 0,
+      categories: Map<String, int>.from(json['categories'] ?? {}),
+      priceRange: TopUpPriceRange.fromJson(json['price_range'] ?? {}),
+      affordablePackages: json['affordable_packages'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total_packages': totalPackages,
+      'categories': categories,
+      'price_range': priceRange.toJson(),
+      'affordable_packages': affordablePackages,
+    };
+  }
+}
+
+class TopUpPriceRange {
+  final int min;
+  final int max;
+  final double average;
+
+  TopUpPriceRange({
+    required this.min,
+    required this.max,
+    required this.average,
+  });
+
+  factory TopUpPriceRange.fromJson(Map<String, dynamic> json) {
+    return TopUpPriceRange(
+      min: json['min'] ?? 0,
+      max: json['max'] ?? 0,
+      average: (json['average'] ?? 0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'min': min,
+      'max': max,
+      'average': average,
+    };
+  }
+}
+
+class TopUpPackageDetails {
+  final String msisdn;
+  final String isdn;
+  final int type;
+  final String requestTime;
+  final int totalPackages;
+  final String backendApi;
+
+  TopUpPackageDetails({
+    required this.msisdn,
+    required this.isdn,
+    required this.type,
+    required this.requestTime,
+    required this.totalPackages,
+    required this.backendApi,
+  });
+
+  factory TopUpPackageDetails.fromJson(Map<String, dynamic> json) {
+    return TopUpPackageDetails(
+      msisdn: json['msisdn'] ?? '',
+      isdn: json['isdn'] ?? '',
+      type: json['type'] ?? 0,
+      requestTime: json['request_time'] ?? '',
+      totalPackages: json['total_packages'] ?? 0,
+      backendApi: json['backend_api'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'msisdn': msisdn,
+      'isdn': isdn,
+      'type': type,
+      'request_time': requestTime,
+      'total_packages': totalPackages,
+      'backend_api': backendApi,
+    };
+  }
+}
