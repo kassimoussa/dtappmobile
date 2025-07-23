@@ -140,9 +140,12 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
       );
       
       debugPrint('TopUp - Réponse API: success=${response.success}, transaction=${response.transactionId}');
+      debugPrint('TopUp - commandExecuted=${response.commandExecuted}');
+      debugPrint('TopUp - message=${response.message}');
       
       if (mounted) {
-        if (response.success && response.commandExecuted) {
+        if (response.success) {
+          debugPrint('TopUp - Navigation vers success screen...');
           // Succès - naviguer vers l'écran de succès approprié
           final isSubscription = _isSubscription();
           
@@ -155,7 +158,6 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
                     mobileNumber: widget.mobileNumber,
                     fixedNumber: widget.fixedNumber,
                     ancienSolde: response.accountImpact?.balanceBefore ?? widget.soldeActuel,
-                    nouveauSolde: response.accountImpact?.balanceAfter ?? (widget.soldeActuel - widget.package.price),
                     transactionId: response.transactionId,
                   )
                 : TopUpSuccessScreen(
@@ -163,13 +165,13 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
                     mobileNumber: widget.mobileNumber,
                     fixedNumber: widget.fixedNumber,
                     ancienSolde: response.accountImpact?.balanceBefore ?? widget.soldeActuel,
-                    nouveauSolde: response.accountImpact?.balanceAfter ?? (widget.soldeActuel - widget.package.price),
                     transactionId: response.transactionId,
                   ),
             ),
           );
         } else {
           // Échec - afficher le message d'erreur de l'API
+          debugPrint('TopUp - Échec: success=${response.success}, commandExecuted=${response.commandExecuted}');
           final errorMessage = response.message.isNotEmpty 
               ? response.message 
               : 'Erreur lors de la souscription au package';

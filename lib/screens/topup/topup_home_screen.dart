@@ -60,6 +60,8 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
       // Récupérer les données de session
       final sessionData = await TopUpSession.getSessionData();
       
+      debugPrint('TopUp Home - Données session: ${sessionData['fixed']}');
+      
       setState(() {
         _userMobile = phoneNumber;
         _hasActiveSession = true;
@@ -68,6 +70,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
       
       // Charger automatiquement les soldes
       if (_currentFixedNumber != null && _userMobile != null) {
+        debugPrint('TopUp Home - Chargement soldes automatique pour: $_userMobile -> $_currentFixedNumber');
         await _loadBalancesFromSession();
       }
     } else {
@@ -79,7 +82,12 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   }
 
   Future<void> _loadBalancesFromSession() async {
-    if (_userMobile == null || _currentFixedNumber == null) return;
+    if (_userMobile == null || _currentFixedNumber == null) {
+      debugPrint('TopUp Home - Impossible de charger les soldes: mobile=$_userMobile, fixed=$_currentFixedNumber');
+      return;
+    }
+
+    debugPrint('TopUp Home - Début chargement soldes: $_userMobile -> $_currentFixedNumber');
 
     setState(() {
       _isLoading = true;
@@ -90,7 +98,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
       final response = await TopUpApi.instance.getBalances(
         msisdn: _userMobile!,
         isdn: _currentFixedNumber!,
-        useCache: true,
+        useCache: false, // Toujours faire un appel frais à l'ouverture de l'écran
       );
 
       setState(() {
