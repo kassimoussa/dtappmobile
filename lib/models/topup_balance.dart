@@ -510,3 +510,160 @@ class TopUpPackageDetails {
     };
   }
 }
+
+// TopUp Subscription Response Models
+class TopUpSubscriptionResponse {
+  final bool success;
+  final String message;
+  final String transactionId;
+  final bool commandExecuted;
+  final TopUpPackageInfo? packageInfo;
+  final TopUpAccountImpact? accountImpact;
+  final TopUpSubscriptionDetails details;
+
+  TopUpSubscriptionResponse({
+    required this.success,
+    required this.message,
+    required this.transactionId,
+    required this.commandExecuted,
+    this.packageInfo,
+    this.accountImpact,
+    required this.details,
+  });
+
+  factory TopUpSubscriptionResponse.fromJson(Map<String, dynamic> json) {
+    return TopUpSubscriptionResponse(
+      success: json['success'] ?? false,
+      message: json['message'] ?? '',
+      transactionId: json['transaction_id'] ?? '',
+      commandExecuted: json['command_executed'] ?? false,
+      packageInfo: json['package_info'] != null 
+          ? TopUpPackageInfo.fromJson(json['package_info']) 
+          : null,
+      accountImpact: json['account_impact'] != null 
+          ? TopUpAccountImpact.fromJson(json['account_impact']) 
+          : null,
+      details: TopUpSubscriptionDetails.fromJson(json['details'] ?? {}),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'success': success,
+      'message': message,
+      'transaction_id': transactionId,
+      'command_executed': commandExecuted,
+      'package_info': packageInfo?.toJson(),
+      'account_impact': accountImpact?.toJson(),
+      'details': details.toJson(),
+    };
+  }
+}
+
+class TopUpPackageInfo {
+  final String packageCode;
+  final String description;
+  final double price;
+  final String formattedPrice;
+
+  TopUpPackageInfo({
+    required this.packageCode,
+    required this.description,
+    required this.price,
+    required this.formattedPrice,
+  });
+
+  factory TopUpPackageInfo.fromJson(Map<String, dynamic> json) {
+    return TopUpPackageInfo(
+      packageCode: json['package_code'] ?? '',
+      description: json['description'] ?? '',
+      price: (json['price'] ?? 0).toDouble(),
+      formattedPrice: json['formatted_price'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'package_code': packageCode,
+      'description': description,
+      'price': price,
+      'formatted_price': formattedPrice,
+    };
+  }
+}
+
+class TopUpAccountImpact {
+  final double balanceBefore;
+  final double amountDeducted;
+  final double balanceAfter;
+  final String formattedBalanceAfter;
+
+  TopUpAccountImpact({
+    required this.balanceBefore,
+    required this.amountDeducted,
+    required this.balanceAfter,
+    required this.formattedBalanceAfter,
+  });
+
+  factory TopUpAccountImpact.fromJson(Map<String, dynamic> json) {
+    return TopUpAccountImpact(
+      balanceBefore: (json['balance_before'] ?? 0).toDouble(),
+      amountDeducted: (json['amount_deducted'] ?? 0).toDouble(),
+      balanceAfter: (json['balance_after'] ?? 0).toDouble(),
+      formattedBalanceAfter: json['formatted_balance_after'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'balance_before': balanceBefore,
+      'amount_deducted': amountDeducted,
+      'balance_after': balanceAfter,
+      'formatted_balance_after': formattedBalanceAfter,
+    };
+  }
+}
+
+class TopUpSubscriptionDetails {
+  final String msisdn;
+  final String isdn;
+  final String packageCode;
+  final String commandContent;
+  final int actionType;
+  final String executionTime;
+  final String backendApi;
+
+  TopUpSubscriptionDetails({
+    required this.msisdn,
+    required this.isdn,
+    required this.packageCode,
+    required this.commandContent,
+    required this.actionType,
+    required this.executionTime,
+    required this.backendApi,
+  });
+
+  factory TopUpSubscriptionDetails.fromJson(Map<String, dynamic> json) {
+    return TopUpSubscriptionDetails(
+      msisdn: json['msisdn'] ?? '',
+      isdn: json['isdn'] ?? '',
+      packageCode: json['package_code'] ?? '',
+      commandContent: json['command_content'] ?? '',
+      actionType: json['action_type'] ?? 0,
+      executionTime: json['execution_time'] ?? '',
+      backendApi: json['backend_api'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'msisdn': msisdn,
+      'isdn': isdn,
+      'package_code': packageCode,
+      'command_content': commandContent,
+      'action_type': actionType,
+      'execution_time': executionTime,
+      'backend_api': backendApi,
+    };
+  }
+}

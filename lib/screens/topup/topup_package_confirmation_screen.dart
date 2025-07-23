@@ -6,14 +6,19 @@ import '../../utils/responsive_size.dart';
 import '../../widgets/appbar_widget.dart';
 import '../../models/topup_balance.dart';
 import '../../services/user_session.dart';
+import '../../services/topup_api_service.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../extensions/color_extensions.dart';
+import '../../exceptions/topup_exception.dart';
+import 'topup_success_screen.dart';
+import 'topup_subscription_success_screen.dart';
 
 class TopUpPackageConfirmationScreen extends StatefulWidget {
   final TopUpPackage package;
   final String fixedNumber;
   final String mobileNumber;
   final double soldeActuel;
+  final int packageType;
 
   const TopUpPackageConfirmationScreen({
     super.key,
@@ -21,6 +26,7 @@ class TopUpPackageConfirmationScreen extends StatefulWidget {
     required this.fixedNumber,
     required this.mobileNumber,
     required this.soldeActuel,
+    required this.packageType,
   });
 
   @override
@@ -84,70 +90,105 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
     super.dispose();
   }
 
-  String get _purchaseTypeLabel => 'Achat de package TopUp';
+  String get _purchaseTypeLabel {
+    bool isSubscription = widget.packageType == 1 || widget.packageType == 2;
+    return isSubscription ? 'Achat de souscription TopUp' : 'Achat de package TopUp';
+  }
 
   IconData get _purchaseTypeIcon => Icons.add_shopping_cart;
 
   Color get _purchaseTypeColor => AppTheme.dtBlue;
 
+  bool _isSubscription() {
+    return widget.packageType == 1 || widget.packageType == 2;
+  }
+
+  String _getPackageSubTitle() {
+    if (widget.package.description.isNotEmpty) {
+      return widget.package.description;
+    }
+    
+    final isDataPackage = widget.package.isDataPackage;
+    if (_isSubscription()) {
+      return 'Souscription ${isDataPackage ? 'données' : 'voix'}';
+    } else {
+      return 'Package ${isDataPackage ? 'données' : 'voix'} additionnel';
+    }
+  }
+
   Future<void> _confirmerAchat() async {
     if (_isLoading) return;
+    
+    // Vérifier le solde avant de procéder
+    if (widget.package.price > widget.soldeActuel) {
+      _showErrorMessage('Solde insuffisant pour cet achat.');
+      return;
+    }
     
     setState(() {
       _isLoading = true;
     });
     
     try {
-      // TODO: Implémenter l'appel API pour souscrire au package TopUp
-      // await TopUpApi.subscribePackage(...)
+      debugPrint('TopUp - Début souscription package: ${widget.package.packageCode}');
       
-      // Simulation d'attente
-      await Future.delayed(const Duration(seconds: 2));
+      // Appel à l'API pour souscrire au package TopUp
+      final response = await TopUpApi.instance.subscribePackage(
+        msisdn: widget.mobileNumber,
+        isdn: widget.fixedNumber,
+        packageCode: widget.package.packageCode,
+      );
+      
+      debugPrint('TopUp - Réponse API: success=${response.success}, transaction=${response.transactionId}');
       
       if (mounted) {
-        // TODO: Remplacer par la vraie logique de succès/échec
-        bool success = true;
-        
-        if (success) {
-          // Succès - afficher message et retourner
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: ResponsiveSize.getWidth(8)),
-                  Expanded(
-                    child: Text(
-                      'Package ${widget.package.packageCode} souscrit avec succès !',
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(14),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+        if (response.success && response.commandExecuted) {
+          // Succès - naviguer vers l'écran de succès approprié
+          final isSubscription = _isSubscription();
+          
+          Navigator.pushReplacement(
+            context,
+            CustomRouteTransitions.fadeRoute(
+              page: isSubscription 
+                ? TopUpSubscriptionSuccessScreen(
+                    subscription: widget.package,
+                    mobileNumber: widget.mobileNumber,
+                    fixedNumber: widget.fixedNumber,
+                    ancienSolde: response.accountImpact?.balanceBefore ?? widget.soldeActuel,
+                    nouveauSolde: response.accountImpact?.balanceAfter ?? (widget.soldeActuel - widget.package.price),
+                    transactionId: response.transactionId,
+                  )
+                : TopUpSuccessScreen(
+                    package: widget.package,
+                    mobileNumber: widget.mobileNumber,
+                    fixedNumber: widget.fixedNumber,
+                    ancienSolde: response.accountImpact?.balanceBefore ?? widget.soldeActuel,
+                    nouveauSolde: response.accountImpact?.balanceAfter ?? (widget.soldeActuel - widget.package.price),
+                    transactionId: response.transactionId,
                   ),
-                ],
-              ),
-              backgroundColor: Colors.green[600],
-              duration: const Duration(seconds: 3),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
-              ),
             ),
           );
-          
-          // Retourner vers l'écran précédent
-          Navigator.of(context).pop();
-          Navigator.of(context).pop(); // Retourner vers la liste des packages
         } else {
-          _showErrorMessage('Erreur lors de la souscription au package');
+          // Échec - afficher le message d'erreur de l'API
+          final errorMessage = response.message.isNotEmpty 
+              ? response.message 
+              : 'Erreur lors de la souscription au package';
+          _showErrorMessage(errorMessage);
         }
       }
     } catch (e) {
+      debugPrint('TopUp - Erreur souscription: $e');
+      
       if (mounted) {
-        _showErrorMessage(
-          'Erreur de connexion: ${e.toString().replaceAll('Exception: ', '')}'
-        );
+        String errorMessage = 'Erreur de connexion';
+        
+        if (e is TopUpException) {
+          errorMessage = e.message;
+        } else {
+          errorMessage = 'Erreur inattendue: ${e.toString().replaceAll('Exception: ', '')}';
+        }
+        
+        _showErrorMessage(errorMessage);
       }
     } finally {
       if (mounted) {
@@ -340,9 +381,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
         SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
         
         Text(
-          widget.package.description.isNotEmpty 
-              ? widget.package.description 
-              : 'Package ${isDataPackage ? 'données' : 'voix'} additionnel',
+          _getPackageSubTitle(),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
@@ -371,15 +410,15 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
           // Afficher les détails selon le type
           if (widget.package.isDataPackage) ...[
             _buildDetailRow('Données', widget.package.formattedData),
-            if (widget.package.formattedValidity.isNotEmpty && widget.package.formattedValidity != 'Non spécifiée') ...[
+            if (_isSubscription() && widget.package.formattedValidity.isNotEmpty) ...[
               _buildDivider(),
-              _buildDetailRow('Validité', widget.package.formattedValidity),
+              _buildDetailRow('Validité', '${widget.package.formattedValidity} jours'),
             ],
           ] else if (widget.package.isVoicePackage) ...[
             _buildDetailRow('Minutes', widget.package.formattedVoice),
-            if (widget.package.formattedValidity.isNotEmpty && widget.package.formattedValidity != 'Non spécifiée') ...[
+            if (_isSubscription() && widget.package.formattedValidity.isNotEmpty) ...[
               _buildDivider(),
-              _buildDetailRow('Validité', widget.package.formattedValidity),
+              _buildDetailRow('Validité', '${widget.package.formattedValidity} jours'),
             ],
           ] else ...[
             _buildDetailRow('Contenu', widget.package.mainFeature),
@@ -572,7 +611,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
         
         Expanded(
           child: ElevatedButton(
-            onPressed: _isLoading ? null : _confirmerAchat,
+            onPressed: (_isLoading || widget.package.price > widget.soldeActuel) ? null : _confirmerAchat,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.dtBlue,
               foregroundColor: AppTheme.dtYellow,

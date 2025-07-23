@@ -7,9 +7,11 @@ import '../../models/topup_balance.dart';
 import '../../services/topup_api_service.dart';
 import '../../services/user_session.dart';
 import '../../services/topup_session.dart';
+import '../../services/balance_service.dart';
 import '../../exceptions/topup_exception.dart';
 import '../../routes/custom_route_transitions.dart';
-import 'topup_package_screen.dart'; 
+import 'topup_package_screen.dart';
+import 'topup_subscription_screen.dart'; 
 
 class TopUpHomeScreen extends StatefulWidget {
   const TopUpHomeScreen({super.key});
@@ -28,6 +30,9 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   String? _userMobile;
   String? _currentFixedNumber;
   bool _hasActiveSession = false;
+  
+  // Données du solde mobile depuis BalanceService (pour les achats seulement)
+  double _mobileSolde = 0.0;
 
   @override
   void initState() {
@@ -44,6 +49,9 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   Future<void> _loadUserData() async {
     // Charger le numéro mobile de l'utilisateur
     final phoneNumber = await UserSession.getPhoneNumber();
+    
+    // Charger le solde mobile depuis BalanceService
+    await _loadMobileBalance();
     
     // Vérifier s'il y a une session TopUp active
     final hasSession = await TopUpSession.hasActiveSession();
@@ -98,6 +106,23 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
           _errorMessage = 'Une erreur inattendue est survenue';
         }
       });
+    }
+  }
+
+  Future<void> _loadMobileBalance() async {
+    try {
+      // Utiliser le service pour charger le solde mobile (comme dans HomeScreen)
+      final data = await BalanceService.getCurrentBalance();
+
+      if (mounted && data['solde'] != null) {
+        // La valeur est stockée en centimes, donc diviser par 100 pour obtenir en DJF
+        _mobileSolde = double.tryParse(data['solde']) != null
+            ? double.parse(data['solde']) / 100
+            : 0.0;
+      }
+    } catch (e) {
+      debugPrint('Erreur lors du chargement du solde mobile pour TopUp: $e');
+      _mobileSolde = 0.0;
     }
   }
 
@@ -571,12 +596,18 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildActionButton(
-                icon: Icons.add_box,
-                label: 'Recharge\nTopUp',
+                icon: Icons.subscriptions,
+                label: 'Acheter une\nsouscription',
                 onTap: () {
-                  // TODO: Implémenter recharge TopUp
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Recharge TopUp - À implémenter')),
+                  Navigator.push(
+                    context,
+                    CustomRouteTransitions.slideRightRoute(
+                      page: TopUpSubscriptionScreen(
+                        fixedNumber: _currentFixedNumber!,
+                        mobileNumber: _userMobile!,
+                        soldeActuel: _mobileSolde, // Utilise le solde mobile depuis BalanceService
+                      ),
+                    ),
                   );
                 },
               ),
@@ -590,6 +621,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                       page: TopUpPackageScreen(
                         fixedNumber: _currentFixedNumber!,
                         mobileNumber: _userMobile!,
+                        soldeActuel: _mobileSolde, // Utilise le solde mobile depuis BalanceService
                       ),
                     ),
                   );

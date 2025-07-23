@@ -176,7 +176,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                widget.packageType == 4 ? Icons.data_usage : Icons.phone_in_talk,
+                _getPackageIcon(),
                 size: ResponsiveSize.getFontSize(80),
                 color: AppTheme.dtBlue.withOpacity(0.6),
               ),
@@ -307,7 +307,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: !package.isAffordable 
+                      onPressed: package.price > widget.soldeActuel 
                           ? null 
                           : () => _navigateToConfirmation(package),
                       style: ElevatedButton.styleFrom(
@@ -323,7 +323,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
                           borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
                         ),
                       ),
-                      child: !package.isAffordable
+                      child: package.price > widget.soldeActuel
                           ? Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -333,7 +333,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
                                 ),
                                 SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingXS)),
                                 Text(
-                                  'Indisponible',
+                                  'Solde insuffisant',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: ResponsiveSize.getFontSize(14),
@@ -360,13 +360,20 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
   }
 
   Widget _buildPackageDetails(TopUpPackage package) {
+    // Déterminer si c'est une souscription (types 1 et 2) ou un package additionnel (types 4 et 6)
+    bool isSubscription = _isSubscriptionType();
+    
     if (package.isDataPackage) {
-      return _buildDataPackageDetails(package);
+      return _buildDataPackageDetails(package, isSubscription);
     } else if (package.isVoicePackage) {
-      return _buildVoicePackageDetails(package);
+      return _buildVoicePackageDetails(package, isSubscription);
     } else {
       return _buildGenericPackageDetails(package);
     }
+  }
+
+  bool _isSubscriptionType() {
+    return widget.packageType == 1 || widget.packageType == 2;
   }
 
   Widget _buildDetailItem(IconData icon, String text) {
@@ -393,7 +400,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
     );
   }
 
-  Widget _buildDataPackageDetails(TopUpPackage package) {
+  Widget _buildDataPackageDetails(TopUpPackage package, bool isSubscription) {
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
@@ -401,11 +408,23 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
         borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
         border: Border.all(color: Colors.blue[200]!),
       ),
-      child: _buildDetailItem(Icons.data_usage, package.formattedData),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildDetailItem(Icons.data_usage, package.formattedData),
+          ),
+          if (isSubscription && package.formattedValidity.isNotEmpty && package.formattedValidity != 'Non spécifiée') ...[ 
+            SizedBox(width: ResponsiveSize.getWidth(8)),
+            Expanded(
+              child: _buildDetailItem(Icons.schedule, '${package.formattedValidity} jours'),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
-  Widget _buildVoicePackageDetails(TopUpPackage package) {
+  Widget _buildVoicePackageDetails(TopUpPackage package, bool isSubscription) {
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
@@ -413,7 +432,19 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
         borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
         border: Border.all(color: Colors.orange[200]!),
       ),
-      child: _buildDetailItem(Icons.phone, package.formattedVoice),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildDetailItem(Icons.phone, package.formattedVoice),
+          ),
+          if (isSubscription && package.formattedValidity.isNotEmpty && package.formattedValidity != 'Non spécifiée') ...[ 
+            SizedBox(width: ResponsiveSize.getWidth(8)),
+            Expanded(
+              child: _buildDetailItem(Icons.schedule, '${package.formattedValidity} jours'),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -428,6 +459,19 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
     );
   }
 
+  IconData _getPackageIcon() {
+    switch (widget.packageType) {
+      case 1: // Souscription voix
+      case 6: // Package voix additionnel
+        return Icons.phone_in_talk;
+      case 2: // Souscription données
+      case 4: // Package données additionnel
+        return Icons.data_usage;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
   void _navigateToConfirmation(TopUpPackage package) {
     Navigator.push(
       context,
@@ -437,6 +481,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
           fixedNumber: widget.fixedNumber,
           mobileNumber: widget.mobileNumber,
           soldeActuel: widget.soldeActuel,
+          packageType: widget.packageType,
         ),
       ),
     );
@@ -465,7 +510,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
               _buildDetailRow('Minutes', package.formattedVoice),
             if (package.formattedValidity.isNotEmpty && package.formattedValidity != 'Non spécifiée')
               _buildDetailRow('Validité', package.formattedValidity),
-            _buildDetailRow('Disponibilité', package.isAffordable ? 'Disponible' : 'Indisponible'),
+            _buildDetailRow('Disponibilité', package.price <= widget.soldeActuel ? 'Disponible' : 'Solde insuffisant'),
           ],
         ),
         actions: [
@@ -476,7 +521,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
               style: TextStyle(color: AppTheme.dtBlue),
             ),
           ),
-          if (package.isAffordable)
+          if (package.price <= widget.soldeActuel)
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();

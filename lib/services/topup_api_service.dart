@@ -109,6 +109,81 @@ class TopUpApiService {
     }
   }
 
+  /// Souscrit à un package TopUp
+  Future<TopUpSubscriptionResponse> subscribePackage({
+    required String msisdn,
+    required String isdn,
+    required String packageCode,
+    String? pincode,
+    String? transactionId,
+  }) async {
+    // Validation des entrées
+    TopUpValidator.validateMobile(msisdn);
+    TopUpValidator.validateFixed(isdn);
+    
+    if (packageCode.isEmpty) {
+      throw TopUpException.validationError('Le code du package est requis');
+    }
+    
+    // Préparer la requête
+    final requestBody = {
+      'msisdn': msisdn,
+      'isdn': isdn,
+      'package_code': packageCode,
+    };
+    
+    // Ajouter les paramètres optionnels
+    if (pincode != null && pincode.isNotEmpty) {
+      requestBody['pincode'] = pincode;
+    }
+    
+    if (transactionId != null && transactionId.isNotEmpty) {
+      requestBody['transaction_id'] = transactionId;
+    } else {
+      // Générer un ID de transaction automatiquement
+      requestBody['transaction_id'] = 'dtapp${DateTime.now().millisecondsSinceEpoch}${DateTime.now().microsecond}';
+    }
+    
+    debugPrint('TopUp API - Souscription package: $msisdn -> $isdn ($packageCode)');
+    debugPrint('TopUp API - URL: $baseUrl/subscribe-package');
+    debugPrint('TopUp API - Payload: ${json.encode(requestBody)}');
+    
+    // Exécuter la requête avec retry
+    final response = await _executeWithRetry(() async {
+      return await _client.post(
+        Uri.parse('$baseUrl/subscribe-package'),
+        headers: _headers,
+        body: json.encode(requestBody),
+      ).timeout(_timeout);
+    });
+    
+    // Traiter la réponse
+    debugPrint('TopUp API - Statut HTTP: ${response.statusCode}');
+    
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      debugPrint('TopUp API - Parsing souscription avec format standard...');
+      
+      try {
+        final subscriptionResponse = TopUpSubscriptionResponse.fromJson(responseData);
+        debugPrint('TopUp API - Souscription: Succès=${subscriptionResponse.success}, Transaction=${subscriptionResponse.transactionId}');
+        
+        if (!subscriptionResponse.success) {
+          debugPrint('TopUp API - ÉCHEC souscription: ${subscriptionResponse.message}');
+        }
+        
+        return subscriptionResponse;
+      } catch (e) {
+        debugPrint('TopUp API - ERREUR PARSING souscription: $e');
+        debugPrint('TopUp API - Données problématiques: $responseData');
+        rethrow;
+      }
+    } else {
+      debugPrint('TopUp API - Erreur HTTP souscription: ${response.statusCode} - ${response.body}');
+      throw TopUpException.fromResponse(response);
+    }
+  }
+
   /// Récupère les packages disponibles pour un numéro fixe
   Future<TopUpPackageResponse> getPackages({
     required String msisdn,
@@ -120,9 +195,9 @@ class TopUpApiService {
     TopUpValidator.validateMobile(msisdn);
     TopUpValidator.validateFixed(isdn);
     
-    // Valider le type (4 = données, 6 = voix)
-    if (type != 4 && type != 6) {
-      throw TopUpException.validationError('Type de package invalide. Utilisez 4 pour données ou 6 pour voix');
+    // Valider le type (1 = souscription voix, 2 = souscription données, 4 = package données, 6 = package voix)
+    if (type != 1 && type != 2 && type != 4 && type != 6) {
+      throw TopUpException.validationError('Type invalide. Utilisez 1 (souscription voix), 2 (souscription données), 4 (package données) ou 6 (package voix)');
     }
     
     final cacheKey = 'packages_${msisdn}_${isdn}_$type';
