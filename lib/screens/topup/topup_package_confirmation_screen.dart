@@ -132,7 +132,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
     try {
       debugPrint('TopUp - Début souscription package: ${widget.package.packageCode}');
       
-      // Appel à l'API pour souscrire au package TopUp
+      // Appel à l'API pour souscrire au package TopUp (le statut a déjà été vérifié)
       final response = await TopUpApi.instance.subscribePackage(
         msisdn: widget.mobileNumber,
         isdn: widget.fixedNumber,

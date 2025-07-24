@@ -104,7 +104,18 @@ class TopUpApiService {
         rethrow;
       }
     } else {
-      debugPrint('TopUp API - Erreur HTTP: ${response.statusCode} - ${response.body}');
+      debugPrint('TopUp API - Erreur HTTP balances: ${response.statusCode}');
+      debugPrint('TopUp API - Corps erreur: ${response.body}');
+      
+      // Essayer de parser l'erreur pour plus de détails
+      try {
+        final errorData = json.decode(response.body);
+        debugPrint('TopUp API - Erreur parsée: ${errorData['erreur']} - ${errorData['message']}');
+        debugPrint('TopUp API - Return code: ${errorData['returnCode']}');
+      } catch (e) {
+        debugPrint('TopUp API - Impossible de parser l\'erreur: $e');
+      }
+      
       throw TopUpException.fromResponse(response);
     }
   }
@@ -180,6 +191,54 @@ class TopUpApiService {
       }
     } else {
       debugPrint('TopUp API - Erreur HTTP souscription: ${response.statusCode} - ${response.body}');
+      throw TopUpException.fromResponse(response);
+    }
+  }
+
+  /// Vérifie le statut d'un numéro fixe pour la recharge
+  Future<Map<String, dynamic>> getStatusForRecharge({
+    required String isdn,
+  }) async {
+    // Validation des entrées
+    TopUpValidator.validateFixed(isdn);
+    
+    // Préparer la requête
+    final requestBody = {
+      'isdn': isdn,
+    };
+    
+    debugPrint('TopUp API - Vérification statut: $isdn');
+    debugPrint('TopUp API - URL: $baseUrl/status');
+    debugPrint('TopUp API - Payload: ${json.encode(requestBody)}');
+    
+    // Exécuter la requête avec retry
+    final response = await _executeWithRetry(() async {
+      return await _client.post(
+        Uri.parse('$baseUrl/status'),
+        headers: _headers,
+        body: json.encode(requestBody),
+      ).timeout(_timeout);
+    });
+    
+    // Traiter la réponse
+    debugPrint('TopUp API - Statut HTTP: ${response.statusCode}');
+    
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      debugPrint('TopUp API - Parsing statut avec format standard...');
+      
+      try {
+        debugPrint('TopUp API - Réponse statut complète: ${json.encode(responseData)}');
+        debugPrint('TopUp API - Statut: ${responseData['status']?['eligible']} - ${responseData['status']?['status_text']}');
+        debugPrint('TopUp API - Return code: ${responseData['return_code']} - ${responseData['description']}');
+        return responseData;
+      } catch (e) {
+        debugPrint('TopUp API - ERREUR PARSING statut: $e');
+        debugPrint('TopUp API - Données problématiques: $responseData');
+        rethrow;
+      }
+    } else {
+      debugPrint('TopUp API - Erreur HTTP statut: ${response.statusCode} - ${response.body}');
       throw TopUpException.fromResponse(response);
     }
   }

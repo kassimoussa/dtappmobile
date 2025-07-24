@@ -27,6 +27,8 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   TopUpBalanceResponse? _balanceResponse;
   bool _isLoading = false;
   String? _errorMessage;
+  Map<String, dynamic>? _numberStatus;
+  bool _isNumberSuspended = false;
   String? _userMobile;
   String? _currentFixedNumber;
   bool _hasActiveSession = false;
@@ -87,33 +89,245 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
       return;
     }
 
-    debugPrint('TopUp Home - Début chargement soldes: $_userMobile -> $_currentFixedNumber');
+    debugPrint('TopUp Home - Début chargement parallèle statut/soldes: $_userMobile -> $_currentFixedNumber');
 
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _isNumberSuspended = false;
     });
 
     try {
-      final response = await TopUpApi.instance.getBalances(
-        msisdn: _userMobile!,
-        isdn: _currentFixedNumber!,
-        useCache: false, // Toujours faire un appel frais à l'ouverture de l'écran
-      );
+      // Récupérer le statut et les soldes en parallèle
+      final results = await Future.wait([
+        TopUpApi.instance.getStatusForRecharge(isdn: _currentFixedNumber!),
+        TopUpApi.instance.getBalances(
+          msisdn: _userMobile!,
+          isdn: _currentFixedNumber!,
+          useCache: false,
+        ),
+      ]);
+
+      final statusResponse = results[0] as Map<String, dynamic>;
+      final balanceResponse = results[1] as TopUpBalanceResponse;
+
+      // Traiter le statut
+      _processNumberStatus(statusResponse);
 
       setState(() {
-        _balanceResponse = response;
+        _balanceResponse = balanceResponse;
         _isLoading = false;
       });
+
+      // Ne plus afficher automatiquement le dialogue - il apparaîtra au clic sur les boutons
+
     } catch (e) {
+      debugPrint('TopUp Home - Erreur chargement: $e');
+      
       setState(() {
         _isLoading = false;
         if (e is TopUpException) {
           _errorMessage = e.userFriendlyMessage;
+          debugPrint('TopUp Home - Erreur type: ${e.returnCode} - ${e.userFriendlyMessage}');
         } else {
           _errorMessage = 'Une erreur inattendue est survenue';
         }
       });
+    }
+  }
+
+  void _processNumberStatus(Map<String, dynamic> statusResponse) {
+    final success = statusResponse['success'] ?? false;
+    final returnCode = statusResponse['return_code'] ?? '';
+    final description = statusResponse['description'] ?? '';
+    final status = statusResponse['status'];
+    
+    debugPrint('TopUp Home - Traitement statut: success=$success, return_code=$returnCode');
+    
+    if (status != null) {
+      final eligible = status['eligible'] ?? false;
+      final statusText = status['status_text'] ?? 'Statut inconnu';
+      final reason = status['reason'] ?? '';
+      final rawDescription = status['raw_description'] ?? description;
+      
+      debugPrint('TopUp Home - Statut détaillé: eligible=$eligible, status=$statusText');
+      debugPrint('TopUp Home - Description: $rawDescription');
+      
+      _numberStatus = statusResponse;
+      _isNumberSuspended = !eligible;
+    }
+  }
+
+  void _showSuspendedDialog() {
+    if (_numberStatus == null) return;
+    
+    final status = _numberStatus!['status'];
+    final description = _numberStatus!['description'] ?? '';
+    final rawDescription = status?['raw_description'] ?? description;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              Text(
+                'Numéro suspendu',
+                style: TextStyle(
+                  fontSize: ResponsiveSize.getFontSize(18),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                rawDescription.isNotEmpty 
+                    ? rawDescription 
+                    : 'Ce numéro est temporairement suspendu.',
+                style: TextStyle(
+                  fontSize: ResponsiveSize.getFontSize(16),
+                ),
+              ),
+              SizedBox(height: ResponsiveSize.getHeight(16)),
+              Container(
+                padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
+                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                    SizedBox(width: ResponsiveSize.getWidth(8)),
+                    Expanded(
+                      child: Text(
+                        'Vous pouvez consulter les soldes mais les achats sont temporairement indisponibles.',
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(14),
+                          color: Colors.orange[800],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Compris',
+                style: TextStyle(
+                  fontSize: ResponsiveSize.getFontSize(16),
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.dtBlue,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _checkNumberStatusFirst() async {
+    if (_currentFixedNumber == null) return false;
+
+    try {
+      debugPrint('TopUp Home - Vérification statut du numéro: $_currentFixedNumber');
+      
+      final statusResponse = await TopUpApi.instance.getStatusForRecharge(
+        isdn: _currentFixedNumber!,
+      );
+      
+      final success = statusResponse['success'] ?? false;
+      final returnCode = statusResponse['return_code'] ?? '';
+      final description = statusResponse['description'] ?? '';
+      final status = statusResponse['status'];
+      
+      if (status != null) {
+        final eligible = status['eligible'] ?? false;
+        final statusText = status['status_text'] ?? 'Statut inconnu';
+        final reason = status['reason'] ?? '';
+        final rawDescription = status['raw_description'] ?? description;
+        
+        debugPrint('TopUp Home - Statut API: success=$success, return_code=$returnCode');
+        debugPrint('TopUp Home - Statut numéro: eligible=$eligible, status=$statusText, reason=$reason');
+        debugPrint('TopUp Home - Description: $rawDescription');
+        
+        if (!eligible) {
+          // Numéro non éligible - afficher l'erreur et arrêter le chargement
+          setState(() {
+            _isLoading = false;
+            _errorMessage = rawDescription.isNotEmpty 
+                ? rawDescription 
+                : '$statusText${reason.isNotEmpty ? ' - $reason' : ''}';
+          });
+          return false;
+        }
+        
+        // Numéro éligible, continuer avec le chargement des soldes
+        return true;
+      }
+      
+      // Pas de statut dans la réponse, essayer quand même
+      return true;
+    } catch (e) {
+      debugPrint('TopUp Home - Erreur vérification statut: $e');
+      // En cas d'erreur de vérification, essayer quand même de charger les soldes
+      return true;
+    }
+  }
+
+  Future<void> _checkNumberStatus() async {
+    if (_currentFixedNumber == null) return;
+
+    try {
+      debugPrint('TopUp Home - Vérification statut du numéro: $_currentFixedNumber');
+      
+      final statusResponse = await TopUpApi.instance.getStatusForRecharge(
+        isdn: _currentFixedNumber!,
+      );
+      
+      final success = statusResponse['success'] ?? false;
+      final returnCode = statusResponse['return_code'] ?? '';
+      final description = statusResponse['description'] ?? '';
+      final status = statusResponse['status'];
+      
+      if (status != null) {
+        final eligible = status['eligible'] ?? false;
+        final statusText = status['status_text'] ?? 'Statut inconnu';
+        final reason = status['reason'] ?? '';
+        final rawDescription = status['raw_description'] ?? description;
+        
+        debugPrint('TopUp Home - Statut API: success=$success, return_code=$returnCode');
+        debugPrint('TopUp Home - Statut numéro: eligible=$eligible, status=$statusText, reason=$reason');
+        debugPrint('TopUp Home - Description: $rawDescription');
+        
+        // Mettre à jour le message d'erreur avec plus de détails
+        setState(() {
+          if (eligible) {
+            _errorMessage = 'Le numéro est éligible mais les soldes sont indisponibles. Réessayez plus tard.';
+          } else {
+            // Utiliser la description brute pour plus de précision
+            _errorMessage = rawDescription.isNotEmpty 
+                ? rawDescription 
+                : '$statusText${reason.isNotEmpty ? ' - $reason' : ''}';
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('TopUp Home - Erreur vérification statut: $e');
+      // Ne pas changer le message d'erreur existant si la vérification de statut échoue
     }
   }
 
@@ -569,18 +783,61 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
       return const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: EdgeInsets.only(
+    // Vérifier si la date est expirée
+    final now = DateTime.now();
+    final isExpired = dataBalance.isExpired;
+    final isExpiringSoon = dataBalance.isExpiringSoon;
+    
+    Color textColor = Colors.grey[600]!;
+    Color? backgroundColor;
+    
+    if (isExpired) {
+      textColor = Colors.red[700]!;
+      backgroundColor = Colors.red[50];
+    } else if (isExpiringSoon) {
+      textColor = Colors.orange[700]!;
+      backgroundColor = Colors.orange[50];
+    }
+
+    return Container(
+      margin: EdgeInsets.only(
         top: ResponsiveSize.getHeight(AppTheme.spacingS),
         left: ResponsiveSize.getWidth(AppTheme.spacingM),
         right: ResponsiveSize.getWidth(AppTheme.spacingM),
       ),
-      child: Text(
-        "Expire le ${dataBalance.expireDateFormatted}",
-        style: TextStyle(
-          color: Colors.grey[600],
-          fontSize: ResponsiveSize.getFontSize(12),
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveSize.getWidth(8),
+        vertical: ResponsiveSize.getHeight(4),
+      ),
+      decoration: backgroundColor != null ? BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(4)),
+        border: Border.all(
+          color: textColor.withOpacity(0.3),
+          width: 1,
         ),
+      ) : null,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isExpired) ...[
+            Icon(Icons.warning_amber, color: textColor, size: 14),
+            SizedBox(width: ResponsiveSize.getWidth(4)),
+          ] else if (isExpiringSoon) ...[
+            Icon(Icons.schedule, color: textColor, size: 14),
+            SizedBox(width: ResponsiveSize.getWidth(4)),
+          ],
+          Text(
+            isExpired 
+                ? "Expiré le ${dataBalance.expireDateFormatted}"
+                : "Expire le ${dataBalance.expireDateFormatted}",
+            style: TextStyle(
+              color: textColor,
+              fontSize: ResponsiveSize.getFontSize(12),
+              fontWeight: isExpired || isExpiringSoon ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -607,32 +864,40 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 icon: Icons.subscriptions,
                 label: 'Acheter une\nsouscription',
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    CustomRouteTransitions.slideRightRoute(
-                      page: TopUpSubscriptionScreen(
-                        fixedNumber: _currentFixedNumber!,
-                        mobileNumber: _userMobile!,
-                        soldeActuel: _mobileSolde, // Utilise le solde mobile depuis BalanceService
+                  if (_isNumberSuspended) {
+                    _showSuspendedDialog();
+                  } else {
+                    Navigator.push(
+                      context,
+                      CustomRouteTransitions.slideRightRoute(
+                        page: TopUpSubscriptionScreen(
+                          fixedNumber: _currentFixedNumber!,
+                          mobileNumber: _userMobile!,
+                          soldeActuel: _mobileSolde, // Utilise le solde mobile depuis BalanceService
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 },
               ),
               _buildActionButton(
                 icon: Icons.shopping_cart,
                 label: 'Acheter\npackages',
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    CustomRouteTransitions.slideRightRoute(
-                      page: TopUpPackageScreen(
-                        fixedNumber: _currentFixedNumber!,
-                        mobileNumber: _userMobile!,
-                        soldeActuel: _mobileSolde, // Utilise le solde mobile depuis BalanceService
+                  if (_isNumberSuspended) {
+                    _showSuspendedDialog();
+                  } else {
+                    Navigator.push(
+                      context,
+                      CustomRouteTransitions.slideRightRoute(
+                        page: TopUpPackageScreen(
+                          fixedNumber: _currentFixedNumber!,
+                          mobileNumber: _userMobile!,
+                          soldeActuel: _mobileSolde, // Utilise le solde mobile depuis BalanceService
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 },
               ),
               _buildActionButton(
