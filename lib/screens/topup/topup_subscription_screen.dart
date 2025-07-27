@@ -5,6 +5,10 @@ import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../widgets/appbar_widget.dart';
 import '../../routes/custom_route_transitions.dart';
+import '../../models/topup_balance.dart';
+import '../../services/topup_api_service.dart';
+import '../../services/topup_session.dart';
+import '../../exceptions/topup_exception.dart';
 import 'topup_package_list_screen.dart';
 
 class TopUpSubscriptionScreen extends StatefulWidget {
@@ -24,6 +28,186 @@ class TopUpSubscriptionScreen extends StatefulWidget {
 }
 
 class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
+  TopUpBalanceResponse? _balanceResponse;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBalances();
+  }
+
+  Future<void> _loadBalances() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await TopUpApi.instance.getBalances(
+        msisdn: widget.mobileNumber,
+        isdn: widget.fixedNumber,
+        useCache: false,
+      );
+
+      setState(() {
+        _balanceResponse = response;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('TopUp Subscription - Erreur chargement soldes: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  bool _hasActiveSubscription(String type) {
+    if (_balanceResponse == null) return false;
+
+    // Chercher une souscription active du type demandé (données ou voix)
+    for (final balance in _balanceResponse!.balances) {
+      if ((type == 'data' && balance.isDataType) || 
+          (type == 'voice' && balance.isVoiceType)) {
+        // Vérifier si la souscription n'expire pas bientôt (plus de 3 jours)
+        if (balance.isActive && !balance.isExpiringSoon) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  String _getExpirationInfo(String type) {
+    if (_balanceResponse == null) return '';
+
+    for (final balance in _balanceResponse!.balances) {
+      if ((type == 'data' && balance.isDataType) || 
+          (type == 'voice' && balance.isVoiceType)) {
+        if (balance.isActive && !balance.isExpiringSoon) {
+          return balance.expireDateFormatted;
+        }
+      }
+    }
+    return '';
+  }
+
+  void _showActiveSubscriptionDialog(String type, VoidCallback onContinue) {
+    final subscriptionType = type == 'data' ? 'données' : 'voix';
+    final expirationDate = _getExpirationInfo(type);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              Expanded(
+                child: Text(
+                  'Souscription active',
+                  style: TextStyle(
+                    fontSize: ResponsiveSize.getFontSize(18),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Vous avez déjà une souscription $subscriptionType active qui expire le $expirationDate.',
+                style: TextStyle(
+                  fontSize: ResponsiveSize.getFontSize(16),
+                ),
+              ),
+              SizedBox(height: ResponsiveSize.getHeight(16)),
+              Container(
+                padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
+                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                    SizedBox(width: ResponsiveSize.getWidth(8)),
+                    Expanded(
+                      child: Text(
+                        'Acheter une nouvelle souscription remplacera l\'actuelle. Voulez-vous continuer ?',
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(14),
+                          color: Colors.orange[800],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Annuler',
+                style: TextStyle(
+                  fontSize: ResponsiveSize.getFontSize(16),
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                onContinue();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.dtBlue,
+                foregroundColor: AppTheme.dtYellow,
+              ),
+              child: Text(
+                'Continuer',
+                style: TextStyle(
+                  fontSize: ResponsiveSize.getFontSize(16),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _navigateToSubscriptionList(int packageType, String typeLabel, String type) {
+    void proceedToNavigation() {
+      Navigator.push(
+        context,
+        CustomRouteTransitions.slideRightRoute(
+          page: TopUpPackageListScreen(
+            fixedNumber: widget.fixedNumber,
+            mobileNumber: widget.mobileNumber,
+            packageType: packageType,
+            typeLabel: typeLabel,
+            soldeActuel: widget.soldeActuel,
+          ),
+        ),
+      );
+    }
+
+    if (_hasActiveSubscription(type)) {
+      _showActiveSubscriptionDialog(type, proceedToNavigation);
+    } else {
+      proceedToNavigation();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
@@ -57,8 +241,26 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
 
                   SizedBox(height: ResponsiveSize.getHeight(24)),
 
-                  // Options de souscriptions
-                  Row(
+                  // Indicateur de chargement
+                  if (_isLoading) ...[
+                    Center(
+                      child: Column(
+                        children: [
+                          CircularProgressIndicator(color: AppTheme.dtBlue),
+                          SizedBox(height: ResponsiveSize.getHeight(16)),
+                          Text(
+                            'Vérification des souscriptions actives...',
+                            style: TextStyle(
+                              fontSize: ResponsiveSize.getFontSize(14),
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    // Options de souscriptions
+                    Row(
                     children: [
                       Expanded(
                         child: _buildOptionCard(
@@ -67,17 +269,10 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
                           AppTheme.dtBlue2,
                           Icons.data_usage,
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              CustomRouteTransitions.slideRightRoute(
-                                page: TopUpPackageListScreen(
-                                  fixedNumber: widget.fixedNumber,
-                                  mobileNumber: widget.mobileNumber,
-                                  packageType: 2, // Type 2 = données souscription
-                                  typeLabel: 'Souscriptions Données',
-                                  soldeActuel: widget.soldeActuel,
-                                ),
-                              ),
+                            _navigateToSubscriptionList(
+                              2, // Type 2 = données souscription
+                              'Souscriptions Données',
+                              'data',
                             );
                           },
                         ),
@@ -90,23 +285,17 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
                           AppTheme.dtBlue2,
                           Icons.phone_in_talk,
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              CustomRouteTransitions.slideRightRoute(
-                                page: TopUpPackageListScreen(
-                                  fixedNumber: widget.fixedNumber,
-                                  mobileNumber: widget.mobileNumber,
-                                  packageType: 1, // Type 1 = voix souscription
-                                  typeLabel: 'Souscriptions Voix',
-                                  soldeActuel: widget.soldeActuel,
-                                ),
-                              ),
+                            _navigateToSubscriptionList(
+                              1, // Type 1 = voix souscription
+                              'Souscriptions Voix',
+                              'voice',
                             );
                           },
                         ),
                       ),
                     ],
                   ),
+                  ], // Fermeture du else
                 ],
               ),
             ),

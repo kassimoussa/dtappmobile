@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 class RefillApiTest extends StatefulWidget {
+  const RefillApiTest({super.key});
+
   @override
   _RefillApiTestState createState() => _RefillApiTestState();
 }
@@ -89,18 +91,18 @@ class _RefillApiTestState extends State<RefillApiTest> {
               children: [
                 ElevatedButton(
                   onPressed: isLoading ? null : () => testRefillVoucher(),
-                  child: Text('Recharger'),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  child: Text('Recharger'),
                 ),
                 ElevatedButton(
                   onPressed: isLoading ? null : () => testCheckVoucher(),
-                  child: Text('Vérifier Voucher'),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                  child: Text('Vérifier Voucher'),
                 ),
                 ElevatedButton(
                   onPressed: isLoading ? null : () => testGetTypes(),
-                  child: Text('Types Refill'),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  child: Text('Types Refill'),
                 ),
               ],
             ),
@@ -308,7 +310,7 @@ class _RefillApiTestState extends State<RefillApiTest> {
     buffer.writeln('🌐 Status Code: ${response.statusCode}');
     buffer.writeln('📊 Status: ${_getStatusText(response.statusCode)}');
     buffer.writeln('⏰ Timestamp: ${DateTime.now().toIso8601String()}');
-    buffer.writeln('${'='*50}');
+    buffer.writeln('='*50);
     
     try {
       // Tenter de parser le JSON pour un affichage formaté
@@ -370,7 +372,7 @@ class _RefillApiTestState extends State<RefillApiTest> {
         }
       }
       
-      buffer.writeln('${'='*50}');
+      buffer.writeln('='*50);
       buffer.writeln('📄 Réponse JSON complète:');
       buffer.writeln(JsonEncoder.withIndent('  ').convert(jsonData));
       

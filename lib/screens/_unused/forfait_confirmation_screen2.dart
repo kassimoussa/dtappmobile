@@ -3,7 +3,6 @@ import 'package:dtapp3/constants/app_theme.dart';
 import 'package:dtapp3/extensions/color_extensions.dart';
 import 'package:dtapp3/models/forfait.dart';
 import 'package:dtapp3/routes/custom_route_transitions.dart';
-import 'package:dtapp3/screens/_unused/forfaits_screen2.dart';
 import 'package:dtapp3/screens/achat_forfait/forfait_success_screen.dart';
 import 'package:dtapp3/services/purchase_offer_service.dart'; 
 import 'package:dtapp3/utils/responsive_size.dart';

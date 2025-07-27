@@ -243,6 +243,73 @@ class TopUpApiService {
     }
   }
 
+  /// Recharge un compte fixe avec un montant depuis le mobile
+  Future<Map<String, dynamic>> rechargeAccount({
+    required String msisdn,
+    required String isdn,
+    required double amount,
+    String? pincode,
+    String? transactionId,
+  }) async {
+    // Validation des entrées
+    TopUpValidator.validateMobile(msisdn);
+    TopUpValidator.validateFixed(isdn);
+    TopUpValidator.validateAmount(amount);
+    
+    // Préparer la requête
+    final requestBody = {
+      'msisdn': msisdn,
+      'isdn': isdn,
+      'amount': amount,
+    };
+    
+    // Ajouter les paramètres optionnels
+    if (pincode != null && pincode.isNotEmpty) {
+      requestBody['pincode'] = pincode;
+    }
+    
+    if (transactionId != null && transactionId.isNotEmpty) {
+      requestBody['transaction_id'] = transactionId;
+    } else {
+      // Générer un ID de transaction automatiquement
+      requestBody['transaction_id'] = 'dtapp${DateTime.now().millisecondsSinceEpoch}${DateTime.now().microsecond}';
+    }
+    
+    debugPrint('TopUp API - Recharge compte: $msisdn -> $isdn (${amount.toStringAsFixed(0)} DJF)');
+    debugPrint('TopUp API - URL: $baseUrl/recharge-account');
+    debugPrint('TopUp API - Payload: ${json.encode(requestBody)}');
+    
+    // Exécuter la requête avec retry
+    final response = await _executeWithRetry(() async {
+      return await _client.post(
+        Uri.parse('$baseUrl/recharge-account'),
+        headers: _headers,
+        body: json.encode(requestBody),
+      ).timeout(_timeout);
+    });
+    
+    // Traiter la réponse
+    debugPrint('TopUp API - Statut HTTP: ${response.statusCode}');
+    
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      debugPrint('TopUp API - Parsing recharge avec format standard...');
+      
+      try {
+        debugPrint('TopUp API - Recharge: Succès=${responseData['success']}, Transaction=${responseData['transaction_id']}');
+        debugPrint('TopUp API - Impact compte: ${responseData['account_impact']}');
+        return responseData;
+      } catch (e) {
+        debugPrint('TopUp API - ERREUR PARSING recharge: $e');
+        debugPrint('TopUp API - Données problématiques: $responseData');
+        rethrow;
+      }
+    } else {
+      debugPrint('TopUp API - Erreur HTTP recharge: ${response.statusCode} - ${response.body}');
+      throw TopUpException.fromResponse(response);
+    }
+  }
+
   /// Récupère les packages disponibles pour un numéro fixe
   Future<TopUpPackageResponse> getPackages({
     required String msisdn,

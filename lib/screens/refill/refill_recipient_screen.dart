@@ -4,7 +4,6 @@ import 'package:dtapp3/screens/refill/refill_code_screen.dart';
 import 'package:dtapp3/utils/responsive_size.dart';
 import 'package:dtapp3/widgets/appbar_widget.dart';
 import 'package:dtapp3/widgets/phone_number_selector.dart';
-import 'package:dtapp3/enums/purchase_enums.dart';
 import 'package:flutter/material.dart';
 
 class RefillRecipientScreen extends StatefulWidget {

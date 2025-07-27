@@ -11,7 +11,8 @@ import '../../services/balance_service.dart';
 import '../../exceptions/topup_exception.dart';
 import '../../routes/custom_route_transitions.dart';
 import 'topup_package_screen.dart';
-import 'topup_subscription_screen.dart'; 
+import 'topup_subscription_screen.dart';
+import 'topup_recharge_screen.dart'; 
 
 class TopUpHomeScreen extends StatefulWidget {
   const TopUpHomeScreen({super.key});
@@ -901,13 +902,23 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 },
               ),
               _buildActionButton(
-                icon: Icons.swap_horiz,
-                label: 'Transfert\nvers Fixe',
+                icon: Icons.account_balance_wallet,
+                label: 'Recharger\ncompte',
                 onTap: () {
-                  // TODO: Implémenter transfert vers fixe
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Transfert vers fixe - À implémenter')),
-                  );
+                  if (_isNumberSuspended) {
+                    _showSuspendedDialog();
+                  } else {
+                    Navigator.push(
+                      context,
+                      CustomRouteTransitions.slideRightRoute(
+                        page: TopUpRechargeScreen(
+                          fixedNumber: _currentFixedNumber!,
+                          mobileNumber: _userMobile!,
+                          soldeActuel: _mobileSolde,
+                        ),
+                      ),
+                    );
+                  }
                 },
               ),
               _buildActionButton(

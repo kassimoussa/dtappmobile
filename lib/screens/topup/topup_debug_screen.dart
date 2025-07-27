@@ -36,7 +36,7 @@ class _TopUpDebugScreenState extends State<TopUpDebugScreen> {
   bool _isLoading = false;
   String? _result;
   String? _error;
-  List<Map<String, dynamic>> _batchResults = [];
+  final List<Map<String, dynamic>> _batchResults = [];
 
   @override
   void dispose() {

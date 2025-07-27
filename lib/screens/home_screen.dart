@@ -3,11 +3,7 @@ import 'package:dtapp3/screens/achat_forfait/forfait_recipient_screen.dart';
 import 'package:dtapp3/screens/forfaits_actifs/forfaits_actifs_screen.dart';
 import 'package:dtapp3/screens/login_screen.dart';
 import 'package:dtapp3/screens/transfer_credit/transfer_input_screen.dart';
-import 'package:dtapp3/screens/my_line_screen.dart';
-import 'package:dtapp3/screens/refill/refill_api%C3%A8test.dart';
 import 'package:dtapp3/screens/refill/refill_recipient_screen.dart';
-import 'package:dtapp3/screens/test_forfait_success_screen.dart';
-import 'package:dtapp3/screens/topup/topup_home_screen.dart';
 import 'package:dtapp3/services/balance_service.dart';
 import 'package:dtapp3/services/user_session.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Données statiques au lieu de l'USSD
   double _solde = 0.0;
   String _dateExpiration = 'N/A';
-  final double _bonus = 200.0;
+  double _bonus = 0.0;
   final bool _dataLoaded = true; // Toujours true maintenant
   bool _showMainBalance = false;
   bool _showBonusBalance = false;
@@ -134,6 +130,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Extraire la date d'expiration (date de supervision)
           _dateExpiration = data['date_supervision'] ?? 'N/A';
+          
+          // Extraire le solde bonus depuis le compte dédié ID 5
+          if (data['comptes_dedies'] != null) {
+            final comptesDedies = data['comptes_dedies'] as List;
+            final compteBonus = comptesDedies.firstWhere(
+              (compte) => compte['id'] == 5,
+              orElse: () => null,
+            );
+            if (compteBonus != null) {
+              // Convertir la valeur depuis centimes vers DJF (diviser par 100)
+              _bonus = double.tryParse(compteBonus['valeur']?.toString() ?? '0') != null
+                  ? double.parse(compteBonus['valeur'].toString()) / 100
+                  : 0.0;
+            }
+          }
+          
           _isLoadingBalance = false;
         });
       }
@@ -184,8 +196,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: _buildAccountCard(
                       icon: Icons.add_card,
-                      label: 'Solde D-Money',
-                      balance: '0',
+                      label: 'Solde Bonus',
+                      balance: "${_bonus.toStringAsFixed(2)} DJF",
                       showBalance: _showBonusBalance,
                       onToggleVisibility:
                           () => setState(
