@@ -195,7 +195,14 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
         
         if (result.containsKey('status')) {
           if (result['status'] == 'success') {
-            await UserSession.createSession(widget.phone);
+            // Extraire le session_token de la réponse API
+            final sessionToken = result['data']?['session_token'];
+            
+            // Créer la session avec le token
+            await UserSession.createSession(widget.phone, sessionToken: sessionToken);
+            
+            debugPrint('Session créée avec token: ${sessionToken?.substring(0, 10)}...');
+            
             if (!mounted) return;
             Navigator.of(context).pushAndRemoveUntil(
               CustomRouteTransitions.fadeScaleRoute(

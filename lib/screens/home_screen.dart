@@ -6,6 +6,7 @@ import 'package:dtapp3/screens/transfer_credit/transfer_input_screen.dart';
 import 'package:dtapp3/screens/refill/refill_recipient_screen.dart';
 import 'package:dtapp3/services/balance_service.dart';
 import 'package:dtapp3/services/user_session.dart';
+import 'package:dtapp3/services/logout_service.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
@@ -584,19 +585,34 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Text('Annuler'),
             ),
             TextButton(
-              onPressed: () {
-                // Effectuer la déconnexion
-                UserSession.clearSession();
-                // Fermer la boîte de dialogue
+              onPressed: () async {
+                // Fermer d'abord la boîte de dialogue
                 Navigator.of(context).pop();
-                // Rediriger vers l'écran de connexion
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder:
-                        (context) =>
-                            const LoginScreen(), // Ajustez selon votre écran de connexion
+                
+                // Afficher un indicateur de chargement
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => const Center(
+                    child: CircularProgressIndicator(),
                   ),
                 );
+                
+                // Effectuer la déconnexion complète (API + local)
+                final success = await LogoutService.logout();
+                
+                // Fermer l'indicateur de chargement
+                if (mounted) Navigator.of(context).pop();
+                
+                // Rediriger vers l'écran de connexion
+                if (mounted && success) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                    (route) => false,
+                  );
+                }
               },
               child: const Text(
                 'Déconnecter',

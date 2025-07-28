@@ -10,6 +10,7 @@ class UserSession {
   static const String _lastActivityTimeKey = 'last_activity_time';
   static const String _lastUsedPhoneKey = 'last_used_phone';
   static const String _isAppRunningKey = 'is_app_running';
+  static const String _sessionTokenKey = 'session_token';
   
   // Durée d'inactivité tolérée en minutes (après mise en arrière-plan)
   static const int _inactivityTimeoutMinutes = 10;
@@ -19,9 +20,10 @@ class UserSession {
   static bool _cachedIsAuthenticated = false;
   static DateTime? _cachedLastActivityTime;
   static String? _cachedLastUsedPhone;
+  static String? _cachedSessionToken;
   
   /// Enregistre les informations de session après la vérification OTP réussie
-  static Future<void> createSession(String phoneNumber) async {
+  static Future<void> createSession(String phoneNumber, {String? sessionToken}) async {
     final prefs = await SharedPreferences.getInstance();
     
     // Enregistrer l'heure actuelle comme dernière activité
@@ -34,6 +36,12 @@ class UserSession {
     await prefs.setInt(_lastActivityTimeKey, activityTimestamp);
     await prefs.setBool(_isAppRunningKey, true);
     
+    // Enregistrer le session token si fourni
+    if (sessionToken != null) {
+      await prefs.setString(_sessionTokenKey, sessionToken);
+      _cachedSessionToken = sessionToken;
+    }
+    
     // Stocker également comme dernier numéro utilisé
     await prefs.setString(_lastUsedPhoneKey, phoneNumber);
     
@@ -43,7 +51,7 @@ class UserSession {
     _cachedLastActivityTime = now;
     _cachedLastUsedPhone = phoneNumber;
     
-    debugPrint('Session créée pour le numéro: $phoneNumber à $now');
+    debugPrint('Session créée pour le numéro: $phoneNumber à $now${sessionToken != null ? ' avec token' : ''}');
   }
   
   /// Met à jour le timestamp de dernière activité
@@ -170,6 +178,28 @@ class UserSession {
     return phoneNumber;
   }
   
+  /// Récupère le session token de l'utilisateur connecté
+  /// Retourne null si l'utilisateur n'est pas authentifié ou si aucun token n'existe
+  static Future<String?> getSessionToken() async {
+    // Si la session a expiré, on renvoie null
+    if (!await isAuthenticated()) {
+      return null;
+    }
+    
+    // Utiliser la valeur en cache si disponible
+    if (_cachedSessionToken != null) {
+      return _cachedSessionToken;
+    }
+    
+    final prefs = await SharedPreferences.getInstance();
+    final sessionToken = prefs.getString(_sessionTokenKey);
+    
+    // Mettre à jour le cache
+    _cachedSessionToken = sessionToken;
+    
+    return sessionToken;
+  }
+  
   /// Récupère le dernier numéro de téléphone utilisé, même si la session a expiré
   /// Utile pour pré-remplir le champ de téléphone lors de la reconnexion
   static Future<String?> getLastUsedPhoneNumber() async {
@@ -207,11 +237,13 @@ class UserSession {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_isAuthenticatedKey);
     await prefs.remove(_lastActivityTimeKey);
+    await prefs.remove(_sessionTokenKey);
     // Ne pas supprimer _lastUsedPhoneKey ni _phoneNumberKey pour permettre une reconnexion facile
     
     // Réinitialiser le cache
     _cachedIsAuthenticated = false;
     _cachedLastActivityTime = null;
+    _cachedSessionToken = null;
     
     debugPrint('Session utilisateur terminée');
   }
@@ -225,12 +257,14 @@ class UserSession {
     await prefs.remove(_lastActivityTimeKey);
     await prefs.remove(_lastUsedPhoneKey);
     await prefs.remove(_isAppRunningKey);
+    await prefs.remove(_sessionTokenKey);
     
     // Réinitialiser tout le cache
     _cachedPhoneNumber = null;
     _cachedIsAuthenticated = false;
     _cachedLastActivityTime = null;
     _cachedLastUsedPhone = null;
+    _cachedSessionToken = null;
     
     debugPrint('Toutes les données utilisateur supprimées');
   }
