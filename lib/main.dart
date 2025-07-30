@@ -1,4 +1,4 @@
-import 'package:dtapp3/services/user_session.dart';
+import 'package:dtservices/services/user_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart'; 
@@ -89,7 +89,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     UserSession.updateActivity();
     
     return MaterialApp(
-      title: 'DT Mobile',
+      title: 'DTServices',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: const Color(0xFF002464),

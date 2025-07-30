@@ -1,11 +1,11 @@
 {
-    "name": "dtapp3",
-    "short_name": "dtapp3",
+    "name": "DTServices",
+    "short_name": "DTServices",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "DTServices - Application mobile pour les services Djibouti Telecom",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

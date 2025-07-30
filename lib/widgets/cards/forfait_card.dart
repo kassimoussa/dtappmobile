@@ -1,11 +1,11 @@
 // lib/widgets/cards/forfait_card.dart 
-import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/enums/purchase_enums.dart';
-import 'package:dtapp3/extensions/color_extensions.dart';
-import 'package:dtapp3/models/forfait.dart';
-import 'package:dtapp3/routes/custom_route_transitions.dart';
-import 'package:dtapp3/screens/achat_forfait/forfait_confirmation_screen.dart';
-import 'package:dtapp3/utils/responsive_size.dart';
+import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/enums/purchase_enums.dart';
+import 'package:dtservices/extensions/color_extensions.dart';
+import 'package:dtservices/models/forfait.dart';
+import 'package:dtservices/routes/custom_route_transitions.dart';
+import 'package:dtservices/screens/achat_forfait/forfait_confirmation_screen.dart';
+import 'package:dtservices/utils/responsive_size.dart';
 import 'package:flutter/material.dart'; 
 
 class ForfaitCard extends StatefulWidget {

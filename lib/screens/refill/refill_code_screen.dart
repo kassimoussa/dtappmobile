@@ -1,9 +1,9 @@
-import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/screens/home_screen.dart';
-import 'package:dtapp3/utils/responsive_size.dart';
-import 'package:dtapp3/widgets/appbar_widget.dart';
-import 'package:dtapp3/services/refill_service.dart';
-import 'package:dtapp3/models/refill_models.dart';
+import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/screens/home_screen.dart';
+import 'package:dtservices/utils/responsive_size.dart';
+import 'package:dtservices/widgets/appbar_widget.dart';
+import 'package:dtservices/services/refill_service.dart';
+import 'package:dtservices/models/refill_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

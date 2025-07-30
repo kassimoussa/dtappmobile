@@ -1,9 +1,9 @@
-import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/screens/transfer_credit/transfer_confirmation_screen.dart';
-import 'package:dtapp3/utils/responsive_size.dart';
-import 'package:dtapp3/utils/phone_number_validator.dart';
-import 'package:dtapp3/widgets/appbar_widget.dart';
-import 'package:dtapp3/widgets/phone_number_selector.dart';
+import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/screens/transfer_credit/transfer_confirmation_screen.dart';
+import 'package:dtservices/utils/responsive_size.dart';
+import 'package:dtservices/utils/phone_number_validator.dart';
+import 'package:dtservices/widgets/appbar_widget.dart';
+import 'package:dtservices/widgets/phone_number_selector.dart';
 import 'package:flutter/material.dart';
 
 class TransferInputScreen extends StatefulWidget {

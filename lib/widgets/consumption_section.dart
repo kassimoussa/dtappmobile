@@ -1,7 +1,7 @@
 // lib/widgets/consumption_section.dart
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
-// import 'package:dtapp3/screens/history_page.dart';
+// import 'package:dtservices/screens/history_page.dart';
 
 class ConsumptionSection extends StatelessWidget {
   const ConsumptionSection({super.key});

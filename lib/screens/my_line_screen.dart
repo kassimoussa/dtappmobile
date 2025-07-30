@@ -1,14 +1,14 @@
 // lib/pages/my_line_page.dart
-import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/screens/home_screen.dart';
-import 'package:dtapp3/utils/responsive_size.dart';
-import 'package:dtapp3/widgets/balance_card.dart';
-import 'package:dtapp3/widgets/bills_section.dart';
-import 'package:dtapp3/widgets/consumption_section.dart';
-import 'package:dtapp3/widgets/fixed_line_info_card.dart';
-import 'package:dtapp3/widgets/fixed_line_input.dart';
-import 'package:dtapp3/widgets/line_info_header.dart';
-import 'package:dtapp3/widgets/packages_section.dart';
+import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/screens/home_screen.dart';
+import 'package:dtservices/utils/responsive_size.dart';
+import 'package:dtservices/widgets/balance_card.dart';
+import 'package:dtservices/widgets/bills_section.dart';
+import 'package:dtservices/widgets/consumption_section.dart';
+import 'package:dtservices/widgets/fixed_line_info_card.dart';
+import 'package:dtservices/widgets/fixed_line_input.dart';
+import 'package:dtservices/widgets/line_info_header.dart';
+import 'package:dtservices/widgets/packages_section.dart';
 import 'package:flutter/material.dart'; 
 
 class MyLineScreen extends StatefulWidget {

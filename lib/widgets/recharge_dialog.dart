@@ -1,6 +1,6 @@
 // lib/widgets/recharge_dialog.dart
 import 'package:flutter/material.dart';
-import 'package:dtapp3/widgets/recharge_confirmation_dialog.dart';
+import 'package:dtservices/widgets/recharge_confirmation_dialog.dart';
 
 class RechargeDialog extends StatefulWidget {
   const RechargeDialog({super.key});

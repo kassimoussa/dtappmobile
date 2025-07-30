@@ -1,12 +1,14 @@
 // lib/screens/home_screen.dart 
-import 'package:dtapp3/screens/achat_forfait/forfait_recipient_screen.dart';
-import 'package:dtapp3/screens/forfaits_actifs/forfaits_actifs_screen.dart';
-import 'package:dtapp3/screens/login_screen.dart';
-import 'package:dtapp3/screens/transfer_credit/transfer_input_screen.dart';
-import 'package:dtapp3/screens/refill/refill_recipient_screen.dart';
-import 'package:dtapp3/services/balance_service.dart';
-import 'package:dtapp3/services/user_session.dart';
-import 'package:dtapp3/services/logout_service.dart';
+import 'package:dtservices/screens/achat_forfait/forfait_recipient_screen.dart';
+import 'package:dtservices/screens/forfaits_actifs/forfaits_actifs_screen.dart';
+import 'package:dtservices/screens/login_screen.dart';
+import 'package:dtservices/screens/transfer_credit/transfer_input_screen.dart';
+import 'package:dtservices/screens/refill/refill_recipient_screen.dart';
+import 'package:dtservices/services/balance_service.dart';
+import 'package:dtservices/services/user_session.dart';
+import 'package:dtservices/services/logout_service.dart';
+import 'profile_screen.dart';
+import 'search_screen.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
@@ -259,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             child: Text(
-              'DTAPP',
+              'DTServices',
               style: TextStyle(
                 color: AppTheme.dtBlue,
                 fontWeight: FontWeight.bold,
@@ -276,54 +278,25 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.white,
             size: ResponsiveSize.getFontSize(22),
           ),
-          onPressed: () => _showComingSoonDialog('Recherche'),
-        ),
-        Stack(
-          alignment: Alignment.topRight,
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.notifications_none,
-                color: Colors.white,
-                size: ResponsiveSize.getFontSize(22),
-              ),
-              onPressed: () => _showComingSoonDialog('Notifications'),
-            ),
-            Positioned(
-              right: 6,
-              top: 6,
-              child: Container(
-                padding: EdgeInsets.all(
-                  ResponsiveSize.getWidth(AppTheme.spacingXS),
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.dtYellow,
-                  borderRadius: BorderRadius.circular(
-                    ResponsiveSize.getWidth(10),
-                  ),
-                ),
-                child: Text(
-                  '3',
-                  style: TextStyle(
-                    color: AppTheme.dtBlue,
-                    fontSize: ResponsiveSize.getFontSize(10),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SearchScreen()),
+          ),
         ),
         Row(
           children: [
-            // Bouton des paramètres original
+            // Bouton profil
             IconButton(
               icon: Icon(
-                Icons.settings,
+                Icons.person,
                 color: Colors.white,
                 size: ResponsiveSize.getFontSize(22),
               ),
-              onPressed: () => _showComingSoonDialog('Paramètres'),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              ),
+              tooltip: 'Mon Profil',
             ),
             // Bouton de déconnexion
             IconButton(
@@ -480,23 +453,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        SizedBox(height: 10),
-        /* Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildActionButton(
-              icon: Icons.add,
-              label: 'Test recharge',
-              onTap: () => Navigator.push(
-                    context,
-                    CustomRouteTransitions.slideRightRoute(
-                      page: RefillApiTest()
-                    ),
-                  ),
-            ),
-
-        ],
-        ) */
       ],
     );
   }
@@ -531,44 +487,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  void _showComingSoonDialog(String feature) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(
-              feature,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(18),
-                fontWeight: FontWeight.bold,
-                color: AppTheme.dtBlue,
-              ),
-            ),
-            content: Text(
-              'Cette fonctionnalité sera bientôt disponible.',
-              style: TextStyle(fontSize: ResponsiveSize.getFontSize(16)),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  'OK',
-                  style: TextStyle(
-                    color: AppTheme.dtBlue,
-                    fontSize: ResponsiveSize.getFontSize(16),
-                  ),
-                ),
-              ),
-            ],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                ResponsiveSize.getWidth(AppTheme.radiusM),
-              ),
-            ),
-          ),
     );
   }
 

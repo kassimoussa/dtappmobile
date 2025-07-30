@@ -1,7 +1,7 @@
-import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/extensions/color_extensions.dart';
-import 'package:dtapp3/screens/home_screen.dart';
-import 'package:dtapp3/utils/responsive_size.dart';
+import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/extensions/color_extensions.dart';
+import 'package:dtservices/screens/main_screen.dart';
+import 'package:dtservices/utils/responsive_size.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -90,7 +90,7 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
   void _redirectToHome() {
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
+      MaterialPageRoute(builder: (context) => const MainScreen()),
       (route) => false,
     );
   }

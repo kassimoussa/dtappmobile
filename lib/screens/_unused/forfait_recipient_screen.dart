@@ -1,9 +1,9 @@
 // lib/screens/forfait_recipient_screen.dart
-import 'package:dtapp3/constants/app_theme.dart'; 
-import 'package:dtapp3/routes/custom_route_transitions.dart';
-import 'package:dtapp3/screens/_unused/forfait_autre_numero_screen.dart';
-import 'package:dtapp3/screens/achat_forfait/forfait_categories_screen.dart';  
-import 'package:dtapp3/widgets/appbar_widget.dart'; 
+import 'package:dtservices/constants/app_theme.dart'; 
+import 'package:dtservices/routes/custom_route_transitions.dart';
+import 'package:dtservices/screens/_unused/forfait_autre_numero_screen.dart';
+import 'package:dtservices/screens/achat_forfait/forfait_categories_screen.dart';  
+import 'package:dtservices/widgets/appbar_widget.dart'; 
 import 'package:flutter/material.dart';
 
 class ForfaitRecipientScreen extends StatelessWidget { 

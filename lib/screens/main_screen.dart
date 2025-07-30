@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
 import 'home_screen.dart';
-import 'topup/topup_home_screen.dart';
-import 'my_line_screen.dart';
+import 'topup/home/topup_home_screen.dart';
+import 'history_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -55,23 +55,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _animationController.forward();
   }
 
-  void _showComingSoonDialog(String feature) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Bientôt disponible'),
-          content: Text('$feature sera bientôt disponible dans l\'application.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,121 +73,17 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           // Écran 0: Accueil
           const HomeScreen(),
           
-          // Écran 1: Historique (placeholder)
-          _buildPlaceholderScreen(
-            title: 'Historique',
-            icon: Icons.history,
-            description: 'Consultez l\'historique de vos transactions',
-            onTap: () => _showComingSoonDialog('Historique des transactions'),
-          ),
+          // Écran 1: Historique
+          const HistoryScreen(),
           
           // Écran 2: TopUp
           const TopUpHomeScreen(),
-          
-          // Écran 3: Ma ligne (placeholder pour maintenir la navigation)
-          _buildPlaceholderScreen(
-            title: 'Ma ligne',
-            icon: Icons.phone,
-            description: 'Gérez votre ligne fixe',
-            onTap: () {
-              // Navigation vers MyLineScreen comme avant
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MyLineScreen(phoneNumber: '77001011'),
-                ),
-              );
-            },
-          ),
         ],
       ),
       bottomNavigationBar: _buildAnimatedBottomNavigationBar(),
     );
   }
 
-  Widget _buildPlaceholderScreen({
-    required String title,
-    required IconData icon,
-    required String description,
-    required VoidCallback onTap,
-  }) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: AppTheme.dtBlue,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-      ),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingXL)),
-                decoration: BoxDecoration(
-                  color: AppTheme.dtBlue.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  size: ResponsiveSize.getFontSize(64),
-                  color: AppTheme.dtBlue,
-                ),
-              ),
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(24),
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.dtBlue,
-                ),
-              ),
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(16),
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              ElevatedButton(
-                onPressed: onTap,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.dtBlue,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
-                    vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-                  ),
-                ),
-                child: Text(
-                  'Accéder à $title',
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(16),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildAnimatedBottomNavigationBar() {
     return AnimatedBuilder(
@@ -246,10 +125,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               BottomNavigationBarItem(
                 icon: _buildAnimatedIcon(Icons.phone, 2),
                 label: 'TopUp',
-              ),
-              BottomNavigationBarItem(
-                icon: _buildAnimatedIcon(Icons.settings_phone, 3),
-                label: 'Ma ligne',
               ),
             ],
           ),

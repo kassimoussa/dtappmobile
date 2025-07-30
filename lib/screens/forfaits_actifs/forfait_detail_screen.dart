@@ -1,7 +1,7 @@
 // lib/screens/forfait_detail_screen.dart
-import 'package:dtapp3/models/forfait_actif2.dart';
-import 'package:dtapp3/services/forfait_actif_service.dart';
-import 'package:dtapp3/widgets/cards/progress_bar.dart';
+import 'package:dtservices/models/forfait_actif2.dart';
+import 'package:dtservices/services/forfait_actif_service.dart';
+import 'package:dtservices/widgets/cards/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

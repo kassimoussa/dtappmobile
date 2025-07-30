@@ -1,7 +1,7 @@
 
 // lib/widgets/balance_card.dart
 import 'package:flutter/material.dart';
-import 'package:dtapp3/widgets/recharge_dialog.dart';
+import 'package:dtservices/widgets/recharge_dialog.dart';
 
 class BalanceCard extends StatefulWidget {
   const BalanceCard({super.key});

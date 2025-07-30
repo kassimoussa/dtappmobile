@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.dtapp3"
+    namespace = "com.example.dtservices"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.13113456"
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.dtapp3"
+        applicationId = "com.example.dtservices"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

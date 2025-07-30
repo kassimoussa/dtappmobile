@@ -1,4 +1,4 @@
-package com.example.dtapp3
+package com.example.dtservices
 
 import io.flutter.embedding.android.FlutterActivity
 

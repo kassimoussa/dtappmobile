@@ -1,5 +1,5 @@
 // lib/widgets/package_selector_dialog.dart
-import 'package:dtapp3/widgets/package_payment_dialog.dart';
+import 'package:dtservices/widgets/package_payment_dialog.dart';
 import 'package:flutter/material.dart';
 
 class PackageSelectorDialog extends StatelessWidget {

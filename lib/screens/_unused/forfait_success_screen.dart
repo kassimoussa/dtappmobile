@@ -1,12 +1,12 @@
 // lib/screens/forfait_success_screen.dart
-import 'package:dtapp3/models/forfait.dart';
-import 'package:dtapp3/screens/home_screen.dart';
+import 'package:dtservices/models/forfait.dart';
+import 'package:dtservices/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/extensions/color_extensions.dart';
-import 'package:dtapp3/routes/custom_route_transitions.dart'; 
-import 'package:dtapp3/utils/responsive_size.dart'; 
+import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/extensions/color_extensions.dart';
+import 'package:dtservices/routes/custom_route_transitions.dart'; 
+import 'package:dtservices/utils/responsive_size.dart'; 
 
 class ForfaitSuccessScreen extends StatefulWidget {
   final Forfait forfait;

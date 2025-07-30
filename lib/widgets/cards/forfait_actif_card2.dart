@@ -1,6 +1,6 @@
 // lib/widgets/forfait_actif_card.dart
-import 'package:dtapp3/models/forfait_actif2.dart';
-import 'package:dtapp3/screens/forfaits_actifs/forfait_detail_screen.dart';
+import 'package:dtservices/models/forfait_actif2.dart';
+import 'package:dtservices/screens/forfaits_actifs/forfait_detail_screen.dart';
 import 'package:flutter/material.dart'; 
 import 'progress_bar.dart';
 import 'package:intl/intl.dart';

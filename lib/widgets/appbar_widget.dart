@@ -1,6 +1,6 @@
-import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/extensions/color_extensions.dart';
-import 'package:dtapp3/utils/responsive_size.dart';
+import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/extensions/color_extensions.dart';
+import 'package:dtservices/utils/responsive_size.dart';
 import 'package:flutter/material.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {

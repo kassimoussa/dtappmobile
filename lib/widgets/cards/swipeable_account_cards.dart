@@ -1,5 +1,5 @@
 // lib/widgets/swipeable_account_cards.dart
-import 'package:dtapp3/extensions/color_extensions.dart';
+import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/app_theme.dart';

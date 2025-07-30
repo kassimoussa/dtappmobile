@@ -1,5 +1,5 @@
 // lib/widgets/bill_payment_dialog.dart
-import 'package:dtapp3/widgets/bill_payment_confirmation_dialog.dart';
+import 'package:dtservices/widgets/bill_payment_confirmation_dialog.dart';
 import 'package:flutter/material.dart'; 
 
 class BillPaymentDialog extends StatefulWidget {

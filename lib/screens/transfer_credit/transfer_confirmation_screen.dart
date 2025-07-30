@@ -1,8 +1,9 @@
-import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/screens/transfer_credit/transfer_success_screen.dart';
-import 'package:dtapp3/services/transfer_credit_service.dart';
-import 'package:dtapp3/utils/responsive_size.dart';
-import 'package:dtapp3/widgets/appbar_widget.dart';
+import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/screens/transfer_credit/transfer_success_screen.dart';
+import 'package:dtservices/services/transfer_credit_service.dart';
+import 'package:dtservices/services/biometric_auth_service.dart';
+import 'package:dtservices/utils/responsive_size.dart';
+import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:flutter/material.dart';
 
 class TransferConfirmationScreen extends StatefulWidget {
@@ -290,6 +291,27 @@ class _TransferConfirmationScreenState extends State<TransferConfirmationScreen>
 
   void _processTransfer() async {
     if (_isLoading) return;
+    
+    // Demander l'authentification biométrique avant de procéder
+    final authResult = await BiometricAuthService.authenticateForTransfer(
+      amount: widget.amount,
+      currency: 'DJF',
+      recipient: widget.recipient,
+    );
+    
+    if (!authResult.success) {
+      // Authentification échouée
+      if (authResult.errorType != BiometricAuthErrorType.userCancel) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authResult.errorMessage ?? 'Authentification échouée'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+      return;
+    }
     
     setState(() {
       _isLoading = true;

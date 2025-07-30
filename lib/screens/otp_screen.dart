@@ -1,5 +1,5 @@
 // lib/screens/otp_screen.dart (modifié avec auto-fill SEULEMENT)
-import 'package:dtapp3/services/user_session.dart';
+import 'package:dtservices/services/user_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sms_autofill/sms_autofill.dart'; // AJOUT

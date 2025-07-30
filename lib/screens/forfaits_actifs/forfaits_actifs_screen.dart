@@ -1,7 +1,7 @@
 // lib/screens/forfaits_actifs_screen.dart
-import 'package:dtapp3/models/forfait_actif2.dart';
-import 'package:dtapp3/services/forfait_actif_service.dart';
-import 'package:dtapp3/widgets/cards/forfait_actif_card2.dart';
+import 'package:dtservices/models/forfait_actif2.dart';
+import 'package:dtservices/services/forfait_actif_service.dart';
+import 'package:dtservices/widgets/cards/forfait_actif_card2.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/app_theme.dart';

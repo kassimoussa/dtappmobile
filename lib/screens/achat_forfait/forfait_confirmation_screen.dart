@@ -1,13 +1,14 @@
 // lib/screens/forfait_confirmation_screen.dart
-import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/extensions/color_extensions.dart';
-import 'package:dtapp3/models/forfait.dart';
-import 'package:dtapp3/routes/custom_route_transitions.dart';
-import 'package:dtapp3/services/purchase_offer_service.dart';
-import 'package:dtapp3/services/user_session.dart';
-import 'package:dtapp3/utils/responsive_size.dart';
-import 'package:dtapp3/widgets/appbar_widget.dart';
-import 'package:dtapp3/enums/purchase_enums.dart';
+import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/extensions/color_extensions.dart';
+import 'package:dtservices/models/forfait.dart';
+import 'package:dtservices/routes/custom_route_transitions.dart';
+import 'package:dtservices/services/purchase_offer_service.dart';
+import 'package:dtservices/services/user_session.dart';
+import 'package:dtservices/services/biometric_auth_service.dart';
+import 'package:dtservices/utils/responsive_size.dart';
+import 'package:dtservices/widgets/appbar_widget.dart';
+import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:flutter/material.dart'; 
 import 'forfait_success_screen.dart';
 
@@ -131,6 +132,21 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
 
   Future<void> _confirmerAchat() async {
     if (_isLoading) return;
+    
+    // Demander l'authentification biométrique avant de procéder
+    final authResult = await BiometricAuthService.authenticateForPurchase(
+      itemName: widget.forfait.nom,
+      amount: widget.forfait.prix.toDouble(),
+      currency: 'DJF',
+    );
+    
+    if (!authResult.success) {
+      // Authentification échouée
+      if (authResult.errorType != BiometricAuthErrorType.userCancel) {
+        _showErrorMessage(authResult.errorMessage ?? 'Authentification échouée');
+      }
+      return;
+    }
     
     setState(() {
       _isLoading = true;

@@ -8,8 +8,8 @@ import '../services/topup_api_service.dart';
 import '../services/user_session.dart';
 import '../services/topup_session.dart';
 import '../exceptions/topup_exception.dart';
-import '../screens/topup/balance_inquiry_screen.dart';
-import '../screens/topup/topup_debug_screen.dart';
+import '../screens/topup/home/balance_inquiry_screen.dart';
+import '../screens/topup/debug/topup_debug_screen.dart';
 
 class TopUpContent extends StatefulWidget {
   const TopUpContent({super.key});

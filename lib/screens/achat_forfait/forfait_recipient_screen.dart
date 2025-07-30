@@ -1,11 +1,11 @@
 // lib/screens/forfait_recipient_screen.dart
-import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/routes/custom_route_transitions.dart';
-import 'package:dtapp3/screens/achat_forfait/forfait_categories_screen.dart'; 
-import 'package:dtapp3/utils/responsive_size.dart';
-import 'package:dtapp3/widgets/appbar_widget.dart';
-import 'package:dtapp3/widgets/phone_number_selector.dart';
-import 'package:dtapp3/enums/purchase_enums.dart';
+import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/routes/custom_route_transitions.dart';
+import 'package:dtservices/screens/achat_forfait/forfait_categories_screen.dart'; 
+import 'package:dtservices/utils/responsive_size.dart';
+import 'package:dtservices/widgets/appbar_widget.dart';
+import 'package:dtservices/widgets/phone_number_selector.dart';
+import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:flutter/material.dart';
 
 class ForfaitRecipientScreen extends StatefulWidget {

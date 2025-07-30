@@ -5,7 +5,7 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>Dtapp3</string>
+		<string>DTServices</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>dtapp3</string>
+		<string>DTServices</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -47,6 +47,8 @@
 		<true/>
 		<key>NSContactsUsageDescription</key>
 		<string>Cette application a besoin d'accéder à vos contacts pour vous permettre de sélectionner un destinataire.</string>
+		<key>NSFaceIDUsageDescription</key>
+		<string>Cette application utilise Face ID pour sécuriser vos achats et transferts.</string>
 		<key>NSLocalNetworkUsageDescription</key>
 		<string>This app needs access to the local network for debugging.</string>
 		<key>NSBonjourServices</key>

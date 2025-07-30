@@ -1,10 +1,10 @@
 // lib/screens/forfaits_screen.dart
-import 'package:dtapp3/constants/app_theme.dart';
-import 'package:dtapp3/extensions/color_extensions.dart';
-import 'package:dtapp3/models/forfait.dart'; 
-import 'package:dtapp3/utils/responsive_size.dart';
-import 'package:dtapp3/widgets/appbar_widget.dart';
-import 'package:dtapp3/widgets/cards/forfait_card.dart'; 
+import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/extensions/color_extensions.dart';
+import 'package:dtservices/models/forfait.dart'; 
+import 'package:dtservices/utils/responsive_size.dart';
+import 'package:dtservices/widgets/appbar_widget.dart';
+import 'package:dtservices/widgets/cards/forfait_card.dart'; 
 import 'package:flutter/material.dart';
 
 class ForfaitsScreen2 extends StatefulWidget {

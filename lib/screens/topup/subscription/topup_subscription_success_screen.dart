@@ -1,24 +1,24 @@
-// lib/screens/topup/topup_success_screen.dart
+// lib/screens/topup/topup_subscription_success_screen.dart
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import '../../constants/app_theme.dart';
-import '../../extensions/color_extensions.dart';
-import '../../models/topup_balance.dart';
-import '../../routes/custom_route_transitions.dart';
-import '../../utils/responsive_size.dart';
-import '../main_screen.dart';
+import '../../../constants/app_theme.dart';
+import '../../../extensions/color_extensions.dart';
+import '../../../models/topup_balance.dart';
+import '../../../routes/custom_route_transitions.dart';
+import '../../../utils/responsive_size.dart';
+import '../../main_screen.dart';
 
-class TopUpSuccessScreen extends StatefulWidget {
-  final TopUpPackage package;
+class TopUpSubscriptionSuccessScreen extends StatefulWidget {
+  final TopUpPackage subscription;
   final String mobileNumber;
   final String fixedNumber;
   final double ancienSolde;
   final String transactionId;
 
-  const TopUpSuccessScreen({
+  const TopUpSubscriptionSuccessScreen({
     super.key,
-    required this.package,
+    required this.subscription,
     required this.mobileNumber,
     required this.fixedNumber,
     required this.ancienSolde,
@@ -26,16 +26,15 @@ class TopUpSuccessScreen extends StatefulWidget {
   });
 
   @override
-  State<TopUpSuccessScreen> createState() => _TopUpSuccessScreenState();
+  State<TopUpSubscriptionSuccessScreen> createState() => _TopUpSubscriptionSuccessScreenState();
 }
 
-class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
+class _TopUpSubscriptionSuccessScreenState extends State<TopUpSubscriptionSuccessScreen>
     with SingleTickerProviderStateMixin {
   late Timer _redirectTimer;
   int _remainingSeconds = 5; // Compte à rebours de 5 secondes
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _slideAnimation;
   late Animation<double> _fadeAnimation;
 
   @override
@@ -57,14 +56,6 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
-    ));
-
-    _slideAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
     ));
 
     _fadeAnimation = Tween<double>(
@@ -104,7 +95,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
     Navigator.pushAndRemoveUntil(
       context,
       CustomRouteTransitions.fadeRoute(
-        page: MainScreen(),
+        page: const MainScreen(),
       ),
       (route) => false,
     );
@@ -114,7 +105,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
     
-    final nouveauSolde = widget.ancienSolde - widget.package.price;
+    final nouveauSolde = widget.ancienSolde - widget.subscription.price;
     
     return PopScope(
       canPop: false,
@@ -123,7 +114,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
         appBar: AppBar(
           backgroundColor: AppTheme.dtBlue,
           title: Text(
-            'Achat réussi',
+            'Souscription réussie',
             style: TextStyle(
               color: Colors.white,
               fontSize: ResponsiveSize.getFontSize(18),
@@ -165,7 +156,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                         ],
                       ),
                       child: Icon(
-                        Icons.check_circle,
+                        Icons.subscriptions,
                         color: AppTheme.dtBlue,
                         size: ResponsiveSize.getFontSize(60),
                       ),
@@ -183,7 +174,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                       children: [
                         // Titre
                         Text(
-                          'Achat TopUp réussi !',
+                          'Souscription TopUp réussie !',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(24),
@@ -196,7 +187,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                         
                         // Message de confirmation
                         Text(
-                          'Le package ${widget.package.displayName} a été activé avec succès sur votre ligne fixe',
+                          'La souscription ${widget.subscription.displayName} a été activée avec succès sur votre ligne fixe',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(14),
@@ -208,7 +199,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                     ),
                   ),
                   
-                  // Détails du package avec fade
+                  // Détails de la souscription avec fade
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Container(
@@ -222,7 +213,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildDetailRow('Package', widget.package.displayName),
+                          _buildDetailRow('Souscription', widget.subscription.displayName),
                           _buildDivider(),
                           _buildDetailRow('ID Transaction', widget.transactionId),
                           _buildDivider(),
@@ -230,22 +221,27 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                           _buildDivider(),
                           _buildDetailRow('Ligne mobile', widget.mobileNumber),
                           _buildDivider(),
-                          _buildDetailRow('Prix', widget.package.formattedPrice),
+                          _buildDetailRow('Prix', widget.subscription.formattedPrice),
                           _buildDivider(),
                           _buildDetailRow('Nouveau solde mobile', '${nouveauSolde.toStringAsFixed(0)} DJF'),
                           
-                          if (widget.package.isDataPackage) ...[
+                          if (widget.subscription.isDataPackage) ...[
                             _buildDivider(),
-                            _buildDetailRow('Internet', widget.package.formattedData),
+                            _buildDetailRow('Internet', widget.subscription.formattedData),
                           ],
                           
-                          if (widget.package.isVoicePackage) ...[
+                          if (widget.subscription.isVoicePackage) ...[
                             _buildDivider(),
-                            _buildDetailRow('Minutes', widget.package.formattedVoice),
+                            _buildDetailRow('Minutes', widget.subscription.formattedVoice),
                           ],
                           
                           _buildDivider(),
-                          _buildDetailRow('Validité', widget.package.formattedValidity),
+                          _buildDetailRow('Validité', widget.subscription.formattedValidity),
+                          
+                          if (widget.subscription.voiceFixedUnlimited) ...[
+                            _buildDivider(),
+                            _buildDetailRow('Appels vers fixes', 'Illimités'),
+                          ],
                         ],
                       ),
                     ),
@@ -334,7 +330,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                         
                         SizedBox(height: ResponsiveSize.getHeight(24)),
                         
-                        // Message de confirmation TopUp
+                        // Message de confirmation souscription
                         Container(
                           padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
                           decoration: BoxDecoration(
@@ -348,14 +344,14 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                Icons.phone,
+                                Icons.subscriptions,
                                 color: AppTheme.dtBlue,
                                 size: ResponsiveSize.getFontSize(18),
                               ),
                               SizedBox(width: ResponsiveSize.getWidth(8)),
                               Expanded(
                                 child: Text(
-                                  'Le package a été activé sur votre ligne fixe ${widget.fixedNumber}',
+                                  'La souscription mensuelle a été activée sur votre ligne fixe ${widget.fixedNumber}',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: ResponsiveSize.getFontSize(12),

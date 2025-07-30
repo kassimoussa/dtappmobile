@@ -1,7 +1,7 @@
 // lib/widgets/packages_section.dart
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:dtapp3/widgets/package_selector_dialog.dart';
+import 'package:dtservices/widgets/package_selector_dialog.dart';
 
 class PackagesSection extends StatelessWidget {
   const PackagesSection({super.key});

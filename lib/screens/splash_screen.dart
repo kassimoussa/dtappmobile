@@ -1,6 +1,6 @@
 // lib/screens/splash_screen.dart
-import 'package:dtapp3/screens/main_screen.dart';
-import 'package:dtapp3/services/user_session.dart';
+import 'package:dtservices/screens/main_screen.dart';
+import 'package:dtservices/services/user_session.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
