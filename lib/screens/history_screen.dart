@@ -138,9 +138,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
     switch (actionType) {
       case 'offer_purchase':
       case 'offer_gift':
+      case 'offer_received':
         return Icons.local_mall;
       case 'credit_add':
       case 'voucher_refill':
+      case 'credit_received':
         return Icons.add_circle;
       case 'credit_deduct':
         return Icons.remove_circle;

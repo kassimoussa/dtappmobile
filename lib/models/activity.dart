@@ -68,9 +68,11 @@ class Activity {
     switch (actionType) {
       case 'offer_purchase':
       case 'offer_gift':
+      case 'offer_received':
         return '📦';
       case 'credit_add':
       case 'voucher_refill':
+      case 'credit_received':
         return '💰';
       case 'credit_deduct':
         return '💸';
@@ -116,18 +118,31 @@ class Activity {
 
   /// Retourne des détails supplémentaires basés sur le type d'action
   String? get detailsText {
-    if (details == null) return null;
+    if (details == null && requestSummary == null && responseSummary == null) return null;
     
     switch (actionType) {
       case 'offer_purchase':
       case 'offer_gift':
-        final offerName = details!['offer_name'];
-        final validityDays = details!['validity_days'];
-        final destinataire = details!['destinataire'];
+      case 'offer_received': // Forfaits reçus
+        final offerName = details?['offer_name'];
+        final validityDays = details?['validity_days'];
+        final destinataire = details?['destinataire'];
+        final expediteur = details?['expediteur'] ?? requestSummary?['expediteur'] ?? responseSummary?['expediteur'];
         
         String text = '';
         if (offerName != null) text += 'Offre: $offerName';
         if (validityDays != null) text += ' (${validityDays}j)';
+        
+        // Pour les forfaits reçus, afficher l'expéditeur
+        if ((actionType == 'offer_gift' || actionType == 'offer_received') && expediteur != null) {
+          String cleanExp = expediteur.toString().replaceAll('253', '');
+          if (cleanExp.startsWith('77') || cleanExp.startsWith('78') || cleanExp.startsWith('70') || cleanExp.startsWith('75') || cleanExp.startsWith('76') || cleanExp.startsWith('33')) {
+            text += '\nDe: $cleanExp';
+          } else {
+            text += '\nDe: $expediteur';
+          }
+        }
+        
         if (destinataire != null && actionType == 'offer_gift') {
           // Nettoyer le numéro pour l'affichage
           String cleanDest = destinataire.toString().replaceAll('253', '');
@@ -140,28 +155,70 @@ class Activity {
         return text.isNotEmpty ? text : null;
         
       case 'credit_transfer':
-        final destinataire = details!['destinataire'];
+      case 'credit_received': // Crédits reçus
+        final destinataire = details?['destinataire'];
+        final expediteur = details?['expediteur'] ?? requestSummary?['expediteur'] ?? responseSummary?['expediteur'];
+        final montantRecu = details?['montant_recu'];
         // Gestion des noms de champs variables
-        final ancienSolde = details!['ancien_solde'] ?? details!['ancien_solde'];
-        final nouveauSolde = details!['nouveau_solde'] ?? details!['nouveau_solde'];
-        final montantTransfere = details!['montant_transfere'] ?? details!['montant_transferé'];
+        final ancienSolde = details?['ancien_solde'] ?? details?['ancien_solde'];
+        final nouveauSolde = details?['nouveau_solde'] ?? details?['nouveau_solde'];
+        final montantTransfere = details?['montant_transfere'] ?? details?['montant_transferé'];
         
         String text = '';
+        
+        // Pour les crédits reçus, afficher l'expéditeur
+        if (expediteur != null && (actionType == 'credit_received' || actionLabel.toLowerCase().contains('reçu'))) {
+          String cleanExp = expediteur.toString().replaceAll('253', '');
+          if (cleanExp.startsWith('77') || cleanExp.startsWith('78') || cleanExp.startsWith('70') || cleanExp.startsWith('75') || cleanExp.startsWith('76') || cleanExp.startsWith('33')) {
+            text += 'De: $cleanExp';
+          } else {
+            text += 'De: $expediteur';
+          }
+        }
+        
         if (destinataire != null) {
           // Nettoyer le numéro de destination pour l'affichage
           String cleanDest = destinataire.toString().replaceAll('253', '');
           if (cleanDest.startsWith('77')) {
-            text += 'Vers: $cleanDest';
+            text += text.isNotEmpty ? '\nVers: $cleanDest' : 'Vers: $cleanDest';
           } else {
-            text += 'Vers: $destinataire';
+            text += text.isNotEmpty ? '\nVers: $destinataire' : 'Vers: $destinataire';
           }
         }
-        if (montantTransfere != null) {
+        
+        // Afficher le montant reçu pour credit_received
+        if (montantRecu != null) {
+          text += text.isNotEmpty ? '\nMontant: ${double.tryParse(montantRecu.toString())?.toStringAsFixed(0)} DJF' : 'Montant: ${double.tryParse(montantRecu.toString())?.toStringAsFixed(0)} DJF';
+        } else if (montantTransfere != null) {
           text += '\nMontant: ${double.tryParse(montantTransfere.toString())?.toStringAsFixed(0)} DJF';
         }
+        
         if (ancienSolde != null && nouveauSolde != null) {
           text += '\nSolde: ${double.tryParse(ancienSolde.toString())?.toStringAsFixed(0)} → ${double.tryParse(nouveauSolde.toString())?.toStringAsFixed(0)} DJF';
         }
+        return text.isNotEmpty ? text : null;
+        
+      case 'credit_add':
+      case 'voucher_refill':
+        // Pour les crédits reçus et recharges, afficher l'expéditeur si disponible
+        final expediteur = details?['expediteur'] ?? requestSummary?['expediteur'] ?? responseSummary?['expediteur'];
+        final montant = details?['montant'] ?? amount;
+        
+        String text = '';
+        if (expediteur != null && actionLabel.toLowerCase().contains('reçu')) {
+          String cleanExp = expediteur.toString().replaceAll('253', '');
+          if (cleanExp.startsWith('77') || cleanExp.startsWith('78') || cleanExp.startsWith('70') || cleanExp.startsWith('75') || cleanExp.startsWith('76') || cleanExp.startsWith('33')) {
+            text += 'De: $cleanExp';
+          } else {
+            text += 'De: $expediteur';
+          }
+        }
+        
+        if (montant != null) {
+          final montantStr = double.tryParse(montant.toString())?.toStringAsFixed(0) ?? montant.toString();
+          text += text.isNotEmpty ? '\nMontant: $montantStr DJF' : 'Montant: $montantStr DJF';
+        }
+        
         return text.isNotEmpty ? text : null;
         
       default:
@@ -272,9 +329,11 @@ class ActivityStats {
     switch (actionType) {
       case 'offer_purchase':
       case 'offer_gift':
+      case 'offer_received':
         return '📦';
       case 'credit_add':
       case 'voucher_refill':
+      case 'credit_received':
         return '💰';
       case 'credit_deduct':
         return '💸';

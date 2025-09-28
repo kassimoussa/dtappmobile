@@ -118,251 +118,258 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
         showAction: false,
         showCancelToHome: true, // Affiche le bouton Annuler
       ),
-      body: Column(
-        children: [
-          // Contenu principal
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Titre principal
-                  Text(
-                    'Choisir le destinataire',
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(20),
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  SizedBox(height: ResponsiveSize.getHeight(24)),
-
-                  // Options de destinataire
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildOptionCard(
-                          context,
-                          'Mon numéro',
-                          AppTheme.dtBlue2,
-                          Icons.arrow_upward,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              CustomRouteTransitions.slideRightRoute(
-                                page: ForfaitCategoriesScreen(
-                                  phoneNumber: widget.phoneNumber,
-                                  soldeActuel: widget.soldeActuel,
-                                  onRefreshSolde: widget.onRefreshSolde,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      SizedBox(width: ResponsiveSize.getWidth(16)),
-                      Expanded(
-                        child: _buildOptionCard(
-                          context,
-                          'Autre numéro',
-                          AppTheme.dtBlue2,
-                          Icons.arrow_outward,
-                          onTap: _showPhoneInputSection,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+      body: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height - 
+                       MediaQuery.of(context).padding.top - 
+                       kToolbarHeight,
           ),
-
-          // Section de saisie du numéro en bas (animée)
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            height: _showPhoneInput ? null : 0,
-            child: _showPhoneInput
-                ? AnimatedBuilder(
-                    animation: _animationController,
-                    builder: (context, child) {
-                      return SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 1.0),
-                          end: Offset.zero,
-                        ).animate(_slideAnimation),
-                        child: FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, -2),
-                          ),
-                        ],
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(ResponsiveSize.getWidth(20)),
-                          topRight: Radius.circular(ResponsiveSize.getWidth(20)),
-                        ),
+          child: Column(
+            children: [
+              // Contenu principal
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Titre principal
+                    Text(
+                      'Choisir le destinataire',
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(20),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
-                      child: Form(
-                        key: _formKey,
-                        child: Padding(
-                          padding: EdgeInsets.all(ResponsiveSize.getWidth(24)),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Handle bar pour indiquer que c'est draggable
-                              Center(
-                                child: Container(
-                                  width: ResponsiveSize.getWidth(40),
-                                  height: ResponsiveSize.getHeight(4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(
-                                      ResponsiveSize.getWidth(2),
-                                    ),
+                    ),
+                    SizedBox(height: ResponsiveSize.getHeight(24)),
+
+                    // Options de destinataire
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildOptionCard(
+                            context,
+                            'Mon numéro',
+                            AppTheme.dtBlue2,
+                            Icons.arrow_upward,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                CustomRouteTransitions.slideRightRoute(
+                                  page: ForfaitCategoriesScreen(
+                                    phoneNumber: widget.phoneNumber,
+                                    soldeActuel: widget.soldeActuel,
+                                    onRefreshSolde: widget.onRefreshSolde,
                                   ),
                                 ),
-                              ),
-                              SizedBox(height: ResponsiveSize.getHeight(16)),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(width: ResponsiveSize.getWidth(16)),
+                        Expanded(
+                          child: _buildOptionCard(
+                            context,
+                            'Autre numéro',
+                            AppTheme.dtBlue2,
+                            Icons.arrow_outward,
+                            onTap: _showPhoneInputSection,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
 
-                              // Titre avec bouton fermer
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // Section de saisie du numéro en bas (animée)
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                height: _showPhoneInput ? null : 0,
+                child: _showPhoneInput
+                    ? AnimatedBuilder(
+                        animation: _animationController,
+                        builder: (context, child) {
+                          return SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0, 1.0),
+                              end: Offset.zero,
+                            ).animate(_slideAnimation),
+                            child: FadeTransition(
+                              opacity: _fadeAnimation,
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, -2),
+                              ),
+                            ],
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(ResponsiveSize.getWidth(20)),
+                              topRight: Radius.circular(ResponsiveSize.getWidth(20)),
+                            ),
+                          ),
+                          child: Form(
+                            key: _formKey,
+                            child: Padding(
+                              padding: EdgeInsets.all(ResponsiveSize.getWidth(24)),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'Saisir le numéro',
-                                    style: TextStyle(
-                                      fontSize: ResponsiveSize.getFontSize(18),
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.dtBlue,
+                                  // Handle bar pour indiquer que c'est draggable
+                                  Center(
+                                    child: Container(
+                                      width: ResponsiveSize.getWidth(40),
+                                      height: ResponsiveSize.getHeight(4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(
+                                          ResponsiveSize.getWidth(2),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                  IconButton(
-                                    onPressed: _hidePhoneInputSection,
-                                    icon: Icon(
-                                      Icons.close,
-                                      color: Colors.grey[600],
-                                      size: ResponsiveSize.getFontSize(24),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: ResponsiveSize.getHeight(8)),
+                                  SizedBox(height: ResponsiveSize.getHeight(16)),
 
-                              // Widget sélecteur de numéro
-                              PhoneNumberSelector(
-                                controller: _phoneController,
-                                labelText: 'Entrez le numéro de téléphone',
-                                hintText: '77 XX XX XX',
-                                validator: DjiboutiPhoneValidator.validatePhoneNumber,
-                                onChanged: (value) {
-                                  setState(() {});
-                                },
-                              ),
-
-                              SizedBox(height: ResponsiveSize.getHeight(12)),
-
-                              // Note d'information
-                              Container(
-                                padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.dtBlue.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(
-                                    ResponsiveSize.getWidth(8),
-                                  ),
-                                  border: Border.all(
-                                    color: AppTheme.dtBlue.withOpacity(0.3),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.info_outline,
-                                      color: AppTheme.dtBlue,
-                                      size: ResponsiveSize.getFontSize(16),
-                                    ),
-                                    SizedBox(width: ResponsiveSize.getWidth(8)),
-                                    Expanded(
-                                      child: Text(
-                                        'Numéro mobile valide à Djibouti requis',
+                                  // Titre avec bouton fermer
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Saisir le numéro',
                                         style: TextStyle(
-                                          fontSize: ResponsiveSize.getFontSize(12),
+                                          fontSize: ResponsiveSize.getFontSize(18),
+                                          fontWeight: FontWeight.bold,
                                           color: AppTheme.dtBlue,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              SizedBox(height: ResponsiveSize.getHeight(24)),
-
-                              // Bouton de continuation
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: _phoneController.text.isNotEmpty
-                                      ? _validateAndContinue
-                                      : null,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppTheme.dtBlue2,
-                                    foregroundColor: Colors.white,
-                                    disabledBackgroundColor: Colors.grey[300],
-                                    disabledForegroundColor: Colors.grey[600],
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: ResponsiveSize.getHeight(16),
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        ResponsiveSize.getWidth(12),
-                                      ),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Continuer',
-                                        style: TextStyle(
-                                          fontSize: ResponsiveSize.getFontSize(16),
-                                          fontWeight: FontWeight.bold,
+                                      IconButton(
+                                        onPressed: _hidePhoneInputSection,
+                                        icon: Icon(
+                                          Icons.close,
+                                          color: Colors.grey[600],
+                                          size: ResponsiveSize.getFontSize(24),
                                         ),
-                                      ),
-                                      SizedBox(width: ResponsiveSize.getWidth(8)),
-                                      Icon(
-                                        Icons.arrow_forward,
-                                        size: ResponsiveSize.getFontSize(18),
                                       ),
                                     ],
                                   ),
-                                ),
+                                  SizedBox(height: ResponsiveSize.getHeight(8)),
+
+                                  // Widget sélecteur de numéro
+                                  PhoneNumberSelector(
+                                    controller: _phoneController,
+                                    labelText: 'Entrez le numéro de téléphone',
+                                    hintText: '77 XX XX XX',
+                                    validator: DjiboutiPhoneValidator.validatePhoneNumber,
+                                    onChanged: (value) {
+                                      setState(() {});
+                                    },
+                                  ),
+
+                                  SizedBox(height: ResponsiveSize.getHeight(12)),
+
+                                  // Note d'information
+                                  Container(
+                                    padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.dtBlue.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(
+                                        ResponsiveSize.getWidth(8),
+                                      ),
+                                      border: Border.all(
+                                        color: AppTheme.dtBlue.withOpacity(0.3),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.info_outline,
+                                          color: AppTheme.dtBlue,
+                                          size: ResponsiveSize.getFontSize(16),
+                                        ),
+                                        SizedBox(width: ResponsiveSize.getWidth(8)),
+                                        Expanded(
+                                          child: Text(
+                                            'Numéro mobile valide à Djibouti requis',
+                                            style: TextStyle(
+                                              fontSize: ResponsiveSize.getFontSize(12),
+                                              color: AppTheme.dtBlue,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  SizedBox(height: ResponsiveSize.getHeight(24)),
+
+                                  // Bouton de continuation
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: _phoneController.text.isNotEmpty
+                                          ? _validateAndContinue
+                                          : null,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.dtBlue2,
+                                        foregroundColor: Colors.white,
+                                        disabledBackgroundColor: Colors.grey[300],
+                                        disabledForegroundColor: Colors.grey[600],
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: ResponsiveSize.getHeight(16),
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            ResponsiveSize.getWidth(12),
+                                          ),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Continuer',
+                                            style: TextStyle(
+                                              fontSize: ResponsiveSize.getFontSize(16),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          SizedBox(width: ResponsiveSize.getWidth(8)),
+                                          Icon(
+                                            Icons.arrow_forward,
+                                            size: ResponsiveSize.getFontSize(18),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  
+                                  // Espace pour le safe area
+                                  SizedBox(
+                                    height: MediaQuery.of(context).padding.bottom + 8,
+                                  ),
+                                ],
                               ),
-                              
-                              // Espace pour le safe area
-                              SizedBox(
-                                height: MediaQuery.of(context).padding.bottom + 8,
-                              ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
