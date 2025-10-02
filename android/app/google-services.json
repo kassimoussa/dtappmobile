@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "295853171575",
+    "project_id": "dtapp-60b81",
+    "storage_bucket": "dtapp-60b81.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:295853171575:android:0d0203499ec7ceb690b772",
+        "android_client_info": {
+          "package_name": "com.example.dtservices"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLDBf3jihn6HSVTM7GzcuN0u__dZlNYSk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

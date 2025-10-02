@@ -1,25 +1,31 @@
+import 'package:dtservices/firebase/notification_service.dart';
 import 'package:dtservices/services/user_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart'; 
+import 'package:permission_handler/permission_handler.dart';
 import 'screens/splash_screen.dart';
 import 'utils/responsive_size.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await NotificationService().initNotifications();
   // Forcer l'orientation portrait
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
-  ]); 
+  ]);
   // Personnaliser la barre de statut
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
-    ), 
+    ),
   );
-  
+
   runApp(const MyApp());
 }
 
@@ -34,26 +40,26 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    _requestPermissions(); 
-    
+    _requestPermissions();
+
     // Ajouter l'observateur pour le cycle de vie de l'application
     WidgetsBinding.instance.addObserver(this);
-    
+
     // Indiquer que l'application est au premier plan au démarrage
     UserSession.appResumed();
   }
-  
+
   @override
   void dispose() {
     // Supprimer l'observateur quand le widget est détruit
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
-  
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     // Gérer les changements d'état du cycle de vie de l'application
     switch (state) {
       case AppLifecycleState.resumed:
@@ -77,17 +83,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   Future<void> _requestPermissions() async {
-    await [
-      Permission.phone,
-      Permission.sms,
-    ].request();
+    await [Permission.phone, Permission.sms].request();
   }
 
   @override
   Widget build(BuildContext context) {
     // Mettre à jour l'activité utilisateur à chaque construction du widget racine
     UserSession.updateActivity();
-    
+
     return MaterialApp(
       title: 'DTServices',
       debugShowCheckedModeBanner: false,
@@ -96,7 +99,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         scaffoldBackgroundColor: Colors.white,
         fontFamily: 'Roboto',
       ),
-      home: Builder( 
+      home: Builder(
         builder: (context) {
           // Initialiser le responsive size
           ResponsiveSize.init(context);
