@@ -124,7 +124,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               ),
               BottomNavigationBarItem(
                 icon: _buildAnimatedIcon(Icons.phone, 2),
-                label: 'TopUp',
+                label: 'Ma ligne',
               ),
             ],
           ),

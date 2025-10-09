@@ -1,5 +1,6 @@
-// lib/screens/home_screen.dart 
+// lib/screens/home_screen.dart
 import 'package:dtservices/screens/achat_forfait/forfait_recipient_screen.dart';
+import 'package:dtservices/screens/agencies/agencies_screen.dart';
 import 'package:dtservices/screens/forfaits_actifs/forfaits_actifs_screen.dart';
 import 'package:dtservices/screens/login_screen.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_input_screen.dart';
@@ -393,67 +394,97 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildQuickActions() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildActionButton(
-              icon: Icons.local_mall_sharp,
-              label: 'Achat de\nforfait',
-              onTap:
-                  () => Navigator.push(
-                    context,
-                    CustomRouteTransitions.slideRightRoute(
-                      page: ForfaitRecipientScreen(
-                        phoneNumber: _normalPhoneNumber,
-                        soldeActuel: _solde,
-                        onRefreshSolde: _loadBalance,
-                      ),
-                    ),
-                  ),
+    final actions = [
+      {
+        'icon': Icons.local_mall_sharp,
+        'label': 'Achat de\nforfait',
+        'onTap': () => Navigator.push(
+              context,
+              CustomRouteTransitions.slideRightRoute(
+                page: ForfaitRecipientScreen(
+                  phoneNumber: _normalPhoneNumber,
+                  soldeActuel: _solde,
+                  onRefreshSolde: _loadBalance,
+                ),
+              ),
             ),
-            _buildActionButton(
-              icon: Icons.add_circle,
-              label: "Recharge \nde crédit",
-              onTap: () =>  Navigator.push(
-                    context,
-                    CustomRouteTransitions.slideRightRoute(
-                      page: RefillRecipientScreen(
-                        phoneNumber: _normalPhoneNumber, 
-                      ),
-                    ),
-                  ),
+      },
+      {
+        'icon': Icons.add_circle,
+        'label': "Recharge\nde crédit",
+        'onTap': () => Navigator.push(
+              context,
+              CustomRouteTransitions.slideRightRoute(
+                page: RefillRecipientScreen(
+                  phoneNumber: _normalPhoneNumber,
+                ),
+              ),
             ),
-            _buildActionButton(
-              icon: Icons.timer,
-              label: 'Mes\n forfaits',
-              onTap:
-                  () => Navigator.push(
-                    context,
-                    CustomRouteTransitions.slideRightRoute(
-                      page: ForfaitsActifsScreen(),
-                    ),
-                  ),
+      },
+      {
+        'icon': Icons.timer,
+        'label': 'Mes\nforfaits',
+        'onTap': () => Navigator.push(
+              context,
+              CustomRouteTransitions.slideRightRoute(
+                page: ForfaitsActifsScreen(),
+              ),
             ),
-            _buildActionButton(
-              icon: Icons.send,
-              label: 'Transfert\nde crédit',
-              onTap:
-                  () => Navigator.push(
-                    context,
-                    CustomRouteTransitions.slideRightRoute(
-                      page: TransferInputScreen(
-                        phoneNumber: _normalPhoneNumber,
-                        soldeActuel: _solde,
-                        onRefreshSolde: _loadBalance,
-                      ),
-                    ),
-                  ),
+      },
+      {
+        'icon': Icons.send,
+        'label': 'Transfert\nde crédit',
+        'onTap': () => Navigator.push(
+              context,
+              CustomRouteTransitions.slideRightRoute(
+                page: TransferInputScreen(
+                  phoneNumber: _normalPhoneNumber,
+                  soldeActuel: _solde,
+                  onRefreshSolde: _loadBalance,
+                ),
+              ),
             ),
-          ],
-        ),
-      ],
+      },
+      {
+        'icon': Icons.location_on,
+        'label': 'Nos\nagences',
+        'onTap': () => Navigator.push(
+              context,
+              CustomRouteTransitions.slideRightRoute(
+                page: const AgenciesScreen(),
+              ),
+            ),
+      },
+      {
+        'icon': Icons.speed,
+        'label': 'Speed\nTest',
+        'onTap': () {
+          // TODO: Navigation vers l'écran de speed test
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Speed Test - À venir')),
+          );
+        },
+      },
+    ];
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        crossAxisSpacing: ResponsiveSize.getWidth(AppTheme.spacingS),
+        mainAxisSpacing: ResponsiveSize.getHeight(AppTheme.spacingM),
+        childAspectRatio: 0.85,
+      ),
+      itemCount: actions.length,
+      itemBuilder: (context, index) {
+        final action = actions[index];
+        return _buildActionButton(
+          icon: action['icon'] as IconData,
+          label: action['label'] as String,
+          onTap: action['onTap'] as VoidCallback,
+        );
+      },
     );
   }
 
