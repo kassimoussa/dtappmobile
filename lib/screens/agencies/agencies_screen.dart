@@ -17,9 +17,9 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
   List<Agency>? _agencies;
   bool _isLoading = true;
   String? _errorMessage;
-  bool _showMap = false;
+  bool _showMap = true;
   final MapController _mapController = MapController();
-  double _currentZoom = 10.0;
+  double _currentZoom = 8.0;
 
   @override
   void initState() {
@@ -167,7 +167,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
 
   Widget _buildMapView() {
     // Centre de Djibouti comme position par défaut
-    const LatLng djiboutiCenter = LatLng(11.5721, 43.1456);
+    const LatLng djiboutiCenter = LatLng(11.539376, 42.782418);
 
     return Stack(
       children: [
@@ -260,7 +260,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                 backgroundColor: Colors.white,
                 onPressed: () {
                   setState(() {
-                    _currentZoom = 10.0;
+                    _currentZoom = 8.0;
                   });
                   _mapController.move(
                     djiboutiCenter,
