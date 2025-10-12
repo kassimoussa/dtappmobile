@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../constants/app_theme.dart';
 import '../../models/agency.dart';
 import '../../services/agency_service.dart';
@@ -357,6 +358,30 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
                 _buildInfoRow(Icons.email, agency.email),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => _launchPhoneCall(agency.phone),
+                      icon: const Icon(Icons.phone),
+                      label: const Text('Appeler'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.dtBlue,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () => _launchDirections(agency.latitude, agency.longitude),
+                      icon: const Icon(Icons.directions),
+                      label: const Text('Itinéraire'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.dtBlue,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
                 Text(
                   'Horaires d\'ouverture',
                   style: TextStyle(
@@ -534,5 +559,27 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
   String _capitalize(String text) {
     if (text.isEmpty) return text;
     return text[0].toUpperCase() + text.substring(1);
+  }
+
+  void _launchPhoneCall(String phoneNumber) async {
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Impossible de lancer l\'application téléphone.')),
+      );
+    }
+  }
+
+  void _launchDirections(double latitude, double longitude) async {
+    final Uri googleMapsUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+    if (await canLaunchUrl(googleMapsUrl)) {
+      await launchUrl(googleMapsUrl);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Impossible de lancer Google Maps.')),
+      );
+    }
   }
 }
