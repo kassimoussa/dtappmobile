@@ -93,7 +93,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
             Text(
-              'Chargement des agences...',
+              'Chargement des agences...', 
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(16),
                 color: AppTheme.textSecondary,
@@ -355,8 +355,6 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                 _buildInfoRow(Icons.location_on, agency.address),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
                 _buildInfoRow(Icons.phone, agency.phone),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-                _buildInfoRow(Icons.email, agency.email),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -483,13 +481,46 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
 
             // Téléphone
             _buildInfoRow(Icons.phone, agency.phone),
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-
-            // Email
-            _buildInfoRow(Icons.email, agency.email),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
 
-            // Horaires d'ouverture
+            // Boutons d'action
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _launchPhoneCall(agency.phone),
+                    icon: const Icon(Icons.phone, size: 18),
+                    label: const Text('Appeler'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.dtBlue,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                        vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _launchDirections(agency.latitude, agency.longitude),
+                    icon: const Icon(Icons.directions, size: 18),
+                    label: const Text('Itinéraire'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.dtBlue,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                        vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+
+            // Horaires d\'ouverture
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
               title: Text(
@@ -562,24 +593,59 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
   }
 
   void _launchPhoneCall(String phoneNumber) async {
-    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
-    if (await canLaunchUrl(phoneUri)) {
-      await launchUrl(phoneUri);
+    // Nettoyer le numéro de tous les caractères non numériques
+    String cleanNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+
+    // Enlever le code international 253 s'il est présent
+    if (cleanNumber.startsWith('253') && cleanNumber.length > 8) {
+      cleanNumber = cleanNumber.substring(3);
+    }
+
+    // S'assurer qu'on a un numéro à 8 chiffres
+    if (cleanNumber.length == 8) {
+      final Uri phoneUri = Uri(scheme: 'tel', path: cleanNumber);
+      if (await canLaunchUrl(phoneUri)) {
+        await launchUrl(phoneUri);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Impossible de lancer l\'application téléphone.')),
+          );
+        }
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossible de lancer l\'application téléphone.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Numéro de téléphone invalide.')),
+        );
+      }
     }
   }
 
   void _launchDirections(double latitude, double longitude) async {
-    final Uri googleMapsUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
-    if (await canLaunchUrl(googleMapsUrl)) {
-      await launchUrl(googleMapsUrl);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossible de lancer Google Maps.')),
+    // Essayer d'abord avec l'URL Google Maps pour Android
+    final Uri googleMapsUrl = Uri.parse('geo:$latitude,$longitude?q=$latitude,$longitude');
+
+    try {
+      final bool launched = await launchUrl(
+        googleMapsUrl,
+        mode: LaunchMode.externalApplication,
       );
+
+      if (!launched) {
+        // Si geo: ne fonctionne pas, essayer avec l'URL web
+        final Uri webUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+        await launchUrl(
+          webUrl,
+          mode: LaunchMode.externalApplication,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Impossible de lancer Google Maps.')),
+        );
+      }
     }
   }
 }

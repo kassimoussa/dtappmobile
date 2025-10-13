@@ -1,5 +1,6 @@
 import 'package:dtservices/firebase/notification_service.dart';
 import 'package:dtservices/services/user_session.dart';
+import 'package:dtservices/services/fcm_token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -11,8 +12,21 @@ import 'firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await NotificationService().initNotifications();
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+    // Initialiser les notifications en arrière-plan sans bloquer le démarrage
+    NotificationService().initNotifications().catchError((error) {
+      debugPrint('⚠️ Erreur lors de l\'initialisation des notifications: $error');
+    });
+
+    // Écouter les rafraîchissements de token FCM
+    FCMTokenService.listenToTokenRefresh();
+    debugPrint('🔔 Écoute des rafraîchissements de token FCM activée');
+  } catch (e) {
+    debugPrint('⚠️ Erreur lors de l\'initialisation de Firebase: $e');
+  }
+
   // Forcer l'orientation portrait
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -94,6 +108,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return MaterialApp(
       title: 'DTServices',
       debugShowCheckedModeBanner: false,
+      navigatorKey: NotificationService.navigatorKey,
       theme: ThemeData(
         primaryColor: const Color(0xFF002464),
         scaffoldBackgroundColor: Colors.white,

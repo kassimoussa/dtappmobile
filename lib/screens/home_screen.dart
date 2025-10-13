@@ -5,6 +5,7 @@ import 'package:dtservices/screens/forfaits_actifs/forfaits_actifs_screen.dart';
 import 'package:dtservices/screens/login_screen.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_input_screen.dart';
 import 'package:dtservices/screens/refill/refill_recipient_screen.dart';
+import 'package:dtservices/screens/speedtest/speedtest_native_screen.dart';
 import 'package:dtservices/services/balance_service.dart';
 import 'package:dtservices/services/user_session.dart';
 import 'package:dtservices/services/logout_service.dart';
@@ -458,12 +459,12 @@ class _HomeScreenState extends State<HomeScreen> {
       {
         'icon': Icons.speed,
         'label': 'Speed\nTest',
-        'onTap': () {
-          // TODO: Navigation vers l'écran de speed test
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Speed Test - À venir')),
-          );
-        },
+        'onTap': () => Navigator.push(
+              context,
+              CustomRouteTransitions.slideRightRoute(
+                page: const SpeedtestNativeScreen(),
+              ),
+            ),
       },
     ];
 
@@ -524,44 +525,21 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Déconnexion'),
           content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(dialogContext).pop(),
               child: const Text('Annuler'),
             ),
             TextButton(
-              onPressed: () async {
-                // Fermer d'abord la boîte de dialogue
-                Navigator.of(context).pop();
-                
-                // Afficher un indicateur de chargement
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) => const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-                
-                // Effectuer la déconnexion complète (API + local)
-                final success = await LogoutService.logout();
-                
-                // Fermer l'indicateur de chargement
-                if (mounted) Navigator.of(context).pop();
-                
-                // Rediriger vers l'écran de connexion
-                if (mounted && success) {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
-                    (route) => false,
-                  );
-                }
+              onPressed: () {
+                // Fermer la boîte de dialogue immédiatement
+                Navigator.of(dialogContext).pop();
+                // Appeler la méthode de déconnexion
+                _performLogout();
               },
               child: const Text(
                 'Déconnecter',
@@ -572,5 +550,44 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  Future<void> _performLogout() async {
+    // Afficher un indicateur de chargement
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext loadingContext) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      // Effectuer la déconnexion complète (API + local)
+      final success = await LogoutService.logout();
+
+      // Fermer l'indicateur de chargement si le widget est encore monté
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      // Rediriger vers l'écran de connexion
+      if (mounted && success) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(),
+          ),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      // En cas d'erreur, fermer le dialogue et afficher un message
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de la déconnexion: $e')),
+        );
+      }
+    }
   }
 }

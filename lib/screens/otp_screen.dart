@@ -8,6 +8,7 @@ import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
 import '../routes/custom_route_transitions.dart';
 import '../services/otp_service.dart';
+import '../services/fcm_token_service.dart';
 import 'main_screen.dart';
 
 class OTPScreen extends StatefulWidget {
@@ -197,12 +198,21 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
           if (result['status'] == 'success') {
             // Extraire le session_token de la réponse API
             final sessionToken = result['data']?['session_token'];
-            
+
             // Créer la session avec le token
             await UserSession.createSession(widget.phone, sessionToken: sessionToken);
-            
-            debugPrint('Session créée avec token: ${sessionToken?.substring(0, 10)}...');
-            
+
+            debugPrint('✅ Session créée avec token: ${sessionToken?.substring(0, 10)}...');
+
+            // Envoyer le token FCM au serveur
+            debugPrint('🔔 Envoi du token FCM au serveur...');
+            try {
+              await FCMTokenService.updateTokenOnServer();
+            } catch (fcmError) {
+              debugPrint('⚠️ Erreur lors de l\'envoi du token FCM: $fcmError');
+              // On continue même en cas d'erreur FCM pour ne pas bloquer la connexion
+            }
+
             if (!mounted) return;
             Navigator.of(context).pushAndRemoveUntil(
               CustomRouteTransitions.fadeScaleRoute(
