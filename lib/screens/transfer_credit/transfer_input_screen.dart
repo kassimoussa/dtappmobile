@@ -85,7 +85,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
               const SizedBox(height: 24),
               
               // Information importante
-              _buildInfoBox(),
+              //_buildInfoBox(),
               
               const SizedBox(height: 32),
               

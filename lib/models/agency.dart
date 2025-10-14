@@ -5,8 +5,8 @@ class Agency {
   final double latitude;
   final double longitude;
   final String phone;
-  final String email;
-  final String description;
+  final String? email;
+  final String? description;
   final Map<String, String> openingHours;
   final bool isActive;
 
@@ -17,8 +17,8 @@ class Agency {
     required this.latitude,
     required this.longitude,
     required this.phone,
-    required this.email,
-    required this.description,
+    this.email,
+    this.description,
     required this.openingHours,
     required this.isActive,
   });
@@ -31,8 +31,8 @@ class Agency {
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       phone: json['phone'] as String,
-      email: json['email'] as String,
-      description: json['description'] as String,
+      email: json['email'] as String?,
+      description: json['description'] as String?,
       openingHours: Map<String, String>.from(json['opening_hours'] as Map),
       isActive: json['is_active'] as bool,
     );

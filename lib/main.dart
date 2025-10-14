@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         debugPrint('Application revenue au premier plan');
         break;
       case AppLifecycleState.paused:
-        // L'application est mise en pause (en arrière-plan)
+        // L'application est vzsmise en pause (en arrière-plan)
         UserSession.appPaused();
         debugPrint('Application passée en arrière-plan');
         break;

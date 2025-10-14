@@ -392,14 +392,19 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
             
             // Progression totale des données - CORRIGÉE pour afficher le DISPONIBLE
-            LinearProgressIndicator(
-              value: totalDataAvailableGo > 0 
-                  ? totalDataRemainingGo / totalDataAvailableGo  // Pourcentage RESTANT (sera pleine si tout est dispo)
-                  : 0,
-              backgroundColor: Colors.grey.withOpacity(0.2), // Fond gris = consommé
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue), // Bleu = disponible
-              minHeight: ResponsiveSize.getHeight(10),
-              borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusXS)),
+            Directionality(
+              textDirection: TextDirection.rtl,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusXS)),
+                child: LinearProgressIndicator(
+                  value: totalDataAvailableGo > 0 
+                      ? totalDataRemainingGo / totalDataAvailableGo  // Pourcentage RESTANT (sera pleine si tout est dispo)
+                      : 0,
+                  backgroundColor: Colors.grey.withOpacity(0.2), // Fond gris = consommé
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue), // Bleu = disponible
+                  minHeight: ResponsiveSize.getHeight(10),
+                ),
+              ),
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
 

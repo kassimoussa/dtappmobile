@@ -407,7 +407,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Déconnexion TopUp'),
+        title: const Text('Déconnexion'),
         content: Text('Voulez-vous vous déconnecter de la ligne $_currentFixedNumber ?'),
         actions: [
           TextButton(
@@ -531,7 +531,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 ),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
                 Text(
-                  'Veuillez entrer votre numéro de ligne fixe pour consulter ses soldes TopUp',
+                  'Veuillez entrer votre numéro de ligne fixe pour consulter ses soldes',
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(14),
                     color: AppTheme.textSecondary,
@@ -682,7 +682,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Soldes Fix',
+                        'Soldes Fixes',
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(18),
                           fontWeight: FontWeight.bold,
@@ -850,7 +850,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Actions TopUp',
+            'Actions',
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(18),
               fontWeight: FontWeight.bold,
@@ -923,11 +923,11 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               ),
               _buildActionButton(
                 icon: Icons.history,
-                label: 'Historique\nTopUp',
+                label: 'Historique\nFixe',
                 onTap: () {
                   // TODO: Implémenter historique TopUp
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Historique TopUp - À implémenter')),
+                    const SnackBar(content: Text('Historique Fixe - À implémenter')),
                   );
                 },
               ),

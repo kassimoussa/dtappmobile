@@ -344,14 +344,17 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                   ],
                 ),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                Text(
-                  agency.description,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(14),
-                    color: AppTheme.textSecondary,
+                if (agency.description != null && agency.description!.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                    child: Text(
+                      agency.description!,
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(14),
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
                   ),
-                ),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
                 _buildInfoRow(Icons.location_on, agency.address),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
                 _buildInfoRow(Icons.phone, agency.phone),
@@ -466,14 +469,17 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
 
             // Description
-            Text(
-              agency.description,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(14),
-                color: AppTheme.textSecondary,
+            if (agency.description != null && agency.description!.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingM)),
+              child: Text(
+                agency.description!,
+                style: TextStyle(
+                  fontSize: ResponsiveSize.getFontSize(14),
+                  color: AppTheme.textSecondary,
+                ),
               ),
             ),
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
 
             // Adresse
             _buildInfoRow(Icons.location_on, agency.address),
