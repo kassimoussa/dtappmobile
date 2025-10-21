@@ -194,9 +194,11 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
               tileProvider: NetworkTileProvider(),
             ),
             MarkerLayer(
-              markers: _agencies!.map((agency) {
+              markers: _agencies!
+                  .where((agency) => agency.latitude != null && agency.longitude != null)
+                  .map((agency) {
                 return Marker(
-                  point: LatLng(agency.latitude, agency.longitude),
+                  point: LatLng(agency.latitude!, agency.longitude!),
                   width: 40,
                   height: 40,
                   child: GestureDetector(
@@ -355,31 +357,39 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                       ),
                     ),
                   ),
-                _buildInfoRow(Icons.location_on, agency.address),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-                _buildInfoRow(Icons.phone, agency.phone),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                if (agency.address != null && agency.address!.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingS)),
+                    child: _buildInfoRow(Icons.location_on, agency.address!),
+                  ),
+                if (agency.phone != null && agency.phone!.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                    child: _buildInfoRow(Icons.phone, agency.phone!),
+                  ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ElevatedButton.icon(
-                      onPressed: () => _launchPhoneCall(agency.phone),
-                      icon: const Icon(Icons.phone),
-                      label: const Text('Appeler'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.dtBlue,
-                        foregroundColor: Colors.white,
+                    if (agency.phone != null && agency.phone!.isNotEmpty)
+                      ElevatedButton.icon(
+                        onPressed: () => _launchPhoneCall(agency.phone!),
+                        icon: const Icon(Icons.phone),
+                        label: const Text('Appeler'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.dtBlue,
+                          foregroundColor: Colors.white,
+                        ),
                       ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () => _launchDirections(agency.latitude, agency.longitude),
-                      icon: const Icon(Icons.directions),
-                      label: const Text('Itinéraire'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.dtBlue,
-                        foregroundColor: Colors.white,
+                    if (agency.latitude != null && agency.longitude != null)
+                      ElevatedButton.icon(
+                        onPressed: () => _launchDirections(agency.latitude!, agency.longitude!),
+                        icon: const Icon(Icons.directions),
+                        label: const Text('Itinéraire'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.dtBlue,
+                          foregroundColor: Colors.white,
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
@@ -482,51 +492,60 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
             ),
 
             // Adresse
-            _buildInfoRow(Icons.location_on, agency.address),
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
+            if (agency.address != null && agency.address!.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingS)),
+                child: _buildInfoRow(Icons.location_on, agency.address!),
+              ),
 
             // Téléphone
-            _buildInfoRow(Icons.phone, agency.phone),
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+            if (agency.phone != null && agency.phone!.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                child: _buildInfoRow(Icons.phone, agency.phone!),
+              ),
 
             // Boutons d'action
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _launchPhoneCall(agency.phone),
-                    icon: const Icon(Icons.phone, size: 18),
-                    label: const Text('Appeler'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.dtBlue,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+                if (agency.phone != null && agency.phone!.isNotEmpty)
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _launchPhoneCall(agency.phone!),
+                      icon: const Icon(Icons.phone, size: 18),
+                      label: const Text('Appeler'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.dtBlue,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _launchDirections(agency.latitude, agency.longitude),
-                    icon: const Icon(Icons.directions, size: 18),
-                    label: const Text('Itinéraire'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.dtBlue,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+                if (agency.phone != null && agency.phone!.isNotEmpty && agency.latitude != null && agency.longitude != null)
+                  SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+                if (agency.latitude != null && agency.longitude != null)
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _launchDirections(agency.latitude!, agency.longitude!),
+                      icon: const Icon(Icons.directions, size: 18),
+                      label: const Text('Itinéraire'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.dtBlue,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+                        ),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
 
-            // Horaires d\'ouverture
+            // Horaires d'ouverture
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
               title: Text(

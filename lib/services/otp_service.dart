@@ -12,7 +12,7 @@ class OtpService {
   final String verifyOtpUrl = 'http://10.39.230.106/api/sms/otp/verify';
 
   // Nom de l'expéditeur du SMS
-  final String senderName = 'DTAPP';
+  final String senderName = 'DjibTel';
 
   // Méthode pour envoyer le numéro de téléphone et recevoir un OTP
   Future<Map<String, dynamic>> sendOtp(String phoneNumber) async {
