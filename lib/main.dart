@@ -14,6 +14,7 @@ import 'firebase_options.dart';
 import 'providers/user_session_provider.dart';
 import 'providers/balance_provider.dart';
 import 'providers/forfait_provider.dart';
+import 'providers/profile_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -126,6 +127,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         // Provider de forfaits
         ChangeNotifierProvider(
           create: (_) => ForfaitProvider(),
+        ),
+
+        // Provider de profil
+        ChangeNotifierProvider(
+          create: (_) => ProfileProvider(),
         ),
       ],
       child: MaterialApp(
