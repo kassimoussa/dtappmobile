@@ -9,7 +9,10 @@ import 'package:dtservices/services/biometric_auth_service.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/balance_provider.dart';
+import '../../providers/forfait_provider.dart';
 import 'forfait_success_screen.dart';
 
 class ForfaitConfirmationScreen extends StatefulWidget {
@@ -170,9 +173,18 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
       
       if (mounted) {
         if (result['succes'] == true) {
+          // ✅ INVALIDER LES CACHES après achat réussi
+          final balanceProvider = Provider.of<BalanceProvider>(context, listen: false);
+          final forfaitProvider = Provider.of<ForfaitProvider>(context, listen: false);
+
+          balanceProvider.invalidateCache(); // Le solde a changé
+          forfaitProvider.invalidateCache(); // Les forfaits actifs ont changé
+
+          debugPrint('✅ Cache invalidé après achat de forfait');
+
           // Succès - navigation avec animation
           widget.onAchatReussi?.call();
-          
+
           Navigator.pushReplacement(
             context,
             CustomRouteTransitions.fadeScaleRoute(

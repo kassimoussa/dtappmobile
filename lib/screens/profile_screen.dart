@@ -1,10 +1,12 @@
 // lib/screens/profile_screen.dart
+// VERSION MIGRÉE AVEC PROVIDER
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
-import '../services/profile_service.dart';
 import '../widgets/appbar_widget.dart';
 import '../extensions/color_extensions.dart';
+import '../providers/profile_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,23 +19,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  
-  bool _isLoading = true;
-  bool _isSaving = false;
-  String? _errorMessage;
-  
-  // Données utilisateur
-  String? _phoneNumber;
-  String? _currentName;
-  String? _currentEmail;
-  DateTime? _lastLoginAt;
-  DateTime? _createdAt;
-  String? _deviceType;
 
   @override
   void initState() {
     super.initState();
-    _loadUserProfile();
+    // ✅ Charger le profil au démarrage AVEC listen: false
+    Future.microtask(() {
+      final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+      profileProvider.fetchProfile();
+    });
   }
 
   @override
@@ -43,100 +37,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _loadUserProfile() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      // Charger les données du profil
-      final profileData = await ProfileService.getUserProfile();
-      
-      if (profileData != null && mounted) {
-        final userData = profileData['user'];
-        final sessionData = profileData['session'];
-        
-        setState(() {
-          _phoneNumber = userData['phone_number'];
-          _currentName = userData['name'];
-          _currentEmail = userData['email'];
-          _lastLoginAt = userData['last_login_at'] != null 
-              ? DateTime.tryParse(userData['last_login_at']) 
-              : null;
-          _createdAt = userData['created_at'] != null 
-              ? DateTime.tryParse(userData['created_at']) 
-              : null;
-          _deviceType = sessionData['device_type'];
-          
-          // Pré-remplir les champs de formulaire
-          _nameController.text = _currentName ?? '';
-          _emailController.text = _currentEmail ?? '';
-          
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('Erreur chargement profil: $e');
-      if (mounted) {
-        setState(() {
-          _errorMessage = 'Erreur lors du chargement du profil';
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _saveProfile() async {
+  /// Sauvegarde le profil en utilisant le provider
+  Future<void> _saveProfile(ProfileProvider profileProvider) async {
     if (!_formKey.currentState!.validate()) return;
-    
-    setState(() {
-      _isSaving = true;
-      _errorMessage = null;
-    });
 
-    try {
-      final success = await ProfileService.updateUserProfile(
-        name: _nameController.text.trim(),
-        email: _emailController.text.trim(),
+    final success = await profileProvider.updateProfile(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Profil mis à jour avec succès'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
+          ),
+        ),
       );
-
-      if (mounted) {
-        if (success) {
-          setState(() {
-            _currentName = _nameController.text.trim();
-            _currentEmail = _emailController.text.trim();
-          });
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Profil mis à jour avec succès'),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
-              ),
-            ),
-          );
-        } else {
-          setState(() {
-            _errorMessage = 'Erreur lors de la mise à jour';
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint('Erreur sauvegarde profil: $e');
-      if (mounted) {
-        setState(() {
-          _errorMessage = 'Erreur lors de la sauvegarde';
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(profileProvider.error ?? 'Erreur lors de la mise à jour'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
+          ),
+        ),
+      );
     }
   }
 
@@ -161,15 +94,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return null;
   }
 
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Non disponible';
-    return '${date.day}/${date.month}/${date.year} à ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
@@ -177,30 +105,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
         showAction: false,
         showCancelToHome: true,
       ),
-      body: _isLoading 
-          ? _buildLoadingState()
-          : SingleChildScrollView(
-              padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildProfileHeader(),
-                    SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                    _buildPersonalInfoSection(),
-                    SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                    _buildAccountInfoSection(),
-                    SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-                    if (_errorMessage != null) _buildErrorMessage(),
-                    _buildSaveButton(),
-                  ],
-                ),
+      // ✅ CONSUMER pour écouter les changements du provider
+      body: Consumer<ProfileProvider>(
+        builder: (context, profileProvider, child) {
+          // Pré-remplir les champs quand les données arrivent
+          if (profileProvider.hasData && _nameController.text.isEmpty) {
+            _nameController.text = profileProvider.name ?? '';
+            _emailController.text = profileProvider.email ?? '';
+          }
+
+          // État de chargement
+          if (profileProvider.isLoading) {
+            return _buildLoadingState();
+          }
+
+          // État d'erreur
+          if (profileProvider.error != null && !profileProvider.hasData) {
+            return _buildErrorState(profileProvider);
+          }
+
+          // État avec données
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildProfileHeader(profileProvider),
+                  SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                  _buildPersonalInfoSection(),
+                  SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                  _buildAccountInfoSection(profileProvider),
+                  SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
+                  if (profileProvider.error != null) _buildErrorMessage(profileProvider),
+                  _buildSaveButton(profileProvider),
+                ],
               ),
             ),
+          );
+        },
+      ),
     );
   }
 
+  /// État de chargement
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -220,7 +169,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildProfileHeader() {
+  /// État d'erreur
+  Widget _buildErrorState(ProfileProvider profileProvider) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: ResponsiveSize.iconSize(64),
+              color: Colors.red[400],
+            ),
+            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+            Text(
+              'Erreur de chargement',
+              style: TextStyle(
+                fontSize: ResponsiveSize.getFontSize(18),
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
+            Text(
+              profileProvider.error ?? 'Une erreur est survenue',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: ResponsiveSize.getFontSize(14),
+                color: Colors.grey[600],
+              ),
+            ),
+            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+            ElevatedButton.icon(
+              onPressed: () => profileProvider.refresh(),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Réessayer'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.dtBlue,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// En-tête du profil avec avatar
+  Widget _buildProfileHeader(ProfileProvider profileProvider) {
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
       decoration: BoxDecoration(
@@ -236,9 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             radius: ResponsiveSize.getWidth(40),
             backgroundColor: AppTheme.dtBlue,
             child: Text(
-              _currentName?.isNotEmpty == true 
-                  ? _currentName!.substring(0, 1).toUpperCase()
-                  : _phoneNumber?.substring(_phoneNumber!.length - 4) ?? '?',
+              profileProvider.getInitial(),
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(24),
                 fontWeight: FontWeight.bold,
@@ -248,7 +243,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
           Text(
-            _currentName?.isNotEmpty == true ? _currentName! : 'Utilisateur',
+            profileProvider.getDisplayName(),
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(20),
               fontWeight: FontWeight.bold,
@@ -257,7 +252,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
           Text(
-            _phoneNumber ?? '',
+            profileProvider.phoneNumber ?? '',
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
               color: Colors.grey[600],
@@ -268,6 +263,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  /// Section informations personnelles (formulaire)
   Widget _buildPersonalInfoSection() {
     return _buildSection(
       title: 'Informations personnelles',
@@ -311,14 +307,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildAccountInfoSection() {
+  /// Section informations du compte (lecture seule)
+  Widget _buildAccountInfoSection(ProfileProvider profileProvider) {
     return _buildSection(
       title: 'Informations du compte',
       children: [
-        _buildInfoRow('Numéro de téléphone', _phoneNumber ?? 'Non disponible'),
-        _buildInfoRow('Dernière connexion', _formatDate(_lastLoginAt)),
-        _buildInfoRow('Compte créé le', _formatDate(_createdAt)),
-        _buildInfoRow('Type d\'appareil', _deviceType ?? 'Non disponible'),
+        _buildInfoRow('Numéro de téléphone', profileProvider.phoneNumber ?? 'Non disponible'),
+        _buildInfoRow('Dernière connexion', profileProvider.formatDate(profileProvider.lastLoginAt)),
+        _buildInfoRow('Compte créé le', profileProvider.formatDate(profileProvider.createdAt)),
+        _buildInfoRow('Type d\'appareil', profileProvider.deviceType ?? 'Non disponible'),
       ],
     );
   }
@@ -381,7 +378,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildErrorMessage() {
+  /// Message d'erreur
+  Widget _buildErrorMessage(ProfileProvider profileProvider) {
     return Padding(
       padding: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingM)),
       child: Container(
@@ -397,7 +395,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SizedBox(width: ResponsiveSize.getWidth(8)),
             Expanded(
               child: Text(
-                _errorMessage!,
+                profileProvider.error!,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(14),
                   color: Colors.red[700],
@@ -410,9 +408,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSaveButton() {
+  /// Bouton de sauvegarde
+  Widget _buildSaveButton(ProfileProvider profileProvider) {
     return ElevatedButton(
-      onPressed: _isSaving ? null : _saveProfile,
+      onPressed: profileProvider.isSaving ? null : () => _saveProfile(profileProvider),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppTheme.dtBlue,
         foregroundColor: AppTheme.dtYellow,
@@ -424,9 +423,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ResponsiveSize.getWidth(AppTheme.radiusM),
           ),
         ),
-        elevation: _isSaving ? 0 : 2,
+        elevation: profileProvider.isSaving ? 0 : 2,
       ),
-      child: _isSaving
+      child: profileProvider.isSaving
           ? SizedBox(
               width: ResponsiveSize.getWidth(20),
               height: ResponsiveSize.getHeight(20),
