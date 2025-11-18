@@ -4,10 +4,16 @@ import 'package:dtservices/services/fcm_token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'screens/splash_screen.dart';
 import 'utils/responsive_size.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+
+// Providers
+import 'providers/user_session_provider.dart';
+import 'providers/balance_provider.dart';
+import 'providers/forfait_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,7 +88,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         debugPrint('Application revenue au premier plan');
         break;
       case AppLifecycleState.paused:
-        // L'application est vzsmise en pause (en arrière-plan)
+        // L'application est mise en pause (en arrière-plan)
         UserSession.appPaused();
         debugPrint('Application passée en arrière-plan');
         break;
@@ -105,21 +111,39 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Mettre à jour l'activité utilisateur à chaque construction du widget racine
     UserSession.updateActivity();
 
-    return MaterialApp(
-      title: 'DTServices',
-      debugShowCheckedModeBanner: false,
-      navigatorKey: NotificationService.navigatorKey,
-      theme: ThemeData(
-        primaryColor: const Color(0xFF002464),
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Roboto',
-      ),
-      home: Builder(
-        builder: (context) {
-          // Initialiser le responsive size
-          ResponsiveSize.init(context);
-          return const SplashScreen();
-        },
+    return MultiProvider(
+      providers: [
+        // Provider de session utilisateur
+        ChangeNotifierProvider(
+          create: (_) => UserSessionProvider(),
+        ),
+
+        // Provider de solde
+        ChangeNotifierProvider(
+          create: (_) => BalanceProvider(),
+        ),
+
+        // Provider de forfaits
+        ChangeNotifierProvider(
+          create: (_) => ForfaitProvider(),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'DTServices',
+        debugShowCheckedModeBanner: false,
+        navigatorKey: NotificationService.navigatorKey,
+        theme: ThemeData(
+          primaryColor: const Color(0xFF002464),
+          scaffoldBackgroundColor: Colors.white,
+          fontFamily: 'Roboto',
+        ),
+        home: Builder(
+          builder: (context) {
+            // Initialiser le responsive size
+            ResponsiveSize.init(context);
+            return const SplashScreen();
+          },
+        ),
       ),
     );
   }
