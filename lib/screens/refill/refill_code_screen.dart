@@ -6,6 +6,8 @@ import 'package:dtservices/services/refill_service.dart';
 import 'package:dtservices/models/refill_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import '../../providers/balance_provider.dart';
 
 class RefillCodeScreen extends StatefulWidget {
   final String phoneNumber; 
@@ -483,6 +485,12 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
           actions: [
             TextButton(
               onPressed: () {
+                // ✅ INVALIDER LE CACHE après rechargement réussi
+                final balanceProvider = Provider.of<BalanceProvider>(context, listen: false);
+                balanceProvider.invalidateCache(); // Le solde a changé
+
+                debugPrint('✅ Cache invalidé après rechargement de crédit');
+
                 // Fermer le dialog et revenir à l'écran principal
                 Navigator.of(context).pop(); // Fermer le dialog
                 widget.onRefreshSolde?.call(); // Rafraîchir le solde

@@ -5,6 +5,8 @@ import 'package:dtservices/services/biometric_auth_service.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/balance_provider.dart';
 
 class TransferConfirmationScreen extends StatefulWidget {
   final String phoneNumber;
@@ -331,6 +333,12 @@ class _TransferConfirmationScreenState extends State<TransferConfirmationScreen>
         });
         
         if (result['success']) {
+          // ✅ INVALIDER LE CACHE après transfert réussi
+          final balanceProvider = Provider.of<BalanceProvider>(context, listen: false);
+          balanceProvider.invalidateCache(); // Le solde a changé
+
+          debugPrint('✅ Cache invalidé après transfert de crédit');
+
           // Transfert réussi - Navigation vers l'écran de succès
           Navigator.pushReplacement(
             context,
@@ -339,7 +347,7 @@ class _TransferConfirmationScreenState extends State<TransferConfirmationScreen>
                 phoneNumber: widget.phoneNumber,
                 recipient: widget.recipient,
                 amount: widget.amount,
-                ancienSolde: widget.soldeActuel, 
+                ancienSolde: widget.soldeActuel,
                 transferFee: widget.transferFee,
               ),
             ),

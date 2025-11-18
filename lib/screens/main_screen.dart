@@ -1,8 +1,13 @@
 // lib/screens/main_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
+import '../providers/user_session_provider.dart';
+import '../providers/balance_provider.dart';
+import '../providers/forfait_provider.dart';
+import '../providers/profile_provider.dart';
 import 'home_screen.dart';
 import 'topup/home/topup_home_screen.dart';
 import 'history_screen.dart';
@@ -27,6 +32,35 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+
+    // ✅ INITIALISER LES PROVIDERS AU DÉMARRAGE
+    _initializeProviders();
+  }
+
+  /// Initialise tous les providers au démarrage de MainScreen
+  /// Précharge les données pour une meilleure expérience utilisateur
+  void _initializeProviders() {
+    Future.microtask(() {
+      // Initialiser la session
+      final sessionProvider = Provider.of<UserSessionProvider>(context, listen: false);
+      sessionProvider.initSession();
+
+      // Si l'utilisateur est authentifié, précharger les données
+      if (sessionProvider.isAuthenticated) {
+        final balanceProvider = Provider.of<BalanceProvider>(context, listen: false);
+        final forfaitProvider = Provider.of<ForfaitProvider>(context, listen: false);
+        final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+
+        // Précharger en parallèle pour une meilleure performance
+        Future.wait([
+          balanceProvider.fetchBalance(),
+          forfaitProvider.fetchForfaits(),
+          profileProvider.fetchProfile(),
+        ]);
+
+        debugPrint('✅ Providers initialisés et données préchargées');
+      }
+    });
   }
 
   @override
