@@ -11,6 +11,7 @@ import 'firebase_options.dart';
 import 'providers/balance_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/topup_provider.dart';
+import 'providers/transaction_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +55,9 @@ Future<void> main() async {
 
         // Provider pour la gestion des sessions TopUp (recharge fixe)
         ChangeNotifierProvider(create: (_) => TopUpProvider()),
+
+        // Provider pour la gestion de l'historique des transactions
+        ChangeNotifierProvider(create: (_) => TransactionProvider()),
 
         // TODO: Ajouter d'autres providers ici au fur et à mesure
         // ChangeNotifierProvider(create: (_) => ForfaitProvider()),
