@@ -174,6 +174,8 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
 
   // Widget pour la boîte d'information
   Widget _buildInfoBox() {
+    final balanceProvider = context.read<BalanceProvider>();
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -201,7 +203,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
           Text(
             '• Montant minimum : 50 DJF\n'
             '• Frais de transfert : 5% du montant\n'
-            '• Votre solde actuel : ${widget.soldeActuel.toStringAsFixed(0)} DJF',
+            '• Votre solde actuel : ${balanceProvider.solde.toStringAsFixed(0)} DJF',
             style: TextStyle(
               color: AppTheme.dtBlue,
               fontSize: 14,
