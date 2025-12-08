@@ -3,7 +3,8 @@
 **Date de début** : 2025-12-07
 **Date dernière mise à jour** : 2025-12-08
 **Branche Git** : `feature/state-management-providers`
-**Statut** : ✅ Migration AuthProvider et BalanceProvider complétée
+**Statut** : ✅ AuthProvider, BalanceProvider et TopUpProvider complétés
+**Migration screens** : 7 screens migrés vers BalanceProvider (~150 lignes supprimées)
 
 ---
 
@@ -96,6 +97,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BalanceProvider()),
+        ChangeNotifierProvider(create: (_) => TopUpProvider()),
       ],
       child: const MyApp(),
     ),
@@ -171,23 +173,51 @@ SplashScreen
 
 ---
 
+### 3. TopUpProvider (TERMINÉ ✅)
+**Fichier** : `lib/providers/topup_provider.dart` (272 lignes)
+
+**Fonctionnalités** :
+- Gestion centralisée des sessions TopUp (mobile + fixe)
+- Chargement des balances fixes (crédit, voix, data)
+- Vérification du statut du numéro (suspendu/éligible)
+- Cache intelligent avec TTL de 1 minute
+- Méthodes utilitaires : `hasSufficientBalance()`, formatage automatique
+
+**Statut** : ✅ Créé et testé - Prêt pour utilisation
+**Note** : TopUpHomeScreen (972 lignes, 11 setState) est trop complexe pour migration immédiate - migration reportée
+
+**Usage** :
+```dart
+// Initialisation
+await context.read<TopUpProvider>().initialize();
+
+// Démarrer session
+await topUpProvider.startSession(fixedNumber);
+
+// Accès aux balances
+Text(topUpProvider.fixedBalanceFormatted); // "5000 DJF"
+Text(topUpProvider.voiceBalanceFormatted); // "00:05:30"
+```
+
+---
+
+## 📝 Screens Migrés
+
+### BalanceProvider (7 screens)
+1. ✅ **TransferInputScreen** - Utilise `balanceProvider.solde` au lieu de props
+2. ✅ **TransferConfirmationScreen** - Refresh balance après transfert réussi
+3. ✅ **ForfaitRecipientScreen** - Props supprimées, utilise provider
+4. ✅ **ForfaitCategoriesScreen** - Affichage solde depuis provider
+5. ✅ **ForfaitsScreen** - RefreshIndicator utilise provider
+6. ✅ **HomeScreen** - Navigation sans passer props
+7. ✅ **SearchScreen** - Navigation sans passer props
+
+---
+
 ## 📝 Screens Restant à Migrer
 
 ### Priorité Haute
-1. **TopUpHomeScreen** (`lib/screens/topup/home/topup_home_screen.dart`)
-   - Actuellement : 11 appels à `setState()`
-   - Action : Créer `TopUpProvider` pour gérer les sessions TopUp
-   - Complexité : Moyenne (gère les balances fixes)
-
-2. **TransferInputScreen** (`lib/screens/transfer_credit/transfer_input_screen.dart`)
-   - Actuellement : Utilise callback `onRefreshSolde`
-   - Action : Utiliser `BalanceProvider` directement
-   - Complexité : Faible
-
-3. **ForfaitRecipientScreen** (`lib/screens/achat_forfait/forfait_recipient_screen.dart`)
-   - Actuellement : Reçoit `soldeActuel` en prop
-   - Action : Lire depuis `BalanceProvider`
-   - Complexité : Faible
+1. ⚠️ **TopUpHomeScreen** - REPORTÉ (trop complexe - 972 lignes, 11 setState)
 
 ### Priorité Moyenne
 4. **ProfileScreen** - Si gère des états locaux

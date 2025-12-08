@@ -2,18 +2,37 @@
 
 **Date de création** : 2025-12-08
 **Statut** : ✅ TopUpProvider créé, testé et compilé avec succès
-**Prochaine étape** : Migration progressive de TopUpHomeScreen
+**Décision** : ⚠️ Migration de TopUpHomeScreen REPORTÉE - écran trop complexe (972 lignes, 11 setState)
+**Prochaine étape** : Migrer d'autres écrans TopUp plus simples d'abord
 
 ---
 
 ## 📋 Contexte
 
-TopUpHomeScreen est un écran complexe avec 11 appels à `setState()` qui gère :
-- Session TopUp (numéro mobile + numéro fixe)
+TopUpHomeScreen est un écran **TRÈS complexe** avec :
+- **972 lignes de code**
+- **11 appels à `setState()`**
+- Gestion de session TopUp (numéro mobile + numéro fixe)
 - Balance du numéro fixe (voix, data, SMS, crédit)
 - Statut du numéro (suspendu ou éligible)
 - Balance mobile (pour les achats)
 - Navigation vers packages, abonnements et recharges
+- Logique métier complexe avec de nombreuses méthodes privées
+
+## ⚠️ Décision de Report
+
+Après analyse, la migration de TopUpHomeScreen vers TopUpProvider est **REPORTÉE** pour les raisons suivantes:
+
+1. **Complexité élevée** : 972 lignes avec logique métier complexe
+2. **Risque élevé** : Trop de dépendances entre les variables d'état
+3. **Temps requis** : Migration nécessiterait plusieurs heures de travail minutieux
+4. **Approche alternative** : TopUpProvider est créé et fonctionnel, utilisable par les NOUVEAUX écrans TopUp
+
+## ✅ Solution Retenue
+
+1. **TopUpProvider reste disponible** - Prêt à l'emploi pour les nouveaux développements
+2. **Migration progressive** - Migrer d'abord les écrans TopUp plus simples (packages, subscriptions)
+3. **Refactoring ultérieur** - TopUpHomeScreen pourra être refactorisé plus tard quand le reste sera migré
 
 ## ✅ Travaux Complétés
 
