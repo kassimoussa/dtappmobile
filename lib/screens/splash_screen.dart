@@ -1,10 +1,11 @@
 // lib/screens/splash_screen.dart
 import 'package:dtservices/screens/main_screen.dart';
-import 'package:dtservices/services/user_session.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
 import '../extensions/color_extensions.dart';
+import '../providers/auth_provider.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -58,24 +59,25 @@ Future<void> _navigateAfterSplash() async {
   await Future.delayed(const Duration(seconds: 2));
 
   // Vérifie si l'utilisateur est authentifié après l'affichage du splash
-  final isAuthenticated = await UserSession.isAuthenticated();
-  final phoneNumber = await UserSession.getPhoneNumber();
+  if (!mounted) return; // Vérifie si le widget est toujours monté
+
+  final authProvider = context.read<AuthProvider>();
+  final isAuthenticated = authProvider.isAuthenticated;
+  final phoneNumber = authProvider.phoneNumber;
 
   // Navigation vers la page appropriée
-  if (!mounted) return; // Vérifie si le widget est toujours monté
-  
   if (isAuthenticated && phoneNumber != null) {
     // Utilisateur authentifié, rediriger vers l'écran principal
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const MainScreen(), // Ajustez selon votre écran
+        builder: (context) => const MainScreen(),
       ),
     );
   } else {
     // Utilisateur non authentifié, rediriger vers l'écran de connexion
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const LoginScreen(), // Ajustez selon votre écran
+        builder: (context) => const LoginScreen(),
       ),
     );
   }

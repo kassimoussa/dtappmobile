@@ -6,9 +6,10 @@ import 'package:dtservices/screens/login_screen.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_input_screen.dart';
 import 'package:dtservices/screens/refill/refill_recipient_screen.dart';
 import 'package:dtservices/screens/speedtest/speedtest_native_screen.dart';
-import 'package:dtservices/services/balance_service.dart';
 import 'package:dtservices/services/user_session.dart';
-import 'package:dtservices/services/logout_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/balance_provider.dart';
+import '../providers/auth_provider.dart';
 import 'profile_screen.dart';
 import 'search_screen.dart';
 import 'package:flutter/material.dart';
@@ -27,21 +28,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final bool _isLoading = false;
-  // Données statiques au lieu de l'USSD
-  double _solde = 0.0;
-  String _dateExpiration = 'N/A';
-  double _bonus = 0.0;
-  final bool _dataLoaded = true; // Toujours true maintenant
   bool _showMainBalance = false;
   bool _showBonusBalance = false;
 
   String _formattedPhoneNumber = '';
   String _normalPhoneNumber = '';
   bool _isLoadingPhone = true;
-  bool _isLoadingBalance = true;
-  Map<String, dynamic>? _balanceData;
-  String? _errorMessage;
 
   @override
   void initState() {
@@ -53,8 +45,12 @@ class _HomeScreenState extends State<HomeScreen> {
     // Charger le numéro de téléphone depuis la session
     await _loadPhoneNumber();
 
-    // Charger le solde
-    await _loadBalance();
+    // Charger le solde via le provider
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<BalanceProvider>().loadBalance();
+      });
+    }
   }
 
   Future<void> _loadPhoneNumber() async {
@@ -111,64 +107,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _loadBalance() async {
-    setState(() {
-      _isLoadingBalance = true;
-      _errorMessage = null;
-    });
-
-    try {
-      // Utiliser le service pour charger le solde
-      final data = await BalanceService.getCurrentBalance();
-
-      if (mounted) {
-        setState(() {
-          _balanceData =
-              data; // Extraire le solde (convertir depuis la chaîne en double)
-          if (data['solde'] != null) {
-            // La valeur est stockée en centimes, donc diviser par 100 pour obtenir en DJF
-            _solde =
-                double.tryParse(data['solde']) != null
-                    ? double.parse(data['solde']) / 100
-                    : 0.0;
-          }
-
-          // Extraire la date d'expiration (date de supervision)
-          _dateExpiration = data['date_supervision'] ?? 'N/A';
-          
-          // Extraire le solde bonus depuis le compte dédié ID 5
-          if (data['comptes_dedies'] != null) {
-            final comptesDedies = data['comptes_dedies'] as List;
-            final compteBonus = comptesDedies.firstWhere(
-              (compte) => compte['id'] == 5,
-              orElse: () => null,
-            );
-            if (compteBonus != null) {
-              // Convertir la valeur depuis centimes vers DJF (diviser par 100)
-              _bonus = double.tryParse(compteBonus['valeur']?.toString() ?? '0') != null
-                  ? double.parse(compteBonus['valeur'].toString()) / 100
-                  : 0.0;
-            }
-          }
-          
-          _isLoadingBalance = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('Erreur lors du chargement du solde: $e');
-      if (mounted) {
-        setState(() {
-          _errorMessage = e.toString();
-          _isLoadingBalance = false;
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // Initialiser le responsive size
     ResponsiveSize.init(context);
+
+    // Utiliser le BalanceProvider pour obtenir les données
+    final balanceProvider = context.watch<BalanceProvider>();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -189,8 +134,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _buildAccountCard(
                       icon: Icons.account_balance_wallet_outlined,
                       label: 'Main Account',
-                      balance: "${_solde.toStringAsFixed(0)} DJF",
+                      balance: "${balanceProvider.solde.toStringAsFixed(0)} DJF",
                       showBalance: _showMainBalance,
+                      isLoading: balanceProvider.isLoading,
                       onToggleVisibility:
                           () => setState(
                             () => _showMainBalance = !_showMainBalance,
@@ -202,8 +148,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _buildAccountCard(
                       icon: Icons.add_card,
                       label: 'Solde Bonus',
-                      balance: "${_bonus.toStringAsFixed(2)} DJF",
+                      balance: "${balanceProvider.bonus.toStringAsFixed(2)} DJF",
                       showBalance: _showBonusBalance,
+                      isLoading: balanceProvider.isLoading,
                       onToggleVisibility:
                           () => setState(
                             () => _showBonusBalance = !_showBonusBalance,
@@ -214,13 +161,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 
               // Date d'expiration si disponible
-              if (!_isLoadingBalance)
+              if (!balanceProvider.isLoading)
                 Padding(
                   padding: EdgeInsets.only(
                     top: ResponsiveSize.getHeight(AppTheme.spacingS),
                   ),
                   child: Text(
-                    "Expire le $_dateExpiration",
+                    "Expire le ${balanceProvider.dateExpiration}",
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: ResponsiveSize.getFontSize(12),
@@ -334,6 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required String balance,
     required bool showBalance,
     required VoidCallback onToggleVisibility,
+    required bool isLoading,
   }) {
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -368,9 +316,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: _isLoading ? null : onToggleVisibility,
+                onTap: isLoading ? null : onToggleVisibility,
                 child:
-                    _isLoading
+                    isLoading
                         ? SizedBox(
                           width: ResponsiveSize.getWidth(20),
                           height: ResponsiveSize.getHeight(20),
@@ -395,6 +343,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildQuickActions() {
+    // Obtenir le provider pour accéder au solde
+    final balanceProvider = context.read<BalanceProvider>();
+
     final actions = [
       {
         'icon': Icons.local_mall_sharp,
@@ -404,8 +355,8 @@ class _HomeScreenState extends State<HomeScreen> {
               CustomRouteTransitions.slideRightRoute(
                 page: ForfaitRecipientScreen(
                   phoneNumber: _normalPhoneNumber,
-                  soldeActuel: _solde,
-                  onRefreshSolde: _loadBalance,
+                  soldeActuel: balanceProvider.solde,
+                  onRefreshSolde: () => balanceProvider.refreshBalance(),
                 ),
               ),
             ),
@@ -440,8 +391,8 @@ class _HomeScreenState extends State<HomeScreen> {
               CustomRouteTransitions.slideRightRoute(
                 page: TransferInputScreen(
                   phoneNumber: _normalPhoneNumber,
-                  soldeActuel: _solde,
-                  onRefreshSolde: _loadBalance,
+                  soldeActuel: balanceProvider.solde,
+                  onRefreshSolde: () => balanceProvider.refreshBalance(),
                 ),
               ),
             ),
@@ -563,8 +514,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     try {
+      // Récupérer les providers
+      final authProvider = context.read<AuthProvider>();
+      final balanceProvider = context.read<BalanceProvider>();
+
       // Effectuer la déconnexion complète (API + local)
-      final success = await LogoutService.logout();
+      final success = await authProvider.logout();
+
+      // Réinitialiser le cache de balance
+      if (success) {
+        balanceProvider.reset();
+        debugPrint('HomeScreen: Cache de balance réinitialisé après déconnexion');
+      }
 
       // Fermer l'indicateur de chargement si le widget est encore monté
       if (mounted) {

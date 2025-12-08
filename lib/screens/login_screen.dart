@@ -1,10 +1,11 @@
-// lib/screens/login_screen.dart (modifié)
+// lib/screens/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
 import '../services/user_service.dart';
-import '../services/otp_service.dart'; // Importez le nouveau service OTP
+import '../providers/auth_provider.dart';
 import '../routes/custom_route_transitions.dart';
 import '../extensions/color_extensions.dart';
 import 'otp_screen.dart';
@@ -19,12 +20,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
   String? _savedPhoneNumber;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  String? _errorMessage;
 
   @override
   void initState() {
@@ -60,119 +59,78 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   }
 
   Future<void> _checkSavedPhoneNumber() async {
-    setState(() {
-      _isLoading = true;
-    });
-
     try {
       final phoneNumber = await UserService.getPhoneNumber();
       if (phoneNumber != null && phoneNumber.isNotEmpty) {
-        setState(() {
-          _savedPhoneNumber = phoneNumber;
-          _phoneController.text = phoneNumber;
-        });
+        if (mounted) {
+          setState(() {
+            _savedPhoneNumber = phoneNumber;
+            _phoneController.text = phoneNumber;
+          });
+        }
       }
     } catch (e) {
       debugPrint('Erreur lors de la récupération du numéro sauvegardé: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
-  final _otpService = OtpService();
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
 
-// Puis modifiez la méthode _handleLogin comme suit :
-// Méthode _handleLogin corrigée pour login_screen.dart
-Future<void> _handleLogin() async {
-  if (!_formKey.currentState!.validate()) return;
+    final phoneNumber = _phoneController.text;
+    final authProvider = context.read<AuthProvider>();
 
-  final phoneNumber = _phoneController.text;
-  // Ajouter le préfixe +253 s'il n'est pas déjà présent
-  final fullPhoneNumber = phoneNumber;
-
-  setState(() {
-    _isLoading = true;
-    _errorMessage = null;
-  });
-
-  try {
-    // Enregistrer le numéro de téléphone
+    // Enregistrer le numéro de téléphone pour pré-remplissage
     await UserService.savePhoneNumber(phoneNumber);
 
-    // Appel à l'API pour envoyer l'OTP - utiliser l'instance
-    final result = await _otpService.sendOtp(phoneNumber);
-    
-    debugPrint('Résultat complet de sendOtp: $result');
-    
-    // Vérifier que result est bien un Map et contient la clé 'status'
-    if (result.containsKey('status')) {
-      if (result['status'] == 'success') {
-        // Naviguer vers l'écran OTP
-        if (!mounted) return;
-        Navigator.push(
-          context,
-          CustomRouteTransitions.fadeScaleRoute(
-            page: OTPScreen(phone: fullPhoneNumber),
-          ),
-        );
-      } else {
-        setState(() {
-          _errorMessage = result['message'] ?? 'Erreur lors de l\'envoi du code';
-        });
-      }
-    } else {
-      // Cas où la réponse n'a pas le format attendu
-      setState(() {
-        _errorMessage = 'Réponse inattendue du serveur';
-      });
-      debugPrint('Format de réponse inattendu: $result');
-    }
-  } catch (e) {
-    debugPrint('Erreur lors de la connexion: $e');
+    // Appeler AuthProvider pour envoyer l'OTP
+    final success = await authProvider.sendOtp(phoneNumber);
+
     if (!mounted) return;
-    
-    setState(() {
-      _errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
-    });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-            Expanded(
-              child: Text(
-                'Erreur: ${e.toString()}',
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(14),
+
+    if (success) {
+      // Naviguer vers l'écran OTP
+      Navigator.push(
+        context,
+        CustomRouteTransitions.fadeScaleRoute(
+          page: OTPScreen(phone: phoneNumber),
+        ),
+      );
+    } else {
+      // Afficher erreur via SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+              Expanded(
+                child: Text(
+                  authProvider.errorMessage ?? 'Erreur lors de l\'envoi du code',
+                  style: TextStyle(
+                    fontSize: ResponsiveSize.getFontSize(14),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+          ),
+          margin: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
         ),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
-        ),
-        margin: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-      ),
-    );
-  } finally {
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
+      );
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
+
+    // Utiliser AuthProvider pour l'état
+    final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
       body: AnimatedBuilder(
@@ -252,6 +210,8 @@ Future<void> _handleLogin() async {
   }
   
   Widget _buildForm() {
+    final authProvider = context.watch<AuthProvider>();
+
     return SingleChildScrollView(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
       child: Form(
@@ -292,7 +252,7 @@ Future<void> _handleLogin() async {
               ),
 
             // Message d'erreur
-            if (_errorMessage != null)
+            if (authProvider.errorMessage != null)
               Container(
                 padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
                 margin: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingM)),
@@ -311,7 +271,7 @@ Future<void> _handleLogin() async {
                     SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
                     Expanded(
                       child: Text(
-                        _errorMessage!,
+                        authProvider.errorMessage!,
                         style: TextStyle(
                           color: Colors.red.shade800,
                           fontSize: ResponsiveSize.getFontSize(14),
@@ -400,7 +360,7 @@ Future<void> _handleLogin() async {
             
             // Bouton de connexion
             ElevatedButton(
-              onPressed: _isLoading ? null : _handleLogin,
+              onPressed: authProvider.isLoading ? null : _handleLogin,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
                 foregroundColor: AppTheme.dtYellow,
@@ -410,7 +370,7 @@ Future<void> _handleLogin() async {
                 ),
                 elevation: 2,
               ),
-              child: _isLoading
+              child: authProvider.isLoading
                   ? SizedBox(
                       width: ResponsiveSize.getWidth(24),
                       height: ResponsiveSize.getHeight(24),

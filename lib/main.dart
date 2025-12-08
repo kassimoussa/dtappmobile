@@ -1,13 +1,15 @@
 import 'package:dtservices/firebase/notification_service.dart';
-import 'package:dtservices/services/user_session.dart';
 import 'package:dtservices/services/fcm_token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'screens/splash_screen.dart';
 import 'utils/responsive_size.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'providers/balance_provider.dart';
+import 'providers/auth_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +42,22 @@ Future<void> main() async {
     ),
   );
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        // Provider pour l'authentification et la gestion de session
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+
+        // Provider pour la gestion du solde utilisateur
+        ChangeNotifierProvider(create: (_) => BalanceProvider()),
+
+        // TODO: Ajouter d'autres providers ici au fur et à mesure
+        // ChangeNotifierProvider(create: (_) => TopUpProvider()),
+        // ChangeNotifierProvider(create: (_) => ForfaitProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -60,7 +77,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
 
     // Indiquer que l'application est au premier plan au démarrage
-    UserSession.appResumed();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthProvider>().appResumed();
+    });
   }
 
   @override
@@ -74,21 +93,23 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    // Gérer les changements d'état du cycle de vie de l'application
+    // Gérer les changements d'état du cycle de vie de l'application via AuthProvider
+    final authProvider = context.read<AuthProvider>();
+
     switch (state) {
       case AppLifecycleState.resumed:
         // L'application est revenue au premier plan
-        UserSession.appResumed();
+        authProvider.appResumed();
         debugPrint('Application revenue au premier plan');
         break;
       case AppLifecycleState.paused:
-        // L'application est vzsmise en pause (en arrière-plan)
-        UserSession.appPaused();
+        // L'application est mise en pause (en arrière-plan)
+        authProvider.appPaused();
         debugPrint('Application passée en arrière-plan');
         break;
       case AppLifecycleState.detached:
         // L'application est fermée
-        UserSession.appTerminated();
+        authProvider.appTerminated();
         debugPrint('Application fermée');
         break;
       default:
@@ -103,7 +124,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     // Mettre à jour l'activité utilisateur à chaque construction du widget racine
-    UserSession.updateActivity();
+    context.read<AuthProvider>().updateActivity();
 
     return MaterialApp(
       title: 'DTServices',

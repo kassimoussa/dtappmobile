@@ -589,17 +589,21 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.check_circle_outline,
                         size: ResponsiveSize.getFontSize(18),
                       ),
-                      SizedBox(width: ResponsiveSize.getWidth(8)),
-                      Text(
-                        'Confirmer l\'achat',
-                        style: TextStyle(
-                          fontSize: ResponsiveSize.getFontSize(16),
-                          fontWeight: FontWeight.bold,
+                      SizedBox(width: ResponsiveSize.getWidth(6)),
+                      Flexible(
+                        child: Text(
+                          'Confirmer l\'achat',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(15),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],

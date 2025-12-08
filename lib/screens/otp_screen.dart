@@ -1,14 +1,13 @@
-// lib/screens/otp_screen.dart (modifié avec auto-fill SEULEMENT)
-import 'package:dtservices/services/user_session.dart';
+// lib/screens/otp_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sms_autofill/sms_autofill.dart'; // AJOUT
+import 'package:provider/provider.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 import 'dart:async';
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
 import '../routes/custom_route_transitions.dart';
-import '../services/otp_service.dart';
-import '../services/fcm_token_service.dart';
+import '../providers/auth_provider.dart';
 import 'main_screen.dart';
 
 class OTPScreen extends StatefulWidget {
@@ -33,10 +32,8 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
     (index) => FocusNode(),
   );
 
-  bool _isVerifying = false;
-  bool _isResending = false;
   String? _errorMessage;
-  
+
   // Compteur pour le délai de réenvoi
   Timer? _timer;
   int _secondsRemaining = 60;
@@ -118,142 +115,74 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
     _focusNodes.first.requestFocus();
   }
 
-  final _otpService = OtpService();
-
   Future<void> _resendOtp() async {
     if (!_canResend) return;
-    
-    setState(() {
-      _isResending = true;
-      _errorMessage = null;
-    });
 
-    try {
-      final result = await _otpService.sendOtp(widget.phone);
-      debugPrint('Résultat du réenvoi OTP: $result');
-      
-      if (result.containsKey('status')) {
-        if (result['status'] == 'success') {
-          if (!mounted) return;
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Un nouveau code a été envoyé'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          
-          _startTimer();
-          _clearAllFields();
-          
-          // AJOUT - Réactiver l'écoute SMS après réenvoi
-          SmsAutoFill().listenForCode;
-        } else {
-          setState(() {
-            _errorMessage = result['message'] ?? 'Erreur lors de l\'envoi du code';
-          });
-        }
-      } else {
-        setState(() {
-          _errorMessage = 'Réponse inattendue du serveur';
-        });
-        debugPrint('Format de réponse inattendu lors du réenvoi: $result');
-      }
-    } catch (e) {
-      debugPrint('Erreur lors du réenvoi du code: $e');
-      if (!mounted) return;
-      
+    final authProvider = context.read<AuthProvider>();
+
+    // Réenvoyer OTP via AuthProvider
+    final success = await authProvider.sendOtp(widget.phone);
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Un nouveau code a été envoyé'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      _startTimer();
+      _clearAllFields();
+
+      // Réactiver l'écoute SMS après réenvoi
+      SmsAutoFill().listenForCode;
+    } else {
       setState(() {
-        _errorMessage = 'Erreur lors du réenvoi du code';
+        _errorMessage = authProvider.errorMessage ?? 'Erreur lors du réenvoi du code';
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur: ${e.toString()}'),
+          content: Text(authProvider.errorMessage ?? 'Erreur lors du réenvoi'),
           backgroundColor: Colors.red,
         ),
       );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isResending = false;
-        });
-      }
     }
   }
 
   void _onOTPSubmit() async {
     String otp = _controllers.map((c) => c.text).join();
     if (otp.length == 6) {
-      setState(() {
-        _isVerifying = true;
-        _errorMessage = null;
-      });
+      final authProvider = context.read<AuthProvider>();
 
-      try {
-        final result = await _otpService.verifyOtp(widget.phone, otp);
-        debugPrint('Résultat de la vérification OTP: $result');
-        
-        if (result.containsKey('status')) {
-          if (result['status'] == 'success') {
-            // Extraire le session_token de la réponse API
-            final sessionToken = result['data']?['session_token'];
+      // Vérifier OTP via AuthProvider (crée la session et envoie FCM automatiquement)
+      final success = await authProvider.verifyOtp(widget.phone, otp);
 
-            // Créer la session avec le token
-            await UserSession.createSession(widget.phone, sessionToken: sessionToken);
+      if (!mounted) return;
 
-            debugPrint('✅ Session créée avec token: ${sessionToken?.substring(0, 10)}...');
-
-            // Envoyer le token FCM au serveur
-            debugPrint('🔔 Envoi du token FCM au serveur...');
-            try {
-              await FCMTokenService.updateTokenOnServer();
-            } catch (fcmError) {
-              debugPrint('⚠️ Erreur lors de l\'envoi du token FCM: $fcmError');
-              // On continue même en cas d'erreur FCM pour ne pas bloquer la connexion
-            }
-
-            if (!mounted) return;
-            Navigator.of(context).pushAndRemoveUntil(
-              CustomRouteTransitions.fadeScaleRoute(
-                page: const MainScreen(),
-              ),
-              (route) => false,
-            );
-          } else {
-            setState(() {
-              _errorMessage = result['message'] ?? 'Code OTP incorrect';
-              _clearAllFields();
-            });
-          }
-        } else {
-          setState(() {
-            _errorMessage = 'Réponse inattendue du serveur';
-            _clearAllFields();
-          });
-          debugPrint('Format de réponse inattendu lors de la vérification: $result');
-        }
-      } catch (e) {
-        debugPrint('Erreur lors de la vérification: $e');
-        if (!mounted) return;
-        
+      if (success) {
+        // Succès - Naviguer vers MainScreen
+        Navigator.of(context).pushAndRemoveUntil(
+          CustomRouteTransitions.fadeScaleRoute(
+            page: const MainScreen(),
+          ),
+          (route) => false,
+        );
+      } else {
+        // Échec - Afficher erreur
         setState(() {
-          _errorMessage = 'Une erreur est survenue lors de la vérification';
+          _errorMessage = authProvider.errorMessage ?? 'Code OTP incorrect';
           _clearAllFields();
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur: ${e.toString()}'),
+            content: Text(authProvider.errorMessage ?? 'Code OTP incorrect'),
             backgroundColor: Colors.red,
           ),
         );
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isVerifying = false;
-          });
-        }
       }
     }
   }
@@ -272,6 +201,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
     final formattedPhone = formatPhoneNumber(widget.phone);
+    final authProvider = context.watch<AuthProvider>();
     
     return Scaffold(
       backgroundColor: Colors.white,
@@ -389,7 +319,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
               ElevatedButton(
-                onPressed: _isVerifying ? null : _onOTPSubmit,
+                onPressed: authProvider.isLoading ? null : _onOTPSubmit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.dtBlue,
                   foregroundColor: AppTheme.dtYellow,
@@ -398,7 +328,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
                     borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
                   ),
                 ),
-                child: _isVerifying
+                child: authProvider.isLoading
                     ? SizedBox(
                         width: ResponsiveSize.getWidth(24),
                         height: ResponsiveSize.getHeight(24),
@@ -422,14 +352,14 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton(
-                    onPressed: _canResend && !_isResending ? _resendOtp : null,
+                    onPressed: _canResend && !authProvider.isLoading ? _resendOtp : null,
                     style: TextButton.styleFrom(
                       foregroundColor: _canResend ? Colors.grey[600] : Colors.grey[400],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _isResending 
+                        authProvider.isLoading
                           ? SizedBox(
                               width: ResponsiveSize.getWidth(16),
                               height: ResponsiveSize.getHeight(16),
@@ -445,8 +375,8 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
                             ),
                         SizedBox(width: ResponsiveSize.getWidth(8)),
                         Text(
-                          _canResend 
-                            ? 'Renvoyer le code' 
+                          _canResend
+                            ? 'Renvoyer le code'
                             : 'Renvoyer le code (${_secondsRemaining}s)',
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(16),
