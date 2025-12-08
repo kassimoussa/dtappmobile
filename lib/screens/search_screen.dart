@@ -189,8 +189,6 @@ class _SearchScreenState extends State<SearchScreen> {
       CustomRouteTransitions.slideRightRoute(
         page: ForfaitRecipientScreen(
           phoneNumber: _phoneNumber,
-          soldeActuel: _soldeActuel,
-          onRefreshSolde: () {}, // Callback vide pour la recherche
         ),
       ),
     );
@@ -211,8 +209,6 @@ class _SearchScreenState extends State<SearchScreen> {
       CustomRouteTransitions.slideRightRoute(
         page: TransferInputScreen(
           phoneNumber: _phoneNumber,
-          soldeActuel: _soldeActuel,
-          onRefreshSolde: () {},
         ),
       ),
     );

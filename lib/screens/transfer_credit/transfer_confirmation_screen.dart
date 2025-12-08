@@ -1,18 +1,18 @@
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_success_screen.dart';
 import 'package:dtservices/services/transfer_credit_service.dart';
 import 'package:dtservices/services/biometric_auth_service.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class TransferConfirmationScreen extends StatefulWidget {
   final String phoneNumber;
   final String recipient;
   final double amount;
   final double transferFee;
-  final double soldeActuel;
-  final VoidCallback? onRefreshSolde;
 
   const TransferConfirmationScreen({
     super.key,
@@ -20,8 +20,6 @@ class TransferConfirmationScreen extends StatefulWidget {
     required this.recipient,
     required this.amount,
     required this.transferFee,
-    required this.soldeActuel,
-    this.onRefreshSolde,
   });
 
   @override
@@ -35,13 +33,14 @@ class _TransferConfirmationScreenState extends State<TransferConfirmationScreen>
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+    final balanceProvider = context.watch<BalanceProvider>();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: "Confirmation de transfert", 
-        showAction: true, 
-        value: widget.soldeActuel
+        title: "Confirmation de transfert",
+        showAction: true,
+        value: balanceProvider.solde
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
@@ -140,7 +139,7 @@ class _TransferConfirmationScreenState extends State<TransferConfirmationScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Solde actuel: ${widget.soldeActuel.toStringAsFixed(0)} DJF',
+                          'Solde actuel: ${balanceProvider.solde.toStringAsFixed(0)} DJF',
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(14),
                             color: Colors.grey[800],
@@ -148,7 +147,7 @@ class _TransferConfirmationScreenState extends State<TransferConfirmationScreen>
                         ),
                         SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
                         Text(
-                          'Solde après transfert: ${(widget.soldeActuel - widget.amount - widget.transferFee).toStringAsFixed(0)} DJF',
+                          'Solde après transfert: ${(balanceProvider.solde - widget.amount - widget.transferFee).toStringAsFixed(0)} DJF',
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(16),
                             fontWeight: FontWeight.bold,
@@ -331,7 +330,14 @@ class _TransferConfirmationScreenState extends State<TransferConfirmationScreen>
         });
         
         if (result['success']) {
-          // Transfert réussi - Navigation vers l'écran de succès
+          // Transfert réussi - Rafraîchir le solde
+          final balanceProvider = context.read<BalanceProvider>();
+          await balanceProvider.refreshBalance();
+
+          // Vérifier que le widget est toujours monté avant navigation
+          if (!mounted) return;
+
+          // Navigation vers l'écran de succès
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -339,7 +345,7 @@ class _TransferConfirmationScreenState extends State<TransferConfirmationScreen>
                 phoneNumber: widget.phoneNumber,
                 recipient: widget.recipient,
                 amount: widget.amount,
-                ancienSolde: widget.soldeActuel, 
+                ancienSolde: balanceProvider.solde,
                 transferFee: widget.transferFee,
               ),
             ),

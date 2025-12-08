@@ -355,8 +355,6 @@ class _HomeScreenState extends State<HomeScreen> {
               CustomRouteTransitions.slideRightRoute(
                 page: ForfaitRecipientScreen(
                   phoneNumber: _normalPhoneNumber,
-                  soldeActuel: balanceProvider.solde,
-                  onRefreshSolde: () => balanceProvider.refreshBalance(),
                 ),
               ),
             ),
@@ -391,8 +389,6 @@ class _HomeScreenState extends State<HomeScreen> {
               CustomRouteTransitions.slideRightRoute(
                 page: TransferInputScreen(
                   phoneNumber: _normalPhoneNumber,
-                  soldeActuel: balanceProvider.solde,
-                  onRefreshSolde: () => balanceProvider.refreshBalance(),
                 ),
               ),
             ),

@@ -1,21 +1,19 @@
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_confirmation_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/utils/phone_number_validator.dart';
 import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/widgets/phone_number_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class TransferInputScreen extends StatefulWidget {
   final String phoneNumber;
-  final double soldeActuel;
-  final VoidCallback? onRefreshSolde;
 
   const TransferInputScreen({
     super.key,
     required this.phoneNumber,
-    required this.soldeActuel,
-    this.onRefreshSolde,
   });
 
   @override
@@ -37,12 +35,14 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final balanceProvider = context.watch<BalanceProvider>();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: "Transfert de crédit", 
-        showAction: true, 
-        value: widget.soldeActuel
+        title: "Transfert de crédit",
+        showAction: true,
+        value: balanceProvider.solde
       ),
       body: Padding(
         padding: EdgeInsets.all(AppTheme.spacingM),
@@ -278,6 +278,8 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
 
   // Validation du montant en temps réel
   void _validateAmount(String value) {
+    final balanceProvider = context.read<BalanceProvider>();
+
     setState(() {
       if (value.isEmpty) {
         _amountError = null;
@@ -304,7 +306,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
       final transferFee = amount * 0.05;
       final totalAmount = amount + transferFee;
 
-      if (totalAmount > widget.soldeActuel) {
+      if (totalAmount > balanceProvider.solde) {
         _amountError = 'Solde insuffisant (total avec frais: ${totalAmount.toStringAsFixed(0)} DJF)';
         return;
       }
@@ -365,8 +367,6 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
           recipient: recipient,
           amount: amount,
           transferFee: transferFee,
-          soldeActuel: widget.soldeActuel,
-          onRefreshSolde: widget.onRefreshSolde,
         ),
       ),
     );

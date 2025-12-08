@@ -10,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'providers/balance_provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/topup_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,8 +52,10 @@ Future<void> main() async {
         // Provider pour la gestion du solde utilisateur
         ChangeNotifierProvider(create: (_) => BalanceProvider()),
 
+        // Provider pour la gestion des sessions TopUp (recharge fixe)
+        ChangeNotifierProvider(create: (_) => TopUpProvider()),
+
         // TODO: Ajouter d'autres providers ici au fur et à mesure
-        // ChangeNotifierProvider(create: (_) => TopUpProvider()),
         // ChangeNotifierProvider(create: (_) => ForfaitProvider()),
       ],
       child: const MyApp(),

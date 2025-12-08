@@ -1,37 +1,36 @@
 // lib/screens/forfait_categories_screen.dart
 import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
+import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'forfaits_screen.dart';
 
 class ForfaitCategoriesScreen extends StatelessWidget {
   final String? phoneNumber;
-  final double soldeActuel;
-  final VoidCallback? onRefreshSolde;
   final PurchaseMode purchaseMode;
 
   const ForfaitCategoriesScreen({
     super.key,
     this.phoneNumber,
-    required this.soldeActuel,
-    this.onRefreshSolde,
     this.purchaseMode = PurchaseMode.personal,
   });
 
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
+    final balanceProvider = context.watch<BalanceProvider>();
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: 'Achat de forfait', 
-        showAction: false, 
-        value: soldeActuel,
+        title: 'Achat de forfait',
+        showAction: false,
+        value: balanceProvider.solde,
         showCancelToHome: true,
         ),
       body: ListView(
@@ -191,8 +190,6 @@ class ForfaitCategoriesScreen extends StatelessWidget {
         page: ForfaitsScreen(
           initialType: type,
           forfaitTitle: title,
-          soldeActuel: soldeActuel,
-          onRefreshSolde: onRefreshSolde,
           phoneNumber: phoneNumber,
           purchaseMode: purchaseMode, // Transmettre le mode d'achat
         ),

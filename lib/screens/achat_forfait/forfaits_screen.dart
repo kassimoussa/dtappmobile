@@ -2,24 +2,22 @@
 import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/models/forfait.dart';
+import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:dtservices/widgets/cards/forfait_card.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; 
 
 class ForfaitsScreen extends StatefulWidget {
-  final double? soldeActuel;
-  final Function()? onRefreshSolde;
-  final String? phoneNumber; 
+  final String? phoneNumber;
   final String initialType;
   final String forfaitTitle;
   final PurchaseMode purchaseMode;
 
   const ForfaitsScreen({
     super.key,
-    this.soldeActuel,
-    this.onRefreshSolde,
     this.phoneNumber,
     this.initialType = 'internet',
     this.forfaitTitle = 'Forfaits Internet',
@@ -138,13 +136,11 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
   Widget build(BuildContext context) {
     // Initialiser le responsive size
     ResponsiveSize.init(context);
-
-    // Utiliser le solde fourni par le parent ou une valeur par défaut
-    final soldeActuel = widget.soldeActuel ?? 0.0;
+    final balanceProvider = context.watch<BalanceProvider>();
 
     // Liste des forfaits à afficher
-    final forfaitsToDisplay = _selectedType == 'internet' 
-        ? forfaitsInternet 
+    final forfaitsToDisplay = _selectedType == 'internet'
+        ? forfaitsInternet
         : _selectedType == 'combo'
             ? forfaitsCombo
             : forfaitsTempo;
@@ -153,7 +149,7 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
         title: widget.forfaitTitle,
-        value: soldeActuel,
+        value: balanceProvider.solde,
         showAction: false,
         showCancelToHome: true, // Affiche le bouton Annuler
       ),
@@ -198,15 +194,12 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
           // Liste des forfaits
           Expanded(
             child: RefreshIndicator(
-              // Rafraîchir le solde si la fonction de rafraîchissement est fournie
-              onRefresh:
-                  widget.onRefreshSolde != null
-                      ? () async {
-                        setState(() => _isLoading = true);
-                        await widget.onRefreshSolde!();
-                        setState(() => _isLoading = false);
-                      }
-                      : () async {},
+              // Rafraîchir le solde avec BalanceProvider
+              onRefresh: () async {
+                setState(() => _isLoading = true);
+                await context.read<BalanceProvider>().refreshBalance();
+                setState(() => _isLoading = false);
+              },
               child:
                   _isLoading
                       ? Center(
@@ -235,14 +228,12 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
                                   final forfait = forfaitsToDisplay[index];
                                   return ForfaitCard(
                                     forfait: forfait,
-                                    soldeActuel: soldeActuel,
+                                    soldeActuel: balanceProvider.solde,
                                     phoneNumber: widget.phoneNumber,
                                     purchaseMode: widget.purchaseMode, // Transmettre le mode d'achat
                                     onAchatReussi: () {
-                                      // Appeler la méthode de rafraîchissement si elle est fournie
-                                      if (widget.onRefreshSolde != null) {
-                                        widget.onRefreshSolde!();
-                                      }
+                                      // Rafraîchir le solde après achat réussi
+                                      context.read<BalanceProvider>().refreshBalance();
                                     },
                                   );
                                 },

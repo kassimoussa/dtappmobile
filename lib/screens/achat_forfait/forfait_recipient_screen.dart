@@ -1,23 +1,21 @@
 // lib/screens/forfait_recipient_screen.dart
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
-import 'package:dtservices/screens/achat_forfait/forfait_categories_screen.dart'; 
+import 'package:dtservices/screens/achat_forfait/forfait_categories_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/widgets/phone_number_selector.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ForfaitRecipientScreen extends StatefulWidget {
   final String? phoneNumber;
-  final double soldeActuel;
-  final VoidCallback? onRefreshSolde;
 
   const ForfaitRecipientScreen({
     super.key,
     this.phoneNumber,
-    required this.soldeActuel,
-    this.onRefreshSolde,
   });
 
   @override
@@ -91,15 +89,13 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
       final cleanPhoneNumber = DjiboutiPhoneValidator.cleanPhoneNumber(
         _phoneController.text.trim()
       );
-      
+
       // Navigation vers l'écran de catégories pour autre numéro
       Navigator.push(
         context,
         CustomRouteTransitions.slideRightRoute(
           page: ForfaitCategoriesScreen(
             phoneNumber: cleanPhoneNumber,
-            soldeActuel: widget.soldeActuel,
-            onRefreshSolde: widget.onRefreshSolde,
             purchaseMode: PurchaseMode.gift,
           ),
         ),
@@ -159,8 +155,6 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
                                 CustomRouteTransitions.slideRightRoute(
                                   page: ForfaitCategoriesScreen(
                                     phoneNumber: widget.phoneNumber,
-                                    soldeActuel: widget.soldeActuel,
-                                    onRefreshSolde: widget.onRefreshSolde,
                                   ),
                                 ),
                               );
