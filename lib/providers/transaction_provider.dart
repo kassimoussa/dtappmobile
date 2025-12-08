@@ -34,7 +34,7 @@ class TransactionProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isLoadingMore => _isLoadingMore;
   String? get errorMessage => _errorMessage;
-  bool get hasMorePages => _pagination != null && _currentPage < _pagination!.totalPages;
+  bool get hasMorePages => _pagination != null && _currentPage < _pagination!.lastPage;
 
   /// Vérifie si le cache est encore valide
   bool get hasCachedData =>
