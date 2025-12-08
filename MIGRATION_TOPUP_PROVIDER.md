@@ -1,7 +1,7 @@
 # Migration TopUpHomeScreen vers TopUpProvider - Guide Complet
 
 **Date de création** : 2025-12-08
-**Statut** : ✅ TopUpProvider créé et intégré dans main.dart
+**Statut** : ✅ TopUpProvider créé, testé et compilé avec succès
 **Prochaine étape** : Migration progressive de TopUpHomeScreen
 
 ---
@@ -52,10 +52,11 @@ topUpProvider.isNumberSuspended
 topUpProvider.isLoading
 topUpProvider.errorMessage
 
-// Balances formatées
-topUpProvider.fixedBalance // double
-topUpProvider.fixedBalanceFormatted // "5000 DJF"
-topUpProvider.voiceBalanceFormatted // "120.50 min"
+// Balances formatées (utilise les formatted getters du modèle)
+topUpProvider.fixedBalance // double - depuis summary.moneyTotal
+topUpProvider.fixedBalanceFormatted // "5000 DJF" - depuis summary.moneyTotalFormatted
+topUpProvider.voiceBalanceFormatted // "00:05:30" - depuis summary.voiceTotalFormatted
+topUpProvider.dataBalanceFormatted // "1.5 Mo" - depuis summary.dataTotalFormatted
 ```
 
 ### 2. Intégration dans main.dart
