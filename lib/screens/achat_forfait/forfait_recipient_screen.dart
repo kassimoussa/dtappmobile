@@ -1,6 +1,5 @@
 // lib/screens/forfait_recipient_screen.dart
 import 'package:dtservices/constants/app_theme.dart';
-import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
 import 'package:dtservices/screens/achat_forfait/forfait_categories_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
@@ -8,7 +7,6 @@ import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/widgets/phone_number_selector.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ForfaitRecipientScreen extends StatefulWidget {
   final String? phoneNumber;

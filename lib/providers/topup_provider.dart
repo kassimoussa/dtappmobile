@@ -244,15 +244,15 @@ class TopUpProvider extends ChangeNotifier {
   }
 
   /// Getters utilitaires pour les balances
-  double get fixedBalance => _balanceResponse?.balanceFixed ?? 0.0;
-  double get voiceBalance => _balanceResponse?.balanceVoice ?? 0.0;
-  double get dataBalance => _balanceResponse?.balanceData ?? 0.0;
-  double get smsBalance => _balanceResponse?.balanceSMS ?? 0.0;
+  double get fixedBalance => _balanceResponse?.summary.moneyTotal ?? 0.0;
+  double get voiceBalance => (_balanceResponse?.summary.voiceTotalSeconds ?? 0) / 60.0; // Convertir secondes en minutes
+  double get dataBalance => (_balanceResponse?.summary.dataTotalBytes ?? 0) / (1024 * 1024); // Convertir bytes en Mo
+  int get smsBalance => 0; // Pas de propriété SMS dans le summary
 
-  String get fixedBalanceFormatted => '${fixedBalance.toStringAsFixed(0)} DJF';
-  String get voiceBalanceFormatted => '${voiceBalance.toStringAsFixed(2)} min';
-  String get dataBalanceFormatted => '${dataBalance.toStringAsFixed(2)} Mo';
-  String get smsBalanceFormatted => '${smsBalance.toStringAsFixed(0)} SMS';
+  String get fixedBalanceFormatted => _balanceResponse?.summary.moneyTotalFormatted ?? '0 DJF';
+  String get voiceBalanceFormatted => _balanceResponse?.summary.voiceTotalFormatted ?? '00:00:00';
+  String get dataBalanceFormatted => _balanceResponse?.summary.dataTotalFormatted ?? '0 Mo';
+  String get smsBalanceFormatted => '0 SMS'; // SMS non disponible
 
   /// Vérifie si le numéro a un solde suffisant
   bool hasSufficientBalance(double amount, String type) {
