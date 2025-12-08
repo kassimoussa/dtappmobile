@@ -6,7 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'generated/l10n/app_localizations.dart';
-import 'screens/splash_screen.dart';
+import 'screens/auth/splash_screen.dart';
 import 'utils/responsive_size.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';

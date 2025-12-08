@@ -1,15 +1,15 @@
-// lib/screens/login_screen.dart
+// lib/screens/auth/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../services/user_service.dart';
-import '../providers/auth_provider.dart';
-import '../routes/custom_route_transitions.dart';
-import '../extensions/color_extensions.dart';
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart';
+import '../../services/user_service.dart';
+import '../../providers/auth_provider.dart';
+import '../../routes/custom_route_transitions.dart';
+import '../../extensions/color_extensions.dart';
 import 'otp_screen.dart';
-import '../generated/l10n/app_localizations.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

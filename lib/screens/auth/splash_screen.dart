@@ -1,11 +1,11 @@
-// lib/screens/splash_screen.dart
-import 'package:dtservices/screens/main_screen.dart';
+// lib/screens/auth/splash_screen.dart
+import 'package:dtservices/screens/core/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../extensions/color_extensions.dart';
-import '../providers/auth_provider.dart';
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart';
+import '../../extensions/color_extensions.dart';
+import '../../providers/auth_provider.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {

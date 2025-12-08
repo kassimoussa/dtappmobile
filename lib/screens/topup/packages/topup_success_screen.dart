@@ -7,7 +7,7 @@ import '../../../extensions/color_extensions.dart';
 import '../../../models/topup_balance.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../utils/responsive_size.dart';
-import '../../main_screen.dart';
+import '../../core/main_screen.dart';
 
 class TopUpSuccessScreen extends StatefulWidget {
   final TopUpPackage package;

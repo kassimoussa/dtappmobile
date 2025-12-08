@@ -1,12 +1,12 @@
-// lib/screens/history_screen.dart
+// lib/screens/user/history_screen.dart
 import 'package:flutter/material.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../models/activity.dart';
-import '../services/activity_service.dart';
-import '../extensions/color_extensions.dart';
-import '../routes/custom_route_transitions.dart';
-import 'statistics_screen.dart';
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart';
+import '../../models/activity.dart';
+import '../../services/activity_service.dart';
+import '../../extensions/color_extensions.dart';
+import '../../routes/custom_route_transitions.dart';
+import '../statistics/statistics_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});

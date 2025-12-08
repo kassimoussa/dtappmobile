@@ -1,12 +1,12 @@
-// lib/screens/profile_screen.dart
+// lib/screens/user/profile_screen.dart
 import 'package:flutter/material.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../services/profile_service.dart';
-import '../widgets/appbar_widget.dart';
-import '../extensions/color_extensions.dart';
-import '../generated/l10n/app_localizations.dart';
-import 'language_selection_screen.dart';
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart';
+import '../../services/profile_service.dart';
+import '../../widgets/appbar_widget.dart';
+import '../../extensions/color_extensions.dart';
+import '../../generated/l10n/app_localizations.dart';
+import '../settings/language_selection_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

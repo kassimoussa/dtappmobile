@@ -75,9 +75,7 @@ class TopUpProvider extends ChangeNotifier {
   Future<bool> startSession(String fixedNumber) async {
     debugPrint('TopUpProvider: Démarrage session pour $fixedNumber');
 
-    if (_mobileNumber == null) {
-      _mobileNumber = await UserSession.getPhoneNumber();
-    }
+    _mobileNumber ??= await UserSession.getPhoneNumber();
 
     if (_mobileNumber == null) {
       _errorMessage = 'Impossible de récupérer le numéro mobile';

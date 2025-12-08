@@ -1,6 +1,6 @@
 // lib/pages/my_line_page.dart
 import 'package:dtservices/constants/app_theme.dart';
-import 'package:dtservices/screens/home_screen.dart';
+import 'package:dtservices/screens/core/home_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/widgets/balance_card.dart';
 import 'package:dtservices/widgets/bills_section.dart';

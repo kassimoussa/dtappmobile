@@ -28,8 +28,9 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
   }
 
   Future<void> _loadForfaitsActifs() async {
-    if (_isLoading && _lastUpdate != null)
+    if (_isLoading && _lastUpdate != null) {
       return; // Éviter les appels multiples si déjà en cours
+    }
 
     setState(() {
       _isLoading = true;

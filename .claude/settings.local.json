@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(sort:*)"
+      "Bash(sort:*)",
+      "Bash(git pull:*)",
+      "Bash(git mv:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash({} +)"
     ],
     "deny": [],
     "ask": []

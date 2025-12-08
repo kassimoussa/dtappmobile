@@ -1,11 +1,11 @@
-// lib/screens/main_screen.dart
+// lib/screens/core/main_screen.dart
 import 'package:flutter/material.dart';
 
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart';
 import 'home_screen.dart';
-import 'topup/home/topup_home_screen.dart';
-import 'history_screen.dart';
+import '../topup/home/topup_home_screen.dart';
+import '../user/history_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

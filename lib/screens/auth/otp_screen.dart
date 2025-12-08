@@ -1,15 +1,15 @@
-// lib/screens/otp_screen.dart
+// lib/screens/auth/otp_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'dart:async';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../routes/custom_route_transitions.dart';
-import '../providers/auth_provider.dart';
-import 'main_screen.dart';
-import '../generated/l10n/app_localizations.dart';
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart';
+import '../../routes/custom_route_transitions.dart';
+import '../../providers/auth_provider.dart';
+import '../core/main_screen.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;

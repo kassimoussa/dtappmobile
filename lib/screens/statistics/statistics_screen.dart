@@ -1,11 +1,11 @@
-// lib/screens/statistics_screen.dart
+// lib/screens/statistics/statistics_screen.dart
 import 'package:flutter/material.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../models/activity.dart';
-import '../services/activity_service.dart';
-import '../extensions/color_extensions.dart';
-import '../widgets/appbar_widget.dart';
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart';
+import '../../models/activity.dart';
+import '../../services/activity_service.dart';
+import '../../extensions/color_extensions.dart';
+import '../../widgets/appbar_widget.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});

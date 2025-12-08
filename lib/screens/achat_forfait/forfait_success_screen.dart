@@ -3,7 +3,7 @@ import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/models/forfait.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
-import 'package:dtservices/screens/main_screen.dart';
+import 'package:dtservices/screens/core/main_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';

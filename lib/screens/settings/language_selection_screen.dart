@@ -1,11 +1,11 @@
-// lib/screens/language_selection_screen.dart
+// lib/screens/settings/language_selection_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../constants/app_theme.dart';
-import '../providers/language_provider.dart';
-import '../widgets/appbar_widget.dart';
-import '../utils/responsive_size.dart';
-import '../generated/l10n/app_localizations.dart';
+import '../../constants/app_theme.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/appbar_widget.dart';
+import '../../utils/responsive_size.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
   const LanguageSelectionScreen({super.key});

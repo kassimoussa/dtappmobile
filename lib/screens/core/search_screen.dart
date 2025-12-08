@@ -1,16 +1,16 @@
-// lib/screens/search_screen.dart
+// lib/screens/core/search_screen.dart
 import 'package:flutter/material.dart';
 import 'package:dtservices/screens/achat_forfait/forfait_recipient_screen.dart';
 import 'package:dtservices/screens/forfaits_actifs/forfaits_actifs_screen.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_input_screen.dart';
 import 'package:dtservices/screens/refill/refill_recipient_screen.dart';
 import 'package:dtservices/screens/topup/home/topup_home_screen.dart';
-import 'package:dtservices/screens/profile_screen.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../routes/custom_route_transitions.dart';
-import '../services/user_session.dart';
-import '../services/balance_service.dart';
+import 'package:dtservices/screens/user/profile_screen.dart';
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart';
+import '../../routes/custom_route_transitions.dart';
+import '../../services/user_session.dart';
+import '../../services/balance_service.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});

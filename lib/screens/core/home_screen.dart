@@ -1,23 +1,23 @@
-// lib/screens/home_screen.dart
+// lib/screens/core/home_screen.dart
 import 'package:dtservices/screens/achat_forfait/forfait_recipient_screen.dart';
 import 'package:dtservices/screens/agencies/agencies_screen.dart';
 import 'package:dtservices/screens/forfaits_actifs/forfaits_actifs_screen.dart';
-import 'package:dtservices/screens/login_screen.dart';
+import 'package:dtservices/screens/auth/login_screen.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_input_screen.dart';
 import 'package:dtservices/screens/refill/refill_recipient_screen.dart';
 import 'package:dtservices/screens/speedtest/speedtest_native_screen.dart';
 import 'package:dtservices/services/user_session.dart';
 import 'package:provider/provider.dart';
-import '../providers/balance_provider.dart';
-import '../providers/auth_provider.dart';
-import 'profile_screen.dart';
+import '../../providers/balance_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../user/profile_screen.dart';
 import 'search_screen.dart';
 import 'package:flutter/material.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../extensions/color_extensions.dart';
-import '../routes/custom_route_transitions.dart';
-import '../generated/l10n/app_localizations.dart';
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart';
+import '../../extensions/color_extensions.dart';
+import '../../routes/custom_route_transitions.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   // final String phoneNumber;

@@ -1,9 +1,9 @@
 // lib/screens/test_forfait_success_screen.dart
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../extensions/color_extensions.dart';
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart';
+import '../../extensions/color_extensions.dart';
 
 class TestForfaitSuccessScreen extends StatefulWidget {
   const TestForfaitSuccessScreen({super.key});

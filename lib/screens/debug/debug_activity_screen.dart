@@ -1,9 +1,9 @@
 // lib/screens/debug_activity_screen.dart
 import 'package:flutter/material.dart';
-import '../constants/app_theme.dart';
-import '../utils/responsive_size.dart';
-import '../services/activity_service.dart';
-import '../models/activity.dart';
+import '../../constants/app_theme.dart';
+import '../../utils/responsive_size.dart';
+import '../../services/activity_service.dart';
+import '../../models/activity.dart';
 
 class DebugActivityScreen extends StatefulWidget {
   const DebugActivityScreen({super.key});
