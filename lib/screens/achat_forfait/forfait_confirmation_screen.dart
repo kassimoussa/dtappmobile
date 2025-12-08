@@ -9,8 +9,9 @@ import 'package:dtservices/services/biometric_auth_service.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'forfait_success_screen.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class ForfaitConfirmationScreen extends StatefulWidget {
   final Forfait forfait;
@@ -29,7 +30,8 @@ class ForfaitConfirmationScreen extends StatefulWidget {
   });
 
   @override
-  State<ForfaitConfirmationScreen> createState() => _ForfaitConfirmationScreenState();
+  State<ForfaitConfirmationScreen> createState() =>
+      _ForfaitConfirmationScreenState();
 }
 
 class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
@@ -53,21 +55,13 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
 
     _animationController.forward();
   }
@@ -94,21 +88,21 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
     if (widget.purchaseType != PurchaseType.personal) {
       return widget.purchaseType;
     }
-    
+
     // Auto-détection basée sur le numéro
     if (_userPhoneNumber != null && widget.phoneNumber != _userPhoneNumber) {
       return PurchaseType.gift;
     }
-    
+
     return PurchaseType.personal;
   }
 
   String get _purchaseTypeLabel {
     switch (_effectivePurchaseType) {
       case PurchaseType.personal:
-        return 'Achat pour mon numéro';
+        return AppLocalizations.of(context)!.purchaseForMyNumber;
       case PurchaseType.gift:
-        return 'Achat cadeau';
+        return AppLocalizations.of(context)!.giftPurchase;
     }
   }
 
@@ -132,29 +126,31 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
 
   Future<void> _confirmerAchat() async {
     if (_isLoading) return;
-    
+
     // Demander l'authentification biométrique avant de procéder
     final authResult = await BiometricAuthService.authenticateForPurchase(
       itemName: widget.forfait.nom,
       amount: widget.forfait.prix.toDouble(),
       currency: 'DJF',
     );
-    
+
     if (!authResult.success) {
       // Authentification échouée
       if (authResult.errorType != BiometricAuthErrorType.userCancel) {
-        _showErrorMessage(authResult.errorMessage ?? 'Authentification échouée');
+        _showErrorMessage(
+          authResult.errorMessage ?? AppLocalizations.of(context)!.authFailed,
+        );
       }
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       Map<String, dynamic> result;
-      
+
       // Appel API selon le type d'achat
       switch (_effectivePurchaseType) {
         case PurchaseType.personal:
@@ -162,17 +158,17 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
           break;
         case PurchaseType.gift:
           result = await PurchaseOfferService.purchaseOfferGift(
-            widget.phoneNumber, 
-            widget.forfait.id
+            widget.phoneNumber,
+            widget.forfait.id,
           );
           break;
       }
-      
+
       if (mounted) {
         if (result['succes'] == true) {
           // Succès - navigation avec animation
           widget.onAchatReussi?.call();
-          
+
           Navigator.pushReplacement(
             context,
             CustomRouteTransitions.fadeScaleRoute(
@@ -185,13 +181,15 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
           );
         } else {
           // Erreur depuis l'API
-          _showErrorMessage(result['erreur'] ?? 'Erreur lors de l\'achat');
+          _showErrorMessage(
+            result['erreur'] ?? AppLocalizations.of(context)!.purchaseError,
+          );
         }
       }
     } catch (e) {
       if (mounted) {
         _showErrorMessage(
-          'Erreur de connexion: ${e.toString().replaceAll('Exception: ', '')}'
+          'Erreur de connexion: ${e.toString().replaceAll('Exception: ', '')}',
         );
       }
     } finally {
@@ -239,11 +237,11 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: "Confirmation d'achat",
+        title: AppLocalizations.of(context)!.purchaseConfirmationTitle,
         showAction: false,
         value: widget.soldeActuel,
         showCancelToHome: true,
@@ -253,10 +251,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
         builder: (context, child) {
           return FadeTransition(
             opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: child,
-            ),
+            child: ScaleTransition(scale: _scaleAnimation, child: child),
           );
         },
         child: SingleChildScrollView(
@@ -266,24 +261,24 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
             children: [
               // Type d'achat avec badge
               _buildPurchaseTypeBadge(),
-              
+
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-              
+
               // Entête avec icône animée
               _buildHeader(),
-              
+
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              
+
               // Détails du forfait
               _buildForfaitDetails(),
-              
+
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              
+
               // Information sur le solde
               _buildSoldeInfo(),
-              
+
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              
+
               // Boutons d'action
               _buildActionButtons(),
             ],
@@ -301,7 +296,9 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
       ),
       decoration: BoxDecoration(
         color: _purchaseTypeColor.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusL)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusL),
+        ),
         border: Border.all(
           color: _purchaseTypeColor.withOpacityValue(0.3),
           width: 1,
@@ -340,7 +337,9 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
             return Transform.scale(
               scale: value,
               child: Container(
-                padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                padding: EdgeInsets.all(
+                  ResponsiveSize.getWidth(AppTheme.spacingL),
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.dtBlue.withOpacityValue(0.1),
                   shape: BoxShape.circle,
@@ -353,7 +352,9 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
                   ],
                 ),
                 child: Icon(
-                  widget.forfait.type == 'internet' ? Icons.wifi : Icons.phone_android,
+                  widget.forfait.type == 'internet'
+                      ? Icons.wifi
+                      : Icons.phone_android,
                   color: AppTheme.dtBlue,
                   size: ResponsiveSize.getFontSize(40),
                 ),
@@ -361,9 +362,9 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
             );
           },
         ),
-        
+
         SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-        
+
         // Titre et sous-titre
         Text(
           widget.forfait.nom,
@@ -374,11 +375,11 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
             color: AppTheme.dtBlue,
           ),
         ),
-        
+
         SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-        
+
         Text(
-          'Valide pendant ${widget.forfait.validite}',
+          AppLocalizations.of(context)!.validFor(widget.forfait.validite),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
@@ -394,42 +395,70 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       decoration: BoxDecoration(
         color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
+        ),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
         children: [
-          _buildDetailRow('Numéro destinataire', widget.phoneNumber),
+          _buildDetailRow(
+            AppLocalizations.of(context)!.recipientLabel,
+            widget.phoneNumber,
+          ),
           _buildDivider(),
-          _buildDetailRow('Prix', '${widget.forfait.prix} DJF'),
+          _buildDetailRow(
+            AppLocalizations.of(context)!.priceLabel,
+            '${widget.forfait.prix} DJF',
+          ),
           _buildDivider(),
-          
+
           // Afficher Internet seulement s'il y en a
           if (widget.forfait.data != null) ...[
-            _buildDetailRow('Internet', widget.forfait.data!),
+            _buildDetailRow(
+              AppLocalizations.of(context)!.internetLabel,
+              widget.forfait.data!,
+            ),
             _buildDivider(),
           ],
-          
-          if (widget.forfait.type == 'combo' && widget.forfait.minutes != null) ...[
-            _buildDetailRow('Appels', '${widget.forfait.minutes} min'),
-            _buildDivider(),
-          ],
-          
-          if (widget.forfait.type == 'tempo' && widget.forfait.minutes != null) ...[
-            _buildDetailRow('Minutes d\'appels', '${widget.forfait.minutes} min'),
-            _buildDivider(),
-          ],
-          
-          if (widget.forfait.type == 'combo' && widget.forfait.sms != null) ...[
-            _buildDetailRow('SMS', '${widget.forfait.sms} SMS'),
-            _buildDivider(),
-          ], 
 
-          if(widget.forfait.type == 'tempo') ... [
-            _buildDetailRow('Validité', 'Week-end'),
-          ]else ...[
-            _buildDetailRow('Validité', widget.forfait.validite),
-          ]
+          if (widget.forfait.type == 'combo' &&
+              widget.forfait.minutes != null) ...[
+            _buildDetailRow(
+              AppLocalizations.of(context)!.callsLabel,
+              '${widget.forfait.minutes} min',
+            ),
+            _buildDivider(),
+          ],
+
+          if (widget.forfait.type == 'tempo' &&
+              widget.forfait.minutes != null) ...[
+            _buildDetailRow(
+              AppLocalizations.of(context)!.minutesLabel,
+              '${widget.forfait.minutes} min',
+            ),
+            _buildDivider(),
+          ],
+
+          if (widget.forfait.type == 'combo' && widget.forfait.sms != null) ...[
+            _buildDetailRow(
+              AppLocalizations.of(context)!.smsLabel,
+              '${widget.forfait.sms} SMS',
+            ),
+            _buildDivider(),
+          ],
+
+          if (widget.forfait.type == 'tempo') ...[
+            _buildDetailRow(
+              AppLocalizations.of(context)!.validityLabel,
+              AppLocalizations.of(context)!.weekendValidity,
+            ),
+          ] else ...[
+            _buildDetailRow(
+              AppLocalizations.of(context)!.validityLabel,
+              widget.forfait.validite,
+            ),
+          ],
         ],
       ),
     );
@@ -471,18 +500,22 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
   Widget _buildSoldeInfo() {
     final nouveauSolde = widget.soldeActuel - widget.forfait.prix;
     final isLowBalance = nouveauSolde < 1000; // Seuil d'alerte
-    
+
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       decoration: BoxDecoration(
-        color: isLowBalance 
-            ? Colors.orange.withOpacityValue(0.1)
-            : AppTheme.dtYellow.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+        color:
+            isLowBalance
+                ? Colors.orange.withOpacityValue(0.1)
+                : AppTheme.dtYellow.withOpacityValue(0.1),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
+        ),
         border: Border.all(
-          color: isLowBalance 
-              ? Colors.orange.withOpacityValue(0.3)
-              : AppTheme.dtYellow.withOpacityValue(0.3),
+          color:
+              isLowBalance
+                  ? Colors.orange.withOpacityValue(0.3)
+                  : AppTheme.dtYellow.withOpacityValue(0.3),
         ),
       ),
       child: Row(
@@ -498,7 +531,9 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Solde actuel: ${widget.soldeActuel.toStringAsFixed(0)} FDJ',
+                  AppLocalizations.of(
+                    context,
+                  )!.currentBalanceFDJ(widget.soldeActuel.toStringAsFixed(0)),
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(14),
                     color: Colors.grey[800],
@@ -506,7 +541,9 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
                 ),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
                 Text(
-                  'Solde après achat: ${nouveauSolde.toStringAsFixed(0)} FDJ',
+                  AppLocalizations.of(
+                    context,
+                  )!.balanceAfterPurchaseFDJ(nouveauSolde.toStringAsFixed(0)),
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(16),
                     fontWeight: FontWeight.bold,
@@ -514,9 +551,11 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
                   ),
                 ),
                 if (isLowBalance) ...[
-                  SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
+                  SizedBox(
+                    height: ResponsiveSize.getHeight(AppTheme.spacingXS),
+                  ),
                   Text(
-                    'Solde faible après achat',
+                    AppLocalizations.of(context)!.lowBalanceWarning,
                     style: TextStyle(
                       fontSize: ResponsiveSize.getFontSize(12),
                       color: Colors.orange,
@@ -550,7 +589,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
               ),
             ),
             child: Text(
-              'Annuler',
+              AppLocalizations.of(context)!.cancelAction,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(16),
                 fontWeight: FontWeight.bold,
@@ -559,9 +598,9 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
             ),
           ),
         ),
-        
+
         SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-        
+
         Expanded(
           child: ElevatedButton(
             onPressed: _isLoading ? null : _confirmerAchat,
@@ -578,36 +617,39 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
               ),
               elevation: _isLoading ? 0 : 2,
             ),
-            child: _isLoading
-                ? SizedBox(
-                    width: ResponsiveSize.getWidth(20),
-                    height: ResponsiveSize.getHeight(20),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtYellow),
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        size: ResponsiveSize.getFontSize(18),
-                      ),
-                      SizedBox(width: ResponsiveSize.getWidth(6)),
-                      Flexible(
-                        child: Text(
-                          'Confirmer l\'achat',
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: ResponsiveSize.getFontSize(15),
-                            fontWeight: FontWeight.bold,
-                          ),
+            child:
+                _isLoading
+                    ? SizedBox(
+                      width: ResponsiveSize.getWidth(20),
+                      height: ResponsiveSize.getHeight(20),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppTheme.dtYellow,
                         ),
                       ),
-                    ],
-                  ),
+                    )
+                    : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline,
+                          size: ResponsiveSize.getFontSize(18),
+                        ),
+                        SizedBox(width: ResponsiveSize.getWidth(6)),
+                        Flexible(
+                          child: Text(
+                            AppLocalizations.of(context)!.confirmPurchase,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: ResponsiveSize.getFontSize(15),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
           ),
         ),
       ],

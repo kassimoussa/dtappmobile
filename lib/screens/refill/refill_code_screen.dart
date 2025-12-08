@@ -6,15 +6,16 @@ import 'package:dtservices/services/refill_service.dart';
 import 'package:dtservices/models/refill_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class RefillCodeScreen extends StatefulWidget {
-  final String phoneNumber; 
+  final String phoneNumber;
   final VoidCallback? onRefreshSolde;
   final bool isGift; // Pour savoir si c'est un cadeau ou pour soi-même
 
   const RefillCodeScreen({
     super.key,
-    required this.phoneNumber, 
+    required this.phoneNumber,
     this.onRefreshSolde,
     this.isGift = false,
   });
@@ -38,12 +39,12 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: "Recharge de crédit", 
-        showAction: true,  
+        title: AppLocalizations.of(context)!.refillTitle,
+        showAction: true,
         showCancelToHome: true,
       ),
       body: Padding(
@@ -55,53 +56,57 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 24),
-                
+
                 // Titre principal
                 Text(
-                  widget.isGift 
-                    ? 'Recharge cadeau'
-                    : 'Recharger mon crédit',
+                  widget.isGift
+                      ? AppLocalizations.of(context)!.refillGiftTitle
+                      : AppLocalizations.of(context)!.refillMyCredit,
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(20),
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Sous-titre avec numéro
                 Text(
-                  widget.isGift 
-                    ? 'Destinataire : ${widget.phoneNumber}'
-                    : 'Mon numéro : ${widget.phoneNumber}',
+                  widget.isGift
+                      ? AppLocalizations.of(
+                        context,
+                      )!.refillRecipient(widget.phoneNumber)
+                      : AppLocalizations.of(
+                        context,
+                      )!.refillMyNumber(widget.phoneNumber),
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(16),
                     color: Colors.grey[600],
                   ),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Champ code de recharge
                 _buildRefillCodeField(),
-                
+
                 // Erreur code
                 if (_codeError != null) ...[
                   const SizedBox(height: 8),
                   _buildErrorMessage(_codeError!),
                 ],
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Information importante
                 _buildInfoBox(),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Bouton de confirmation
                 _buildConfirmButton(),
-                
+
                 const SizedBox(height: 24),
               ],
             ),
@@ -117,7 +122,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Code de recharge',
+          AppLocalizations.of(context)!.refillCodeLabel,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
             fontWeight: FontWeight.bold,
@@ -129,28 +134,21 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
           decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
-            border: _codeError != null 
-              ? Border.all(color: Colors.red[300]!, width: 1.5)
-              : null,
+            border:
+                _codeError != null
+                    ? Border.all(color: Colors.red[300]!, width: 1.5)
+                    : null,
           ),
           child: TextFormField(
             controller: _codeController,
             decoration: InputDecoration(
               hintText: '123456789012',
-              hintStyle: TextStyle(
-                color: Colors.grey[500],
-                letterSpacing: 2,
-              ),
-              prefixIcon: Icon(
-                Icons.qr_code,
-                color: AppTheme.dtBlue,
-              ),
-              suffixIcon: _codeController.text.length == 14
-                ? Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                  )
-                : null,
+              hintStyle: TextStyle(color: Colors.grey[500], letterSpacing: 2),
+              prefixIcon: Icon(Icons.qr_code, color: AppTheme.dtBlue),
+              suffixIcon:
+                  _codeController.text.length == 14
+                      ? Icon(Icons.check_circle, color: Colors.green)
+                      : null,
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -176,13 +174,15 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
                   for (int i = 0; i < newText.length; i += 4) {
                     if (i > 0) formatted += ' ';
                     formatted += newText.substring(
-                      i, 
-                      i + 4 > newText.length ? newText.length : i + 4
+                      i,
+                      i + 4 > newText.length ? newText.length : i + 4,
                     );
                   }
                   return TextEditingValue(
                     text: formatted,
-                    selection: TextSelection.collapsed(offset: formatted.length),
+                    selection: TextSelection.collapsed(
+                      offset: formatted.length,
+                    ),
                   );
                 }
                 return oldValue;
@@ -213,10 +213,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
           Expanded(
             child: Text(
               message,
-              style: TextStyle(
-                color: Colors.red[600],
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.red[600], fontSize: 14),
             ),
           ),
         ],
@@ -241,7 +238,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
               Icon(Icons.info_outline, color: AppTheme.dtBlue, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Comment utiliser votre code',
+                AppLocalizations.of(context)!.howToUseCode,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.dtBlue,
@@ -251,14 +248,8 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            '• Grattez la carte pour révéler le code à 12 chiffres\n'
-            '• Saisissez le code complet sans espaces ni tirets\n'
-            '• Le crédit sera ajouté immédiatement après validation\n'
-            '• Chaque code ne peut être utilisé qu\'une seule fois',
-            style: TextStyle(
-              color: AppTheme.dtBlue,
-              fontSize: 14,
-            ),
+            AppLocalizations.of(context)!.refillInstructions,
+            style: TextStyle(color: AppTheme.dtBlue, fontSize: 14),
           ),
         ],
       ),
@@ -273,7 +264,8 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: isFormValid && !_isLoading ? _validateAndProcessRefill : null,
+        onPressed:
+            isFormValid && !_isLoading ? _validateAndProcessRefill : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: isFormValid ? AppTheme.dtBlue2 : Colors.grey[400],
           foregroundColor: Colors.white,
@@ -283,32 +275,33 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
           ),
           elevation: 0,
         ),
-        child: _isLoading
-          ? SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.account_balance_wallet,
-                  size: ResponsiveSize.getFontSize(18),
-                ),
-                SizedBox(width: ResponsiveSize.getWidth(8)),
-                Text(
-                  'Confirmer la recharge',
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(16),
-                    fontWeight: FontWeight.bold,
+        child:
+            _isLoading
+                ? SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
+                )
+                : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.account_balance_wallet,
+                      size: ResponsiveSize.getFontSize(18),
+                    ),
+                    SizedBox(width: ResponsiveSize.getWidth(8)),
+                    Text(
+                      AppLocalizations.of(context)!.confirmRefill,
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(16),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
       ),
     );
   }
@@ -316,7 +309,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
   // Validation du code en temps réel
   void _validateCode(String value) {
     final cleanCode = value.replaceAll(' ', '');
-    
+
     setState(() {
       if (cleanCode.isEmpty) {
         _codeError = null;
@@ -324,12 +317,12 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
       }
 
       if (cleanCode.length < 12) {
-        _codeError = 'Le code doit contenir exactement 12 chiffres';
+        _codeError = AppLocalizations.of(context)!.refillCodeLengthError;
         return;
       }
 
       if (!RegExp(r'^\d{12}$').hasMatch(cleanCode)) {
-        _codeError = 'Le code ne doit contenir que des chiffres';
+        _codeError = AppLocalizations.of(context)!.refillCodeDigitError;
         return;
       }
 
@@ -339,17 +332,17 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
 
   void _validateAndProcessRefill() async {
     final cleanCode = _codeController.text.replaceAll(' ', '');
-    
+
     if (cleanCode.length != 12) {
       setState(() {
-        _codeError = 'Le code doit contenir exactement 12 chiffres';
+        _codeError = AppLocalizations.of(context)!.refillCodeLengthError;
       });
       return;
     }
 
     if (!RegExp(r'^\d{12}$').hasMatch(cleanCode)) {
       setState(() {
-        _codeError = 'Le code ne doit contenir que des chiffres';
+        _codeError = AppLocalizations.of(context)!.refillCodeDigitError;
       });
       return;
     }
@@ -366,10 +359,9 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
         phoneNumber: widget.phoneNumber,
         voucherCode: cleanCode,
       );
-      
+
       // Si succès, afficher le dialog de réussite
       _showSuccessDialog(response);
-      
     } on RefillException catch (e) {
       // Gérer les erreurs spécifiques de recharge
       print('RefillException: ${e.toString()}');
@@ -381,7 +373,9 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
       print('Erreur inattendue: $e');
       print('StackTrace: $stackTrace');
       setState(() {
-        _codeError = 'Une erreur inattendue est survenue: $e';
+        _codeError = AppLocalizations.of(
+          context,
+        )!.unexpectedError(e.toString());
       });
     } finally {
       setState(() {
@@ -394,7 +388,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
     // Extraire les informations de la réponse
     final newBalance = RefillService.getNewBalanceFromResponse(response);
     final refillAmount = RefillService.getRefillAmountFromResponse(response);
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -412,15 +406,11 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
                   color: Colors.green[100],
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.check,
-                  color: Colors.green[600],
-                  size: 48,
-                ),
+                child: Icon(Icons.check, color: Colors.green[600], size: 48),
               ),
               const SizedBox(height: 16),
               Text(
-                'Recharge réussie !',
+                AppLocalizations.of(context)!.refillSuccessTitle,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -429,14 +419,13 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                widget.isGift 
-                  ? 'La recharge a été effectuée avec succès pour ${widget.phoneNumber}'
-                  : 'Votre crédit a été rechargé avec succès',
+                widget.isGift
+                    ? AppLocalizations.of(
+                      context,
+                    )!.refillSuccessMessageGift(widget.phoneNumber)
+                    : AppLocalizations.of(context)!.refillSuccessMessageMine,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
               if (refillAmount != null) ...[
                 const SizedBox(height: 16),
@@ -449,11 +438,8 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
                   child: Column(
                     children: [
                       Text(
-                        'Montant rechargé',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        AppLocalizations.of(context)!.refillAmount,
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -467,7 +453,9 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
                       if (newBalance != null) ...[
                         const SizedBox(height: 8),
                         Text(
-                          'Nouveau solde : ${newBalance.toStringAsFixed(2)} DJF',
+                          AppLocalizations.of(
+                            context,
+                          )!.refillNewBalance(newBalance.toStringAsFixed(2)),
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -492,7 +480,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
                 ); // Retourner à l'écran précédent
               },
               child: Text(
-                'Fermer',
+                AppLocalizations.of(context)!.closeAction,
                 style: TextStyle(
                   color: AppTheme.dtBlue2,
                   fontWeight: FontWeight.bold,

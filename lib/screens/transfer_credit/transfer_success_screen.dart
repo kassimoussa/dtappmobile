@@ -4,13 +4,14 @@ import 'package:dtservices/screens/main_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import '../../generated/l10n/app_localizations.dart';
 
 class TransferSuccessScreen extends StatefulWidget {
   final String phoneNumber;
   final String recipient;
   final double amount;
   final double transferFee;
-  final double ancienSolde; 
+  final double ancienSolde;
 
   const TransferSuccessScreen({
     super.key,
@@ -18,7 +19,7 @@ class TransferSuccessScreen extends StatefulWidget {
     required this.recipient,
     required this.amount,
     required this.transferFee,
-    required this.ancienSolde, 
+    required this.ancienSolde,
   });
 
   @override
@@ -46,21 +47,19 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
+      ),
+    );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
+      ),
+    );
 
     _animationController.forward();
   }
@@ -98,9 +97,10 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
-    final nouveauSolde = widget.ancienSolde - widget.amount - widget.transferFee;
-    
+
+    final nouveauSolde =
+        widget.ancienSolde - widget.amount - widget.transferFee;
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -108,7 +108,7 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
         appBar: AppBar(
           backgroundColor: AppTheme.dtBlue,
           title: Text(
-            'Transfert réussi',
+            AppLocalizations.of(context)!.transferSuccessTitle,
             style: TextStyle(
               color: Colors.white,
               fontSize: ResponsiveSize.getFontSize(18),
@@ -122,18 +122,22 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
           animation: _animationController,
           builder: (context, child) {
             return SingleChildScrollView(
-              padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+              padding: EdgeInsets.all(
+                ResponsiveSize.getWidth(AppTheme.spacingL),
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: ResponsiveSize.getHeight(20)),
-                  
+
                   // Icône de succès avec animation
                   ScaleTransition(
                     scale: _scaleAnimation,
                     child: Container(
-                      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                      padding: EdgeInsets.all(
+                        ResponsiveSize.getWidth(AppTheme.spacingL),
+                      ),
                       decoration: BoxDecoration(
                         color: AppTheme.dtBlue.withOpacityValue(0.1),
                         shape: BoxShape.circle,
@@ -156,7 +160,7 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
                       ),
                     ),
                   ),
-                  
+
                   // Container fixe pour les textes
                   Container(
                     width: double.infinity,
@@ -168,7 +172,7 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
                       children: [
                         // Titre
                         Text(
-                          'Transfert réussi !',
+                          AppLocalizations.of(context)!.transferSuccessTitle,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(24),
@@ -176,12 +180,14 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
                             color: AppTheme.dtBlue,
                           ),
                         ),
-                        
+
                         SizedBox(height: ResponsiveSize.getHeight(16)),
-                        
+
                         // Message de confirmation
                         Text(
-                          'Votre crédit a été transféré avec succès vers +253 ${widget.recipient}',
+                          AppLocalizations.of(
+                            context,
+                          )!.transferSuccessMessage(widget.recipient),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(14),
@@ -192,39 +198,66 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
                       ],
                     ),
                   ),
-            
+
                   // Détails du transfert avec fade
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+                      padding: EdgeInsets.all(
+                        ResponsiveSize.getWidth(AppTheme.spacingM),
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveSize.getWidth(AppTheme.radiusM),
+                        ),
                         border: Border.all(color: Colors.grey[200]!),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildDetailRow('Montant transféré', '${widget.amount.toStringAsFixed(0)} DJF'),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.transferedAmount,
+                            '${widget.amount.toStringAsFixed(0)} DJF',
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Frais de transfert', '${widget.transferFee.toStringAsFixed(0)} DJF'),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.transferFees,
+                            '${widget.transferFee.toStringAsFixed(0)} DJF',
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Total débité', '${(widget.amount + widget.transferFee).toStringAsFixed(0)} DJF'),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.totalDebit,
+                            '${(widget.amount + widget.transferFee).toStringAsFixed(0)} DJF',
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Destinataire', '+253 ${widget.recipient}'),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.toLabel,
+                            '+253 ${widget.recipient}',
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Date', _getCurrentDate()),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.dateKey,
+                            _getCurrentDate(),
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Nouveau solde', '${nouveauSolde.toStringAsFixed(0)} DJF'),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!
+                                .balanceAfterTransfer(
+                                  nouveauSolde.toStringAsFixed(0),
+                                )
+                                .split(':')
+                                .first,
+                            '${nouveauSolde.toStringAsFixed(0)} DJF',
+                          ),
                         ],
                       ),
                     ),
                   ),
-            
+
                   SizedBox(height: ResponsiveSize.getHeight(20)),
-                  
+
                   // Bouton pour retourner immédiatement à l'accueil avec fade
                   FadeTransition(
                     opacity: _fadeAnimation,
@@ -239,11 +272,15 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
                               backgroundColor: AppTheme.dtBlue,
                               foregroundColor: AppTheme.dtYellow,
                               padding: EdgeInsets.symmetric(
-                                horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
+                                horizontal: ResponsiveSize.getWidth(
+                                  AppTheme.spacingL,
+                                ),
                                 vertical: ResponsiveSize.getHeight(16),
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveSize.getWidth(AppTheme.radiusM),
+                                ),
                               ),
                               elevation: 2,
                             ),
@@ -257,7 +294,7 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
                                 ),
                                 SizedBox(width: ResponsiveSize.getWidth(8)),
                                 Text(
-                                  'Retour à l\'accueil',
+                                  AppLocalizations.of(context)!.homeAction,
                                   style: TextStyle(
                                     fontSize: ResponsiveSize.getFontSize(16),
                                     fontWeight: FontWeight.bold,
@@ -267,18 +304,22 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
                             ),
                           ),
                         ),
-                        
+
                         SizedBox(height: ResponsiveSize.getHeight(16)),
-                        
+
                         // Compte à rebours
                         Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
+                            horizontal: ResponsiveSize.getWidth(
+                              AppTheme.spacingM,
+                            ),
                             vertical: ResponsiveSize.getHeight(8),
                           ),
                           decoration: BoxDecoration(
                             color: AppTheme.dtBlue.withOpacityValue(0.1),
-                            borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(20)),
+                            borderRadius: BorderRadius.circular(
+                              ResponsiveSize.getWidth(20),
+                            ),
                             border: Border.all(
                               color: AppTheme.dtBlue.withOpacityValue(0.3),
                             ),
@@ -293,7 +334,9 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
                               ),
                               SizedBox(width: ResponsiveSize.getWidth(6)),
                               Text(
-                                'Redirection automatique dans $_remainingSeconds s',
+                                AppLocalizations.of(
+                                  context,
+                                )!.autoRedirect(_remainingSeconds),
                                 style: TextStyle(
                                   fontSize: ResponsiveSize.getFontSize(12),
                                   color: AppTheme.dtBlue,
@@ -303,7 +346,7 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
                             ],
                           ),
                         ),
-                        
+
                         // Espace pour le safe area
                         SizedBox(
                           height: MediaQuery.of(context).padding.bottom + 16,

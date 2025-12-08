@@ -9,6 +9,7 @@ import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'forfaits_screen.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class ForfaitCategoriesScreen extends StatelessWidget {
   final String? phoneNumber;
@@ -28,18 +29,18 @@ class ForfaitCategoriesScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: 'Achat de forfait',
+        title: AppLocalizations.of(context)!.buyPackageTitle,
         showAction: false,
         value: balanceProvider.solde,
         showCancelToHome: true,
-        ),
+      ),
       body: ListView(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
         children: [
           _buildCategoryCard(
             context,
-            title: 'Internet Classique',
-            description: 'Forfaits data pour naviguer',
+            title: AppLocalizations.of(context)!.internetClassique,
+            description: AppLocalizations.of(context)!.internetClassiqueDesc,
             icon: Icons.wifi,
             iconColor: AppTheme.dtBlue2,
             type: 'internet',
@@ -48,8 +49,8 @@ class ForfaitCategoriesScreen extends StatelessWidget {
 
           _buildCategoryCard(
             context,
-            title: 'Forfaits Combo',
-            description: 'Appels, SMS et Internet',
+            title: AppLocalizations.of(context)!.comboPackages,
+            description: AppLocalizations.of(context)!.comboPackagesDesc,
             icon: Icons.phone_android,
             iconColor: AppTheme.dtBlue2,
             type: 'combo',
@@ -58,8 +59,8 @@ class ForfaitCategoriesScreen extends StatelessWidget {
 
           _buildCategoryCard(
             context,
-            title: 'Tempo',
-            description: 'Minutes d\'appels week-end',
+            title: AppLocalizations.of(context)!.tempoPackages,
+            description: AppLocalizations.of(context)!.tempoPackagesDesc,
             icon: Icons.timer,
             iconColor: AppTheme.dtBlue2,
             type: 'tempo',
@@ -81,11 +82,8 @@ class ForfaitCategoriesScreen extends StatelessWidget {
   }) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder( 
-        side: BorderSide(
-          color: AppTheme.dtYellow,
-          width: 1,
-        ),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: AppTheme.dtYellow, width: 1),
         borderRadius: BorderRadius.circular(
           ResponsiveSize.getWidth(AppTheme.radiusM),
         ),
@@ -143,10 +141,12 @@ class ForfaitCategoriesScreen extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: Colors.orange,
-                              borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
+                              borderRadius: BorderRadius.circular(
+                                ResponsiveSize.getWidth(8),
+                              ),
                             ),
                             child: Text(
-                              'NOUVEAU',
+                              AppLocalizations.of(context)!.newBadge,
                               style: TextStyle(
                                 fontSize: ResponsiveSize.getFontSize(10),
                                 color: Colors.white,

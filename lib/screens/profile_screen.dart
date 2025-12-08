@@ -5,6 +5,8 @@ import '../utils/responsive_size.dart';
 import '../services/profile_service.dart';
 import '../widgets/appbar_widget.dart';
 import '../extensions/color_extensions.dart';
+import '../generated/l10n/app_localizations.dart';
+import 'language_selection_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,11 +19,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  
+
   bool _isLoading = true;
   bool _isSaving = false;
   String? _errorMessage;
-  
+
   // Données utilisateur
   String? _phoneNumber;
   String? _currentName;
@@ -52,27 +54,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       // Charger les données du profil
       final profileData = await ProfileService.getUserProfile();
-      
+
       if (profileData != null && mounted) {
         final userData = profileData['user'];
         final sessionData = profileData['session'];
-        
+
         setState(() {
           _phoneNumber = userData['phone_number'];
           _currentName = userData['name'];
           _currentEmail = userData['email'];
-          _lastLoginAt = userData['last_login_at'] != null 
-              ? DateTime.tryParse(userData['last_login_at']) 
-              : null;
-          _createdAt = userData['created_at'] != null 
-              ? DateTime.tryParse(userData['created_at']) 
-              : null;
+          _lastLoginAt =
+              userData['last_login_at'] != null
+                  ? DateTime.tryParse(userData['last_login_at'])
+                  : null;
+          _createdAt =
+              userData['created_at'] != null
+                  ? DateTime.tryParse(userData['created_at'])
+                  : null;
           _deviceType = sessionData['device_type'];
-          
+
           // Pré-remplir les champs de formulaire
           _nameController.text = _currentName ?? '';
           _emailController.text = _currentEmail ?? '';
-          
+
           _isLoading = false;
         });
       }
@@ -80,7 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       debugPrint('Erreur chargement profil: $e');
       if (mounted) {
         setState(() {
-          _errorMessage = 'Erreur lors du chargement du profil';
+          _errorMessage = AppLocalizations.of(context)!.profileLoadError;
           _isLoading = false;
         });
       }
@@ -89,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() {
       _isSaving = true;
       _errorMessage = null;
@@ -107,10 +111,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _currentName = _nameController.text.trim();
             _currentEmail = _emailController.text.trim();
           });
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Profil mis à jour avec succès'),
+              content: Text(AppLocalizations.of(context)!.profileUpdateSuccess),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -120,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
         } else {
           setState(() {
-            _errorMessage = 'Erreur lors de la mise à jour';
+            _errorMessage = AppLocalizations.of(context)!.updateError;
           });
         }
       }
@@ -128,7 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       debugPrint('Erreur sauvegarde profil: $e');
       if (mounted) {
         setState(() {
-          _errorMessage = 'Erreur lors de la sauvegarde';
+          _errorMessage = AppLocalizations.of(context)!.saveError;
         });
       }
     } finally {
@@ -145,7 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return null; // Nom optionnel
     }
     if (value.trim().length < 2) {
-      return 'Le nom doit contenir au moins 2 caractères';
+      return AppLocalizations.of(context)!.nameValidationError;
     }
     return null;
   }
@@ -156,48 +160,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value.trim())) {
-      return 'Veuillez saisir un email valide';
+      return AppLocalizations.of(context)!.emailValidationError;
     }
     return null;
   }
 
   String _formatDate(DateTime? date) {
-    if (date == null) return 'Non disponible';
+    if (date == null) return AppLocalizations.of(context)!.notAvailable;
     return '${date.day}/${date.month}/${date.year} à ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
 
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: 'Mon Profil',
+        title: l10n.myProfile,
         showAction: false,
         showCancelToHome: true,
       ),
-      body: _isLoading 
-          ? _buildLoadingState()
-          : SingleChildScrollView(
-              padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildProfileHeader(),
-                    SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                    _buildPersonalInfoSection(),
-                    SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                    _buildAccountInfoSection(),
-                    SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-                    if (_errorMessage != null) _buildErrorMessage(),
-                    _buildSaveButton(),
-                  ],
+      body:
+          _isLoading
+              ? _buildLoadingState()
+              : SingleChildScrollView(
+                padding: EdgeInsets.all(
+                  ResponsiveSize.getWidth(AppTheme.spacingL),
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildProfileHeader(),
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(AppTheme.spacingL),
+                      ),
+                      _buildPersonalInfoSection(),
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(AppTheme.spacingL),
+                      ),
+                      _buildPreferencesSection(l10n),
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(AppTheme.spacingL),
+                      ),
+                      _buildAccountInfoSection(),
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(AppTheme.spacingXL),
+                      ),
+                      if (_errorMessage != null) _buildErrorMessage(),
+                      _buildSaveButton(),
+                    ],
+                  ),
                 ),
               ),
-            ),
     );
   }
 
@@ -209,7 +227,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           CircularProgressIndicator(color: AppTheme.dtBlue),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
           Text(
-            'Chargement du profil...',
+            AppLocalizations.of(context)!.loadingProfile,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
               color: Colors.grey[600],
@@ -225,10 +243,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
       decoration: BoxDecoration(
         color: AppTheme.dtBlue.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-        border: Border.all(
-          color: AppTheme.dtBlue.withOpacityValue(0.3),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
         ),
+        border: Border.all(color: AppTheme.dtBlue.withOpacityValue(0.3)),
       ),
       child: Column(
         children: [
@@ -236,7 +254,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             radius: ResponsiveSize.getWidth(40),
             backgroundColor: AppTheme.dtBlue,
             child: Text(
-              _currentName?.isNotEmpty == true 
+              _currentName?.isNotEmpty == true
                   ? _currentName!.substring(0, 1).toUpperCase()
                   : _phoneNumber?.substring(_phoneNumber!.length - 4) ?? '?',
               style: TextStyle(
@@ -248,7 +266,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
           Text(
-            _currentName?.isNotEmpty == true ? _currentName! : 'Utilisateur',
+            _currentName?.isNotEmpty == true
+                ? _currentName!
+                : AppLocalizations.of(context)!.defaultUser,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(20),
               fontWeight: FontWeight.bold,
@@ -269,20 +289,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildPersonalInfoSection() {
+    final l10n = AppLocalizations.of(context)!;
     return _buildSection(
-      title: 'Informations personnelles',
+      title: l10n.personalInfo,
       children: [
         TextFormField(
           controller: _nameController,
           decoration: InputDecoration(
-            labelText: 'Nom complet',
-            hintText: 'Entrez votre nom',
+            labelText: l10n.nameLabel,
+            hintText: l10n.nameHint,
             prefixIcon: Icon(Icons.person, color: AppTheme.dtBlue),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
+              ),
               borderSide: BorderSide(color: AppTheme.dtBlue, width: 2),
             ),
           ),
@@ -293,14 +318,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         TextFormField(
           controller: _emailController,
           decoration: InputDecoration(
-            labelText: 'Email',
-            hintText: 'exemple@email.com',
+            labelText: l10n.emailLabel,
+            hintText: l10n.emailHint,
             prefixIcon: Icon(Icons.email, color: AppTheme.dtBlue),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
+              ),
               borderSide: BorderSide(color: AppTheme.dtBlue, width: 2),
             ),
           ),
@@ -312,23 +341,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAccountInfoSection() {
+    final l10n = AppLocalizations.of(context)!;
     return _buildSection(
-      title: 'Informations du compte',
+      title: l10n.accountInfo,
       children: [
-        _buildInfoRow('Numéro de téléphone', _phoneNumber ?? 'Non disponible'),
-        _buildInfoRow('Dernière connexion', _formatDate(_lastLoginAt)),
-        _buildInfoRow('Compte créé le', _formatDate(_createdAt)),
-        _buildInfoRow('Type d\'appareil', _deviceType ?? 'Non disponible'),
+        _buildInfoRow(l10n.phoneNumber, _phoneNumber ?? 'Non disponible'),
+        _buildInfoRow(l10n.lastLogin, _formatDate(_lastLoginAt)),
+        _buildInfoRow(l10n.accountCreated, _formatDate(_createdAt)),
+        _buildInfoRow(l10n.deviceType, _deviceType ?? 'Non disponible'),
       ],
     );
   }
 
-  Widget _buildSection({required String title, required List<Widget> children}) {
+  Widget _buildPreferencesSection(AppLocalizations l10n) {
+    return _buildSection(
+      title: l10n.preferences,
+      children: [
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LanguageSelectionScreen(),
+              ),
+            );
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.language,
+                  color: Colors.grey[600],
+                  size: ResponsiveSize.getFontSize(24),
+                ),
+                SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
+                Expanded(
+                  child: Text(
+                    l10n.changeLanguage,
+                    style: TextStyle(
+                      fontSize: ResponsiveSize.getFontSize(16),
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.grey[400],
+                  size: ResponsiveSize.getFontSize(16),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
       decoration: BoxDecoration(
         color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
+        ),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
@@ -351,7 +433,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingS)),
+      padding: EdgeInsets.only(
+        bottom: ResponsiveSize.getHeight(AppTheme.spacingS),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -383,12 +467,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildErrorMessage() {
     return Padding(
-      padding: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingM)),
+      padding: EdgeInsets.only(
+        bottom: ResponsiveSize.getHeight(AppTheme.spacingM),
+      ),
       child: Container(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
         decoration: BoxDecoration(
           color: Colors.red[50],
-          borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+          borderRadius: BorderRadius.circular(
+            ResponsiveSize.getWidth(AppTheme.radiusS),
+          ),
           border: Border.all(color: Colors.red[200]!),
         ),
         child: Row(
@@ -416,9 +504,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppTheme.dtBlue,
         foregroundColor: AppTheme.dtYellow,
-        padding: EdgeInsets.symmetric(
-          vertical: ResponsiveSize.getHeight(16),
-        ),
+        padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(16)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(
             ResponsiveSize.getWidth(AppTheme.radiusM),
@@ -426,32 +512,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         elevation: _isSaving ? 0 : 2,
       ),
-      child: _isSaving
-          ? SizedBox(
-              width: ResponsiveSize.getWidth(20),
-              height: ResponsiveSize.getHeight(20),
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtYellow),
-              ),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.save,
-                  size: ResponsiveSize.getFontSize(18),
+      child:
+          _isSaving
+              ? SizedBox(
+                width: ResponsiveSize.getWidth(20),
+                height: ResponsiveSize.getHeight(20),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtYellow),
                 ),
-                SizedBox(width: ResponsiveSize.getWidth(8)),
-                Text(
-                  'Enregistrer les modifications',
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(16),
-                    fontWeight: FontWeight.bold,
+              )
+              : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.save, size: ResponsiveSize.getFontSize(18)),
+                  SizedBox(width: ResponsiveSize.getWidth(8)),
+                  Text(
+                    AppLocalizations.of(context)!.saveChanges,
+                    style: TextStyle(
+                      fontSize: ResponsiveSize.getFontSize(16),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
     );
   }
 }

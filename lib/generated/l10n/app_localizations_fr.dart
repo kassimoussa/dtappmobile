@@ -1,0 +1,737 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for French (`fr`).
+class AppLocalizationsFr extends AppLocalizations {
+  AppLocalizationsFr([String locale = 'fr']) : super(locale);
+
+  @override
+  String get appTitle => 'DTServices';
+
+  @override
+  String get home => 'Accueil';
+
+  @override
+  String get settings => 'Paramètres';
+
+  @override
+  String get language => 'Langue';
+
+  @override
+  String get login => 'Connexion';
+
+  @override
+  String get logout => 'Déconnexion';
+
+  @override
+  String get error => 'Erreur';
+
+  @override
+  String get success => 'Succès';
+
+  @override
+  String get myProfile => 'Mon Profil';
+
+  @override
+  String get logoutConfirmation =>
+      'Êtes-vous sûr de vouloir vous déconnecter ?';
+
+  @override
+  String get cancel => 'Annuler';
+
+  @override
+  String get logoutAction => 'Déconnecter';
+
+  @override
+  String get logoutError => 'Erreur lors de la déconnexion';
+
+  @override
+  String welcomeMessage(String phoneNumber) {
+    return 'Bienvenue, $phoneNumber';
+  }
+
+  @override
+  String get mainAccount => 'Compte Principal';
+
+  @override
+  String get bonusBalance => 'Solde Bonus';
+
+  @override
+  String expiresOn(String date) {
+    return 'Expire le $date';
+  }
+
+  @override
+  String get buyPackage => 'Achat de\nforfait';
+
+  @override
+  String get creditRefill => 'Recharge\nde crédit';
+
+  @override
+  String get myPackages => 'Mes\nforfaits';
+
+  @override
+  String get creditTransfer => 'Transfert\nde crédit';
+
+  @override
+  String get ourAgencies => 'Nos\nagences';
+
+  @override
+  String get speedTest => 'Speed\nTest';
+
+  @override
+  String get personalInfo => 'Informations personnelles';
+
+  @override
+  String get accountInfo => 'Informations du compte';
+
+  @override
+  String get preferences => 'Préférences';
+
+  @override
+  String get changeLanguage => 'Changer la langue';
+
+  @override
+  String get french => 'Français';
+
+  @override
+  String get english => 'Anglais';
+
+  @override
+  String get save => 'Enregistrer';
+
+  @override
+  String get nameLabel => 'Nom complet';
+
+  @override
+  String get nameHint => 'Entrez votre nom';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get emailHint => 'exemple@email.com';
+
+  @override
+  String get phoneNumber => 'Numéro de téléphone';
+
+  @override
+  String get lastLogin => 'Dernière connexion';
+
+  @override
+  String get accountCreated => 'Compte créé le';
+
+  @override
+  String get deviceType => 'Type d\'appareil';
+
+  @override
+  String get saveChanges => 'Enregistrer les modifications';
+
+  @override
+  String get profileLoadError => 'Erreur lors du chargement du profil';
+
+  @override
+  String get updateError => 'Erreur lors de la mise à jour';
+
+  @override
+  String get saveError => 'Erreur lors de la sauvegarde';
+
+  @override
+  String get nameValidationError =>
+      'Le nom doit contenir au moins 2 caractères';
+
+  @override
+  String get emailValidationError => 'Veuillez saisir un email valide';
+
+  @override
+  String get notAvailable => 'Non disponible';
+
+  @override
+  String get loadingProfile => 'Chargement du profil...';
+
+  @override
+  String get profileUpdateSuccess => 'Profil mis à jour avec succès';
+
+  @override
+  String get defaultUser => 'Utilisateur';
+
+  @override
+  String get otpSendError => 'Erreur lors de l\'envoi du code';
+
+  @override
+  String get welcome => 'Bienvenue';
+
+  @override
+  String get loginPrompt => 'Connectez-vous avec votre numéro';
+
+  @override
+  String get savedPhoneNumber => 'Numéro de téléphone sauvegardé';
+
+  @override
+  String get phoneValidationError => 'Veuillez saisir votre numéro';
+
+  @override
+  String get phoneLengthError => 'Le numéro doit contenir 8 chiffres';
+
+  @override
+  String get phoneStartError => 'Le numéro doit commencer par 77';
+
+  @override
+  String get continueAction => 'Continuer';
+
+  @override
+  String get smsVerificationMessage =>
+      'Un code de vérification vous sera envoyé par SMS';
+
+  @override
+  String get otpResentSuccess => 'Un nouveau code a été envoyé';
+
+  @override
+  String get otpResentError => 'Erreur lors du réenvoi du code';
+
+  @override
+  String get otpInvalid => 'Code OTP incorrect';
+
+  @override
+  String get verificationTitle => 'Vérification';
+
+  @override
+  String verificationCodeSentTo(Object phone) {
+    return 'Un code a été envoyé au $phone';
+  }
+
+  @override
+  String get verifyAction => 'Vérifier';
+
+  @override
+  String get resendCode => 'Renvoyer le code';
+
+  @override
+  String resendCodeTimer(Object seconds) {
+    return 'Renvoyer le code (${seconds}s)';
+  }
+
+  @override
+  String get transferTitle => 'Transfert de crédit';
+
+  @override
+  String get recipientLabel => 'Numéro destinataire';
+
+  @override
+  String get amountLabel => 'Montant à transférer';
+
+  @override
+  String get amountHint => 'Ex: 1000';
+
+  @override
+  String get amountInvalid => 'Montant invalide';
+
+  @override
+  String get amountPositive => 'Le montant doit être supérieur à 0';
+
+  @override
+  String get amountMinimum => 'Montant minimum : 50 DJF';
+
+  @override
+  String insufficientBalance(Object total) {
+    return 'Solde insuffisant (total avec frais: $total DJF)';
+  }
+
+  @override
+  String get selfTransferError =>
+      'Vous ne pouvez pas vous transférer de l\'argent';
+
+  @override
+  String get recipientRequired => 'Veuillez entrer un numéro de destinataire';
+
+  @override
+  String get confirmTransfer => 'Confirmer le transfert';
+
+  @override
+  String get transferConfirmationTitle => 'Confirmation de transfert';
+
+  @override
+  String get checkTransferDetails => 'Vérifiez les détails du transfert';
+
+  @override
+  String get fromLabel => 'De';
+
+  @override
+  String get toLabel => 'Vers';
+
+  @override
+  String get amountKey => 'Montant';
+
+  @override
+  String get feesKey => 'Frais (5%)';
+
+  @override
+  String get totalDebit => 'Total à débiter';
+
+  @override
+  String get dateKey => 'Date';
+
+  @override
+  String currentBalance(Object balance) {
+    return 'Solde actuel: $balance DJF';
+  }
+
+  @override
+  String balanceAfterTransfer(Object balance) {
+    return 'Solde après transfert: $balance DJF';
+  }
+
+  @override
+  String get transferWarning =>
+      'Ce transfert est immédiat et irréversible. Vérifiez bien le numéro du destinataire.';
+
+  @override
+  String get cancelAction => 'Annuler';
+
+  @override
+  String get authFailed => 'Authentification échouée';
+
+  @override
+  String transferError(Object error) {
+    return 'Erreur lors du transfert: $error';
+  }
+
+  @override
+  String get transferSuccessTitle => 'Transfert réussi';
+
+  @override
+  String transferSuccessMessage(Object recipient) {
+    return 'Votre crédit a été transféré avec succès vers $recipient';
+  }
+
+  @override
+  String get transferedAmount => 'Montant transféré';
+
+  @override
+  String get transferFees => 'Frais de transfert';
+
+  @override
+  String get homeAction => 'Retour à l\'accueil';
+
+  @override
+  String autoRedirect(Object seconds) {
+    return 'Redirection automatique dans $seconds s';
+  }
+
+  @override
+  String get buyPackageTitle => 'Achat de forfait';
+
+  @override
+  String get internetClassique => 'Internet Classique';
+
+  @override
+  String get internetClassiqueDesc => 'Forfaits data pour naviguer';
+
+  @override
+  String get comboPackages => 'Forfaits Combo';
+
+  @override
+  String get comboPackagesDesc => 'Appels, SMS et Internet';
+
+  @override
+  String get tempoPackages => 'Tempo';
+
+  @override
+  String get tempoPackagesDesc => 'Minutes d\'appels week-end';
+
+  @override
+  String get newBadge => 'NOUVEAU';
+
+  @override
+  String get choosePackageHeader => 'Choisissez votre forfait';
+
+  @override
+  String get internetDesc =>
+      'Sélectionnez l\'un de nos forfaits internet pour rester connecté.';
+
+  @override
+  String get comboDesc =>
+      'Profitez d\'appels, SMS et data avec nos forfaits tout-en-un.';
+
+  @override
+  String get tempoDesc =>
+      'Forfaits spéciaux avec minutes d\'appels pour le week-end.';
+
+  @override
+  String get defaultPackageDesc => 'Choisissez le forfait qui vous convient.';
+
+  @override
+  String get emptyTempoTitle => 'Aucun forfait Tempo';
+
+  @override
+  String get emptyTempoDesc => 'Les forfaits Tempo seront bientôt disponibles';
+
+  @override
+  String get recipientSelectionTitle => 'Choisir le destinataire';
+
+  @override
+  String get myNumber => 'Mon numéro';
+
+  @override
+  String get otherNumber => 'Autre numéro';
+
+  @override
+  String get buyFor => 'Acheter pour';
+
+  @override
+  String get enterNumberTitle => 'Saisir le numéro';
+
+  @override
+  String get enterNumberLabel => 'Entrez le numéro de téléphone';
+
+  @override
+  String get djiboutiNumberRequired => 'Numéro mobile valide à Djibouti requis';
+
+  @override
+  String get purchaseConfirmationTitle => 'Confirmation d\'achat';
+
+  @override
+  String get purchaseForMyNumber => 'Achat pour mon numéro';
+
+  @override
+  String get giftPurchase => 'Achat cadeau';
+
+  @override
+  String validFor(Object validity) {
+    return 'Valide pendant $validity';
+  }
+
+  @override
+  String get priceLabel => 'Prix';
+
+  @override
+  String get internetLabel => 'Internet';
+
+  @override
+  String get callsLabel => 'Appels';
+
+  @override
+  String get minutesLabel => 'Minutes d\'appel';
+
+  @override
+  String get smsLabel => 'SMS';
+
+  @override
+  String get validityLabel => 'Validité';
+
+  @override
+  String get weekendValidity => 'Week-end';
+
+  @override
+  String currentBalanceFDJ(Object amount) {
+    return 'Solde actuel: $amount FDJ';
+  }
+
+  @override
+  String balanceAfterPurchaseFDJ(Object amount) {
+    return 'Solde après achat: $amount FDJ';
+  }
+
+  @override
+  String get lowBalanceWarning => 'Solde faible après achat';
+
+  @override
+  String get confirmPurchase => 'Confirmer l\'achat';
+
+  @override
+  String get purchaseSuccessTitle => 'Achat réussi';
+
+  @override
+  String purchaseSuccessMessage(Object name) {
+    return 'Votre forfait $name a été activé avec succès';
+  }
+
+  @override
+  String get packageLabel => 'Forfait';
+
+  @override
+  String get newBalance => 'Nouveau solde';
+
+  @override
+  String get purchaseError => 'Erreur lors de l\'achat';
+
+  @override
+  String get refillTitle => 'Recharge de crédit';
+
+  @override
+  String get refillGiftTitle => 'Recharge cadeau';
+
+  @override
+  String get refillMyCredit => 'Recharger mon crédit';
+
+  @override
+  String refillRecipient(Object phone) {
+    return 'Destinataire : $phone';
+  }
+
+  @override
+  String refillMyNumber(Object phone) {
+    return 'Mon numéro : $phone';
+  }
+
+  @override
+  String get refillCodeLabel => 'Code de recharge';
+
+  @override
+  String get refillCodeLengthError =>
+      'Le code doit contenir exactement 12 chiffres';
+
+  @override
+  String get refillCodeDigitError =>
+      'Le code ne doit contenir que des chiffres';
+
+  @override
+  String get howToUseCode => 'Comment utiliser votre code';
+
+  @override
+  String get refillInstructions =>
+      '• Grattez la carte pour révéler le code à 12 chiffres\n• Saisissez le code complet sans espaces ni tirets\n• Le crédit sera ajouté immédiatement après validation\n• Chaque code ne peut être utilisé qu\'une seule fois';
+
+  @override
+  String get confirmRefill => 'Confirmer la recharge';
+
+  @override
+  String get refillSuccessTitle => 'Recharge réussie !';
+
+  @override
+  String refillSuccessMessageGift(Object phone) {
+    return 'La recharge a été effectuée avec succès pour $phone';
+  }
+
+  @override
+  String get refillSuccessMessageMine =>
+      'Votre crédit a été rechargé avec succès';
+
+  @override
+  String get refillAmount => 'Montant rechargé';
+
+  @override
+  String refillNewBalance(Object balance) {
+    return 'Nouveau solde : $balance DJF';
+  }
+
+  @override
+  String get closeAction => 'Fermer';
+
+  @override
+  String refillFor(Object phone) {
+    return 'Recharge pour $phone';
+  }
+
+  @override
+  String refillForMyNumberMessage(Object phone) {
+    return 'Recharge pour mon numéro: $phone';
+  }
+
+  @override
+  String unexpectedError(Object error) {
+    return 'Une erreur inattendue est survenue: $error';
+  }
+
+  @override
+  String get buyAction => 'Acheter';
+
+  @override
+  String get insufficientBalanceSimple => 'Solde insuffisant';
+
+  @override
+  String get insufficientBalanceForPurchase =>
+      'Solde insuffisant pour cet achat.';
+
+  @override
+  String get popularBadge => 'Populaire';
+
+  @override
+  String get noData => 'Aucune data';
+
+  @override
+  String get genericRetryError =>
+      'Une erreur est survenue. Veuillez réessayer.';
+
+  @override
+  String get buyAPackage => 'Acheter un forfait';
+
+  @override
+  String validityHours(Object hours) {
+    return '${hours}h';
+  }
+
+  @override
+  String validityDays(num days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days jours',
+      one: '1 jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get validityWeekendLong => 'Du Vendredi 07h00 au Dimanche 07h00';
+
+  @override
+  String get myPackagesTitle => 'Mes Forfaits';
+
+  @override
+  String get loadingPackages => 'Chargement des forfaits...';
+
+  @override
+  String get serverUnavailable =>
+      'Le serveur est temporairement indisponible. Veuillez réessayer plus tard.';
+
+  @override
+  String get retry => 'Réessayer';
+
+  @override
+  String get noActivePackages => 'Vous n\'avez aucun forfait actif';
+
+  @override
+  String get buyPackageToStart =>
+      'Achetez un forfait pour commencer à utiliser nos services!';
+
+  @override
+  String get consumptionResume => 'Résumé de consommation';
+
+  @override
+  String get internetData => 'Données Internet';
+
+  @override
+  String get lastUpdateSeconds => 'il y a quelques secondes';
+
+  @override
+  String lastUpdateMinutes(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return 'il y a $count minute$_temp0';
+  }
+
+  @override
+  String lastUpdateHours(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return 'il y a $count heure$_temp0';
+  }
+
+  @override
+  String lastUpdateDays(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return 'il y a $count jour$_temp0';
+  }
+
+  @override
+  String lastUpdateLabel(Object time) {
+    return 'Dernière mise à jour $time';
+  }
+
+  @override
+  String get loadingDetails => 'Chargement des détails...';
+
+  @override
+  String refreshError(Object error) {
+    return 'Impossible de rafraîchir les données: $error';
+  }
+
+  @override
+  String get packageNotFound => 'Forfait introuvable';
+
+  @override
+  String get packageNotFoundDesc =>
+      'Ce forfait n\'existe pas ou n\'est plus disponible';
+
+  @override
+  String get back => 'Retour';
+
+  @override
+  String get comboPackage => 'Forfait Combo';
+
+  @override
+  String get internetPackage => 'Forfait Internet';
+
+  @override
+  String get purchaseDate => 'Date d\'achat:';
+
+  @override
+  String get expirationDate => 'Date d\'expiration:';
+
+  @override
+  String remainingOf(Object remaining, Object total) {
+    return '$remaining restants / $total';
+  }
+
+  @override
+  String remainingOfMinutes(Object remaining, Object total) {
+    return '$remaining restantes / $total';
+  }
+
+  @override
+  String get consumption => 'Consommation';
+
+  @override
+  String get used => 'Utilisé';
+
+  @override
+  String get remaining => 'Restant';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get speedTestTitle => 'Test de vitesse';
+
+  @override
+  String get startTest => 'LANCER LE TEST';
+
+  @override
+  String get testingInProgress => 'Test en cours...';
+
+  @override
+  String get phaseIdle => 'Prêt à tester';
+
+  @override
+  String get phasePing => 'Test du ping...';
+
+  @override
+  String get phaseDownload => 'Test de téléchargement...';
+
+  @override
+  String get phaseUpload => 'Test d\'upload...';
+
+  @override
+  String get phaseDone => 'Test terminé';
+
+  @override
+  String get downloadLabel => 'Download';
+
+  @override
+  String get uploadLabel => 'Upload';
+
+  @override
+  String get pingLabel => 'Ping';
+
+  @override
+  String speedTestError(Object error) {
+    return 'Erreur: $error';
+  }
+}

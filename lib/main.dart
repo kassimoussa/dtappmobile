@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'generated/l10n/app_localizations.dart';
 import 'screens/splash_screen.dart';
 import 'utils/responsive_size.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,16 +14,21 @@ import 'providers/balance_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/topup_provider.dart';
 import 'providers/transaction_provider.dart';
+import 'providers/language_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
     // Initialiser les notifications en arrière-plan sans bloquer le démarrage
     NotificationService().initNotifications().catchError((error) {
-      debugPrint('⚠️ Erreur lors de l\'initialisation des notifications: $error');
+      debugPrint(
+        '⚠️ Erreur lors de l\'initialisation des notifications: $error',
+      );
     });
 
     // Écouter les rafraîchissements de token FCM
@@ -58,6 +65,9 @@ Future<void> main() async {
 
         // Provider pour la gestion de l'historique des transactions
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
+
+        // Provider pour la gestion de la langue
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
 
         // TODO: Ajouter d'autres providers ici au fur et à mesure
         // ChangeNotifierProvider(create: (_) => ForfaitProvider()),
@@ -133,6 +143,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Mettre à jour l'activité utilisateur à chaque construction du widget racine
     context.read<AuthProvider>().updateActivity();
 
+    // Écouter les changements de langue
+    final languageProvider = context.watch<LanguageProvider>();
+
     return MaterialApp(
       title: 'DTServices',
       debugShowCheckedModeBanner: false,
@@ -142,6 +155,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         scaffoldBackgroundColor: Colors.white,
         fontFamily: 'Roboto',
       ),
+      locale: languageProvider.currentLocale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Builder(
         builder: (context) {
           // Initialiser le responsive size

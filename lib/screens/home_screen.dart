@@ -17,6 +17,7 @@ import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
 import '../extensions/color_extensions.dart';
 import '../routes/custom_route_transitions.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   // final String phoneNumber;
@@ -31,9 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showMainBalance = false;
   bool _showBonusBalance = false;
 
-  String _formattedPhoneNumber = '';
   String _normalPhoneNumber = '';
-  bool _isLoadingPhone = true;
 
   @override
   void initState() {
@@ -54,9 +53,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadPhoneNumber() async {
-    setState(() {
+    /* setState(() {
       _isLoadingPhone = true;
-    });
+    }); */
 
     try {
       final phoneNumber = await UserSession.getPhoneNumber();
@@ -71,39 +70,14 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
       _normalPhoneNumber = phoneNumber;
-      // Formatter le numéro pour l'affichage
-      _formatPhoneNumber(phoneNumber);
     } catch (e) {
       debugPrint('Erreur lors du chargement du numéro: $e');
     } finally {
-      if (mounted) {
+      /* if (mounted) {
         setState(() {
           _isLoadingPhone = false;
         });
-      }
-    }
-  }
-
-  void _formatPhoneNumber(String phoneNumber) {
-    // Nettoyer le numéro : enlever tout sauf les chiffres
-    String cleanNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
-
-    // Enlever l'indicatif 253 s'il est présent
-    if (cleanNumber.startsWith('253')) {
-      cleanNumber = cleanNumber.substring(3);
-    }
-
-    // S'assurer qu'on a bien 8 chiffres pour le numéro local
-    if (cleanNumber.length == 8) {
-      // Diviser en groupes de 2 chiffres : XX XX XX XX
-      final buffer = StringBuffer('+253');
-      for (int i = 0; i < cleanNumber.length; i += 2) {
-        buffer.write(' ${cleanNumber.substring(i, i + 2)}');
-      }
-      _formattedPhoneNumber = buffer.toString();
-    } else {
-      // Fallback : afficher brut si format inattendu
-      _formattedPhoneNumber = '+253 $cleanNumber';
+      } */
     }
   }
 
@@ -114,10 +88,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Utiliser le BalanceProvider pour obtenir les données
     final balanceProvider = context.watch<BalanceProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(l10n),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -125,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Section de bienvenue
-              _buildWelcomeSection(),
+              _buildWelcomeSection(l10n),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
               // Cartes des comptes
               Row(
@@ -133,8 +108,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: _buildAccountCard(
                       icon: Icons.account_balance_wallet_outlined,
-                      label: 'Main Account',
-                      balance: "${balanceProvider.solde.toStringAsFixed(0)} DJF",
+                      label: l10n.mainAccount,
+                      balance:
+                          "${balanceProvider.solde.toStringAsFixed(0)} DJF",
                       showBalance: _showMainBalance,
                       isLoading: balanceProvider.isLoading,
                       onToggleVisibility:
@@ -147,8 +123,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: _buildAccountCard(
                       icon: Icons.add_card,
-                      label: 'Solde Bonus',
-                      balance: "${balanceProvider.bonus.toStringAsFixed(2)} DJF",
+                      label: l10n.bonusBalance,
+                      balance:
+                          "${balanceProvider.bonus.toStringAsFixed(2)} DJF",
                       showBalance: _showBonusBalance,
                       isLoading: balanceProvider.isLoading,
                       onToggleVisibility:
@@ -167,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     top: ResponsiveSize.getHeight(AppTheme.spacingS),
                   ),
                   child: Text(
-                    "Expire le ${balanceProvider.dateExpiration}",
+                    l10n.expiresOn(balanceProvider.dateExpiration),
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: ResponsiveSize.getFontSize(12),
@@ -178,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
 
               // Boutons d'actions rapides
-              _buildQuickActions(),
+              _buildQuickActions(l10n),
 
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
 
@@ -191,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(AppLocalizations l10n) {
     return AppBar(
       backgroundColor: AppTheme.dtBlue,
       elevation: 0,
@@ -210,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             child: Text(
-              'DTServices',
+              l10n.appTitle,
               style: TextStyle(
                 color: AppTheme.dtBlue,
                 fontWeight: FontWeight.bold,
@@ -227,10 +204,11 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.white,
             size: ResponsiveSize.getFontSize(22),
           ),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const SearchScreen()),
-          ),
+          onPressed:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SearchScreen()),
+              ),
         ),
         Row(
           children: [
@@ -241,11 +219,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.white,
                 size: ResponsiveSize.getFontSize(22),
               ),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              ),
-              tooltip: 'Mon Profil',
+              onPressed:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileScreen(),
+                    ),
+                  ),
+              tooltip: l10n.myProfile,
             ),
             // Bouton de déconnexion
             IconButton(
@@ -254,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.white,
                 size: ResponsiveSize.getFontSize(22),
               ),
-              onPressed: () => _showLogoutDialog(),
+              onPressed: () => _showLogoutDialog(l10n),
             ),
           ],
         ),
@@ -262,11 +243,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildWelcomeSection() {
-    final phoneNumber = _formattedPhoneNumber ?? '77 XX XX XX';
-
+  Widget _buildWelcomeSection(AppLocalizations l10n) {
     return Text(
-      'Bienvenue, $_normalPhoneNumber',
+      l10n.welcomeMessage(_normalPhoneNumber),
       style: TextStyle(
         fontSize: ResponsiveSize.getFontSize(22),
         fontWeight: FontWeight.bold,
@@ -342,39 +321,38 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildQuickActions() {
+  Widget _buildQuickActions(AppLocalizations l10n) {
     // Obtenir le provider pour accéder au solde
-    final balanceProvider = context.read<BalanceProvider>();
+    // final balanceProvider = context.read<BalanceProvider>();
 
     final actions = [
       {
         'icon': Icons.local_mall_sharp,
-        'label': 'Achat de\nforfait',
-        'onTap': () => Navigator.push(
+        'label': l10n.buyPackage,
+        'onTap':
+            () => Navigator.push(
               context,
               CustomRouteTransitions.slideRightRoute(
-                page: ForfaitRecipientScreen(
-                  phoneNumber: _normalPhoneNumber,
-                ),
+                page: ForfaitRecipientScreen(phoneNumber: _normalPhoneNumber),
               ),
             ),
       },
       {
         'icon': Icons.add_circle,
-        'label': "Recharge\nde crédit",
-        'onTap': () => Navigator.push(
+        'label': l10n.creditRefill,
+        'onTap':
+            () => Navigator.push(
               context,
               CustomRouteTransitions.slideRightRoute(
-                page: RefillRecipientScreen(
-                  phoneNumber: _normalPhoneNumber,
-                ),
+                page: RefillRecipientScreen(phoneNumber: _normalPhoneNumber),
               ),
             ),
       },
       {
         'icon': Icons.timer,
-        'label': 'Mes\nforfaits',
-        'onTap': () => Navigator.push(
+        'label': l10n.myPackages,
+        'onTap':
+            () => Navigator.push(
               context,
               CustomRouteTransitions.slideRightRoute(
                 page: ForfaitsActifsScreen(),
@@ -383,20 +361,20 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       {
         'icon': Icons.send,
-        'label': 'Transfert\nde crédit',
-        'onTap': () => Navigator.push(
+        'label': l10n.creditTransfer,
+        'onTap':
+            () => Navigator.push(
               context,
               CustomRouteTransitions.slideRightRoute(
-                page: TransferInputScreen(
-                  phoneNumber: _normalPhoneNumber,
-                ),
+                page: TransferInputScreen(phoneNumber: _normalPhoneNumber),
               ),
             ),
       },
       {
         'icon': Icons.location_on,
-        'label': 'Nos\nagences',
-        'onTap': () => Navigator.push(
+        'label': l10n.ourAgencies,
+        'onTap':
+            () => Navigator.push(
               context,
               CustomRouteTransitions.slideRightRoute(
                 page: const AgenciesScreen(),
@@ -405,8 +383,9 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       {
         'icon': Icons.speed,
-        'label': 'Speed\nTest',
-        'onTap': () => Navigator.push(
+        'label': l10n.speedTest,
+        'onTap':
+            () => Navigator.push(
               context,
               CustomRouteTransitions.slideRightRoute(
                 page: const SpeedtestNativeScreen(),
@@ -469,28 +448,28 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showLogoutDialog() {
+  void _showLogoutDialog(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Déconnexion'),
-          content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+          title: Text(l10n.logout),
+          content: Text(l10n.logoutConfirmation),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Annuler'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: () {
                 // Fermer la boîte de dialogue immédiatement
                 Navigator.of(dialogContext).pop();
                 // Appeler la méthode de déconnexion
-                _performLogout();
+                _performLogout(l10n);
               },
-              child: const Text(
-                'Déconnecter',
-                style: TextStyle(color: Colors.red),
+              child: Text(
+                l10n.logoutAction,
+                style: const TextStyle(color: Colors.red),
               ),
             ),
           ],
@@ -499,14 +478,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _performLogout() async {
+  Future<void> _performLogout(AppLocalizations l10n) async {
     // Afficher un indicateur de chargement
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext loadingContext) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      builder:
+          (BuildContext loadingContext) =>
+              const Center(child: CircularProgressIndicator()),
     );
 
     try {
@@ -520,7 +499,9 @@ class _HomeScreenState extends State<HomeScreen> {
       // Réinitialiser le cache de balance
       if (success) {
         balanceProvider.reset();
-        debugPrint('HomeScreen: Cache de balance réinitialisé après déconnexion');
+        debugPrint(
+          'HomeScreen: Cache de balance réinitialisé après déconnexion',
+        );
       }
 
       // Fermer l'indicateur de chargement si le widget est encore monté
@@ -531,9 +512,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Rediriger vers l'écran de connexion
       if (mounted && success) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const LoginScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
           (route) => false,
         );
       }
@@ -541,9 +520,9 @@ class _HomeScreenState extends State<HomeScreen> {
       // En cas d'erreur, fermer le dialogue et afficher un message
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors de la déconnexion: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('${l10n.logoutError}: $e')));
       }
     }
   }

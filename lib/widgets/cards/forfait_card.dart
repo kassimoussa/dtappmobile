@@ -1,4 +1,4 @@
-// lib/widgets/cards/forfait_card.dart 
+// lib/widgets/cards/forfait_card.dart
 import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
@@ -6,7 +6,8 @@ import 'package:dtservices/models/forfait.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
 import 'package:dtservices/screens/achat_forfait/forfait_confirmation_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class ForfaitCard extends StatefulWidget {
   final Forfait forfait;
@@ -43,7 +44,7 @@ class _ForfaitCardState extends State<ForfaitCard> {
       if (widget.forfait.prix > widget.soldeActuel) {
         _showMessage(
           context,
-          'Solde insuffisant pour cet achat.',
+          AppLocalizations.of(context)!.insufficientBalanceForPurchase,
           isError: true,
         );
         return;
@@ -51,7 +52,7 @@ class _ForfaitCardState extends State<ForfaitCard> {
 
       // Navigation vers l'écran de confirmation unifié
       if (!mounted) return;
-      
+
       Navigator.push(
         context,
         CustomRouteTransitions.slideRightRoute(
@@ -60,17 +61,17 @@ class _ForfaitCardState extends State<ForfaitCard> {
             phoneNumber: widget.phoneNumber ?? '77XXXXXX',
             soldeActuel: widget.soldeActuel,
             onAchatReussi: widget.onAchatReussi,
-            purchaseType: widget.purchaseMode == PurchaseMode.gift 
-                ? PurchaseType.gift 
-                : PurchaseType.personal,
+            purchaseType:
+                widget.purchaseMode == PurchaseMode.gift
+                    ? PurchaseType.gift
+                    : PurchaseType.personal,
           ),
         ),
       );
-
     } catch (e) {
       _showMessage(
         context,
-        'Une erreur est survenue. Veuillez réessayer.',
+        AppLocalizations.of(context)!.genericRetryError,
         isError: true,
       );
     } finally {
@@ -80,7 +81,11 @@ class _ForfaitCardState extends State<ForfaitCard> {
     }
   }
 
-  void _showMessage(BuildContext context, String message, {bool isError = false}) {
+  void _showMessage(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+  }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -93,9 +98,7 @@ class _ForfaitCardState extends State<ForfaitCard> {
             Expanded(
               child: Text(
                 message,
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(14),
-                ),
+                style: TextStyle(fontSize: ResponsiveSize.getFontSize(14)),
               ),
             ),
           ],
@@ -109,14 +112,17 @@ class _ForfaitCardState extends State<ForfaitCard> {
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-        side: widget.forfait.isPopulaire
-            ? BorderSide(color: AppTheme.dtYellow, width: 2)
-            : BorderSide.none,
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
+        ),
+        side:
+            widget.forfait.isPopulaire
+                ? BorderSide(color: AppTheme.dtYellow, width: 2)
+                : BorderSide.none,
       ),
       child: Column(
         children: [
@@ -143,12 +149,18 @@ class _ForfaitCardState extends State<ForfaitCard> {
                     if (widget.forfait.isPopulaire)
                       Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: ResponsiveSize.getWidth(AppTheme.spacingS),
-                          vertical: ResponsiveSize.getHeight(AppTheme.spacingXS),
+                          horizontal: ResponsiveSize.getWidth(
+                            AppTheme.spacingS,
+                          ),
+                          vertical: ResponsiveSize.getHeight(
+                            AppTheme.spacingXS,
+                          ),
                         ),
                         decoration: BoxDecoration(
                           color: AppTheme.dtYellow.withOpacityValue(0.2),
-                          borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveSize.getWidth(AppTheme.radiusM),
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -158,9 +170,13 @@ class _ForfaitCardState extends State<ForfaitCard> {
                               size: ResponsiveSize.getFontSize(16),
                               color: AppTheme.dtYellow,
                             ),
-                            SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingXS)),
+                            SizedBox(
+                              width: ResponsiveSize.getWidth(
+                                AppTheme.spacingXS,
+                              ),
+                            ),
                             Text(
-                              'Populaire',
+                              AppLocalizations.of(context)!.popularBadge,
                               style: TextStyle(
                                 color: AppTheme.dtBlue,
                                 fontSize: ResponsiveSize.getFontSize(12),
@@ -172,14 +188,14 @@ class _ForfaitCardState extends State<ForfaitCard> {
                       ),
                   ],
                 ),
-                
+
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
 
                 // Détails du forfait selon le type
                 _buildForfaitDetails(),
-                    
+
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                
+
                 // Prix et bouton d'achat
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -193,56 +209,70 @@ class _ForfaitCardState extends State<ForfaitCard> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: widget.forfait.prix > widget.soldeActuel 
-                          ? null 
-                          : () => _handleAchat(context),
+                      onPressed:
+                          widget.forfait.prix > widget.soldeActuel
+                              ? null
+                              : () => _handleAchat(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.dtBlue,
                         foregroundColor: AppTheme.dtYellow,
                         disabledBackgroundColor: Colors.grey[400],
                         disabledForegroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(
-                          horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
+                          horizontal: ResponsiveSize.getWidth(
+                            AppTheme.spacingL,
+                          ),
                           vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveSize.getWidth(AppTheme.radiusS),
+                          ),
                         ),
                       ),
-                      child: _isProcessing
-                          ? SizedBox(
-                              width: ResponsiveSize.getWidth(20),
-                              height: ResponsiveSize.getHeight(20),
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtYellow),
-                              ),
-                            )
-                          : widget.forfait.prix > widget.soldeActuel
-                              ? Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.warning_amber_rounded,
-                                      size: ResponsiveSize.getFontSize(16),
-                                    ),
-                                    SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingXS)),
-                                    Text(
-                                      'Solde insuffisant',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: ResponsiveSize.getFontSize(14),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Text(
-                                  'Acheter',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ResponsiveSize.getFontSize(16),
+                      child:
+                          _isProcessing
+                              ? SizedBox(
+                                width: ResponsiveSize.getWidth(20),
+                                height: ResponsiveSize.getHeight(20),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppTheme.dtYellow,
                                   ),
                                 ),
+                              )
+                              : widget.forfait.prix > widget.soldeActuel
+                              ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber_rounded,
+                                    size: ResponsiveSize.getFontSize(16),
+                                  ),
+                                  SizedBox(
+                                    width: ResponsiveSize.getWidth(
+                                      AppTheme.spacingXS,
+                                    ),
+                                  ),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.insufficientBalanceSimple,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: ResponsiveSize.getFontSize(14),
+                                    ),
+                                  ),
+                                ],
+                              )
+                              : Text(
+                                AppLocalizations.of(context)!.buyAction,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: ResponsiveSize.getFontSize(16),
+                                ),
+                              ),
                     ),
                   ],
                 ),
@@ -296,13 +326,22 @@ class _ForfaitCardState extends State<ForfaitCard> {
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
         color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusS),
+        ),
       ),
       child: Row(
         children: [
-          Expanded(child: _buildDetailItem(Icons.wifi, widget.forfait.data ?? 'Aucune data')),
+          Expanded(
+            child: _buildDetailItem(
+              Icons.wifi,
+              widget.forfait.data ?? AppLocalizations.of(context)!.noData,
+            ),
+          ),
           SizedBox(width: ResponsiveSize.getWidth(8)),
-          Expanded(child: _buildDetailItem(Icons.access_time, widget.forfait.validite)),
+          Expanded(
+            child: _buildDetailItem(Icons.access_time, widget.forfait.validite),
+          ),
         ],
       ),
     );
@@ -313,15 +352,27 @@ class _ForfaitCardState extends State<ForfaitCard> {
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
         color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusS),
+        ),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              Expanded(child: _buildDetailItem(Icons.phone, '${widget.forfait.minutes} min')),
+              Expanded(
+                child: _buildDetailItem(
+                  Icons.phone,
+                  '${widget.forfait.minutes} min',
+                ),
+              ),
               SizedBox(width: ResponsiveSize.getWidth(8)),
-              Expanded(child: _buildDetailItem(Icons.message, '${widget.forfait.sms} SMS')),
+              Expanded(
+                child: _buildDetailItem(
+                  Icons.message,
+                  '${widget.forfait.sms} SMS',
+                ),
+              ),
             ],
           ),
           Divider(
@@ -330,9 +381,19 @@ class _ForfaitCardState extends State<ForfaitCard> {
           ),
           Row(
             children: [
-              Expanded(child: _buildDetailItem(Icons.wifi, widget.forfait.data ?? 'Aucune data')),
+              Expanded(
+                child: _buildDetailItem(
+                  Icons.wifi,
+                  widget.forfait.data ?? AppLocalizations.of(context)!.noData,
+                ),
+              ),
               SizedBox(width: ResponsiveSize.getWidth(8)),
-              Expanded(child: _buildDetailItem(Icons.access_time, widget.forfait.validite)),
+              Expanded(
+                child: _buildDetailItem(
+                  Icons.access_time,
+                  widget.forfait.validite,
+                ),
+              ),
             ],
           ),
         ],
@@ -345,7 +406,9 @@ class _ForfaitCardState extends State<ForfaitCard> {
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
         color: Colors.orange[50],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusS),
+        ),
         border: Border.all(color: Colors.orange[200]!),
       ),
       child: Column(
@@ -353,9 +416,19 @@ class _ForfaitCardState extends State<ForfaitCard> {
         children: [
           Row(
             children: [
-              Expanded(child: _buildDetailItem(Icons.phone, '${widget.forfait.minutes} min')),
+              Expanded(
+                child: _buildDetailItem(
+                  Icons.phone,
+                  '${widget.forfait.minutes} min',
+                ),
+              ),
               SizedBox(width: ResponsiveSize.getWidth(8)),
-              Expanded(child: _buildDetailItem(Icons.weekend, 'Week-end')),
+              Expanded(
+                child: _buildDetailItem(
+                  Icons.weekend,
+                  AppLocalizations.of(context)!.weekendValidity,
+                ),
+              ),
             ],
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),

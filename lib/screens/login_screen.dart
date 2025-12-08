@@ -9,6 +9,7 @@ import '../providers/auth_provider.dart';
 import '../routes/custom_route_transitions.dart';
 import '../extensions/color_extensions.dart';
 import 'otp_screen.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,7 +18,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String? _savedPhoneNumber;
@@ -28,30 +30,27 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    
+
     // Configuration des animations
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeIn,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
-    
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
-    
+
     // Vérifier s'il y a un numéro enregistré
     _checkSavedPhoneNumber();
-    
+
     // Démarrer l'animation après un court délai
     Future.delayed(const Duration(milliseconds: 100), () {
       _animationController.forward();
@@ -106,10 +105,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
               Expanded(
                 child: Text(
-                  authProvider.errorMessage ?? 'Erreur lors de l\'envoi du code',
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(14),
-                  ),
+                  authProvider.errorMessage ??
+                      AppLocalizations.of(context)!.otpSendError,
+                  style: TextStyle(fontSize: ResponsiveSize.getFontSize(14)),
                 ),
               ),
             ],
@@ -117,7 +115,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+            borderRadius: BorderRadius.circular(
+              ResponsiveSize.getWidth(AppTheme.radiusS),
+            ),
           ),
           margin: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
         ),
@@ -140,9 +140,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             children: [
               // En-tête avec dégradé
               _buildHeader(),
-              
+
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              
+
               // Formulaire
               Expanded(
                 child: FadeTransition(
@@ -153,24 +153,29 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   ),
                 ),
               ),
-               
             ],
           );
-        }
+        },
       ),
     );
   }
-  
+
   Widget _buildHeader() {
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
-        height: ResponsiveSize.getHeight(MediaQuery.of(context).size.height * 0.25),
+        height: ResponsiveSize.getHeight(
+          MediaQuery.of(context).size.height * 0.25,
+        ),
         decoration: BoxDecoration(
           gradient: AppTheme.primaryGradient,
           borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(ResponsiveSize.getWidth(AppTheme.radiusXL)),
-            bottomRight: Radius.circular(ResponsiveSize.getWidth(AppTheme.radiusXL)),
+            bottomLeft: Radius.circular(
+              ResponsiveSize.getWidth(AppTheme.radiusXL),
+            ),
+            bottomRight: Radius.circular(
+              ResponsiveSize.getWidth(AppTheme.radiusXL),
+            ),
           ),
           boxShadow: [
             BoxShadow(
@@ -186,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Bienvenue',
+                  AppLocalizations.of(context)!.welcome,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: ResponsiveSize.getFontSize(28),
@@ -195,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
                 Text(
-                  'Connectez-vous avec votre numéro',
+                  AppLocalizations.of(context)!.loginPrompt,
                   style: TextStyle(
                     color: Colors.white.withOpacityValue(0.9),
                     fontSize: ResponsiveSize.getFontSize(16),
@@ -208,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       ),
     );
   }
-  
+
   Widget _buildForm() {
     final authProvider = context.watch<AuthProvider>();
 
@@ -222,12 +227,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             // Si un numéro est enregistré, afficher un message
             if (_savedPhoneNumber != null && _savedPhoneNumber!.isNotEmpty)
               Container(
-                padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-                margin: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                padding: EdgeInsets.all(
+                  ResponsiveSize.getWidth(AppTheme.spacingM),
+                ),
+                margin: EdgeInsets.only(
+                  bottom: ResponsiveSize.getHeight(AppTheme.spacingM),
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.dtYellow.withOpacityValue(0.1),
-                  borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-                  border: Border.all(color: AppTheme.dtYellow.withOpacityValue(0.3)),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveSize.getWidth(AppTheme.radiusM),
+                  ),
+                  border: Border.all(
+                    color: AppTheme.dtYellow.withOpacityValue(0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -239,7 +252,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
                     Expanded(
                       child: Text(
-                        'Numéro de téléphone sauvegardé',
+                        AppLocalizations.of(context)!.savedPhoneNumber,
                         style: TextStyle(
                           color: AppTheme.dtBlue,
                           fontSize: ResponsiveSize.getFontSize(14),
@@ -254,11 +267,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             // Message d'erreur
             if (authProvider.errorMessage != null)
               Container(
-                padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-                margin: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                padding: EdgeInsets.all(
+                  ResponsiveSize.getWidth(AppTheme.spacingM),
+                ),
+                margin: EdgeInsets.only(
+                  bottom: ResponsiveSize.getHeight(AppTheme.spacingM),
+                ),
                 decoration: BoxDecoration(
                   color: Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveSize.getWidth(AppTheme.radiusM),
+                  ),
                   border: Border.all(color: Colors.red.withOpacity(0.3)),
                 ),
                 child: Row(
@@ -287,7 +306,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             Container(
               decoration: BoxDecoration(
                 color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveSize.getWidth(AppTheme.radiusM),
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacityValue(0.05),
@@ -315,7 +336,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     ),
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+                      borderRadius: BorderRadius.circular(
+                        ResponsiveSize.getWidth(AppTheme.radiusS),
+                      ),
                     ),
                     child: Text(
                       '+253',
@@ -343,59 +366,70 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez saisir votre numéro';
+                    return AppLocalizations.of(context)!.phoneValidationError;
                   }
                   if (value.length != 8) {
-                    return 'Le numéro doit contenir 8 chiffres';
+                    return AppLocalizations.of(context)!.phoneLengthError;
                   }
                   if (!value.startsWith('77')) {
-                    return 'Le numéro doit commencer par 77';
+                    return AppLocalizations.of(context)!.phoneStartError;
                   }
                   return null;
                 },
               ),
             ),
-            
+
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-            
+
             // Bouton de connexion
             ElevatedButton(
               onPressed: authProvider.isLoading ? null : _handleLogin,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
                 foregroundColor: AppTheme.dtYellow,
-                padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(18)),
+                padding: EdgeInsets.symmetric(
+                  vertical: ResponsiveSize.getHeight(18),
+                ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveSize.getWidth(AppTheme.radiusM),
+                  ),
                 ),
                 elevation: 2,
               ),
-              child: authProvider.isLoading
-                  ? SizedBox(
-                      width: ResponsiveSize.getWidth(24),
-                      height: ResponsiveSize.getHeight(24),
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtYellow),
+              child:
+                  authProvider.isLoading
+                      ? SizedBox(
+                        width: ResponsiveSize.getWidth(24),
+                        height: ResponsiveSize.getHeight(24),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppTheme.dtYellow,
+                          ),
+                        ),
+                      )
+                      : Text(
+                        AppLocalizations.of(context)!.continueAction,
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(18),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    )
-                  : Text(
-                      'Continuer',
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(18),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
             ),
-            
+
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-            
+
             // Message d'information
             Container(
-              padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+              padding: EdgeInsets.all(
+                ResponsiveSize.getWidth(AppTheme.spacingM),
+              ),
               decoration: BoxDecoration(
                 color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveSize.getWidth(AppTheme.radiusM),
+                ),
               ),
               child: Row(
                 children: [
@@ -407,7 +441,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
                   Expanded(
                     child: Text(
-                      'Un code de vérification vous sera envoyé par SMS',
+                      AppLocalizations.of(context)!.smsVerificationMessage,
                       style: TextStyle(
                         color: Colors.grey[700],
                         fontSize: ResponsiveSize.getFontSize(14),

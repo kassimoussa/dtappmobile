@@ -7,14 +7,12 @@ import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/widgets/phone_number_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class TransferInputScreen extends StatefulWidget {
   final String phoneNumber;
 
-  const TransferInputScreen({
-    super.key,
-    required this.phoneNumber,
-  });
+  const TransferInputScreen({super.key, required this.phoneNumber});
 
   @override
   State<TransferInputScreen> createState() => _TransferInputScreenState();
@@ -40,9 +38,9 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: "Transfert de crédit",
+        title: AppLocalizations.of(context)!.transferTitle,
         showAction: true,
-        value: balanceProvider.solde
+        value: balanceProvider.solde,
       ),
       body: Padding(
         padding: EdgeInsets.all(AppTheme.spacingM),
@@ -51,11 +49,11 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 24),
-              
+
               // Sélecteur de numéro destinataire
               PhoneNumberSelector(
                 controller: _recipientController,
-                labelText: 'Numéro destinataire',
+                labelText: AppLocalizations.of(context)!.recipientLabel,
                 onChanged: (value) {
                   // Effacer l'erreur en temps réel et valider
                   setState(() {
@@ -64,34 +62,33 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
                   _validateRecipient(value);
                 },
               ),
-              
+
               // Erreur destinataire
               if (_recipientError != null) ...[
                 const SizedBox(height: 8),
                 _buildErrorMessage(_recipientError!),
               ],
-              
+
               const SizedBox(height: 24),
-              
+
               // Champ montant
               _buildAmountField(),
-              
+
               // Erreur montant
               if (_amountError != null) ...[
                 const SizedBox(height: 8),
                 _buildErrorMessage(_amountError!),
               ],
-              
+
               const SizedBox(height: 24),
-              
+
               // Information importante
               //_buildInfoBox(),
-              
               const SizedBox(height: 32),
-              
+
               // Bouton de confirmation
               _buildConfirmButton(),
-              
+
               const SizedBox(height: 24),
             ],
           ),
@@ -106,7 +103,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Montant à transférer',
+          AppLocalizations.of(context)!.amountLabel,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
             fontWeight: FontWeight.bold,
@@ -122,12 +119,9 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
           child: TextFormField(
             controller: _amountController,
             decoration: InputDecoration(
-              hintText: 'Ex: 1000',
+              hintText: AppLocalizations.of(context)!.amountHint,
               suffixText: 'DJF',
-              prefixIcon: Icon(
-                Icons.attach_money,
-                color: AppTheme.dtBlue,
-              ),
+              prefixIcon: Icon(Icons.attach_money, color: AppTheme.dtBlue),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -161,10 +155,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
           Expanded(
             child: Text(
               message,
-              style: TextStyle(
-                color: Colors.red[600],
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.red[600], fontSize: 14),
             ),
           ),
         ],
@@ -204,10 +195,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
             '• Montant minimum : 50 DJF\n'
             '• Frais de transfert : 5% du montant\n'
             '• Votre solde actuel : ${balanceProvider.solde.toStringAsFixed(0)} DJF',
-            style: TextStyle(
-              color: AppTheme.dtBlue,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: AppTheme.dtBlue, fontSize: 14),
           ),
         ],
       ),
@@ -216,10 +204,11 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
 
   // Widget pour le bouton de confirmation
   Widget _buildConfirmButton() {
-    bool isFormValid = _recipientError == null && 
-                      _amountError == null && 
-                      _recipientController.text.isNotEmpty && 
-                      _amountController.text.isNotEmpty;
+    bool isFormValid =
+        _recipientError == null &&
+        _amountError == null &&
+        _recipientController.text.isNotEmpty &&
+        _amountController.text.isNotEmpty;
 
     return SizedBox(
       width: double.infinity,
@@ -235,7 +224,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
           elevation: 0,
         ),
         child: Text(
-          'Confirmer le transfert',
+          AppLocalizations.of(context)!.confirmTransfer,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
             fontWeight: FontWeight.bold,
@@ -255,9 +244,11 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
     }
 
     final cleanNumber = PhoneNumberValidator.cleanPhoneNumber(value);
-    
+
     // Validation du format
-    final phoneValidation = PhoneNumberValidator.validatePhoneNumber(cleanNumber);
+    final phoneValidation = PhoneNumberValidator.validatePhoneNumber(
+      cleanNumber,
+    );
     if (phoneValidation != null) {
       setState(() {
         _recipientError = phoneValidation;
@@ -268,7 +259,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
     // Vérifier que ce n'est pas le même numéro
     if (cleanNumber == widget.phoneNumber) {
       setState(() {
-        _recipientError = 'Vous ne pouvez pas vous transférer de l\'argent';
+        _recipientError = AppLocalizations.of(context)!.selfTransferError;
       });
       return;
     }
@@ -290,17 +281,17 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
 
       final amount = double.tryParse(value);
       if (amount == null) {
-        _amountError = 'Montant invalide';
+        _amountError = AppLocalizations.of(context)!.amountInvalid;
         return;
       }
 
       if (amount <= 0) {
-        _amountError = 'Le montant doit être supérieur à 0';
+        _amountError = AppLocalizations.of(context)!.amountPositive;
         return;
       }
 
       if (amount < 50) {
-        _amountError = 'Montant minimum : 50 DJF';
+        _amountError = AppLocalizations.of(context)!.amountMinimum;
         return;
       }
 
@@ -309,7 +300,9 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
       final totalAmount = amount + transferFee;
 
       if (totalAmount > balanceProvider.solde) {
-        _amountError = 'Solde insuffisant (total avec frais: ${totalAmount.toStringAsFixed(0)} DJF)';
+        _amountError = AppLocalizations.of(
+          context,
+        )!.insufficientBalance(totalAmount.toStringAsFixed(0));
         return;
       }
 
@@ -319,11 +312,13 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
 
   void _validateAndSendTransfer() {
     // Validation finale du destinataire
-    final recipient = PhoneNumberValidator.cleanPhoneNumber(_recipientController.text);
-    
+    final recipient = PhoneNumberValidator.cleanPhoneNumber(
+      _recipientController.text,
+    );
+
     if (recipient.isEmpty) {
       setState(() {
-        _recipientError = 'Veuillez entrer un numéro de destinataire';
+        _recipientError = AppLocalizations.of(context)!.recipientRequired;
       });
       return;
     }
@@ -340,7 +335,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
     // Vérifier que ce n'est pas le même numéro
     if (recipient == widget.phoneNumber) {
       setState(() {
-        _recipientError = 'Vous ne pouvez pas vous transférer de l\'argent';
+        _recipientError = AppLocalizations.of(context)!.selfTransferError;
       });
       return;
     }
@@ -349,7 +344,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
     final amount = double.tryParse(_amountController.text.trim());
     if (amount == null || amount <= 0) {
       setState(() {
-        _amountError = 'Montant invalide';
+        _amountError = AppLocalizations.of(context)!.amountInvalid;
       });
       return;
     }
@@ -359,17 +354,22 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
     _navigateToConfirmation(recipient, amount, transferFee);
   }
 
-  void _navigateToConfirmation(String recipient, double amount, double transferFee) {
+  void _navigateToConfirmation(
+    String recipient,
+    double amount,
+    double transferFee,
+  ) {
     // Navigation vers l'écran de confirmation
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TransferConfirmationScreen(
-          phoneNumber: widget.phoneNumber,
-          recipient: recipient,
-          amount: amount,
-          transferFee: transferFee,
-        ),
+        builder:
+            (context) => TransferConfirmationScreen(
+              phoneNumber: widget.phoneNumber,
+              recipient: recipient,
+              amount: amount,
+              transferFee: transferFee,
+            ),
       ),
     );
   }

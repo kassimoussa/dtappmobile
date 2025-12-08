@@ -6,7 +6,8 @@ import 'package:dtservices/routes/custom_route_transitions.dart';
 import 'package:dtservices/screens/main_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:flutter/material.dart';
-import 'dart:async'; 
+import 'dart:async';
+import '../../generated/l10n/app_localizations.dart';
 
 class ForfaitSuccessScreen extends StatefulWidget {
   final Forfait forfait;
@@ -46,29 +47,26 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
+      ),
+    );
 
-    _slideAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
-    ));
+    _slideAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
+      ),
+    );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
+      ),
+    );
 
     _animationController.forward();
   }
@@ -98,9 +96,7 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
   void _redirectToHome() {
     Navigator.pushAndRemoveUntil(
       context,
-      CustomRouteTransitions.fadeRoute(
-        page: const MainScreen(),
-      ),
+      CustomRouteTransitions.fadeRoute(page: const MainScreen()),
       (route) => false,
     );
   }
@@ -108,9 +104,9 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+
     final nouveauSolde = widget.ancienSolde - widget.forfait.prix;
-    
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -118,7 +114,7 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
         appBar: AppBar(
           backgroundColor: AppTheme.dtBlue,
           title: Text(
-            'Achat réussi',
+            AppLocalizations.of(context)!.purchaseSuccessTitle,
             style: TextStyle(
               color: Colors.white,
               fontSize: ResponsiveSize.getFontSize(18),
@@ -132,18 +128,22 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
           animation: _animationController,
           builder: (context, child) {
             return SingleChildScrollView(
-              padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+              padding: EdgeInsets.all(
+                ResponsiveSize.getWidth(AppTheme.spacingL),
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: ResponsiveSize.getHeight(20)),
-                  
+
                   // Icône de succès avec animation
                   ScaleTransition(
                     scale: _scaleAnimation,
                     child: Container(
-                      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                      padding: EdgeInsets.all(
+                        ResponsiveSize.getWidth(AppTheme.spacingL),
+                      ),
                       decoration: BoxDecoration(
                         color: AppTheme.dtBlue.withOpacityValue(0.1),
                         shape: BoxShape.circle,
@@ -166,7 +166,7 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                       ),
                     ),
                   ),
-                  
+
                   // Container fixe pour les textes
                   Container(
                     width: double.infinity,
@@ -178,7 +178,7 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                       children: [
                         // Titre
                         Text(
-                          'Achat réussi !',
+                          AppLocalizations.of(context)!.purchaseSuccessTitle,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(24),
@@ -186,12 +186,14 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                             color: AppTheme.dtBlue,
                           ),
                         ),
-                        
+
                         SizedBox(height: ResponsiveSize.getHeight(16)),
-                        
+
                         // Message de confirmation
                         Text(
-                          'Votre forfait ${widget.forfait.nom} a été activé avec succès',
+                          AppLocalizations.of(
+                            context,
+                          )!.purchaseSuccessMessage(widget.forfait.nom),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(14),
@@ -202,53 +204,81 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                       ],
                     ),
                   ),
-                  
+
                   // Détails du forfait avec fade
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+                      padding: EdgeInsets.all(
+                        ResponsiveSize.getWidth(AppTheme.spacingM),
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveSize.getWidth(AppTheme.radiusM),
+                        ),
                         border: Border.all(color: Colors.grey[200]!),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildDetailRow('Forfait', widget.forfait.nom),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.packageLabel,
+                            widget.forfait.nom,
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Destinataire', widget.phoneNumber),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.recipientLabel,
+                            widget.phoneNumber,
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Prix', '${widget.forfait.prix} FDJ'),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.priceLabel,
+                            '${widget.forfait.prix} FDJ',
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Nouveau solde', '${nouveauSolde.toStringAsFixed(0)} DJF'),
-                          
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.newBalance,
+                            '${nouveauSolde.toStringAsFixed(0)} DJF',
+                          ),
+
                           if (widget.forfait.data != null) ...[
                             _buildDivider(),
-                            _buildDetailRow('Internet', widget.forfait.data!),
+                            _buildDetailRow(
+                              AppLocalizations.of(context)!.internetLabel,
+                              widget.forfait.data!,
+                            ),
                           ],
-                          
+
                           if (widget.forfait.minutes != null) ...[
                             _buildDivider(),
-                            _buildDetailRow('Minutes', '${widget.forfait.minutes} min'),
+                            _buildDetailRow(
+                              AppLocalizations.of(context)!.minutesLabel,
+                              '${widget.forfait.minutes} min',
+                            ),
                           ],
-                          
+
                           if (widget.forfait.sms != null) ...[
                             _buildDivider(),
-                            _buildDetailRow('SMS', widget.forfait.sms!),
+                            _buildDetailRow(
+                              AppLocalizations.of(context)!.smsLabel,
+                              widget.forfait.sms!,
+                            ),
                           ],
-                          
+
                           _buildDivider(),
-                          _buildDetailRow('Validité', widget.forfait.validite),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.validityLabel,
+                            widget.forfait.validite,
+                          ),
                         ],
                       ),
                     ),
                   ),
-                  
+
                   SizedBox(height: ResponsiveSize.getHeight(20)),
-                  
+
                   // Bouton pour retourner immédiatement à l'accueil avec fade
                   FadeTransition(
                     opacity: _fadeAnimation,
@@ -263,11 +293,15 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                               backgroundColor: AppTheme.dtBlue,
                               foregroundColor: AppTheme.dtYellow,
                               padding: EdgeInsets.symmetric(
-                                horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
+                                horizontal: ResponsiveSize.getWidth(
+                                  AppTheme.spacingL,
+                                ),
                                 vertical: ResponsiveSize.getHeight(16),
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveSize.getWidth(AppTheme.radiusM),
+                                ),
                               ),
                               elevation: 2,
                             ),
@@ -281,7 +315,7 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                                 ),
                                 SizedBox(width: ResponsiveSize.getWidth(8)),
                                 Text(
-                                  'Retour à l\'accueil',
+                                  AppLocalizations.of(context)!.homeAction,
                                   style: TextStyle(
                                     fontSize: ResponsiveSize.getFontSize(16),
                                     fontWeight: FontWeight.bold,
@@ -291,18 +325,22 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                             ),
                           ),
                         ),
-                        
+
                         SizedBox(height: ResponsiveSize.getHeight(16)),
-                        
+
                         // Compte à rebours
                         Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
+                            horizontal: ResponsiveSize.getWidth(
+                              AppTheme.spacingM,
+                            ),
                             vertical: ResponsiveSize.getHeight(8),
                           ),
                           decoration: BoxDecoration(
                             color: AppTheme.dtBlue.withOpacityValue(0.1),
-                            borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(20)),
+                            borderRadius: BorderRadius.circular(
+                              ResponsiveSize.getWidth(20),
+                            ),
                             border: Border.all(
                               color: AppTheme.dtBlue.withOpacityValue(0.3),
                             ),
@@ -317,7 +355,9 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                               ),
                               SizedBox(width: ResponsiveSize.getWidth(6)),
                               Text(
-                                'Redirection automatique dans $_remainingSeconds s',
+                                AppLocalizations.of(
+                                  context,
+                                )!.autoRedirect(_remainingSeconds),
                                 style: TextStyle(
                                   fontSize: ResponsiveSize.getFontSize(12),
                                   color: AppTheme.dtBlue,
@@ -327,9 +367,9 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                             ],
                           ),
                         ),
-                        
+
                         SizedBox(height: ResponsiveSize.getHeight(24)),
-                        
+
                         // Message SMS avec fade
                         /* Container(
                           padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -364,7 +404,7 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                             ],
                           ),
                         ), */
-                        
+
                         // Espace pour le safe area
                         SizedBox(
                           height: MediaQuery.of(context).padding.bottom + 16,

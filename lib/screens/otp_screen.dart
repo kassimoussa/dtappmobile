@@ -9,28 +9,24 @@ import '../utils/responsive_size.dart';
 import '../routes/custom_route_transitions.dart';
 import '../providers/auth_provider.dart';
 import 'main_screen.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;
 
-  const OTPScreen({
-    super.key,
-    required this.phone,
-  });
+  const OTPScreen({super.key, required this.phone});
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();
 }
 
-class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
+class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
+  // MODIFIÉ
   final List<TextEditingController> _controllers = List.generate(
     6,
     (index) => TextEditingController(),
   );
-  final List<FocusNode> _focusNodes = List.generate(
-    6,
-    (index) => FocusNode(),
-  );
+  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
 
   String? _errorMessage;
 
@@ -67,7 +63,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
           _controllers[i].text = code![i];
         }
       });
-      
+
       // Vérifier automatiquement le code après un court délai
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
@@ -127,8 +123,8 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Un nouveau code a été envoyé'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.otpResentSuccess),
           backgroundColor: Colors.green,
         ),
       );
@@ -140,12 +136,17 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
       SmsAutoFill().listenForCode;
     } else {
       setState(() {
-        _errorMessage = authProvider.errorMessage ?? 'Erreur lors du réenvoi du code';
+        _errorMessage =
+            authProvider.errorMessage ??
+            AppLocalizations.of(context)!.otpResentError;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.errorMessage ?? 'Erreur lors du réenvoi'),
+          content: Text(
+            authProvider.errorMessage ??
+                AppLocalizations.of(context)!.otpResentError,
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -165,21 +166,24 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
       if (success) {
         // Succès - Naviguer vers MainScreen
         Navigator.of(context).pushAndRemoveUntil(
-          CustomRouteTransitions.fadeScaleRoute(
-            page: const MainScreen(),
-          ),
+          CustomRouteTransitions.fadeScaleRoute(page: const MainScreen()),
           (route) => false,
         );
       } else {
         // Échec - Afficher erreur
         setState(() {
-          _errorMessage = authProvider.errorMessage ?? 'Code OTP incorrect';
+          _errorMessage =
+              authProvider.errorMessage ??
+              AppLocalizations.of(context)!.otpInvalid;
           _clearAllFields();
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authProvider.errorMessage ?? 'Code OTP incorrect'),
+            content: Text(
+              authProvider.errorMessage ??
+                  AppLocalizations.of(context)!.otpInvalid,
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -202,7 +206,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
     ResponsiveSize.init(context);
     final formattedPhone = formatPhoneNumber(widget.phone);
     final authProvider = context.watch<AuthProvider>();
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -210,7 +214,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
         elevation: 0,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back, 
+            Icons.arrow_back,
             color: AppTheme.dtBlue,
             size: ResponsiveSize.getFontSize(24),
           ),
@@ -224,7 +228,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Vérification',
+                AppLocalizations.of(context)!.verificationTitle,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(28),
                   fontWeight: FontWeight.bold,
@@ -233,22 +237,30 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
               Text(
-                'Un code a été envoyé au $formattedPhone',
+                AppLocalizations.of(
+                  context,
+                )!.verificationCodeSentTo(formattedPhone),
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(16),
                   color: Colors.grey[600],
                 ),
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-              
+
               // Message d'erreur
               if (_errorMessage != null)
                 Container(
-                  padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-                  margin: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                  padding: EdgeInsets.all(
+                    ResponsiveSize.getWidth(AppTheme.spacingM),
+                  ),
+                  margin: EdgeInsets.only(
+                    bottom: ResponsiveSize.getHeight(AppTheme.spacingM),
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveSize.getWidth(AppTheme.radiusM),
+                    ),
                     border: Border.all(color: Colors.red.withOpacity(0.3)),
                   ),
                   child: Row(
@@ -258,7 +270,9 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
                         color: Colors.red,
                         size: ResponsiveSize.getFontSize(20),
                       ),
-                      SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+                      SizedBox(
+                        width: ResponsiveSize.getWidth(AppTheme.spacingS),
+                      ),
                       Expanded(
                         child: Text(
                           _errorMessage!,
@@ -272,7 +286,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
                     ],
                   ),
                 ),
-                
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: List.generate(
@@ -293,7 +307,9 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
                         fillColor: Colors.grey[100],
                         filled: true,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveSize.getWidth(AppTheme.radiusS),
+                          ),
                           borderSide: BorderSide.none,
                         ),
                         counterText: '',
@@ -323,64 +339,83 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill { // MODIFIÉ
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.dtBlue,
                   foregroundColor: AppTheme.dtYellow,
-                  padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(16)),
+                  padding: EdgeInsets.symmetric(
+                    vertical: ResponsiveSize.getHeight(16),
+                  ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveSize.getWidth(AppTheme.radiusM),
+                    ),
                   ),
                 ),
-                child: authProvider.isLoading
-                    ? SizedBox(
-                        width: ResponsiveSize.getWidth(24),
-                        height: ResponsiveSize.getHeight(24),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtYellow),
+                child:
+                    authProvider.isLoading
+                        ? SizedBox(
+                          width: ResponsiveSize.getWidth(24),
+                          height: ResponsiveSize.getHeight(24),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppTheme.dtYellow,
+                            ),
+                          ),
+                        )
+                        : Text(
+                          AppLocalizations.of(context)!.verifyAction,
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(18),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      )
-                    : Text(
-                        'Vérifier',
-                        style: TextStyle(
-                          fontSize: ResponsiveSize.getFontSize(18),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              
+
               // Réenvoi de code avec compteur
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton(
-                    onPressed: _canResend && !authProvider.isLoading ? _resendOtp : null,
+                    onPressed:
+                        _canResend && !authProvider.isLoading
+                            ? _resendOtp
+                            : null,
                     style: TextButton.styleFrom(
-                      foregroundColor: _canResend ? Colors.grey[600] : Colors.grey[400],
+                      foregroundColor:
+                          _canResend ? Colors.grey[600] : Colors.grey[400],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         authProvider.isLoading
-                          ? SizedBox(
+                            ? SizedBox(
                               width: ResponsiveSize.getWidth(16),
                               height: ResponsiveSize.getHeight(16),
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.grey,
+                                ),
                               ),
                             )
-                          : Icon(
+                            : Icon(
                               Icons.refresh,
                               size: ResponsiveSize.getFontSize(16),
-                              color: _canResend ? Colors.grey[600] : Colors.grey[400],
+                              color:
+                                  _canResend
+                                      ? Colors.grey[600]
+                                      : Colors.grey[400],
                             ),
                         SizedBox(width: ResponsiveSize.getWidth(8)),
                         Text(
                           _canResend
-                            ? 'Renvoyer le code'
-                            : 'Renvoyer le code (${_secondsRemaining}s)',
+                              ? AppLocalizations.of(context)!.resendCode
+                              : AppLocalizations.of(
+                                context,
+                              )!.resendCodeTimer(_secondsRemaining),
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(16),
-                            decoration: _canResend ? TextDecoration.underline : null,
+                            decoration:
+                                _canResend ? TextDecoration.underline : null,
                           ),
                         ),
                       ],

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../services/speedtest_service.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class SpeedtestNativeScreen extends StatefulWidget {
   const SpeedtestNativeScreen({super.key});
@@ -87,7 +88,9 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
       setState(() {
         _isTesting = false;
         _testDone = false;
-        _errorMessage = 'Erreur: ${e.toString()}';
+        _errorMessage = AppLocalizations.of(
+          context,
+        )!.speedTestError(e.toString());
         _currentPhase = TestingPhase.idle;
       });
     } finally {
@@ -166,9 +169,9 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          'Speed Test',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.speedTestTitle,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -185,7 +188,9 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
               // Message d'erreur si présent
               if (_errorMessage != null) ...[
                 Container(
-                  padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
+                  padding: EdgeInsets.all(
+                    ResponsiveSize.getWidth(AppTheme.spacingS),
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(
@@ -195,7 +200,9 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
                   child: Row(
                     children: [
                       const Icon(Icons.error, color: Colors.red),
-                      SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingXS)),
+                      SizedBox(
+                        width: ResponsiveSize.getWidth(AppTheme.spacingXS),
+                      ),
                       Expanded(
                         child: Text(
                           _errorMessage!,
@@ -228,9 +235,10 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
   }
 
   Widget _buildSpeedGauge() {
-    double currentSpeed = _currentPhase == TestingPhase.download
-        ? _downloadRate
-        : _currentPhase == TestingPhase.upload
+    double currentSpeed =
+        _currentPhase == TestingPhase.download
+            ? _downloadRate
+            : _currentPhase == TestingPhase.upload
             ? _uploadRate
             : 0.0;
 
@@ -244,7 +252,9 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusL)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusL),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -258,11 +268,11 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
         children: [
           // Jauge de fond
           CustomPaint(
-            size: Size(ResponsiveSize.getWidth(200), ResponsiveSize.getHeight(200)),
-            painter: SpeedGaugePainter(
-              angle: angle,
-              isActive: _isTesting,
+            size: Size(
+              ResponsiveSize.getWidth(200),
+              ResponsiveSize.getHeight(200),
             ),
+            painter: SpeedGaugePainter(angle: angle, isActive: _isTesting),
           ),
           // Vitesse au centre
           Column(
@@ -304,7 +314,9 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       decoration: BoxDecoration(
         color: AppTheme.backgroundGrey,
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
+        ),
         border: Border.all(color: Colors.grey.shade300),
       ),
       child: Row(
@@ -312,7 +324,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
         children: [
           _buildResultItem(
             Icons.download_rounded,
-            'Download',
+            AppLocalizations.of(context)!.downloadLabel,
             _downloadRate.toStringAsFixed(2),
             _unitText,
             const Color(0xFF00C853),
@@ -320,7 +332,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
           Container(width: 1, height: 50, color: Colors.grey.shade300),
           _buildResultItem(
             Icons.upload_rounded,
-            'Upload',
+            AppLocalizations.of(context)!.uploadLabel,
             _uploadRate.toStringAsFixed(2),
             _unitText,
             AppTheme.dtYellow,
@@ -328,7 +340,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
           Container(width: 1, height: 50, color: Colors.grey.shade300),
           _buildResultItem(
             Icons.timer_outlined,
-            'Ping',
+            AppLocalizations.of(context)!.pingLabel,
             _ping > 0 ? _ping.toStringAsFixed(0) : '--',
             'ms',
             AppTheme.dtBlue,
@@ -338,7 +350,13 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
     );
   }
 
-  Widget _buildResultItem(IconData icon, String label, String value, String unit, Color color) {
+  Widget _buildResultItem(
+    IconData icon,
+    String label,
+    String value,
+    String unit,
+    Color color,
+  ) {
     return Column(
       children: [
         Icon(icon, color: color, size: ResponsiveSize.getFontSize(28)),
@@ -386,9 +404,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.dtBlue,
           foregroundColor: Colors.white,
-          padding: EdgeInsets.symmetric(
-            vertical: ResponsiveSize.getHeight(18),
-          ),
+          padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(18)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
               ResponsiveSize.getWidth(AppTheme.radiusM),
@@ -397,36 +413,37 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
           disabledBackgroundColor: AppTheme.dtBlue.withOpacity(0.4),
           elevation: 4,
         ),
-        child: _isTesting
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: ResponsiveSize.getWidth(20),
-                    height: ResponsiveSize.getHeight(20),
-                    child: const CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        child:
+            _isTesting
+                ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: ResponsiveSize.getWidth(20),
+                      height: ResponsiveSize.getHeight(20),
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
                     ),
-                  ),
-                  SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-                  Text(
-                    'Test en cours...',
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(16),
-                      fontWeight: FontWeight.bold,
+                    SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+                    Text(
+                      AppLocalizations.of(context)!.testingInProgress,
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(16),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
+                  ],
+                )
+                : Text(
+                  AppLocalizations.of(context)!.startTest,
+                  style: TextStyle(
+                    fontSize: ResponsiveSize.getFontSize(16),
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
                   ),
-                ],
-              )
-            : Text(
-                'LANCER LE TEST',
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(16),
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
                 ),
-              ),
       ),
     );
   }
@@ -434,26 +451,20 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
   String _getPhaseText() {
     switch (_currentPhase) {
       case TestingPhase.idle:
-        return 'Prêt à tester';
+        return AppLocalizations.of(context)!.phaseIdle;
       case TestingPhase.ping:
-        return 'Test du ping...';
+        return AppLocalizations.of(context)!.phasePing;
       case TestingPhase.download:
-        return 'Test de téléchargement...';
+        return AppLocalizations.of(context)!.phaseDownload;
       case TestingPhase.upload:
-        return 'Test d\'upload...';
+        return AppLocalizations.of(context)!.phaseUpload;
       case TestingPhase.done:
-        return 'Test terminé';
+        return AppLocalizations.of(context)!.phaseDone;
     }
   }
 }
 
-enum TestingPhase {
-  idle,
-  ping,
-  download,
-  upload,
-  done,
-}
+enum TestingPhase { idle, ping, download, upload, done }
 
 // Custom Painter pour la jauge de vitesse style Ookla
 class SpeedGaugePainter extends CustomPainter {
@@ -468,11 +479,12 @@ class SpeedGaugePainter extends CustomPainter {
     final radius = math.min(size.width, size.height) / 2;
 
     // Dessiner l'arc de fond (gris clair)
-    final backgroundPaint = Paint()
-      ..color = Colors.grey.shade200
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 18
-      ..strokeCap = StrokeCap.round;
+    final backgroundPaint =
+        Paint()
+          ..color = Colors.grey.shade200
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 18
+          ..strokeCap = StrokeCap.round;
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius - 10),
@@ -484,18 +496,19 @@ class SpeedGaugePainter extends CustomPainter {
 
     // Dessiner l'arc de progression (coloré avec gradient)
     if (isActive && angle > 0) {
-      final progressPaint = Paint()
-        ..shader = LinearGradient(
-          colors: [
-            const Color(0xFF00C853), // Vert
-            AppTheme.dtYellow, // Jaune DT
-            const Color(0xFFFF6F00), // Orange
-          ],
-          stops: [0.0, 0.5, 1.0],
-        ).createShader(Rect.fromCircle(center: center, radius: radius))
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 18
-        ..strokeCap = StrokeCap.round;
+      final progressPaint =
+          Paint()
+            ..shader = LinearGradient(
+              colors: [
+                const Color(0xFF00C853), // Vert
+                AppTheme.dtYellow, // Jaune DT
+                const Color(0xFFFF6F00), // Orange
+              ],
+              stops: [0.0, 0.5, 1.0],
+            ).createShader(Rect.fromCircle(center: center, radius: radius))
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 18
+            ..strokeCap = StrokeCap.round;
 
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius - 10),
@@ -522,9 +535,10 @@ class SpeedGaugePainter extends CustomPainter {
         center.dy + endRadius * math.sin(tickAngle),
       );
 
-      final tickPaint = Paint()
-        ..color = Colors.grey.shade400
-        ..strokeWidth = 2;
+      final tickPaint =
+          Paint()
+            ..color = Colors.grey.shade400
+            ..strokeWidth = 2;
 
       canvas.drawLine(start, end, tickPaint);
     }

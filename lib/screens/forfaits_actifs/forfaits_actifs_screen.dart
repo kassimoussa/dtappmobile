@@ -5,7 +5,8 @@ import 'package:dtservices/widgets/cards/forfait_actif_card2.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/app_theme.dart';
-import '../../utils/responsive_size.dart'; 
+import '../../utils/responsive_size.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class ForfaitsActifsScreen extends StatefulWidget {
   const ForfaitsActifsScreen({super.key});
@@ -27,7 +28,8 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
   }
 
   Future<void> _loadForfaitsActifs() async {
-    if (_isLoading && _lastUpdate != null) return; // Éviter les appels multiples si déjà en cours
+    if (_isLoading && _lastUpdate != null)
+      return; // Éviter les appels multiples si déjà en cours
 
     setState(() {
       _isLoading = true;
@@ -37,41 +39,43 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
     try {
       // Vérifier si l'API est en délai d'attente
       final isTimedOut = await ForfaitActifService.isApiTimedOut();
-      
+
       // Si on a déjà des données et que l'API est en délai d'attente, on s'arrête
       if (isTimedOut && _forfaitsActifs.isNotEmpty) {
         setState(() {
           _isLoading = false;
         });
-        
+
         // Afficher un message temporaire sur l'attente
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Le serveur est temporairement indisponible. Veuillez réessayer plus tard.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.serverUnavailable),
             duration: Duration(seconds: 3),
             backgroundColor: Colors.orange,
           ),
         );
-        
+
         return;
       }
 
       // Récupérer les forfaits actifs (avec cache si API en délai d'attente)
-      final forfaits = await ForfaitActifService.getForfaitsActifs(useCache: isTimedOut);
-      
+      final forfaits = await ForfaitActifService.getForfaitsActifs(
+        useCache: isTimedOut,
+      );
+
       setState(() {
         _forfaitsActifs = forfaits;
         _lastUpdate = DateTime.now();
         _isLoading = false;
       });
-      
+
       // Si aucun forfait n'a été trouvé avec le cache actif
       if (forfaits.isEmpty && isTimedOut) {
         setState(() {
-          _errorMessage = 'Impossible de se connecter au serveur. Veuillez réessayer plus tard.';
+          _errorMessage = AppLocalizations.of(context)!.serverUnavailable;
         });
       }
-      
+
       // Effacer le timeout si la requête a réussi
       await ForfaitActifService.clearApiTimeout();
     } catch (e) {
@@ -85,12 +89,12 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundGrey,
       appBar: AppBar(
         title: Text(
-          'Mes Forfaits',
+          AppLocalizations.of(context)!.myPackagesTitle,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(20),
             fontWeight: FontWeight.bold,
@@ -112,9 +116,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: _buildBody(),
-      ),
+      body: SafeArea(child: _buildBody()),
     );
   }
 
@@ -122,15 +124,15 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
     if (_isLoading && _forfaitsActifs.isEmpty) {
       return _buildLoadingState();
     }
-    
+
     if (_errorMessage != null) {
       return _buildErrorState();
     }
-    
+
     if (_forfaitsActifs.isEmpty) {
       return _buildEmptyState();
     }
-    
+
     return _buildForfaitsList();
   }
 
@@ -144,7 +146,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
           Text(
-            'Chargement des forfaits...',
+            AppLocalizations.of(context)!.loadingPackages,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
               color: AppTheme.textSecondary,
@@ -180,7 +182,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
             ElevatedButton.icon(
               onPressed: _loadForfaitsActifs,
               icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
+              label: Text(AppLocalizations.of(context)!.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
                 foregroundColor: AppTheme.dtYellow,
@@ -210,7 +212,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
             Text(
-              'Vous n\'avez aucun forfait actif',
+              AppLocalizations.of(context)!.noActivePackages,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
@@ -220,7 +222,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
             Text(
-              'Achetez un forfait pour commencer à utiliser nos services!',
+              AppLocalizations.of(context)!.buyPackageToStart,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
@@ -234,7 +236,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
                 Navigator.of(context).pop();
               },
               icon: const Icon(Icons.shopping_cart),
-              label: const Text('Acheter un forfait'),
+              label: Text(AppLocalizations.of(context)!.buyAPackage),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
                 foregroundColor: AppTheme.dtYellow,
@@ -260,11 +262,13 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
           if (_isLoading)
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
+                padding: EdgeInsets.all(
+                  ResponsiveSize.getWidth(AppTheme.spacingS),
+                ),
                 child: const LinearProgressIndicator(),
               ),
             ),
-          
+
           // En-tête avec informations sur la dernière mise à jour
           if (_lastUpdate != null)
             SliverToBoxAdapter(
@@ -276,33 +280,30 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
                 child: _buildLastUpdateInfo(),
               ),
             ),
-          
+
           // Résumé des forfaits (si plusieurs forfaits)
           if (_forfaitsActifs.length > 1)
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+                padding: EdgeInsets.all(
+                  ResponsiveSize.getWidth(AppTheme.spacingM),
+                ),
                 child: _buildForfaitsResume(),
               ),
             ),
-            
+
           // Liste des forfaits
           SliverPadding(
             padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      bottom: ResponsiveSize.getHeight(AppTheme.spacingM),
-                    ),
-                    child: ForfaitActifCard2(
-                      forfait: _forfaitsActifs[index],
-                    ),
-                  );
-                },
-                childCount: _forfaitsActifs.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: ResponsiveSize.getHeight(AppTheme.spacingM),
+                  ),
+                  child: ForfaitActifCard2(forfait: _forfaitsActifs[index]),
+                );
+              }, childCount: _forfaitsActifs.length),
             ),
           ),
         ],
@@ -312,21 +313,23 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
 
   Widget _buildLastUpdateInfo() {
     if (_lastUpdate == null) return const SizedBox.shrink();
-    
+
     final now = DateTime.now();
     final diff = now.difference(_lastUpdate!);
     String timeText;
-    
+
     if (diff.inMinutes < 1) {
-      timeText = 'il y a quelques secondes';
+      timeText = AppLocalizations.of(context)!.lastUpdateSeconds;
     } else if (diff.inMinutes < 60) {
-      timeText = 'il y a ${diff.inMinutes} minute${diff.inMinutes > 1 ? 's' : ''}';
+      timeText = AppLocalizations.of(
+        context,
+      )!.lastUpdateMinutes(diff.inMinutes);
     } else if (diff.inHours < 24) {
-      timeText = 'il y a ${diff.inHours} heure${diff.inHours > 1 ? 's' : ''}';
+      timeText = AppLocalizations.of(context)!.lastUpdateHours(diff.inHours);
     } else {
-      timeText = 'il y a ${diff.inDays} jour${diff.inDays > 1 ? 's' : ''}';
+      timeText = AppLocalizations.of(context)!.lastUpdateDays(diff.inDays);
     }
-    
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -337,7 +340,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
         ),
         SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingXS)),
         Text(
-          'Dernière mise à jour $timeText',
+          AppLocalizations.of(context)!.lastUpdateLabel(timeText),
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(12),
             color: AppTheme.textSecondary,
@@ -354,27 +357,29 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
     double totalDataAvailableGo = 0;
     int forfaitsInternet = 0;
     int forfaitsCombo = 0;
-    
+
     for (var forfait in _forfaitsActifs) {
       if (forfait.dataCompteur != null) {
         totalDataUsedGo += forfait.dataCompteur!.valeurUtiliseeGo;
         totalDataAvailableGo += forfait.dataCompteur!.seuilsGo;
       }
-      
+
       if (forfait.minutesCompteur != null) {
         forfaitsCombo++;
       } else {
         forfaitsInternet++;
       }
     }
-    
+
     // Calcul du data restant
     final totalDataRemainingGo = totalDataAvailableGo - totalDataUsedGo;
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
+        ),
       ),
       child: Padding(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -382,7 +387,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Résumé de consommation',
+              AppLocalizations.of(context)!.consumptionResume,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(16),
                 fontWeight: FontWeight.bold,
@@ -390,18 +395,26 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
               ),
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-            
+
             // Progression totale des données - CORRIGÉE pour afficher le DISPONIBLE
             Directionality(
               textDirection: TextDirection.rtl,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusXS)),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveSize.getWidth(AppTheme.radiusXS),
+                ),
                 child: LinearProgressIndicator(
-                  value: totalDataAvailableGo > 0 
-                      ? totalDataRemainingGo / totalDataAvailableGo  // Pourcentage RESTANT (sera pleine si tout est dispo)
-                      : 0,
-                  backgroundColor: Colors.grey.withOpacity(0.2), // Fond gris = consommé
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue), // Bleu = disponible
+                  value:
+                      totalDataAvailableGo > 0
+                          ? totalDataRemainingGo /
+                              totalDataAvailableGo // Pourcentage RESTANT (sera pleine si tout est dispo)
+                          : 0,
+                  backgroundColor: Colors.grey.withOpacity(
+                    0.2,
+                  ), // Fond gris = consommé
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Colors.blue,
+                  ), // Bleu = disponible
                   minHeight: ResponsiveSize.getHeight(10),
                 ),
               ),
@@ -413,7 +426,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Données Internet',
+                  AppLocalizations.of(context)!.internetData,
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(14),
                     color: AppTheme.textSecondary,
@@ -429,22 +442,22 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
                 ),
               ],
             ),
-            
+
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-            
+
             // Statistiques forfaits
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem(
                   '${_forfaitsActifs.length}',
-                  'Forfaits',
+                  '${AppLocalizations.of(context)!.packageLabel}s',
                   Icons.sim_card,
                   Colors.purple,
                 ),
                 _buildStatItem(
                   '$forfaitsInternet',
-                  'Internet',
+                  'Internet', // Usually same in EN/FR but could be localized if needed, let's keep it simple or use key if exists. 'Internet' is fine. Or AppLocalizations.of(context)!.internetLabel
                   Icons.wifi,
                   Colors.blue,
                 ),
@@ -462,7 +475,12 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
     );
   }
 
-  Widget _buildStatItem(String value, String label, IconData icon, Color color) {
+  Widget _buildStatItem(
+    String value,
+    String label,
+    IconData icon,
+    Color color,
+  ) {
     return Column(
       children: [
         Container(
@@ -471,11 +489,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
             color: color.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: ResponsiveSize.getFontSize(24),
-          ),
+          child: Icon(icon, color: color, size: ResponsiveSize.getFontSize(24)),
         ),
         SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
         Text(
