@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/dev/flutter projects/dtapp3/windows"
+    "cmake.sourceDirectory": "D:/dev/flutter projects/dtapp3/windows",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
