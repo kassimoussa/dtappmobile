@@ -275,12 +275,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dateKey => 'Date';
 
   @override
-  String currentBalance(Object balance) {
-    return 'Solde actuel: $balance DJF';
+  String currentBalance(String balance) {
+    return 'Solde actuel';
   }
 
   @override
-  String balanceAfterTransfer(Object balance) {
+  String balanceAfterTransfer(String balance) {
     return 'Solde après transfert: $balance DJF';
   }
 
@@ -295,7 +295,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get authFailed => 'Authentification échouée';
 
   @override
-  String transferError(Object error) {
+  String transferError(String error) {
     return 'Erreur lors du transfert: $error';
   }
 
@@ -468,12 +468,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get refillMyCredit => 'Recharger mon crédit';
 
   @override
-  String refillRecipient(Object phone) {
+  String refillRecipient(String phone) {
     return 'Destinataire : $phone';
   }
 
   @override
-  String refillMyNumber(Object phone) {
+  String refillMyNumber(String phone) {
     return 'Mon numéro : $phone';
   }
 
@@ -502,7 +502,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get refillSuccessTitle => 'Recharge réussie !';
 
   @override
-  String refillSuccessMessageGift(Object phone) {
+  String refillSuccessMessageGift(String phone) {
     return 'La recharge a été effectuée avec succès pour $phone';
   }
 
@@ -514,7 +514,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get refillAmount => 'Montant rechargé';
 
   @override
-  String refillNewBalance(Object balance) {
+  String refillNewBalance(String balance) {
     return 'Nouveau solde : $balance DJF';
   }
 
@@ -529,11 +529,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String refillForMyNumberMessage(Object phone) {
     return 'Recharge pour mon numéro: $phone';
-  }
-
-  @override
-  String unexpectedError(Object error) {
-    return 'Une erreur inattendue est survenue: $error';
   }
 
   @override
@@ -733,5 +728,335 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String speedTestError(Object error) {
     return 'Erreur: $error';
+  }
+
+  @override
+  String get agenciesTitle => 'Nos Agences';
+
+  @override
+  String get loadingAgencies => 'Chargement des agences...';
+
+  @override
+  String get noAgencies => 'Aucune agence disponible';
+
+  @override
+  String get call => 'Appeler';
+
+  @override
+  String get directions => 'Itinéraire';
+
+  @override
+  String get openingHours => 'Horaires d\'ouverture';
+
+  @override
+  String get launchPhoneError =>
+      'Impossible de lancer l\'application téléphone.';
+
+  @override
+  String get invalidPhone => 'Numéro de téléphone invalide.';
+
+  @override
+  String get launchMapError => 'Impossible de lancer Google Maps.';
+
+  @override
+  String get mapView => 'Vue carte';
+
+  @override
+  String get listView => 'Vue liste';
+
+  @override
+  String get subscribe => 'Souscrire';
+
+  @override
+  String get logoutTopUpSuccess => 'Déconnexion TopUp réussie';
+
+  @override
+  String logoutConfirmMessage(String number) {
+    return 'Voulez-vous vous déconnecter de la ligne $number ?';
+  }
+
+  @override
+  String get manualTest => 'Test Manuel';
+
+  @override
+  String get batchTest => 'Tests Batch';
+
+  @override
+  String get copiedToClipboard => 'Copié dans le presse-papiers';
+
+  @override
+  String get myLineTitle => 'Ma ligne';
+
+  @override
+  String get historyTitle => 'Historique';
+
+  @override
+  String get statisticsTooltip => 'Statistiques';
+
+  @override
+  String get periodLabel => 'Période';
+
+  @override
+  String daysUnit(int days) {
+    return '${days}j';
+  }
+
+  @override
+  String activitiesFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count activités trouvées',
+      one: '1 activité trouvée',
+      zero: 'Aucune activité trouvée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get historyLoading => 'Chargement de l\'historique...';
+
+  @override
+  String get historyLoadError => 'Erreur lors du chargement de l\'historique';
+
+  @override
+  String get loadingErrorTitle => 'Erreur de chargement';
+
+  @override
+  String get emptyHistoryTitle => 'Aucune activité';
+
+  @override
+  String get emptyHistoryMessage =>
+      'Aucune activité trouvée pour la période sélectionnée';
+
+  @override
+  String get toggleHideDetails => 'Masquer les détails';
+
+  @override
+  String get toggleShowDetails => 'Afficher plus de détails';
+
+  @override
+  String get navHome => 'Accueil';
+
+  @override
+  String get navHistory => 'Historique';
+
+  @override
+  String get navMyLine => 'Ma ligne';
+
+  @override
+  String get historyTransactions => 'Historique des transactions';
+
+  @override
+  String get comingSoonMessage =>
+      'Cette fonctionnalité sera bientôt disponible.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get packageSubscriptionPurchase => 'Achat de souscription TopUp';
+
+  @override
+  String get packageTopUpPurchase => 'Achat de package TopUp';
+
+  @override
+  String get dataSubscription => 'Souscription données';
+
+  @override
+  String get voiceSubscription => 'Souscription voix';
+
+  @override
+  String get dataPackageAddon => 'Package données additionnel';
+
+  @override
+  String get voicePackageAddon => 'Package voix additionnel';
+
+  @override
+  String get insufficientBalanceError => 'Solde insuffisant pour cet achat.';
+
+  @override
+  String get subscriptionError => 'Erreur lors de la souscription au package';
+
+  @override
+  String get connectionError => 'Erreur de connexion';
+
+  @override
+  String get unexpectedError => 'Erreur inattendue';
+
+  @override
+  String get confirmPurchaseTitle => 'Confirmation d\'achat';
+
+  @override
+  String get packageCode => 'Code du package';
+
+  @override
+  String get price => 'Prix';
+
+  @override
+  String get validity => 'Validité';
+
+  @override
+  String get content => 'Contenu';
+
+  @override
+  String get days => 'jours';
+
+  @override
+  String get balanceAfterPurchase => 'Solde après achat';
+
+  @override
+  String get fixedLineRecipient => 'Ligne fixe destinataire';
+
+  @override
+  String get fromMobile => 'Depuis votre mobile';
+
+  @override
+  String get confirmPurchaseAction => 'Confirmer l\'achat';
+
+  @override
+  String get rechargeTitle => 'Recharger compte fixe';
+
+  @override
+  String get rechargeSubtitle => 'Recharge de compte';
+
+  @override
+  String get rechargeDescription =>
+      'Transférez du crédit de votre mobile vers votre ligne fixe';
+
+  @override
+  String get mobileSource => 'Mobile (source)';
+
+  @override
+  String get fixedDestination => 'Fixe (destination)';
+
+  @override
+  String get mobileBalanceAvailable => 'Solde mobile disponible';
+
+  @override
+  String get quickAmounts => 'Montants rapides';
+
+  @override
+  String get amountToTransfer => 'Montant à transférer *';
+
+  @override
+  String get pinCode => 'Code PIN (optionnel)';
+
+  @override
+  String get pinDefaultInfo =>
+      'Si non renseigné, le code par défaut (0000) sera utilisé';
+
+  @override
+  String get pinError => 'Le code PIN doit contenir 4 chiffres';
+
+  @override
+  String get performRecharge => 'Effectuer la recharge';
+
+  @override
+  String get rechargeError => 'Erreur lors de la recharge';
+
+  @override
+  String get enterAmount => 'Veuillez saisir un montant';
+
+  @override
+  String get invalidAmount => 'Montant invalide';
+
+  @override
+  String get minAmount => 'Montant minimum: 100 DJF';
+
+  @override
+  String get maxAmount => 'Montant maximum: 50 000 DJF';
+
+  @override
+  String insufficientBalanceGeneric(String amount) {
+    return 'Solde insuffisant ($amount DJF)';
+  }
+
+  @override
+  String get insufficientBalanceForRecharge =>
+      'Solde insuffisant pour cette recharge.';
+
+  @override
+  String get activeSubscriptionTitle => 'Souscription active';
+
+  @override
+  String activeSubscriptionMessage(String type, String date) {
+    return 'Vous avez déjà une souscription $type active qui expire le $date.';
+  }
+
+  @override
+  String get replaceSubscriptionWarning =>
+      'Acheter une nouvelle souscription remplacera l\'actuelle. Voulez-vous continuer ?';
+
+  @override
+  String get buySubscriptionTitle => 'Acheter une souscription';
+
+  @override
+  String get chooseSubscriptionType => 'Choisir le type de souscription';
+
+  @override
+  String get checkingActiveSubscriptions =>
+      'Vérification des souscriptions actives...';
+
+  @override
+  String get dataType => 'Données';
+
+  @override
+  String get voiceType => 'Voix';
+
+  @override
+  String get dataSubscriptions => 'Souscriptions Données';
+
+  @override
+  String get voiceSubscriptions => 'Souscriptions Voix';
+
+  @override
+  String get subscriptionTypeData => 'données';
+
+  @override
+  String get subscriptionTypeVoice => 'voix';
+
+  @override
+  String get statsTitle => 'Statistiques';
+
+  @override
+  String get analysisPeriod => 'Période d\'analyse';
+
+  @override
+  String get statsOverview => 'Vue d\'ensemble';
+
+  @override
+  String get totalSpent => 'Total dépensé';
+
+  @override
+  String get totalActions => 'Actions totales';
+
+  @override
+  String get globalSuccessRate => 'Taux de succès global';
+
+  @override
+  String get actionDetails => 'Détail par action';
+
+  @override
+  String get successful => 'Réussis';
+
+  @override
+  String get amount => 'Montant';
+
+  @override
+  String get successRate => 'Taux de succès';
+
+  @override
+  String get transferImportantInfo => 'Informations importantes';
+
+  @override
+  String get transferMinAmountParams => '• Montant minimum : 50 DJF';
+
+  @override
+  String get transferFeesParams => '• Frais de transfert : 5% du montant';
+
+  @override
+  String transferCurrentBalance(String balance) {
+    return '• Votre solde actuel : $balance DJF';
   }
 }

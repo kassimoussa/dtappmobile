@@ -10,6 +10,7 @@ import '../../../services/topup_api_service.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../extensions/color_extensions.dart';
 import '../../../exceptions/topup_exception.dart';
+import '../../../generated/l10n/app_localizations.dart';
 import 'topup_success_screen.dart';
 import '../subscription/topup_subscription_success_screen.dart';
 
@@ -30,10 +31,12 @@ class TopUpPackageConfirmationScreen extends StatefulWidget {
   });
 
   @override
-  State<TopUpPackageConfirmationScreen> createState() => _TopUpPackageConfirmationScreenState();
+  State<TopUpPackageConfirmationScreen> createState() =>
+      _TopUpPackageConfirmationScreenState();
 }
 
-class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmationScreen>
+class _TopUpPackageConfirmationScreenState
+    extends State<TopUpPackageConfirmationScreen>
     with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   String? _userPhoneNumber;
@@ -54,21 +57,13 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
 
     _animationController.forward();
   }
@@ -91,8 +86,11 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
   }
 
   String get _purchaseTypeLabel {
+    final l10n = AppLocalizations.of(context)!;
     bool isSubscription = widget.packageType == 1 || widget.packageType == 2;
-    return isSubscription ? 'Achat de souscription TopUp' : 'Achat de package TopUp';
+    return isSubscription
+        ? l10n.packageSubscriptionPurchase
+        : l10n.packageTopUpPurchase;
   }
 
   IconData get _purchaseTypeIcon => Icons.add_shopping_cart;
@@ -104,92 +102,107 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
   }
 
   String _getPackageSubTitle() {
+    final l10n = AppLocalizations.of(context)!;
     if (widget.package.description.isNotEmpty) {
       return widget.package.description;
     }
-    
+
     final isDataPackage = widget.package.isDataPackage;
     if (_isSubscription()) {
-      return 'Souscription ${isDataPackage ? 'données' : 'voix'}';
+      return isDataPackage ? l10n.dataSubscription : l10n.voiceSubscription;
     } else {
-      return 'Package ${isDataPackage ? 'données' : 'voix'} additionnel';
+      return isDataPackage ? l10n.dataPackageAddon : l10n.voicePackageAddon;
     }
   }
 
   Future<void> _confirmerAchat() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_isLoading) return;
-    
+
     // Vérifier le solde avant de procéder
     if (widget.package.price > widget.soldeActuel) {
-      _showErrorMessage('Solde insuffisant pour cet achat.');
+      _showErrorMessage(l10n.insufficientBalanceError);
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
-      debugPrint('TopUp - Début souscription package: ${widget.package.packageCode}');
-      
+      debugPrint(
+        'TopUp - Début souscription package: ${widget.package.packageCode}',
+      );
+
       // Appel à l'API pour souscrire au package TopUp (le statut a déjà été vérifié)
       final response = await TopUpApi.instance.subscribePackage(
         msisdn: widget.mobileNumber,
         isdn: widget.fixedNumber,
         packageCode: widget.package.packageCode,
       );
-      
-      debugPrint('TopUp - Réponse API: success=${response.success}, transaction=${response.transactionId}');
+
+      debugPrint(
+        'TopUp - Réponse API: success=${response.success}, transaction=${response.transactionId}',
+      );
       debugPrint('TopUp - commandExecuted=${response.commandExecuted}');
       debugPrint('TopUp - message=${response.message}');
-      
+
       if (mounted) {
         if (response.success) {
           debugPrint('TopUp - Navigation vers success screen...');
           // Succès - naviguer vers l'écran de succès approprié
           final isSubscription = _isSubscription();
-          
+
           Navigator.pushReplacement(
             context,
             CustomRouteTransitions.fadeRoute(
-              page: isSubscription 
-                ? TopUpSubscriptionSuccessScreen(
-                    subscription: widget.package,
-                    mobileNumber: widget.mobileNumber,
-                    fixedNumber: widget.fixedNumber,
-                    ancienSolde: response.accountImpact?.balanceBefore ?? widget.soldeActuel,
-                    transactionId: response.transactionId,
-                  )
-                : TopUpSuccessScreen(
-                    package: widget.package,
-                    mobileNumber: widget.mobileNumber,
-                    fixedNumber: widget.fixedNumber,
-                    ancienSolde: response.accountImpact?.balanceBefore ?? widget.soldeActuel,
-                    transactionId: response.transactionId,
-                  ),
+              page:
+                  isSubscription
+                      ? TopUpSubscriptionSuccessScreen(
+                        subscription: widget.package,
+                        mobileNumber: widget.mobileNumber,
+                        fixedNumber: widget.fixedNumber,
+                        ancienSolde:
+                            response.accountImpact?.balanceBefore ??
+                            widget.soldeActuel,
+                        transactionId: response.transactionId,
+                      )
+                      : TopUpSuccessScreen(
+                        package: widget.package,
+                        mobileNumber: widget.mobileNumber,
+                        fixedNumber: widget.fixedNumber,
+                        ancienSolde:
+                            response.accountImpact?.balanceBefore ??
+                            widget.soldeActuel,
+                        transactionId: response.transactionId,
+                      ),
             ),
           );
         } else {
           // Échec - afficher le message d'erreur de l'API
-          debugPrint('TopUp - Échec: success=${response.success}, commandExecuted=${response.commandExecuted}');
-          final errorMessage = response.message.isNotEmpty 
-              ? response.message 
-              : 'Erreur lors de la souscription au package';
+          debugPrint(
+            'TopUp - Échec: success=${response.success}, commandExecuted=${response.commandExecuted}',
+          );
+          final errorMessage =
+              response.message.isNotEmpty
+                  ? response.message
+                  : l10n.subscriptionError;
           _showErrorMessage(errorMessage);
         }
       }
     } catch (e) {
       debugPrint('TopUp - Erreur souscription: $e');
-      
+
       if (mounted) {
-        String errorMessage = 'Erreur de connexion';
-        
+        String errorMessage = l10n.connectionError;
+
         if (e is TopUpException) {
           errorMessage = e.message;
         } else {
-          errorMessage = 'Erreur inattendue: ${e.toString().replaceAll('Exception: ', '')}';
+          errorMessage =
+              '${l10n.unexpectedError}: ${e.toString().replaceAll('Exception: ', '')}';
         }
-        
+
         _showErrorMessage(errorMessage);
       }
     } finally {
@@ -226,7 +239,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
           borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
         ),
         action: SnackBarAction(
-          label: 'Réessayer',
+          label: AppLocalizations.of(context)!.retry,
           textColor: Colors.white,
           onPressed: _confirmerAchat,
         ),
@@ -237,11 +250,11 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: "Confirmation d'achat",
+        title: AppLocalizations.of(context)!.confirmPurchaseTitle,
         showAction: false,
         showCancelToHome: true,
       ),
@@ -250,10 +263,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
         builder: (context, child) {
           return FadeTransition(
             opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: child,
-            ),
+            child: ScaleTransition(scale: _scaleAnimation, child: child),
           );
         },
         child: SingleChildScrollView(
@@ -263,29 +273,29 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
             children: [
               // Type d'achat avec badge
               _buildPurchaseTypeBadge(),
-              
+
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-              
+
               // Entête avec icône animée
               _buildHeader(),
-              
+
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              
+
               // Détails du package
               _buildPackageDetails(),
-              
+
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              
+
               // Information sur le solde
               _buildSoldeInfo(),
-              
+
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              
+
               // Information sur la ligne
               _buildLineInfo(),
-              
+
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              
+
               // Boutons d'action
               _buildActionButtons(),
             ],
@@ -303,7 +313,9 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
       ),
       decoration: BoxDecoration(
         color: _purchaseTypeColor.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusL)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusL),
+        ),
         border: Border.all(
           color: _purchaseTypeColor.withOpacityValue(0.3),
           width: 1,
@@ -334,7 +346,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
   Widget _buildHeader() {
     final isDataPackage = widget.package.isDataPackage;
     final iconData = isDataPackage ? Icons.data_usage : Icons.phone_in_talk;
-    
+
     return Column(
       children: [
         // Icône principale avec animation
@@ -345,7 +357,9 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
             return Transform.scale(
               scale: value,
               child: Container(
-                padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                padding: EdgeInsets.all(
+                  ResponsiveSize.getWidth(AppTheme.spacingL),
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.dtBlue.withOpacityValue(0.1),
                   shape: BoxShape.circle,
@@ -366,9 +380,9 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
             );
           },
         ),
-        
+
         SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-        
+
         // Titre et sous-titre
         Text(
           widget.package.packageCode,
@@ -379,9 +393,9 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
             color: AppTheme.dtBlue,
           ),
         ),
-        
+
         SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-        
+
         Text(
           _getPackageSubTitle(),
           textAlign: TextAlign.center,
@@ -395,35 +409,46 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
   }
 
   Widget _buildPackageDetails() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       decoration: BoxDecoration(
         color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
+        ),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
         children: [
-          _buildDetailRow('Code du package', widget.package.packageCode),
+          _buildDetailRow(l10n.packageCode, widget.package.packageCode),
           _buildDivider(),
-          _buildDetailRow('Prix', widget.package.formattedPrice),
+          _buildDetailRow(l10n.price, widget.package.formattedPrice),
           _buildDivider(),
-          
+
           // Afficher les détails selon le type
           if (widget.package.isDataPackage) ...[
-            _buildDetailRow('Données', widget.package.formattedData),
-            if (_isSubscription() && widget.package.formattedValidity.isNotEmpty) ...[
+            _buildDetailRow(l10n.dataType, widget.package.formattedData),
+            if (_isSubscription() &&
+                widget.package.formattedValidity.isNotEmpty) ...[
               _buildDivider(),
-              _buildDetailRow('Validité', '${widget.package.formattedValidity} jours'),
+              _buildDetailRow(
+                l10n.validity,
+                '${widget.package.formattedValidity} ${l10n.days}',
+              ),
             ],
           ] else if (widget.package.isVoicePackage) ...[
-            _buildDetailRow('Minutes', widget.package.formattedVoice),
-            if (_isSubscription() && widget.package.formattedValidity.isNotEmpty) ...[
+            _buildDetailRow(l10n.voiceType, widget.package.formattedVoice),
+            if (_isSubscription() &&
+                widget.package.formattedValidity.isNotEmpty) ...[
               _buildDivider(),
-              _buildDetailRow('Validité', '${widget.package.formattedValidity} jours'),
+              _buildDetailRow(
+                l10n.validity,
+                '${widget.package.formattedValidity} ${l10n.days}',
+              ),
             ],
           ] else ...[
-            _buildDetailRow('Contenu', widget.package.mainFeature),
+            _buildDetailRow(l10n.content, widget.package.mainFeature),
           ],
         ],
       ),
@@ -464,20 +489,25 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
   }
 
   Widget _buildSoldeInfo() {
+    final l10n = AppLocalizations.of(context)!;
     final nouveauSolde = widget.soldeActuel - widget.package.price;
     final isLowBalance = nouveauSolde < 1000; // Seuil d'alerte
-    
+
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       decoration: BoxDecoration(
-        color: isLowBalance 
-            ? Colors.orange.withOpacityValue(0.1)
-            : AppTheme.dtYellow.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+        color:
+            isLowBalance
+                ? Colors.orange.withOpacityValue(0.1)
+                : AppTheme.dtYellow.withOpacityValue(0.1),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
+        ),
         border: Border.all(
-          color: isLowBalance 
-              ? Colors.orange.withOpacityValue(0.3)
-              : AppTheme.dtYellow.withOpacityValue(0.3),
+          color:
+              isLowBalance
+                  ? Colors.orange.withOpacityValue(0.3)
+                  : AppTheme.dtYellow.withOpacityValue(0.3),
         ),
       ),
       child: Row(
@@ -493,7 +523,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Solde actuel: ${widget.soldeActuel.toStringAsFixed(0)} FDJ',
+                  '${l10n.currentBalance}: ${widget.soldeActuel.toStringAsFixed(0)} FDJ',
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(14),
                     color: Colors.grey[800],
@@ -501,7 +531,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
                 ),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
                 Text(
-                  'Solde après achat: ${nouveauSolde.toStringAsFixed(0)} FDJ',
+                  '${l10n.balanceAfterPurchase}: ${nouveauSolde.toStringAsFixed(0)} FDJ',
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(16),
                     fontWeight: FontWeight.bold,
@@ -509,9 +539,11 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
                   ),
                 ),
                 if (isLowBalance) ...[
-                  SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
+                  SizedBox(
+                    height: ResponsiveSize.getHeight(AppTheme.spacingXS),
+                  ),
                   Text(
-                    'Solde faible après achat',
+                    l10n.lowBalanceWarning,
                     style: TextStyle(
                       fontSize: ResponsiveSize.getFontSize(12),
                       color: Colors.orange,
@@ -528,14 +560,15 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
   }
 
   Widget _buildLineInfo() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       decoration: BoxDecoration(
         color: AppTheme.dtYellow.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-        border: Border.all(
-          color: AppTheme.dtYellow.withOpacityValue(0.3),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
         ),
+        border: Border.all(color: AppTheme.dtYellow.withOpacityValue(0.3)),
       ),
       child: Row(
         children: [
@@ -550,7 +583,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ligne fixe destinataire',
+                  l10n.fixedLineRecipient,
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(14),
                     color: Colors.grey[800],
@@ -566,7 +599,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
                   ),
                 ),
                 Text(
-                  'Depuis votre mobile: ${widget.mobileNumber}',
+                  '${l10n.fromMobile}: ${widget.mobileNumber}',
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(12),
                     color: Colors.grey[600],
@@ -582,6 +615,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
   }
 
   Widget _buildActionButtons() {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
@@ -599,7 +633,7 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
               ),
             ),
             child: Text(
-              'Annuler',
+              l10n.cancel,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(16),
                 fontWeight: FontWeight.bold,
@@ -608,12 +642,15 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
             ),
           ),
         ),
-        
+
         SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-        
+
         Expanded(
           child: ElevatedButton(
-            onPressed: (_isLoading || widget.package.price > widget.soldeActuel) ? null : _confirmerAchat,
+            onPressed:
+                (_isLoading || widget.package.price > widget.soldeActuel)
+                    ? null
+                    : _confirmerAchat,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.dtBlue,
               foregroundColor: AppTheme.dtYellow,
@@ -627,32 +664,35 @@ class _TopUpPackageConfirmationScreenState extends State<TopUpPackageConfirmatio
               ),
               elevation: _isLoading ? 0 : 2,
             ),
-            child: _isLoading
-                ? SizedBox(
-                    width: ResponsiveSize.getWidth(20),
-                    height: ResponsiveSize.getHeight(20),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtYellow),
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        size: ResponsiveSize.getFontSize(18),
-                      ),
-                      SizedBox(width: ResponsiveSize.getWidth(8)),
-                      Text(
-                        'Confirmer l\'achat',
-                        style: TextStyle(
-                          fontSize: ResponsiveSize.getFontSize(16),
-                          fontWeight: FontWeight.bold,
+            child:
+                _isLoading
+                    ? SizedBox(
+                      width: ResponsiveSize.getWidth(20),
+                      height: ResponsiveSize.getHeight(20),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppTheme.dtYellow,
                         ),
                       ),
-                    ],
-                  ),
+                    )
+                    : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline,
+                          size: ResponsiveSize.getFontSize(18),
+                        ),
+                        SizedBox(width: ResponsiveSize.getWidth(8)),
+                        Text(
+                          l10n.confirmPurchaseAction,
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(16),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
           ),
         ),
       ],

@@ -7,6 +7,8 @@ import '../../services/activity_service.dart';
 import '../../extensions/color_extensions.dart';
 import '../../widgets/appbar_widget.dart';
 
+import '../../generated/l10n/app_localizations.dart';
+
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
 
@@ -18,7 +20,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   ActivityStatsResponse? _statsResponse;
   bool _isLoading = true;
   String? _errorMessage;
-  
+
   // Filtres
   int _selectedDays = 30;
   final List<int> _daysOptions = [7, 15, 30, 60, 90];
@@ -45,7 +47,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         });
       } else if (mounted) {
         setState(() {
-          _errorMessage = 'Erreur lors du chargement des statistiques';
+          _errorMessage = AppLocalizations.of(context)!.historyLoadError;
           _isLoading = false;
         });
       }
@@ -53,7 +55,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       debugPrint('Erreur chargement stats: $e');
       if (mounted) {
         setState(() {
-          _errorMessage = 'Erreur lors du chargement des statistiques';
+          _errorMessage = AppLocalizations.of(context)!.historyLoadError;
           _isLoading = false;
         });
       }
@@ -103,17 +105,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: 'Statistiques',
+        title: AppLocalizations.of(context)!.statsTitle,
         showAction: false,
         showCancelToHome: true,
       ),
-      body: _isLoading
-          ? _buildLoadingState()
-          : _errorMessage != null
+      body:
+          _isLoading
+              ? _buildLoadingState()
+              : _errorMessage != null
               ? _buildErrorState()
               : _statsResponse == null || _statsResponse!.data.isEmpty
-                  ? _buildEmptyState()
-                  : _buildStatsContent(),
+              ? _buildEmptyState()
+              : _buildStatsContent(),
     );
   }
 
@@ -125,7 +128,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           CircularProgressIndicator(color: AppTheme.dtBlue),
           SizedBox(height: ResponsiveSize.getHeight(16)),
           Text(
-            'Chargement des statistiques...',
+            AppLocalizations.of(context)!.historyLoading,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
               color: Colors.grey[600],
@@ -150,7 +153,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(16)),
             Text(
-              'Erreur de chargement',
+              AppLocalizations.of(context)!.loadingErrorTitle,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
                 fontWeight: FontWeight.bold,
@@ -159,7 +162,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(8)),
             Text(
-              _errorMessage ?? 'Une erreur est survenue',
+              _errorMessage ?? AppLocalizations.of(context)!.genericRetryError,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
@@ -173,7 +176,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 backgroundColor: AppTheme.dtBlue,
                 foregroundColor: Colors.white,
               ),
-              child: Text('Réessayer'),
+              child: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -195,7 +198,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(16)),
             Text(
-              'Aucune statistique',
+              AppLocalizations.of(context)!.emptyHistoryTitle,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
                 fontWeight: FontWeight.bold,
@@ -204,7 +207,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(8)),
             Text(
-              'Aucune activité trouvée pour la période sélectionnée',
+              AppLocalizations.of(context)!.emptyHistoryMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
@@ -245,7 +248,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Période d\'analyse',
+            AppLocalizations.of(context)!.analysisPeriod,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
               fontWeight: FontWeight.bold,
@@ -256,30 +259,34 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: _daysOptions.map((days) {
-                final isSelected = days == _selectedDays;
-                return Padding(
-                  padding: EdgeInsets.only(right: ResponsiveSize.getWidth(8)),
-                  child: FilterChip(
-                    label: Text(
-                      '$days jours',
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : AppTheme.dtBlue,
-                        fontSize: ResponsiveSize.getFontSize(12),
-                        fontWeight: FontWeight.w500,
+              children:
+                  _daysOptions.map((days) {
+                    final isSelected = days == _selectedDays;
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        right: ResponsiveSize.getWidth(8),
                       ),
-                    ),
-                    selected: isSelected,
-                    onSelected: (_) => _onDaysFilterChanged(days),
-                    backgroundColor: Colors.white,
-                    selectedColor: AppTheme.dtBlue,
-                    checkmarkColor: Colors.white,
-                    side: BorderSide(
-                      color: isSelected ? AppTheme.dtBlue : Colors.grey[300]!,
-                    ),
-                  ),
-                );
-              }).toList(),
+                      child: FilterChip(
+                        label: Text(
+                          AppLocalizations.of(context)!.daysUnit(days),
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : AppTheme.dtBlue,
+                            fontSize: ResponsiveSize.getFontSize(12),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        selected: isSelected,
+                        onSelected: (_) => _onDaysFilterChanged(days),
+                        backgroundColor: Colors.white,
+                        selectedColor: AppTheme.dtBlue,
+                        checkmarkColor: Colors.white,
+                        side: BorderSide(
+                          color:
+                              isSelected ? AppTheme.dtBlue : Colors.grey[300]!,
+                        ),
+                      ),
+                    );
+                  }).toList(),
             ),
           ),
         ],
@@ -289,12 +296,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Widget _buildOverviewCards() {
     final stats = _statsResponse!;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Vue d\'ensemble',
+          AppLocalizations.of(context)!.statsOverview,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(18),
             fontWeight: FontWeight.bold,
@@ -306,7 +313,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           children: [
             Expanded(
               child: _buildOverviewCard(
-                title: 'Total dépensé',
+                title: AppLocalizations.of(context)!.totalSpent,
                 value: '${stats.totalAmount.toStringAsFixed(0)} DJF',
                 icon: Icons.account_balance_wallet,
                 color: Colors.green,
@@ -315,7 +322,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             SizedBox(width: ResponsiveSize.getWidth(12)),
             Expanded(
               child: _buildOverviewCard(
-                title: 'Actions totales',
+                title: AppLocalizations.of(context)!.totalActions,
                 value: '${stats.totalActions}',
                 icon: Icons.trending_up,
                 color: AppTheme.dtBlue,
@@ -325,7 +332,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         ),
         SizedBox(height: ResponsiveSize.getHeight(12)),
         _buildOverviewCard(
-          title: 'Taux de succès global',
+          title: AppLocalizations.of(context)!.globalSuccessRate,
           value: '${stats.overallSuccessRate.toStringAsFixed(1)}%',
           icon: Icons.check_circle,
           color: _getSuccessRateColor(stats.overallSuccessRate),
@@ -385,12 +392,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Widget _buildStatsDetails() {
     final stats = _statsResponse!.data;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Détail par action',
+          AppLocalizations.of(context)!.actionDetails,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(18),
             fontWeight: FontWeight.bold,
@@ -421,7 +428,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   padding: EdgeInsets.all(ResponsiveSize.getWidth(8)),
                   decoration: BoxDecoration(
                     color: AppTheme.dtBlue.withOpacityValue(0.1),
-                    borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveSize.getWidth(8),
+                    ),
                   ),
                   child: Icon(
                     _getActionIcon(stat.actionType),
@@ -446,8 +455,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     vertical: ResponsiveSize.getHeight(4),
                   ),
                   decoration: BoxDecoration(
-                    color: _getSuccessRateColor(stat.successRate).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(12)),
+                    color: _getSuccessRateColor(
+                      stat.successRate,
+                    ).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveSize.getWidth(12),
+                    ),
                   ),
                   child: Text(
                     stat.formattedSuccessRate,
@@ -465,21 +478,21 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               children: [
                 Expanded(
                   child: _buildStatItem(
-                    label: 'Total',
+                    label: AppLocalizations.of(context)!.total,
                     value: '${stat.totalCount}',
                     color: Colors.grey[600]!,
                   ),
                 ),
                 Expanded(
                   child: _buildStatItem(
-                    label: 'Réussis',
+                    label: AppLocalizations.of(context)!.successful,
                     value: '${stat.successCount}',
                     color: Colors.green,
                   ),
                 ),
                 Expanded(
                   child: _buildStatItem(
-                    label: 'Montant',
+                    label: AppLocalizations.of(context)!.amount,
                     value: stat.formattedTotalAmount,
                     color: AppTheme.dtBlue,
                   ),

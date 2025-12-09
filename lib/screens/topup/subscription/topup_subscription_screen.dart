@@ -7,6 +7,7 @@ import '../../../widgets/appbar_widget.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../models/topup_balance.dart';
 import '../../../services/topup_api_service.dart';
+import '../../../generated/l10n/app_localizations.dart';
 import '../packages/topup_package_list_screen.dart';
 
 class TopUpSubscriptionScreen extends StatefulWidget {
@@ -22,7 +23,8 @@ class TopUpSubscriptionScreen extends StatefulWidget {
   });
 
   @override
-  State<TopUpSubscriptionScreen> createState() => _TopUpSubscriptionScreenState();
+  State<TopUpSubscriptionScreen> createState() =>
+      _TopUpSubscriptionScreenState();
 }
 
 class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
@@ -64,7 +66,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
 
     // Chercher une souscription active du type demandé (données ou voix)
     for (final balance in _balanceResponse!.balances) {
-      if ((type == 'data' && balance.isDataType) || 
+      if ((type == 'data' && balance.isDataType) ||
           (type == 'voice' && balance.isVoiceType)) {
         // Vérifier si la souscription n'expire pas bientôt (plus de 3 jours)
         if (balance.isActive && !balance.isExpiringSoon) {
@@ -79,7 +81,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
     if (_balanceResponse == null) return '';
 
     for (final balance in _balanceResponse!.balances) {
-      if ((type == 'data' && balance.isDataType) || 
+      if ((type == 'data' && balance.isDataType) ||
           (type == 'voice' && balance.isVoiceType)) {
         if (balance.isActive && !balance.isExpiringSoon) {
           return balance.expireDateFormatted;
@@ -90,7 +92,9 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
   }
 
   void _showActiveSubscriptionDialog(String type, VoidCallback onContinue) {
-    final subscriptionType = type == 'data' ? 'données' : 'voix';
+    final l10n = AppLocalizations.of(context)!;
+    final subscriptionType =
+        type == 'data' ? l10n.subscriptionTypeData : l10n.subscriptionTypeVoice;
     final expirationDate = _getExpirationInfo(type);
 
     showDialog(
@@ -103,7 +107,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
               SizedBox(width: ResponsiveSize.getWidth(8)),
               Expanded(
                 child: Text(
-                  'Souscription active',
+                  l10n.activeSubscriptionTitle,
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(18),
                     fontWeight: FontWeight.bold,
@@ -118,17 +122,20 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Vous avez déjà une souscription $subscriptionType active qui expire le $expirationDate.',
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(16),
+                l10n.activeSubscriptionMessage(
+                  subscriptionType,
+                  expirationDate,
                 ),
+                style: TextStyle(fontSize: ResponsiveSize.getFontSize(16)),
               ),
               SizedBox(height: ResponsiveSize.getHeight(16)),
               Container(
                 padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
                 decoration: BoxDecoration(
                   color: Colors.orange.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveSize.getWidth(8),
+                  ),
                   border: Border.all(color: Colors.orange.withOpacity(0.3)),
                 ),
                 child: Row(
@@ -137,7 +144,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
                     SizedBox(width: ResponsiveSize.getWidth(8)),
                     Expanded(
                       child: Text(
-                        'Acheter une nouvelle souscription remplacera l\'actuelle. Voulez-vous continuer ?',
+                        l10n.replaceSubscriptionWarning,
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(14),
                           color: Colors.orange[800],
@@ -153,7 +160,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                'Annuler',
+                l10n.cancel,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(16),
                   color: Colors.grey[600],
@@ -170,7 +177,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
                 foregroundColor: AppTheme.dtYellow,
               ),
               child: Text(
-                'Continuer',
+                l10n.continueAction,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(16),
                   fontWeight: FontWeight.bold,
@@ -183,7 +190,11 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
     );
   }
 
-  void _navigateToSubscriptionList(int packageType, String typeLabel, String type) {
+  void _navigateToSubscriptionList(
+    int packageType,
+    String typeLabel,
+    String type,
+  ) {
     void proceedToNavigation() {
       Navigator.push(
         context,
@@ -213,7 +224,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: 'Acheter une souscription', 
+        title: AppLocalizations.of(context)!.buySubscriptionTitle,
         showAction: false,
         showCancelToHome: true,
       ),
@@ -226,10 +237,9 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // Titre principal
                   Text(
-                    'Choisir le type de souscription',
+                    AppLocalizations.of(context)!.chooseSubscriptionType,
                     style: TextStyle(
                       fontSize: ResponsiveSize.getFontSize(20),
                       fontWeight: FontWeight.bold,
@@ -247,7 +257,9 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
                           CircularProgressIndicator(color: AppTheme.dtBlue),
                           SizedBox(height: ResponsiveSize.getHeight(16)),
                           Text(
-                            'Vérification des souscriptions actives...',
+                            AppLocalizations.of(
+                              context,
+                            )!.checkingActiveSubscriptions,
                             style: TextStyle(
                               fontSize: ResponsiveSize.getFontSize(14),
                               color: Colors.grey[600],
@@ -259,40 +271,42 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
                   ] else ...[
                     // Options de souscriptions
                     Row(
-                    children: [
-                      Expanded(
-                        child: _buildOptionCard(
-                          context,
-                          'Données',
-                          AppTheme.dtBlue2,
-                          Icons.data_usage,
-                          onTap: () {
-                            _navigateToSubscriptionList(
-                              2, // Type 2 = données souscription
-                              'Souscriptions Données',
-                              'data',
-                            );
-                          },
+                      children: [
+                        Expanded(
+                          child: _buildOptionCard(
+                            context,
+                            AppLocalizations.of(context)!.dataType,
+                            AppTheme.dtBlue2,
+                            Icons.data_usage,
+                            onTap: () {
+                              _navigateToSubscriptionList(
+                                2, // Type 2 = données souscription
+                                AppLocalizations.of(context)!.dataSubscriptions,
+                                'data',
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      SizedBox(width: ResponsiveSize.getWidth(16)),
-                      Expanded(
-                        child: _buildOptionCard(
-                          context,
-                          'Voix',
-                          AppTheme.dtBlue2,
-                          Icons.phone_in_talk,
-                          onTap: () {
-                            _navigateToSubscriptionList(
-                              1, // Type 1 = voix souscription
-                              'Souscriptions Voix',
-                              'voice',
-                            );
-                          },
+                        SizedBox(width: ResponsiveSize.getWidth(16)),
+                        Expanded(
+                          child: _buildOptionCard(
+                            context,
+                            AppLocalizations.of(context)!.voiceType,
+                            AppTheme.dtBlue2,
+                            Icons.phone_in_talk,
+                            onTap: () {
+                              _navigateToSubscriptionList(
+                                1, // Type 1 = voix souscription
+                                AppLocalizations.of(
+                                  context,
+                                )!.voiceSubscriptions,
+                                'voice',
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   ], // Fermeture du else
                 ],
               ),

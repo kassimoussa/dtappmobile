@@ -9,6 +9,7 @@ import '../../../services/topup_api_service.dart';
 import '../../../exceptions/topup_exception.dart';
 import '../../../routes/custom_route_transitions.dart';
 import 'topup_package_confirmation_screen.dart';
+import '../../../generated/l10n/app_localizations.dart';
 
 class TopUpPackageListScreen extends StatefulWidget {
   final String fixedNumber;
@@ -87,9 +88,10 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
         children: [
           // Contenu principal
           Expanded(
-            child: _isLoading
-                ? _buildLoadingState()
-                : _errorMessage != null
+            child:
+                _isLoading
+                    ? _buildLoadingState()
+                    : _errorMessage != null
                     ? _buildErrorState()
                     : _buildPackageList(),
           ),
@@ -99,6 +101,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
   }
 
   Widget _buildLoadingState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -108,7 +111,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
           Text(
-            'Chargement des packages...',
+            l10n.loadingPackages,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
               color: AppTheme.textSecondary,
@@ -120,6 +123,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
   }
 
   Widget _buildErrorState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
@@ -133,7 +137,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
             Text(
-              'Erreur',
+              l10n.error,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(20),
                 fontWeight: FontWeight.bold,
@@ -153,7 +157,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
             ElevatedButton.icon(
               onPressed: _loadPackages,
               icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
+              label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
                 foregroundColor: Colors.white,
@@ -167,7 +171,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
 
   Widget _buildPackageList() {
     final response = _packageResponse!;
-    
+
     if (response.packages.isEmpty) {
       return Center(
         child: Padding(
@@ -249,9 +253,10 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
             child: ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
               itemCount: response.packages.length,
-              separatorBuilder: (context, index) => SizedBox(
-                height: ResponsiveSize.getHeight(AppTheme.spacingM),
-              ),
+              separatorBuilder:
+                  (context, index) => SizedBox(
+                    height: ResponsiveSize.getHeight(AppTheme.spacingM),
+                  ),
               itemBuilder: (context, index) {
                 final package = response.packages[index];
                 return _buildPackageCard(package);
@@ -264,10 +269,13 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
   }
 
   Widget _buildPackageCard(TopUpPackage package) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
+        ),
       ),
       child: Column(
         children: [
@@ -286,14 +294,14 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
                     color: AppTheme.dtBlue,
                   ),
                 ),
-                
+
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
 
                 // Détails du package selon le type
                 _buildPackageDetails(package),
-                    
+
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                
+
                 // Prix et bouton d'achat
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -307,47 +315,57 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: package.price > widget.soldeActuel 
-                          ? null 
-                          : () => _navigateToConfirmation(package),
+                      onPressed:
+                          package.price > widget.soldeActuel
+                              ? null
+                              : () => _navigateToConfirmation(package),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.dtBlue,
                         foregroundColor: AppTheme.dtYellow,
                         disabledBackgroundColor: Colors.grey[400],
                         disabledForegroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(
-                          horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
+                          horizontal: ResponsiveSize.getWidth(
+                            AppTheme.spacingL,
+                          ),
                           vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveSize.getWidth(AppTheme.radiusS),
+                          ),
                         ),
                       ),
-                      child: package.price > widget.soldeActuel
-                          ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.warning_amber_rounded,
-                                  size: ResponsiveSize.getFontSize(16),
-                                ),
-                                SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingXS)),
-                                Text(
-                                  'Solde insuffisant',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ResponsiveSize.getFontSize(14),
+                      child:
+                          package.price > widget.soldeActuel
+                              ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber_rounded,
+                                    size: ResponsiveSize.getFontSize(16),
                                   ),
+                                  SizedBox(
+                                    width: ResponsiveSize.getWidth(
+                                      AppTheme.spacingXS,
+                                    ),
+                                  ),
+                                  Text(
+                                    l10n.insufficientBalanceSimple,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: ResponsiveSize.getFontSize(14),
+                                    ),
+                                  ),
+                                ],
+                              )
+                              : Text(
+                                l10n.buyAction,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: ResponsiveSize.getFontSize(16),
                                 ),
-                              ],
-                            )
-                          : Text(
-                              'Acheter',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: ResponsiveSize.getFontSize(16),
                               ),
-                            ),
                     ),
                   ],
                 ),
@@ -362,7 +380,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
   Widget _buildPackageDetails(TopUpPackage package) {
     // Déterminer si c'est une souscription (types 1 et 2) ou un package additionnel (types 4 et 6)
     bool isSubscription = _isSubscriptionType();
-    
+
     if (package.isDataPackage) {
       return _buildDataPackageDetails(package, isSubscription);
     } else if (package.isVoicePackage) {
@@ -405,7 +423,9 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
         color: Colors.blue[50],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusS),
+        ),
         border: Border.all(color: Colors.blue[200]!),
       ),
       child: Row(
@@ -413,10 +433,15 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
           Expanded(
             child: _buildDetailItem(Icons.data_usage, package.formattedData),
           ),
-          if (isSubscription && package.formattedValidity.isNotEmpty && package.formattedValidity != 'Non spécifiée') ...[ 
+          if (isSubscription &&
+              package.formattedValidity.isNotEmpty &&
+              package.formattedValidity != 'Non spécifiée') ...[
             SizedBox(width: ResponsiveSize.getWidth(8)),
             Expanded(
-              child: _buildDetailItem(Icons.schedule, '${package.formattedValidity} jours'),
+              child: _buildDetailItem(
+                Icons.schedule,
+                '${package.formattedValidity} jours',
+              ),
             ),
           ],
         ],
@@ -429,7 +454,9 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
         color: Colors.orange[50],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusS),
+        ),
         border: Border.all(color: Colors.orange[200]!),
       ),
       child: Row(
@@ -437,10 +464,15 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
           Expanded(
             child: _buildDetailItem(Icons.phone, package.formattedVoice),
           ),
-          if (isSubscription && package.formattedValidity.isNotEmpty && package.formattedValidity != 'Non spécifiée') ...[ 
+          if (isSubscription &&
+              package.formattedValidity.isNotEmpty &&
+              package.formattedValidity != 'Non spécifiée') ...[
             SizedBox(width: ResponsiveSize.getWidth(8)),
             Expanded(
-              child: _buildDetailItem(Icons.schedule, '${package.formattedValidity} jours'),
+              child: _buildDetailItem(
+                Icons.schedule,
+                '${package.formattedValidity} jours',
+              ),
             ),
           ],
         ],
@@ -453,7 +485,9 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
         color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusS),
+        ),
       ),
       child: _buildDetailItem(Icons.card_giftcard, package.mainFeature),
     );
@@ -488,56 +522,66 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
   }
 
   void _showPackageDetails(TopUpPackage package) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          package.displayName,
-          style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(18),
-            fontWeight: FontWeight.bold,
-            color: AppTheme.dtBlue,
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDetailRow('Prix', package.formattedPrice),
-            if (package.isDataPackage)
-              _buildDetailRow('Données', package.formattedData),
-            if (package.isVoicePackage)
-              _buildDetailRow('Minutes', package.formattedVoice),
-            if (package.formattedValidity.isNotEmpty && package.formattedValidity != 'Non spécifiée')
-              _buildDetailRow('Validité', package.formattedValidity),
-            _buildDetailRow('Disponibilité', package.price <= widget.soldeActuel ? 'Disponible' : 'Solde insuffisant'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'Fermer',
-              style: TextStyle(color: AppTheme.dtBlue),
-            ),
-          ),
-          if (package.price <= widget.soldeActuel)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _navigateToConfirmation(package);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.dtBlue,
-                foregroundColor: Colors.white,
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              package.displayName,
+              style: TextStyle(
+                fontSize: ResponsiveSize.getFontSize(18),
+                fontWeight: FontWeight.bold,
+                color: AppTheme.dtBlue,
               ),
-              child: const Text('Souscrire'),
             ),
-        ],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-        ),
-      ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildDetailRow('Prix', package.formattedPrice),
+                if (package.isDataPackage)
+                  _buildDetailRow('Données', package.formattedData),
+                if (package.isVoicePackage)
+                  _buildDetailRow('Minutes', package.formattedVoice),
+                if (package.formattedValidity.isNotEmpty &&
+                    package.formattedValidity != 'Non spécifiée')
+                  _buildDetailRow('Validité', package.formattedValidity),
+                _buildDetailRow(
+                  'Disponibilité',
+                  package.price <= widget.soldeActuel
+                      ? 'Disponible'
+                      : l10n.insufficientBalanceSimple,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  l10n.closeAction,
+                  style: TextStyle(color: AppTheme.dtBlue),
+                ),
+              ),
+              if (package.price <= widget.soldeActuel)
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _navigateToConfirmation(package);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.dtBlue,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(l10n.subscribe),
+                ),
+            ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
+              ),
+            ),
+          ),
     );
   }
 
@@ -570,35 +614,38 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
   void _showComingSoonDialog(String feature) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          feature,
-          style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(18),
-            fontWeight: FontWeight.bold,
-            color: AppTheme.dtBlue,
-          ),
-        ),
-        content: Text(
-          'Cette fonctionnalité sera bientôt disponible.',
-          style: TextStyle(fontSize: ResponsiveSize.getFontSize(16)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'OK',
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              feature,
               style: TextStyle(
+                fontSize: ResponsiveSize.getFontSize(18),
+                fontWeight: FontWeight.bold,
                 color: AppTheme.dtBlue,
-                fontSize: ResponsiveSize.getFontSize(16),
+              ),
+            ),
+            content: Text(
+              'Cette fonctionnalité sera bientôt disponible.',
+              style: TextStyle(fontSize: ResponsiveSize.getFontSize(16)),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                    color: AppTheme.dtBlue,
+                    fontSize: ResponsiveSize.getFontSize(16),
+                  ),
+                ),
+              ),
+            ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
               ),
             ),
           ),
-        ],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-        ),
-      ),
     );
   }
 }

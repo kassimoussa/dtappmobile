@@ -373,9 +373,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
       print('Erreur inattendue: $e');
       print('StackTrace: $stackTrace');
       setState(() {
-        _codeError = AppLocalizations.of(
-          context,
-        )!.unexpectedError(e.toString());
+        _codeError = '${AppLocalizations.of(context)!.unexpectedError}: $e';
       });
     } finally {
       setState(() {

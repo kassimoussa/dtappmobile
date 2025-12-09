@@ -7,6 +7,7 @@ import '../../services/activity_service.dart';
 import '../../extensions/color_extensions.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../statistics/statistics_screen.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -19,19 +20,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
   List<Activity> _activities = [];
   ActivityPagination? _pagination;
   ActivityFilters? _filters;
-  
+
   bool _isLoading = true;
   bool _isLoadingMore = false;
   String? _errorMessage;
-  
+
   // Filtres
   int _selectedDays = 30;
   final List<int> _daysOptions = [7, 15, 30, 60, 90];
-  
+
   // Pagination
   int _currentPage = 1;
   final int _perPage = 20;
-  
+
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -48,7 +49,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       _loadMoreHistory();
     }
   }
@@ -84,7 +86,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         });
       } else if (mounted) {
         setState(() {
-          _errorMessage = 'Erreur lors du chargement de l\'historique';
+          _errorMessage = AppLocalizations.of(context)!.historyLoadError;
           _isLoading = false;
           _isLoadingMore = false;
         });
@@ -93,7 +95,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       debugPrint('Erreur chargement historique: $e');
       if (mounted) {
         setState(() {
-          _errorMessage = 'Erreur lors du chargement de l\'historique';
+          _errorMessage = AppLocalizations.of(context)!.historyLoadError;
           _isLoading = false;
           _isLoadingMore = false;
         });
@@ -102,7 +104,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _loadMoreHistory() async {
-    if (_isLoadingMore || _pagination == null || !_pagination!.hasNextPage) return;
+    if (_isLoadingMore || _pagination == null || !_pagination!.hasNextPage)
+      return;
 
     setState(() {
       _isLoadingMore = true;
@@ -162,6 +165,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -170,7 +174,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Text(
-          'Historique',
+          l10n.historyTitle,
           style: TextStyle(
             color: Colors.white,
             fontSize: ResponsiveSize.getFontSize(18),
@@ -180,13 +184,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.bar_chart, color: Colors.white),
-            onPressed: () => Navigator.push(
-              context,
-              CustomRouteTransitions.slideRightRoute(
-                page: const StatisticsScreen(),
-              ),
-            ),
-            tooltip: 'Statistiques',
+            onPressed:
+                () => Navigator.push(
+                  context,
+                  CustomRouteTransitions.slideRightRoute(
+                    page: const StatisticsScreen(),
+                  ),
+                ),
+            tooltip: l10n.statisticsTooltip,
           ),
         ],
       ),
@@ -194,13 +199,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
         children: [
           _buildFiltersSection(),
           Expanded(
-            child: _isLoading && _activities.isEmpty
-                ? _buildLoadingState()
-                : _errorMessage != null && _activities.isEmpty
+            child:
+                _isLoading && _activities.isEmpty
+                    ? _buildLoadingState()
+                    : _errorMessage != null && _activities.isEmpty
                     ? _buildErrorState()
                     : _activities.isEmpty
-                        ? _buildEmptyState()
-                        : _buildHistoryList(),
+                    ? _buildEmptyState()
+                    : _buildHistoryList(),
           ),
         ],
       ),
@@ -208,19 +214,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildFiltersSection() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       decoration: BoxDecoration(
         color: Colors.grey[50],
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[200]!),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Période',
+            l10n.periodLabel,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(14),
               fontWeight: FontWeight.w600,
@@ -231,37 +236,41 @@ class _HistoryScreenState extends State<HistoryScreen> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: _daysOptions.map((days) {
-                final isSelected = days == _selectedDays;
-                return Padding(
-                  padding: EdgeInsets.only(right: ResponsiveSize.getWidth(8)),
-                  child: FilterChip(
-                    label: Text(
-                      '${days}j',
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : AppTheme.dtBlue,
-                        fontSize: ResponsiveSize.getFontSize(12),
-                        fontWeight: FontWeight.w500,
+              children:
+                  _daysOptions.map((days) {
+                    final isSelected = days == _selectedDays;
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        right: ResponsiveSize.getWidth(8),
                       ),
-                    ),
-                    selected: isSelected,
-                    onSelected: (_) => _onDaysFilterChanged(days),
-                    backgroundColor: Colors.white,
-                    selectedColor: AppTheme.dtBlue,
-                    checkmarkColor: Colors.white,
-                    side: BorderSide(
-                      color: isSelected ? AppTheme.dtBlue : Colors.grey[300]!,
-                    ),
-                  ),
-                );
-              }).toList(),
+                      child: FilterChip(
+                        label: Text(
+                          l10n.daysUnit(days),
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : AppTheme.dtBlue,
+                            fontSize: ResponsiveSize.getFontSize(12),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        selected: isSelected,
+                        onSelected: (_) => _onDaysFilterChanged(days),
+                        backgroundColor: Colors.white,
+                        selectedColor: AppTheme.dtBlue,
+                        checkmarkColor: Colors.white,
+                        side: BorderSide(
+                          color:
+                              isSelected ? AppTheme.dtBlue : Colors.grey[300]!,
+                        ),
+                      ),
+                    );
+                  }).toList(),
             ),
           ),
           if (_pagination != null)
             Padding(
               padding: EdgeInsets.only(top: ResponsiveSize.getHeight(8)),
               child: Text(
-                '${_pagination!.total} activité${_pagination!.total > 1 ? 's' : ''} trouvée${_pagination!.total > 1 ? 's' : ''}',
+                l10n.activitiesFound(_pagination!.total),
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(12),
                   color: Colors.grey[600],
@@ -274,6 +283,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildLoadingState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -281,7 +291,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           CircularProgressIndicator(color: AppTheme.dtBlue),
           SizedBox(height: ResponsiveSize.getHeight(16)),
           Text(
-            'Chargement de l\'historique...',
+            l10n.historyLoading,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
               color: Colors.grey[600],
@@ -293,6 +303,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildErrorState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(32)),
@@ -306,7 +317,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(16)),
             Text(
-              'Erreur de chargement',
+              l10n.loadingErrorTitle,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
                 fontWeight: FontWeight.bold,
@@ -315,7 +326,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(8)),
             Text(
-              _errorMessage ?? 'Une erreur est survenue',
+              _errorMessage ?? l10n.error,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
@@ -329,7 +340,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 backgroundColor: AppTheme.dtBlue,
                 foregroundColor: Colors.white,
               ),
-              child: Text('Réessayer'),
+              child: Text(l10n.retry),
             ),
           ],
         ),
@@ -338,6 +349,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(32)),
@@ -351,7 +363,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(16)),
             Text(
-              'Aucune activité',
+              l10n.emptyHistoryTitle,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
                 fontWeight: FontWeight.bold,
@@ -360,7 +372,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(8)),
             Text(
-              'Aucune activité trouvée pour la période sélectionnée',
+              l10n.emptyHistoryMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
@@ -385,7 +397,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           if (index == _activities.length) {
             return _buildLoadingMoreIndicator();
           }
-          
+
           final activity = _activities[index];
           return _buildActivityCard(activity);
         },
@@ -426,7 +438,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   padding: EdgeInsets.all(ResponsiveSize.getWidth(8)),
                   decoration: BoxDecoration(
                     color: AppTheme.dtBlue.withOpacityValue(0.1),
-                    borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveSize.getWidth(8),
+                    ),
                   ),
                   child: Icon(
                     _getActionIcon(activity.actionType),
@@ -467,8 +481,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         vertical: ResponsiveSize.getHeight(4),
                       ),
                       decoration: BoxDecoration(
-                        color: _getStatusColor(activity.status).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(12)),
+                        color: _getStatusColor(
+                          activity.status,
+                        ).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveSize.getWidth(12),
+                        ),
                       ),
                       child: Text(
                         activity.status.toUpperCase(),
@@ -481,7 +499,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                     if (activity.amount != null)
                       Padding(
-                        padding: EdgeInsets.only(top: ResponsiveSize.getHeight(4)),
+                        padding: EdgeInsets.only(
+                          top: ResponsiveSize.getHeight(4),
+                        ),
                         child: Text(
                           activity.formattedAmount,
                           style: TextStyle(

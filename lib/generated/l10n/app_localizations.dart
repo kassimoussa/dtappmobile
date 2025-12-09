@@ -605,14 +605,14 @@ abstract class AppLocalizations {
   /// No description provided for @currentBalance.
   ///
   /// In fr, this message translates to:
-  /// **'Solde actuel: {balance} DJF'**
-  String currentBalance(Object balance);
+  /// **'Solde actuel'**
+  String currentBalance(String balance);
 
   /// No description provided for @balanceAfterTransfer.
   ///
   /// In fr, this message translates to:
   /// **'Solde après transfert: {balance} DJF'**
-  String balanceAfterTransfer(Object balance);
+  String balanceAfterTransfer(String balance);
 
   /// No description provided for @transferWarning.
   ///
@@ -636,7 +636,7 @@ abstract class AppLocalizations {
   ///
   /// In fr, this message translates to:
   /// **'Erreur lors du transfert: {error}'**
-  String transferError(Object error);
+  String transferError(String error);
 
   /// No description provided for @transferSuccessTitle.
   ///
@@ -948,13 +948,13 @@ abstract class AppLocalizations {
   ///
   /// In fr, this message translates to:
   /// **'Destinataire : {phone}'**
-  String refillRecipient(Object phone);
+  String refillRecipient(String phone);
 
   /// No description provided for @refillMyNumber.
   ///
   /// In fr, this message translates to:
   /// **'Mon numéro : {phone}'**
-  String refillMyNumber(Object phone);
+  String refillMyNumber(String phone);
 
   /// No description provided for @refillCodeLabel.
   ///
@@ -1002,7 +1002,7 @@ abstract class AppLocalizations {
   ///
   /// In fr, this message translates to:
   /// **'La recharge a été effectuée avec succès pour {phone}'**
-  String refillSuccessMessageGift(Object phone);
+  String refillSuccessMessageGift(String phone);
 
   /// No description provided for @refillSuccessMessageMine.
   ///
@@ -1020,7 +1020,7 @@ abstract class AppLocalizations {
   ///
   /// In fr, this message translates to:
   /// **'Nouveau solde : {balance} DJF'**
-  String refillNewBalance(Object balance);
+  String refillNewBalance(String balance);
 
   /// No description provided for @closeAction.
   ///
@@ -1039,12 +1039,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Recharge pour mon numéro: {phone}'**
   String refillForMyNumberMessage(Object phone);
-
-  /// No description provided for @unexpectedError.
-  ///
-  /// In fr, this message translates to:
-  /// **'Une erreur inattendue est survenue: {error}'**
-  String unexpectedError(Object error);
 
   /// No description provided for @buyAction.
   ///
@@ -1345,6 +1339,612 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Erreur: {error}'**
   String speedTestError(Object error);
+
+  /// No description provided for @agenciesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nos Agences'**
+  String get agenciesTitle;
+
+  /// No description provided for @loadingAgencies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement des agences...'**
+  String get loadingAgencies;
+
+  /// No description provided for @noAgencies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune agence disponible'**
+  String get noAgencies;
+
+  /// No description provided for @call.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appeler'**
+  String get call;
+
+  /// No description provided for @directions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Itinéraire'**
+  String get directions;
+
+  /// No description provided for @openingHours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Horaires d\'ouverture'**
+  String get openingHours;
+
+  /// No description provided for @launchPhoneError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de lancer l\'application téléphone.'**
+  String get launchPhoneError;
+
+  /// No description provided for @invalidPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de téléphone invalide.'**
+  String get invalidPhone;
+
+  /// No description provided for @launchMapError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de lancer Google Maps.'**
+  String get launchMapError;
+
+  /// No description provided for @mapView.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vue carte'**
+  String get mapView;
+
+  /// No description provided for @listView.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vue liste'**
+  String get listView;
+
+  /// No description provided for @subscribe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souscrire'**
+  String get subscribe;
+
+  /// No description provided for @logoutTopUpSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnexion TopUp réussie'**
+  String get logoutTopUpSuccess;
+
+  /// No description provided for @logoutConfirmMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vous déconnecter de la ligne {number} ?'**
+  String logoutConfirmMessage(String number);
+
+  /// No description provided for @manualTest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Test Manuel'**
+  String get manualTest;
+
+  /// No description provided for @batchTest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tests Batch'**
+  String get batchTest;
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copié dans le presse-papiers'**
+  String get copiedToClipboard;
+
+  /// No description provided for @myLineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma ligne'**
+  String get myLineTitle;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get historyTitle;
+
+  /// No description provided for @statisticsTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statistiques'**
+  String get statisticsTooltip;
+
+  /// No description provided for @periodLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période'**
+  String get periodLabel;
+
+  /// No description provided for @daysUnit.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days}j'**
+  String daysUnit(int days);
+
+  /// No description provided for @activitiesFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucune activité trouvée} =1{1 activité trouvée} other{{count} activités trouvées}}'**
+  String activitiesFound(int count);
+
+  /// No description provided for @historyLoading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement de l\'historique...'**
+  String get historyLoading;
+
+  /// No description provided for @historyLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du chargement de l\'historique'**
+  String get historyLoadError;
+
+  /// No description provided for @loadingErrorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de chargement'**
+  String get loadingErrorTitle;
+
+  /// No description provided for @emptyHistoryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune activité'**
+  String get emptyHistoryTitle;
+
+  /// No description provided for @emptyHistoryMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune activité trouvée pour la période sélectionnée'**
+  String get emptyHistoryMessage;
+
+  /// No description provided for @toggleHideDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer les détails'**
+  String get toggleHideDetails;
+
+  /// No description provided for @toggleShowDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher plus de détails'**
+  String get toggleShowDetails;
+
+  /// No description provided for @navHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accueil'**
+  String get navHome;
+
+  /// No description provided for @navHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get navHistory;
+
+  /// No description provided for @navMyLine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma ligne'**
+  String get navMyLine;
+
+  /// No description provided for @historyTransactions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique des transactions'**
+  String get historyTransactions;
+
+  /// No description provided for @comingSoonMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette fonctionnalité sera bientôt disponible.'**
+  String get comingSoonMessage;
+
+  /// No description provided for @ok.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @packageSubscriptionPurchase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat de souscription TopUp'**
+  String get packageSubscriptionPurchase;
+
+  /// No description provided for @packageTopUpPurchase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat de package TopUp'**
+  String get packageTopUpPurchase;
+
+  /// No description provided for @dataSubscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souscription données'**
+  String get dataSubscription;
+
+  /// No description provided for @voiceSubscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souscription voix'**
+  String get voiceSubscription;
+
+  /// No description provided for @dataPackageAddon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Package données additionnel'**
+  String get dataPackageAddon;
+
+  /// No description provided for @voicePackageAddon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Package voix additionnel'**
+  String get voicePackageAddon;
+
+  /// No description provided for @insufficientBalanceError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde insuffisant pour cet achat.'**
+  String get insufficientBalanceError;
+
+  /// No description provided for @subscriptionError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la souscription au package'**
+  String get subscriptionError;
+
+  /// No description provided for @connectionError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de connexion'**
+  String get connectionError;
+
+  /// No description provided for @unexpectedError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur inattendue'**
+  String get unexpectedError;
+
+  /// No description provided for @confirmPurchaseTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmation d\'achat'**
+  String get confirmPurchaseTitle;
+
+  /// No description provided for @packageCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code du package'**
+  String get packageCode;
+
+  /// No description provided for @price.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix'**
+  String get price;
+
+  /// No description provided for @validity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validité'**
+  String get validity;
+
+  /// No description provided for @content.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu'**
+  String get content;
+
+  /// No description provided for @days.
+  ///
+  /// In fr, this message translates to:
+  /// **'jours'**
+  String get days;
+
+  /// No description provided for @balanceAfterPurchase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde après achat'**
+  String get balanceAfterPurchase;
+
+  /// No description provided for @fixedLineRecipient.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ligne fixe destinataire'**
+  String get fixedLineRecipient;
+
+  /// No description provided for @fromMobile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis votre mobile'**
+  String get fromMobile;
+
+  /// No description provided for @confirmPurchaseAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer l\'achat'**
+  String get confirmPurchaseAction;
+
+  /// No description provided for @rechargeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recharger compte fixe'**
+  String get rechargeTitle;
+
+  /// No description provided for @rechargeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recharge de compte'**
+  String get rechargeSubtitle;
+
+  /// No description provided for @rechargeDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transférez du crédit de votre mobile vers votre ligne fixe'**
+  String get rechargeDescription;
+
+  /// No description provided for @mobileSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mobile (source)'**
+  String get mobileSource;
+
+  /// No description provided for @fixedDestination.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fixe (destination)'**
+  String get fixedDestination;
+
+  /// No description provided for @mobileBalanceAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde mobile disponible'**
+  String get mobileBalanceAvailable;
+
+  /// No description provided for @quickAmounts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montants rapides'**
+  String get quickAmounts;
+
+  /// No description provided for @amountToTransfer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant à transférer *'**
+  String get amountToTransfer;
+
+  /// No description provided for @pinCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code PIN (optionnel)'**
+  String get pinCode;
+
+  /// No description provided for @pinDefaultInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si non renseigné, le code par défaut (0000) sera utilisé'**
+  String get pinDefaultInfo;
+
+  /// No description provided for @pinError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code PIN doit contenir 4 chiffres'**
+  String get pinError;
+
+  /// No description provided for @performRecharge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effectuer la recharge'**
+  String get performRecharge;
+
+  /// No description provided for @rechargeError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la recharge'**
+  String get rechargeError;
+
+  /// No description provided for @enterAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez saisir un montant'**
+  String get enterAmount;
+
+  /// No description provided for @invalidAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant invalide'**
+  String get invalidAmount;
+
+  /// No description provided for @minAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant minimum: 100 DJF'**
+  String get minAmount;
+
+  /// No description provided for @maxAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant maximum: 50 000 DJF'**
+  String get maxAmount;
+
+  /// No description provided for @insufficientBalanceGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde insuffisant ({amount} DJF)'**
+  String insufficientBalanceGeneric(String amount);
+
+  /// No description provided for @insufficientBalanceForRecharge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde insuffisant pour cette recharge.'**
+  String get insufficientBalanceForRecharge;
+
+  /// No description provided for @activeSubscriptionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souscription active'**
+  String get activeSubscriptionTitle;
+
+  /// No description provided for @activeSubscriptionMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez déjà une souscription {type} active qui expire le {date}.'**
+  String activeSubscriptionMessage(String type, String date);
+
+  /// No description provided for @replaceSubscriptionWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter une nouvelle souscription remplacera l\'actuelle. Voulez-vous continuer ?'**
+  String get replaceSubscriptionWarning;
+
+  /// No description provided for @buySubscriptionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter une souscription'**
+  String get buySubscriptionTitle;
+
+  /// No description provided for @chooseSubscriptionType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir le type de souscription'**
+  String get chooseSubscriptionType;
+
+  /// No description provided for @checkingActiveSubscriptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification des souscriptions actives...'**
+  String get checkingActiveSubscriptions;
+
+  /// No description provided for @dataType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données'**
+  String get dataType;
+
+  /// No description provided for @voiceType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voix'**
+  String get voiceType;
+
+  /// No description provided for @dataSubscriptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souscriptions Données'**
+  String get dataSubscriptions;
+
+  /// No description provided for @voiceSubscriptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souscriptions Voix'**
+  String get voiceSubscriptions;
+
+  /// No description provided for @subscriptionTypeData.
+  ///
+  /// In fr, this message translates to:
+  /// **'données'**
+  String get subscriptionTypeData;
+
+  /// No description provided for @subscriptionTypeVoice.
+  ///
+  /// In fr, this message translates to:
+  /// **'voix'**
+  String get subscriptionTypeVoice;
+
+  /// No description provided for @statsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statistiques'**
+  String get statsTitle;
+
+  /// No description provided for @analysisPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période d\'analyse'**
+  String get analysisPeriod;
+
+  /// No description provided for @statsOverview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vue d\'ensemble'**
+  String get statsOverview;
+
+  /// No description provided for @totalSpent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total dépensé'**
+  String get totalSpent;
+
+  /// No description provided for @totalActions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actions totales'**
+  String get totalActions;
+
+  /// No description provided for @globalSuccessRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de succès global'**
+  String get globalSuccessRate;
+
+  /// No description provided for @actionDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détail par action'**
+  String get actionDetails;
+
+  /// No description provided for @successful.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réussis'**
+  String get successful;
+
+  /// No description provided for @amount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant'**
+  String get amount;
+
+  /// No description provided for @successRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de succès'**
+  String get successRate;
+
+  /// No description provided for @transferImportantInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations importantes'**
+  String get transferImportantInfo;
+
+  /// No description provided for @transferMinAmountParams.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Montant minimum : 50 DJF'**
+  String get transferMinAmountParams;
+
+  /// No description provided for @transferFeesParams.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Frais de transfert : 5% du montant'**
+  String get transferFeesParams;
+
+  /// No description provided for @transferCurrentBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Votre solde actuel : {balance} DJF'**
+  String transferCurrentBalance(String balance);
 }
 
 class _AppLocalizationsDelegate

@@ -9,6 +9,7 @@ import '../../../services/topup_api_service.dart';
 import '../../../exceptions/topup_exception.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../extensions/color_extensions.dart';
+import '../../../generated/l10n/app_localizations.dart';
 import 'topup_recharge_success_screen.dart';
 
 class TopUpRechargeScreen extends StatefulWidget {
@@ -32,11 +33,11 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _pinController = TextEditingController();
-  
+
   bool _isLoading = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+
   // Montants prédéfinis
   final List<double> _predefinedAmounts = [500, 1000, 2000, 5000, 10000];
 
@@ -52,13 +53,9 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
 
     _animationController.forward();
   }
@@ -76,9 +73,11 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
     if (_isLoading) return;
 
     final amount = double.tryParse(_amountController.text) ?? 0;
-    
+
     if (amount > widget.soldeActuel) {
-      _showErrorMessage('Solde insuffisant pour cette recharge.');
+      _showErrorMessage(
+        AppLocalizations.of(context)!.insufficientBalanceForRecharge,
+      );
       return;
     }
 
@@ -98,7 +97,7 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
 
       if (mounted) {
         final success = response['success'] ?? false;
-        
+
         if (success) {
           // Succès - naviguer vers l'écran de succès
           Navigator.pushReplacement(
@@ -114,22 +113,25 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
             ),
           );
         } else {
-          final errorMessage = response['message'] ?? 'Erreur lors de la recharge';
+          final l10n = AppLocalizations.of(context)!;
+          final errorMessage = response['message'] ?? l10n.rechargeError;
           _showErrorMessage(errorMessage);
         }
       }
     } catch (e) {
       debugPrint('TopUp - Erreur recharge: $e');
-      
+
       if (mounted) {
-        String errorMessage = 'Erreur de connexion';
-        
+        final l10n = AppLocalizations.of(context)!;
+        String errorMessage = l10n.connectionError;
+
         if (e is TopUpException) {
           errorMessage = e.userFriendlyMessage;
         } else {
-          errorMessage = 'Erreur inattendue: ${e.toString().replaceAll('Exception: ', '')}';
+          errorMessage =
+              '${l10n.unexpectedError}: ${e.toString().replaceAll('Exception: ', '')}';
         }
-        
+
         _showErrorMessage(errorMessage);
       }
     } finally {
@@ -170,38 +172,41 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
   }
 
   String? _validateAmount(String? value) {
+    final l10n = AppLocalizations.of(context)!;
     if (value == null || value.isEmpty) {
-      return 'Veuillez saisir un montant';
+      return l10n.enterAmount;
     }
-    
+
     final amount = double.tryParse(value);
     if (amount == null || amount <= 0) {
-      return 'Montant invalide';
+      return l10n.invalidAmount;
     }
-    
+
     if (amount < 100) {
-      return 'Montant minimum: 100 DJF';
+      return l10n.minAmount;
     }
-    
+
     if (amount > 50000) {
-      return 'Montant maximum: 50 000 DJF';
+      return l10n.maxAmount;
     }
-    
+
     if (amount > widget.soldeActuel) {
-      return 'Solde insuffisant (${widget.soldeActuel.toStringAsFixed(0)} DJF)';
+      return l10n.insufficientBalanceGeneric(
+        widget.soldeActuel.toStringAsFixed(0),
+      );
     }
-    
+
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: 'Recharger compte fixe',
+        title: AppLocalizations.of(context)!.rechargeTitle,
         showAction: false,
         showCancelToHome: true,
       ),
@@ -234,14 +239,15 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
   }
 
   Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
       decoration: BoxDecoration(
         color: AppTheme.dtBlue.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-        border: Border.all(
-          color: AppTheme.dtBlue.withOpacityValue(0.3),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
         ),
+        border: Border.all(color: AppTheme.dtBlue.withOpacityValue(0.3)),
       ),
       child: Column(
         children: [
@@ -252,7 +258,7 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
           Text(
-            'Recharge de compte',
+            l10n.rechargeSubtitle,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(20),
               fontWeight: FontWeight.bold,
@@ -261,7 +267,7 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
           Text(
-            'Transférez du crédit de votre mobile vers votre ligne fixe',
+            l10n.rechargeDescription,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(14),
@@ -274,20 +280,26 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
   }
 
   Widget _buildAccountInfo() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       decoration: BoxDecoration(
         color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
+        ),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
         children: [
-          _buildInfoRow('Mobile (source)', widget.mobileNumber),
+          _buildInfoRow(l10n.mobileSource, widget.mobileNumber),
           Divider(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          _buildInfoRow('Fixe (destination)', widget.fixedNumber),
+          _buildInfoRow(l10n.fixedDestination, widget.fixedNumber),
           Divider(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          _buildInfoRow('Solde mobile disponible', '${widget.soldeActuel.toStringAsFixed(0)} DJF'),
+          _buildInfoRow(
+            l10n.mobileBalanceAvailable,
+            '${widget.soldeActuel.toStringAsFixed(0)} DJF',
+          ),
         ],
       ),
     );
@@ -317,11 +329,12 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
   }
 
   Widget _buildPredefinedAmounts() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Montants rapides',
+          l10n.quickAmounts,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
             fontWeight: FontWeight.bold,
@@ -332,46 +345,60 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
         Wrap(
           spacing: ResponsiveSize.getWidth(AppTheme.spacingS),
           runSpacing: ResponsiveSize.getHeight(AppTheme.spacingS),
-          children: _predefinedAmounts.map((amount) {
-            final isAffordable = amount <= widget.soldeActuel;
-            return GestureDetector(
-              onTap: isAffordable ? () {
-                _amountController.text = amount.toStringAsFixed(0);
-              } : null,
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
-                  vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
-                ),
-                decoration: BoxDecoration(
-                  color: isAffordable ? AppTheme.dtYellow.withOpacityValue(0.1) : Colors.grey[200],
-                  borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
-                  border: Border.all(
-                    color: isAffordable ? AppTheme.dtYellow : Colors.grey[400]!,
+          children:
+              _predefinedAmounts.map((amount) {
+                final isAffordable = amount <= widget.soldeActuel;
+                return GestureDetector(
+                  onTap:
+                      isAffordable
+                          ? () {
+                            _amountController.text = amount.toStringAsFixed(0);
+                          }
+                          : null,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
+                      vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          isAffordable
+                              ? AppTheme.dtYellow.withOpacityValue(0.1)
+                              : Colors.grey[200],
+                      borderRadius: BorderRadius.circular(
+                        ResponsiveSize.getWidth(AppTheme.radiusS),
+                      ),
+                      border: Border.all(
+                        color:
+                            isAffordable
+                                ? AppTheme.dtYellow
+                                : Colors.grey[400]!,
+                      ),
+                    ),
+                    child: Text(
+                      '${amount.toStringAsFixed(0)} DJF',
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(14),
+                        fontWeight: FontWeight.w600,
+                        color:
+                            isAffordable ? AppTheme.dtBlue : Colors.grey[600],
+                      ),
+                    ),
                   ),
-                ),
-                child: Text(
-                  '${amount.toStringAsFixed(0)} DJF',
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(14),
-                    fontWeight: FontWeight.w600,
-                    color: isAffordable ? AppTheme.dtBlue : Colors.grey[600],
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
+                );
+              }).toList(),
         ),
       ],
     );
   }
 
   Widget _buildAmountInput() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Montant à transférer *',
+          l10n.amountToTransfer,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
             fontWeight: FontWeight.bold,
@@ -391,10 +418,14 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
             suffixText: 'DJF',
             prefixIcon: Icon(Icons.payments, color: AppTheme.dtBlue),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
+              ),
               borderSide: BorderSide(color: AppTheme.dtBlue, width: 2),
             ),
           ),
@@ -405,11 +436,12 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
   }
 
   Widget _buildPinInput() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Code PIN (optionnel)',
+          l10n.pinCode,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
             fontWeight: FontWeight.bold,
@@ -429,23 +461,27 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
             hintText: '0000',
             prefixIcon: Icon(Icons.lock, color: AppTheme.dtBlue),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
+              ),
               borderSide: BorderSide(color: AppTheme.dtBlue, width: 2),
             ),
           ),
           validator: (value) {
             if (value != null && value.isNotEmpty && value.length != 4) {
-              return 'Le code PIN doit contenir 4 chiffres';
+              return l10n.pinError;
             }
             return null;
           },
         ),
         SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
         Text(
-          'Si non renseigné, le code par défaut (0000) sera utilisé',
+          l10n.pinDefaultInfo,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(12),
             color: Colors.grey[600],
@@ -462,9 +498,7 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
       style: ElevatedButton.styleFrom(
         backgroundColor: AppTheme.dtBlue,
         foregroundColor: AppTheme.dtYellow,
-        padding: EdgeInsets.symmetric(
-          vertical: ResponsiveSize.getHeight(16),
-        ),
+        padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(16)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(
             ResponsiveSize.getWidth(AppTheme.radiusM),
@@ -472,32 +506,30 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
         ),
         elevation: _isLoading ? 0 : 2,
       ),
-      child: _isLoading
-          ? SizedBox(
-              width: ResponsiveSize.getWidth(20),
-              height: ResponsiveSize.getHeight(20),
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtYellow),
-              ),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.send,
-                  size: ResponsiveSize.getFontSize(18),
+      child:
+          _isLoading
+              ? SizedBox(
+                width: ResponsiveSize.getWidth(20),
+                height: ResponsiveSize.getHeight(20),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtYellow),
                 ),
-                SizedBox(width: ResponsiveSize.getWidth(8)),
-                Text(
-                  'Effectuer la recharge',
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(16),
-                    fontWeight: FontWeight.bold,
+              )
+              : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.send, size: ResponsiveSize.getFontSize(18)),
+                  SizedBox(width: ResponsiveSize.getWidth(8)),
+                  Text(
+                    AppLocalizations.of(context)!.performRecharge,
+                    style: TextStyle(
+                      fontSize: ResponsiveSize.getFontSize(16),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
     );
   }
 }

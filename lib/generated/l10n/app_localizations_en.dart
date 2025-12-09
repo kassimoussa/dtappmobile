@@ -272,12 +272,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dateKey => 'Date';
 
   @override
-  String currentBalance(Object balance) {
-    return 'Current Balance: $balance DJF';
+  String currentBalance(String balance) {
+    return 'Current Balance';
   }
 
   @override
-  String balanceAfterTransfer(Object balance) {
+  String balanceAfterTransfer(String balance) {
     return 'Balance after transfer: $balance DJF';
   }
 
@@ -292,7 +292,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authFailed => 'Authentication failed';
 
   @override
-  String transferError(Object error) {
+  String transferError(String error) {
     return 'Error during transfer: $error';
   }
 
@@ -464,12 +464,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get refillMyCredit => 'Refill My Credit';
 
   @override
-  String refillRecipient(Object phone) {
+  String refillRecipient(String phone) {
     return 'Recipient: $phone';
   }
 
   @override
-  String refillMyNumber(Object phone) {
+  String refillMyNumber(String phone) {
     return 'My Number: $phone';
   }
 
@@ -496,7 +496,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get refillSuccessTitle => 'Refill Successful!';
 
   @override
-  String refillSuccessMessageGift(Object phone) {
+  String refillSuccessMessageGift(String phone) {
     return 'Refill was successful for $phone';
   }
 
@@ -508,7 +508,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get refillAmount => 'Refilled Amount';
 
   @override
-  String refillNewBalance(Object balance) {
+  String refillNewBalance(String balance) {
     return 'New Balance: $balance DJF';
   }
 
@@ -523,11 +523,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String refillForMyNumberMessage(Object phone) {
     return 'Refill for my number: $phone';
-  }
-
-  @override
-  String unexpectedError(Object error) {
-    return 'An unexpected error occurred: $error';
   }
 
   @override
@@ -725,5 +720,331 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String speedTestError(Object error) {
     return 'Error: $error';
+  }
+
+  @override
+  String get agenciesTitle => 'Our Agencies';
+
+  @override
+  String get loadingAgencies => 'Loading agencies...';
+
+  @override
+  String get noAgencies => 'No agencies available';
+
+  @override
+  String get call => 'Call';
+
+  @override
+  String get directions => 'Directions';
+
+  @override
+  String get openingHours => 'Opening Hours';
+
+  @override
+  String get launchPhoneError => 'Could not launch phone app.';
+
+  @override
+  String get invalidPhone => 'Invalid phone number.';
+
+  @override
+  String get launchMapError => 'Could not launch Google Maps.';
+
+  @override
+  String get mapView => 'Map view';
+
+  @override
+  String get listView => 'List view';
+
+  @override
+  String get subscribe => 'Subscribe';
+
+  @override
+  String get logoutTopUpSuccess => 'TopUp logout successful';
+
+  @override
+  String logoutConfirmMessage(String number) {
+    return 'Do you want to log out from line $number?';
+  }
+
+  @override
+  String get manualTest => 'Manual Test';
+
+  @override
+  String get batchTest => 'Batch Tests';
+
+  @override
+  String get copiedToClipboard => 'Copied to clipboard';
+
+  @override
+  String get myLineTitle => 'My Line';
+
+  @override
+  String get historyTitle => 'History';
+
+  @override
+  String get statisticsTooltip => 'Statistics';
+
+  @override
+  String get periodLabel => 'Period';
+
+  @override
+  String daysUnit(int days) {
+    return '${days}d';
+  }
+
+  @override
+  String activitiesFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count activities found',
+      one: '1 activity found',
+      zero: 'No activity found',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get historyLoading => 'Loading history...';
+
+  @override
+  String get historyLoadError => 'Error loading history';
+
+  @override
+  String get loadingErrorTitle => 'Loading Error';
+
+  @override
+  String get emptyHistoryTitle => 'No activity';
+
+  @override
+  String get emptyHistoryMessage => 'No activity found for the selected period';
+
+  @override
+  String get toggleHideDetails => 'Hide details';
+
+  @override
+  String get toggleShowDetails => 'Show details';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navHistory => 'History';
+
+  @override
+  String get navMyLine => 'My Line';
+
+  @override
+  String get historyTransactions => 'Transaction History';
+
+  @override
+  String get comingSoonMessage => 'This feature will be available soon.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get packageSubscriptionPurchase => 'TopUp Subscription Purchase';
+
+  @override
+  String get packageTopUpPurchase => 'TopUp Package Purchase';
+
+  @override
+  String get dataSubscription => 'Data Subscription';
+
+  @override
+  String get voiceSubscription => 'Voice Subscription';
+
+  @override
+  String get dataPackageAddon => 'Data Package Add-on';
+
+  @override
+  String get voicePackageAddon => 'Voice Package Add-on';
+
+  @override
+  String get insufficientBalanceError =>
+      'Insufficient balance for this purchase.';
+
+  @override
+  String get subscriptionError => 'Error subscribing to package';
+
+  @override
+  String get connectionError => 'Connection error';
+
+  @override
+  String get unexpectedError => 'Unexpected error';
+
+  @override
+  String get confirmPurchaseTitle => 'Confirm Purchase';
+
+  @override
+  String get packageCode => 'Package Code';
+
+  @override
+  String get price => 'Price';
+
+  @override
+  String get validity => 'Validity';
+
+  @override
+  String get content => 'Content';
+
+  @override
+  String get days => 'days';
+
+  @override
+  String get balanceAfterPurchase => 'Balance after purchase';
+
+  @override
+  String get fixedLineRecipient => 'Recipient Fixed Line';
+
+  @override
+  String get fromMobile => 'From your mobile';
+
+  @override
+  String get confirmPurchaseAction => 'Confirm Purchase';
+
+  @override
+  String get rechargeTitle => 'Refill Fixed Account';
+
+  @override
+  String get rechargeSubtitle => 'Account Refill';
+
+  @override
+  String get rechargeDescription =>
+      'Transfer credit from your mobile to your fixed line';
+
+  @override
+  String get mobileSource => 'Mobile (source)';
+
+  @override
+  String get fixedDestination => 'Fixed (destination)';
+
+  @override
+  String get mobileBalanceAvailable => 'Available mobile balance';
+
+  @override
+  String get quickAmounts => 'Quick Amounts';
+
+  @override
+  String get amountToTransfer => 'Amount to transfer *';
+
+  @override
+  String get pinCode => 'PIN Code (optional)';
+
+  @override
+  String get pinDefaultInfo => 'If empty, default code (0000) will be used';
+
+  @override
+  String get pinError => 'PIN code must contain 4 digits';
+
+  @override
+  String get performRecharge => 'Refill Account';
+
+  @override
+  String get rechargeError => 'Error during refill';
+
+  @override
+  String get enterAmount => 'Please enter an amount';
+
+  @override
+  String get invalidAmount => 'Invalid amount';
+
+  @override
+  String get minAmount => 'Minimum amount: 100 DJF';
+
+  @override
+  String get maxAmount => 'Maximum amount: 50 000 DJF';
+
+  @override
+  String insufficientBalanceGeneric(String amount) {
+    return 'Insufficient balance ($amount DJF)';
+  }
+
+  @override
+  String get insufficientBalanceForRecharge =>
+      'Insufficient balance for this refill.';
+
+  @override
+  String get activeSubscriptionTitle => 'Active Subscription';
+
+  @override
+  String activeSubscriptionMessage(String type, String date) {
+    return 'You already have an active $type subscription expiring on $date.';
+  }
+
+  @override
+  String get replaceSubscriptionWarning =>
+      'Buying a new subscription will replace the current one. Do you want to continue?';
+
+  @override
+  String get buySubscriptionTitle => 'Buy Subscription';
+
+  @override
+  String get chooseSubscriptionType => 'Choose Subscription Type';
+
+  @override
+  String get checkingActiveSubscriptions => 'Checking active subscriptions...';
+
+  @override
+  String get dataType => 'Data';
+
+  @override
+  String get voiceType => 'Voice';
+
+  @override
+  String get dataSubscriptions => 'Data Subscriptions';
+
+  @override
+  String get voiceSubscriptions => 'Voice Subscriptions';
+
+  @override
+  String get subscriptionTypeData => 'data';
+
+  @override
+  String get subscriptionTypeVoice => 'voice';
+
+  @override
+  String get statsTitle => 'Statistics';
+
+  @override
+  String get analysisPeriod => 'Analysis Period';
+
+  @override
+  String get statsOverview => 'Overview';
+
+  @override
+  String get totalSpent => 'Total Spent';
+
+  @override
+  String get totalActions => 'Total Actions';
+
+  @override
+  String get globalSuccessRate => 'Global Success Rate';
+
+  @override
+  String get actionDetails => 'Details by Action';
+
+  @override
+  String get successful => 'Successful';
+
+  @override
+  String get amount => 'Amount';
+
+  @override
+  String get successRate => 'Success Rate';
+
+  @override
+  String get transferImportantInfo => 'Important Information';
+
+  @override
+  String get transferMinAmountParams => '• Minimum amount: 50 DJF';
+
+  @override
+  String get transferFeesParams => '• Transfer fees: 5% of amount';
+
+  @override
+  String transferCurrentBalance(String balance) {
+    return '• Your current balance: $balance DJF';
   }
 }

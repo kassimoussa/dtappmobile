@@ -182,7 +182,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
               Icon(Icons.info_outline, color: AppTheme.dtBlue, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Informations importantes',
+                AppLocalizations.of(context)!.transferImportantInfo,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.dtBlue,
@@ -192,9 +192,9 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            '• Montant minimum : 50 DJF\n'
-            '• Frais de transfert : 5% du montant\n'
-            '• Votre solde actuel : ${balanceProvider.solde.toStringAsFixed(0)} DJF',
+            '${AppLocalizations.of(context)!.transferMinAmountParams}\n'
+            '${AppLocalizations.of(context)!.transferFeesParams}\n'
+            '${AppLocalizations.of(context)!.transferCurrentBalance(balanceProvider.solde.toStringAsFixed(0))}',
             style: TextStyle(color: AppTheme.dtBlue, fontSize: 14),
           ),
         ],

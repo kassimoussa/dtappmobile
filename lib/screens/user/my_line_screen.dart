@@ -9,7 +9,8 @@ import 'package:dtservices/widgets/fixed_line_info_card.dart';
 import 'package:dtservices/widgets/fixed_line_input.dart';
 import 'package:dtservices/widgets/line_info_header.dart';
 import 'package:dtservices/widgets/packages_section.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class MyLineScreen extends StatefulWidget {
   final String phoneNumber;
@@ -23,11 +24,12 @@ class MyLineScreen extends StatefulWidget {
 class _MyLineScreenState extends State<MyLineScreen> {
   final int _currentNavIndex = 2;
   // Couleurs de Djibouti Telecom
-  final Color djiboutiYellow = const Color(0xFFF7C700); 
-  
+  final Color djiboutiYellow = const Color(0xFFF7C700);
+
   String? _fixedLineNumber;
   bool _isFixedLineEntered = false;
-  bool _showAllSections = false; // Toggle pour afficher/masquer certaines sections
+  bool _showAllSections =
+      false; // Toggle pour afficher/masquer certaines sections
 
   void _setFixedLineNumber(String number) {
     setState(() {
@@ -53,7 +55,10 @@ class _MyLineScreenState extends State<MyLineScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Ma ligne', style: TextStyle(color: Colors.white)),
+        title: Text(
+          AppLocalizations.of(context)!.myLineTitle,
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: AppTheme.dtBlue,
         automaticallyImplyLeading: false,
         actions: [
@@ -71,13 +76,13 @@ class _MyLineScreenState extends State<MyLineScreen> {
           children: [
             // En-tête avec informations du téléphone
             LineInfoHeader(phoneNumber: widget.phoneNumber),
-            
+
             const SizedBox(height: 16),
-            
+
             // Affichage conditionnel basé sur la saisie du numéro fixe
             if (!_isFixedLineEntered)
               FixedLineInput(onSubmit: _setFixedLineNumber)
-            else 
+            else
               Column(
                 children: [
                   // Informations de la ligne fixe
@@ -85,17 +90,17 @@ class _MyLineScreenState extends State<MyLineScreen> {
                     fixedLineNumber: _fixedLineNumber ?? '',
                     onEdit: _resetFixedLineNumber,
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Solde et bouton de recharge
                   const BalanceCard(),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Toggle pour afficher/masquer plus de sections
                   _buildToggle(),
-                  
+
                   // Sections supplémentaires qui peuvent être masquées
                   if (_showAllSections) ...[
                     const SizedBox(height: 16),
@@ -116,6 +121,7 @@ class _MyLineScreenState extends State<MyLineScreen> {
   }
 
   Widget _buildToggle() {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: _toggleSectionsVisibility,
       child: Container(
@@ -136,14 +142,18 @@ class _MyLineScreenState extends State<MyLineScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              _showAllSections ? 'Masquer les détails' : 'Afficher plus de détails',
+              _showAllSections
+                  ? l10n.toggleHideDetails
+                  : l10n.toggleShowDetails,
               style: TextStyle(
                 color: AppTheme.dtBlue,
                 fontWeight: FontWeight.w500,
               ),
             ),
             Icon(
-              _showAllSections ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+              _showAllSections
+                  ? Icons.keyboard_arrow_up
+                  : Icons.keyboard_arrow_down,
               color: AppTheme.dtBlue,
             ),
           ],
@@ -153,6 +163,7 @@ class _MyLineScreenState extends State<MyLineScreen> {
   }
 
   BottomNavigationBar _buildBottomNavigationBar() {
+    final l10n = AppLocalizations.of(context)!;
     return BottomNavigationBar(
       currentIndex: _currentNavIndex, // Indice 2 pour la page Ma ligne
       type: BottomNavigationBarType.fixed,
@@ -167,28 +178,35 @@ class _MyLineScreenState extends State<MyLineScreen> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomeScreen(/* phoneNumber: widget.phoneNumber */) ,
+              builder:
+                  (context) =>
+                      HomeScreen(/* phoneNumber: widget.phoneNumber */),
             ),
           );
-        } else if (index == 1) { 
-            // Historique
-            _showComingSoonDialog('Historique des transactions');
+        } else if (index == 1) {
+          // Historique
+          _showComingSoonDialog(l10n.historyTransactions);
         }
       },
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Accueil'),
+      items: [
         BottomNavigationBarItem(
-          icon: Icon(Icons.description_outlined),
-          label: 'Historique',
+          icon: const Icon(Icons.grid_view),
+          label: l10n.navHome,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline_rounded),
-          label: 'Ma ligne',
+          icon: const Icon(Icons.description_outlined),
+          label: l10n.navHistory,
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.person_outline_rounded),
+          label: l10n.navMyLine,
         ),
       ],
     );
   }
-void _showComingSoonDialog(String feature) {
+
+  void _showComingSoonDialog(String feature) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder:
@@ -202,14 +220,14 @@ void _showComingSoonDialog(String feature) {
               ),
             ),
             content: Text(
-              'Cette fonctionnalité sera bientôt disponible.',
+              l10n.comingSoonMessage,
               style: TextStyle(fontSize: ResponsiveSize.getFontSize(16)),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  'OK',
+                  l10n.ok,
                   style: TextStyle(
                     color: AppTheme.dtBlue,
                     fontSize: ResponsiveSize.getFontSize(16),

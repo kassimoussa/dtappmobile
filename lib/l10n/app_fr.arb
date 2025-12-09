@@ -102,11 +102,32 @@
     "totalDebit": "Total à débiter",
     "dateKey": "Date",
     "currentBalance": "Solde actuel: {balance} DJF",
+    "@currentBalance": {
+      "placeholders": {
+        "balance": {
+          "type": "String"
+        }
+      }
+    },
     "balanceAfterTransfer": "Solde après transfert: {balance} DJF",
+    "@balanceAfterTransfer": {
+      "placeholders": {
+        "balance": {
+          "type": "String"
+        }
+      }
+    },
     "transferWarning": "Ce transfert est immédiat et irréversible. Vérifiez bien le numéro du destinataire.",
     "cancelAction": "Annuler",
     "authFailed": "Authentification échouée",
     "transferError": "Erreur lors du transfert: {error}",
+    "@transferError": {
+      "placeholders": {
+        "error": {
+          "type": "String"
+        }
+      }
+    },
     "transferSuccessTitle": "Transfert réussi",
     "transferSuccessMessage": "Votre crédit a été transféré avec succès vers {recipient}",
     "transferedAmount": "Montant transféré",
@@ -160,7 +181,21 @@
     "refillGiftTitle": "Recharge cadeau",
     "refillMyCredit": "Recharger mon crédit",
     "refillRecipient": "Destinataire : {phone}",
+    "@refillRecipient": {
+      "placeholders": {
+        "phone": {
+          "type": "String"
+        }
+      }
+    },
     "refillMyNumber": "Mon numéro : {phone}",
+    "@refillMyNumber": {
+      "placeholders": {
+        "phone": {
+          "type": "String"
+        }
+      }
+    },
     "refillCodeLabel": "Code de recharge",
     "refillCodeLengthError": "Le code doit contenir exactement 12 chiffres",
     "refillCodeDigitError": "Le code ne doit contenir que des chiffres",
@@ -169,13 +204,27 @@
     "confirmRefill": "Confirmer la recharge",
     "refillSuccessTitle": "Recharge réussie !",
     "refillSuccessMessageGift": "La recharge a été effectuée avec succès pour {phone}",
+    "@refillSuccessMessageGift": {
+      "placeholders": {
+        "phone": {
+          "type": "String"
+        }
+      }
+    },
     "refillSuccessMessageMine": "Votre crédit a été rechargé avec succès",
     "refillAmount": "Montant rechargé",
     "refillNewBalance": "Nouveau solde : {balance} DJF",
+    "@refillNewBalance": {
+      "placeholders": {
+        "balance": {
+          "type": "String"
+        }
+      }
+    },
     "closeAction": "Fermer",
     "refillFor": "Recharge pour {phone}",
     "refillForMyNumberMessage": "Recharge pour mon numéro: {phone}",
-    "unexpectedError": "Une erreur inattendue est survenue: {error}",
+
     "buyAction": "Acheter",
     "insufficientBalanceSimple": "Solde insuffisant",
     "insufficientBalanceForPurchase": "Solde insuffisant pour cet achat.",
@@ -226,5 +275,162 @@
     "downloadLabel": "Download",
     "uploadLabel": "Upload",
     "pingLabel": "Ping",
-    "speedTestError": "Erreur: {error}"
+    "speedTestError": "Erreur: {error}",
+    "agenciesTitle": "Nos Agences",
+    "loadingAgencies": "Chargement des agences...",
+    "noAgencies": "Aucune agence disponible",
+    "call": "Appeler",
+    "directions": "Itinéraire",
+    "openingHours": "Horaires d'ouverture",
+    "launchPhoneError": "Impossible de lancer l'application téléphone.",
+    "invalidPhone": "Numéro de téléphone invalide.",
+    "launchMapError": "Impossible de lancer Google Maps.",
+    "mapView": "Vue carte",
+    "listView": "Vue liste",
+    "subscribe": "Souscrire",
+    "logoutTopUpSuccess": "Déconnexion TopUp réussie",
+    "logoutConfirmMessage": "Voulez-vous vous déconnecter de la ligne {number} ?",
+    "@logoutConfirmMessage": {
+      "placeholders": {
+        "number": {
+          "type": "String"
+        }
+      }
+    },
+    "manualTest": "Test Manuel",
+    "batchTest": "Tests Batch",
+    "copiedToClipboard": "Copié dans le presse-papiers",
+    "myLineTitle": "Ma ligne",
+    "historyTitle": "Historique",
+    "statisticsTooltip": "Statistiques",
+    "periodLabel": "Période",
+    "daysUnit": "{days}j",
+    "@daysUnit": {
+      "placeholders": {
+        "days": {
+          "type": "int"
+        }
+      }
+    },
+    "activitiesFound": "{count, plural, =0{Aucune activité trouvée} =1{1 activité trouvée} other{{count} activités trouvées}}",
+    "@activitiesFound": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "historyLoading": "Chargement de l'historique...",
+    "historyLoadError": "Erreur lors du chargement de l'historique",
+    "loadingErrorTitle": "Erreur de chargement",
+    "emptyHistoryTitle": "Aucune activité",
+    "emptyHistoryMessage": "Aucune activité trouvée pour la période sélectionnée",
+    
+    "toggleHideDetails": "Masquer les détails",
+    "toggleShowDetails": "Afficher plus de détails",
+    "navHome": "Accueil",
+    "navHistory": "Historique",
+    "navMyLine": "Ma ligne",
+    "historyTransactions": "Historique des transactions",
+    "comingSoonMessage": "Cette fonctionnalité sera bientôt disponible.",
+    "ok": "OK",
+    
+    "packageSubscriptionPurchase": "Achat de souscription TopUp",
+    "packageTopUpPurchase": "Achat de package TopUp",
+    "dataSubscription": "Souscription données",
+    "voiceSubscription": "Souscription voix",
+    "dataPackageAddon": "Package données additionnel",
+    "voicePackageAddon": "Package voix additionnel",
+    "insufficientBalanceError": "Solde insuffisant pour cet achat.",
+    "subscriptionError": "Erreur lors de la souscription au package",
+    "connectionError": "Erreur de connexion",
+    "unexpectedError": "Erreur inattendue",
+    "confirmPurchaseTitle": "Confirmation d'achat",
+    "packageCode": "Code du package",
+    "price": "Prix",
+    "validity": "Validité",
+    "content": "Contenu",
+    "days": "jours",
+    "currentBalance": "Solde actuel",
+    "balanceAfterPurchase": "Solde après achat",
+    "lowBalanceWarning": "Solde faible après achat",
+    "fixedLineRecipient": "Ligne fixe destinataire",
+    "fromMobile": "Depuis votre mobile",
+    "confirmPurchaseAction": "Confirmer l'achat",
+    
+    "rechargeTitle": "Recharger compte fixe",
+    "rechargeSubtitle": "Recharge de compte",
+    "rechargeDescription": "Transférez du crédit de votre mobile vers votre ligne fixe",
+    "mobileSource": "Mobile (source)",
+    "fixedDestination": "Fixe (destination)",
+    "mobileBalanceAvailable": "Solde mobile disponible",
+    "quickAmounts": "Montants rapides",
+    "amountToTransfer": "Montant à transférer *",
+    "pinCode": "Code PIN (optionnel)",
+    "pinDefaultInfo": "Si non renseigné, le code par défaut (0000) sera utilisé",
+    "pinError": "Le code PIN doit contenir 4 chiffres",
+    "performRecharge": "Effectuer la recharge",
+    "rechargeError": "Erreur lors de la recharge",
+    "enterAmount": "Veuillez saisir un montant",
+    "invalidAmount": "Montant invalide",
+    "minAmount": "Montant minimum: 100 DJF",
+    "maxAmount": "Montant maximum: 50 000 DJF",
+    "insufficientBalanceGeneric": "Solde insuffisant ({amount} DJF)",
+    "@insufficientBalanceGeneric": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        }
+      }
+    },
+    "insufficientBalanceForRecharge": "Solde insuffisant pour cette recharge.",
+    
+    "activeSubscriptionTitle": "Souscription active",
+    "activeSubscriptionMessage": "Vous avez déjà une souscription {type} active qui expire le {date}.",
+    "@activeSubscriptionMessage": {
+      "placeholders": {
+        "type": {
+          "type": "String"
+        },
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "replaceSubscriptionWarning": "Acheter une nouvelle souscription remplacera l'actuelle. Voulez-vous continuer ?",
+    "buySubscriptionTitle": "Acheter une souscription",
+    "chooseSubscriptionType": "Choisir le type de souscription",
+    "checkingActiveSubscriptions": "Vérification des souscriptions actives...",
+    "dataType": "Données",
+    "voiceType": "Voix",
+    "dataSubscriptions": "Souscriptions Données",
+    "voiceSubscriptions": "Souscriptions Voix",
+    "continueAction": "Continuer",
+    "subscriptionTypeData": "données",
+    "subscriptionTypeData": "données",
+    "subscriptionTypeVoice": "voix",
+
+    "statsTitle": "Statistiques",
+    "analysisPeriod": "Période d'analyse",
+    "statsOverview": "Vue d'ensemble",
+    "totalSpent": "Total dépensé",
+    "totalActions": "Actions totales",
+    "globalSuccessRate": "Taux de succès global",
+    "actionDetails": "Détail par action",
+    "total": "Total",
+    "successful": "Réussis",
+    "amount": "Montant",
+    "successRate": "Taux de succès",
+    
+    "transferImportantInfo": "Informations importantes",
+    "transferMinAmountParams": "• Montant minimum : 50 DJF",
+    "transferFeesParams": "• Frais de transfert : 5% du montant",
+    "transferCurrentBalance": "• Votre solde actuel : {balance} DJF",
+    "@transferCurrentBalance": {
+      "placeholders": {
+         "balance": {
+           "type": "String"
+         }
+      }
+    }
 }
