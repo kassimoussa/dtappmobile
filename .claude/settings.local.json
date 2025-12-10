@@ -6,7 +6,8 @@
       "Bash(git mv:*)",
       "Bash(tree:*)",
       "Bash(find:*)",
-      "Bash({} +)"
+      "Bash({} +)",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []

@@ -9,6 +9,7 @@ import '../../providers/auth_provider.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../extensions/color_extensions.dart';
 import 'otp_screen.dart';
+import 'pin/pin_login_screen.dart';
 import '../../generated/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -416,6 +417,90 @@ class _LoginScreenState extends State<LoginScreen>
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+            ),
+
+            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+
+            // Divider avec "OU"
+            Row(
+              children: [
+                Expanded(
+                  child: Divider(
+                    color: Colors.grey[400],
+                    thickness: 1,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
+                  ),
+                  child: Text(
+                    'OU',
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: ResponsiveSize.getFontSize(14),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Divider(
+                    color: Colors.grey[400],
+                    thickness: 1,
+                  ),
+                ),
+              ],
+            ),
+
+            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+
+            // Bouton connexion avec PIN
+            OutlinedButton(
+              onPressed: authProvider.isLoading
+                  ? null
+                  : () {
+                      if (_formKey.currentState!.validate()) {
+                        String phoneNumber = _phoneController.text.trim();
+                        Navigator.of(context).push(
+                          CustomRouteTransitions.fadeScaleRoute(
+                            page: PinLoginScreen(phoneNumber: phoneNumber),
+                          ),
+                        );
+                      }
+                    },
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(
+                  color: AppTheme.dtBlue,
+                  width: 2,
+                ),
+                padding: EdgeInsets.symmetric(
+                  vertical: ResponsiveSize.getHeight(18),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveSize.getWidth(AppTheme.radiusM),
+                  ),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.pin_outlined,
+                    color: AppTheme.dtBlue,
+                    size: ResponsiveSize.getFontSize(20),
+                  ),
+                  SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+                  Text(
+                    'Se connecter avec PIN',
+                    style: TextStyle(
+                      fontSize: ResponsiveSize.getFontSize(16),
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.dtBlue,
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),

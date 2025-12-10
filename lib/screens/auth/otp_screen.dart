@@ -9,6 +9,7 @@ import '../../utils/responsive_size.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../providers/auth_provider.dart';
 import '../core/main_screen.dart';
+import 'pin/pin_setup_screen.dart';
 import '../../generated/l10n/app_localizations.dart';
 
 class OTPScreen extends StatefulWidget {
@@ -153,6 +154,107 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
     }
   }
 
+  void _showPinSetupDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              ResponsiveSize.getWidth(AppTheme.radiusM),
+            ),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.lock_outline,
+                color: AppTheme.dtBlue,
+                size: ResponsiveSize.getFontSize(28),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+              Expanded(
+                child: Text(
+                  'Configurer un code PIN',
+                  style: TextStyle(
+                    fontSize: ResponsiveSize.getFontSize(20),
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Voulez-vous créer un code PIN pour vous connecter plus rapidement la prochaine fois ?',
+            style: TextStyle(
+              fontSize: ResponsiveSize.getFontSize(16),
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fermer le dialog
+                Navigator.of(context).pushAndRemoveUntil(
+                  CustomRouteTransitions.fadeScaleRoute(page: const MainScreen()),
+                  (route) => false,
+                );
+              },
+              child: Text(
+                'Plus tard',
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: ResponsiveSize.getFontSize(16),
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fermer le dialog
+                Navigator.of(context).push(
+                  CustomRouteTransitions.fadeScaleRoute(
+                    page: PinSetupScreen(
+                      onPinSet: () {
+                        // Après configuration du PIN, aller vers MainScreen
+                        Navigator.of(context).pushAndRemoveUntil(
+                          CustomRouteTransitions.fadeScaleRoute(
+                            page: const MainScreen(),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.dtBlue,
+                foregroundColor: AppTheme.dtYellow,
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
+                  vertical: ResponsiveSize.getHeight(12),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveSize.getWidth(AppTheme.radiusM),
+                  ),
+                ),
+              ),
+              child: Text(
+                'Configurer',
+                style: TextStyle(
+                  fontSize: ResponsiveSize.getFontSize(16),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _onOTPSubmit() async {
     String otp = _controllers.map((c) => c.text).join();
     if (otp.length == 6) {
@@ -164,11 +266,8 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
       if (!mounted) return;
 
       if (success) {
-        // Succès - Naviguer vers MainScreen
-        Navigator.of(context).pushAndRemoveUntil(
-          CustomRouteTransitions.fadeScaleRoute(page: const MainScreen()),
-          (route) => false,
-        );
+        // Succès - Proposer configuration PIN puis naviguer vers MainScreen
+        _showPinSetupDialog();
       } else {
         // Échec - Afficher erreur
         setState(() {

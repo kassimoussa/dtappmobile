@@ -104,8 +104,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _loadMoreHistory() async {
-    if (_isLoadingMore || _pagination == null || !_pagination!.hasNextPage)
+    if (_isLoadingMore || _pagination == null || !_pagination!.hasNextPage) {
       return;
+    }
 
     setState(() {
       _isLoadingMore = true;

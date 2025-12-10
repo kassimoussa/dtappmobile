@@ -4,6 +4,7 @@ import '../services/user_session.dart';
 import '../services/otp_service.dart';
 import '../services/logout_service.dart';
 import '../services/fcm_token_service.dart';
+import '../services/pin_service.dart';
 
 /// Provider pour gérer l'état d'authentification et la session utilisateur
 /// Centralise toute la logique d'auth (login, logout, session management)
@@ -27,6 +28,21 @@ class AuthProvider extends ChangeNotifier {
 
   /// Message d'erreur lors des opérations d'auth
   String? _errorMessage;
+
+  /// Code d'erreur spécifique (pour PIN)
+  String? _errorCode;
+
+  /// Tentatives restantes (pour PIN incorrect)
+  int? _remainingAttempts;
+
+  /// Timestamp de verrouillage (pour compte verrouillé)
+  String? _lockedUntil;
+
+  /// Secondes restantes avant déverrouillage
+  int? _remainingSeconds;
+
+  /// Erreurs de validation (pour formulaires PIN)
+  Map<String, dynamic>? _validationErrors;
 
   /// Service OTP
   final _otpService = OtpService();
@@ -56,6 +72,21 @@ class AuthProvider extends ChangeNotifier {
 
   /// Message d'erreur
   String? get errorMessage => _errorMessage;
+
+  /// Code d'erreur spécifique
+  String? get errorCode => _errorCode;
+
+  /// Tentatives restantes (pour erreurs PIN)
+  int? get remainingAttempts => _remainingAttempts;
+
+  /// Timestamp de verrouillage
+  String? get lockedUntil => _lockedUntil;
+
+  /// Secondes restantes avant déverrouillage
+  int? get remainingSeconds => _remainingSeconds;
+
+  /// Erreurs de validation
+  Map<String, dynamic>? get validationErrors => _validationErrors;
 
   /// Date de création de session
   DateTime? get sessionCreatedAt => _sessionCreatedAt;
@@ -216,6 +247,228 @@ class AuthProvider extends ChangeNotifier {
     debugPrint('AuthProvider: Session créée - Phone: $phoneNumber, Token: ${sessionToken?.substring(0, 10)}...');
   }
 
+  // ==================== Authentification PIN ====================
+
+  /// Connexion avec code PIN (alternative à l'OTP)
+  ///
+  /// Retourne true si la connexion réussit, false sinon
+  /// Les erreurs spécifiques sont accessibles via errorMessage et errorCode
+  Future<bool> loginWithPin(String phoneNumber, String pin) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _errorCode = null;
+    notifyListeners();
+
+    try {
+      debugPrint('AuthProvider: Connexion PIN pour $phoneNumber');
+
+      final result = await PinService.loginWithPin(
+        phoneNumber: phoneNumber,
+        pin: pin,
+      );
+
+      if (result['status'] == 'success') {
+        // Extraire les données de la réponse
+        final data = result['data'];
+        final sessionToken = data?['session_token'];
+
+        // Créer la session
+        await _createSession(phoneNumber, sessionToken);
+
+        // Envoyer le token FCM
+        try {
+          await FCMTokenService.updateTokenOnServer();
+          debugPrint('AuthProvider: Token FCM envoyé au serveur');
+        } catch (fcmError) {
+          debugPrint('AuthProvider: Erreur FCM (non bloquant): $fcmError');
+        }
+
+        debugPrint('AuthProvider: ✅ Connexion PIN réussie');
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        // Gérer les différentes erreurs
+        _errorMessage = result['message'];
+        _errorCode = result['error_code'];
+
+        // Données additionnelles selon le type d'erreur
+        if (result['error_code'] == 'invalid_pin') {
+          _remainingAttempts = result['data']?['remaining_attempts'];
+        } else if (result['error_code'] == 'account_locked') {
+          _lockedUntil = result['data']?['locked_until'];
+          _remainingSeconds = result['data']?['remaining_seconds'];
+        }
+
+        debugPrint('AuthProvider: ❌ Erreur connexion PIN: ${result['error_code']}');
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      debugPrint('AuthProvider: Erreur connexion PIN: $e');
+      _errorMessage = 'Une erreur est survenue lors de la connexion';
+      _errorCode = 'exception';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Configure le PIN pour la première fois
+  ///
+  /// Nécessite une session active (après connexion OTP)
+  /// Retourne true si la configuration réussit
+  Future<bool> setPin(String pin, String pinConfirmation) async {
+    if (_sessionToken == null) {
+      _errorMessage = 'Aucune session active';
+      _errorCode = 'no_session';
+      notifyListeners();
+      return false;
+    }
+
+    _isLoading = true;
+    _errorMessage = null;
+    _errorCode = null;
+    notifyListeners();
+
+    try {
+      debugPrint('AuthProvider: Configuration du PIN');
+
+      final result = await PinService.setPin(
+        sessionToken: _sessionToken!,
+        pin: pin,
+        pinConfirmation: pinConfirmation,
+      );
+
+      if (result['status'] == 'success') {
+        debugPrint('AuthProvider: ✅ PIN configuré avec succès');
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = result['message'];
+        _errorCode = result['error_code'];
+        _validationErrors = result['errors'];
+
+        debugPrint('AuthProvider: ❌ Erreur configuration PIN: ${result['error_code']}');
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      debugPrint('AuthProvider: Erreur configuration PIN: $e');
+      _errorMessage = 'Une erreur est survenue';
+      _errorCode = 'exception';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Modifie le PIN existant
+  ///
+  /// Nécessite une session active et l'ancien PIN
+  /// Retourne true si la modification réussit
+  Future<bool> changePin(String oldPin, String newPin, String newPinConfirmation) async {
+    if (_sessionToken == null) {
+      _errorMessage = 'Aucune session active';
+      _errorCode = 'no_session';
+      notifyListeners();
+      return false;
+    }
+
+    _isLoading = true;
+    _errorMessage = null;
+    _errorCode = null;
+    notifyListeners();
+
+    try {
+      debugPrint('AuthProvider: Modification du PIN');
+
+      final result = await PinService.changePin(
+        sessionToken: _sessionToken!,
+        oldPin: oldPin,
+        newPin: newPin,
+        newPinConfirmation: newPinConfirmation,
+      );
+
+      if (result['status'] == 'success') {
+        debugPrint('AuthProvider: ✅ PIN modifié avec succès');
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = result['message'];
+        _errorCode = result['error_code'];
+        _validationErrors = result['errors'];
+
+        debugPrint('AuthProvider: ❌ Erreur modification PIN: ${result['error_code']}');
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      debugPrint('AuthProvider: Erreur modification PIN: $e');
+      _errorMessage = 'Une erreur est survenue';
+      _errorCode = 'exception';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Réinitialise le PIN via OTP
+  ///
+  /// Efface automatiquement le verrouillage du compte
+  /// Nécessite un code OTP valide
+  Future<bool> resetPin(String phoneNumber, String otp, String newPin, String newPinConfirmation) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _errorCode = null;
+    notifyListeners();
+
+    try {
+      debugPrint('AuthProvider: Réinitialisation du PIN');
+
+      final result = await PinService.resetPin(
+        phoneNumber: phoneNumber,
+        otp: otp,
+        newPin: newPin,
+        newPinConfirmation: newPinConfirmation,
+      );
+
+      if (result['status'] == 'success') {
+        debugPrint('AuthProvider: ✅ PIN réinitialisé avec succès');
+        _isLoading = false;
+
+        // Reset les compteurs d'erreur
+        _remainingAttempts = null;
+        _lockedUntil = null;
+        _remainingSeconds = null;
+
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = result['message'];
+        _errorCode = result['error_code'];
+        _validationErrors = result['errors'];
+
+        debugPrint('AuthProvider: ❌ Erreur réinitialisation PIN: ${result['error_code']}');
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      debugPrint('AuthProvider: Erreur réinitialisation PIN: $e');
+      _errorMessage = 'Une erreur est survenue';
+      _errorCode = 'exception';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Déconnexion complète
   Future<bool> logout() async {
     _isLoading = true;
@@ -334,8 +587,13 @@ class AuthProvider extends ChangeNotifier {
 
   /// Efface le message d'erreur
   void clearError() {
-    if (_errorMessage != null) {
+    if (_errorMessage != null || _errorCode != null) {
       _errorMessage = null;
+      _errorCode = null;
+      _remainingAttempts = null;
+      _lockedUntil = null;
+      _remainingSeconds = null;
+      _validationErrors = null;
       notifyListeners();
     }
   }
@@ -349,6 +607,11 @@ class AuthProvider extends ChangeNotifier {
     _sessionCreatedAt = null;
     _isLoading = false;
     _errorMessage = null;
+    _errorCode = null;
+    _remainingAttempts = null;
+    _lockedUntil = null;
+    _remainingSeconds = null;
+    _validationErrors = null;
 
     debugPrint('AuthProvider: État réinitialisé');
     notifyListeners();
