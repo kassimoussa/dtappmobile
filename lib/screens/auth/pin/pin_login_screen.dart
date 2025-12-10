@@ -17,10 +17,7 @@ import '../otp_screen.dart';
 class PinLoginScreen extends StatefulWidget {
   final String phoneNumber;
 
-  const PinLoginScreen({
-    super.key,
-    required this.phoneNumber,
-  });
+  const PinLoginScreen({super.key, required this.phoneNumber});
 
   @override
   State<PinLoginScreen> createState() => _PinLoginScreenState();
@@ -34,16 +31,6 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
 
-    // Si connexion réussie, naviguer vers MainScreen
-    if (authProvider.isAuthenticated && !_isProcessing) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pushAndRemoveUntil(
-          CustomRouteTransitions.slideRightRoute(page: const MainScreen()),
-          (route) => false,
-        );
-      });
-    }
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -55,101 +42,106 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
-          ),
-          child: Column(
-            children: [
-              SizedBox(height: ResponsiveSize.getHeight(20)),
-
-              // Titre
-              Text(
-                'Entrez votre code PIN',
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(24),
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
                 ),
-              ),
+                child: Column(
+                  children: [
+                    SizedBox(height: ResponsiveSize.getHeight(20)),
 
-              SizedBox(height: ResponsiveSize.getHeight(8)),
+                    // Titre
+                    Text(
+                      'Entrez votre code PIN',
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(24),
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
 
-              // Numéro de téléphone
-              Text(
-                widget.phoneNumber,
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(16),
-                  color: AppTheme.textSecondary,
-                ),
-              ),
+                    SizedBox(height: ResponsiveSize.getHeight(8)),
 
-              SizedBox(height: ResponsiveSize.getHeight(40)),
+                    // Numéro de téléphone
+                    Text(
+                      widget.phoneNumber,
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(16),
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
 
-              // Affichage PIN (4 cercles)
-              PinDots(
-                pinLength: _pin.length,
-                maxLength: 4,
-              ),
+                    SizedBox(height: ResponsiveSize.getHeight(40)),
 
-              SizedBox(height: ResponsiveSize.getHeight(16)),
+                    // Affichage PIN (4 cercles)
+                    PinDots(pinLength: _pin.length, maxLength: 4),
 
-              // Message d'erreur
-              if (authProvider.errorMessage != null)
-                _buildErrorMessage(authProvider),
+                    SizedBox(height: ResponsiveSize.getHeight(16)),
 
-              const Spacer(),
+                    // Message d'erreur
+                    if (authProvider.errorMessage != null)
+                      _buildErrorMessage(authProvider),
 
-              // Clavier numérique
-              PinKeyboard(
-                onNumberPressed: (number) {
-                  if (_pin.length < 4) {
-                    setState(() {
-                      _pin += number;
-                    });
+                    const Spacer(),
 
-                    // Auto-submit quand 4 chiffres sont saisis
-                    if (_pin.length == 4) {
-                      _submitPin();
-                    }
-                  }
-                },
-                onDeletePressed: () {
-                  if (_pin.isNotEmpty) {
-                    setState(() {
-                      _pin = _pin.substring(0, _pin.length - 1);
-                    });
-                  }
-                },
-              ),
+                    // Clavier numérique
+                    PinKeyboard(
+                      onNumberPressed: (number) {
+                        if (_pin.length < 4) {
+                          setState(() {
+                            _pin += number;
+                          });
 
-              SizedBox(height: ResponsiveSize.getHeight(24)),
-
-              // Lien "PIN oublié"
-              TextButton(
-                onPressed: _isProcessing
-                    ? null
-                    : () {
-                        // Naviguer vers reset PIN (via OTP)
-                        Navigator.of(context).push(
-                          CustomRouteTransitions.slideRightRoute(page: 
-                            OTPScreen(phone: widget.phoneNumber),
-                          ),
-                        );
+                          // Auto-submit quand 4 chiffres sont saisis
+                          if (_pin.length == 4) {
+                            _submitPin();
+                          }
+                        }
                       },
-                child: Text(
-                  'PIN oublié ?',
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(16),
-                    color: AppTheme.dtBlue,
-                    fontWeight: FontWeight.w500,
-                  ),
+                      onDeletePressed: () {
+                        if (_pin.isNotEmpty) {
+                          setState(() {
+                            _pin = _pin.substring(0, _pin.length - 1);
+                          });
+                        }
+                      },
+                    ),
+
+                    SizedBox(height: ResponsiveSize.getHeight(24)),
+
+                    // Lien "PIN oublié"
+                    TextButton(
+                      onPressed:
+                          _isProcessing
+                              ? null
+                              : () {
+                                // Naviguer vers reset PIN (via OTP)
+                                Navigator.of(context).push(
+                                  CustomRouteTransitions.slideRightRoute(
+                                    page: OTPScreen(phone: widget.phoneNumber),
+                                  ),
+                                );
+                              },
+                      child: Text(
+                        'PIN oublié ?',
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(16),
+                          color: AppTheme.dtBlue,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: ResponsiveSize.getHeight(40)),
+                  ],
                 ),
               ),
-
-              SizedBox(height: ResponsiveSize.getHeight(40)),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -175,18 +167,13 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
 
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-      margin: EdgeInsets.symmetric(
-        vertical: ResponsiveSize.getHeight(16),
-      ),
+      margin: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(16)),
       decoration: BoxDecoration(
         color: Colors.red[50],
         borderRadius: BorderRadius.circular(
           ResponsiveSize.getWidth(AppTheme.radiusM),
         ),
-        border: Border.all(
-          color: Colors.red[300]!,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.red[300]!, width: 1),
       ),
       child: Row(
         children: [
@@ -220,12 +207,14 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
     final authProvider = context.read<AuthProvider>();
     authProvider.clearError();
 
-    final success = await authProvider.loginWithPin(
-      widget.phoneNumber,
-      _pin,
-    );
+    final success = await authProvider.loginWithPin(widget.phoneNumber, _pin);
 
-    if (!success && mounted) {
+    if (success && mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        CustomRouteTransitions.slideRightRoute(page: const MainScreen()),
+        (route) => false,
+      );
+    } else if (!success && mounted) {
       // Reset PIN si erreur
       setState(() {
         _pin = '';

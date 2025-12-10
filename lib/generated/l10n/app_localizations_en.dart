@@ -91,6 +91,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preferences => 'Preferences';
 
   @override
+  String get managePin => 'Manage PIN Code';
+
+  @override
   String get changeLanguage => 'Change Language';
 
   @override

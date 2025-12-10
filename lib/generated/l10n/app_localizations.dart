@@ -254,6 +254,12 @@ abstract class AppLocalizations {
   /// **'Préférences'**
   String get preferences;
 
+  /// No description provided for @managePin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion du code PIN'**
+  String get managePin;
+
   /// No description provided for @changeLanguage.
   ///
   /// In fr, this message translates to:

@@ -16,11 +16,7 @@ class PinSetupScreen extends StatefulWidget {
   final VoidCallback onPinSet;
   final VoidCallback? onSkip;
 
-  const PinSetupScreen({
-    super.key,
-    required this.onPinSet,
-    this.onSkip,
-  });
+  const PinSetupScreen({super.key, required this.onPinSet, this.onSkip});
 
   @override
   State<PinSetupScreen> createState() => _PinSetupScreenState();
@@ -60,138 +56,151 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
         ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
-          ),
-          child: Column(
-            children: [
-              SizedBox(height: ResponsiveSize.getHeight(20)),
-
-              // Icône
-              Container(
-                padding: EdgeInsets.all(ResponsiveSize.getWidth(20)),
-                decoration: BoxDecoration(
-                  color: AppTheme.dtBlue.withOpacity(0.1),
-                  shape: BoxShape.circle,
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
                 ),
-                child: Icon(
-                  Icons.lock_outline,
-                  size: ResponsiveSize.getWidth(60),
-                  color: AppTheme.dtBlue,
-                ),
-              ),
+                child: Column(
+                  children: [
+                    SizedBox(height: ResponsiveSize.getHeight(20)),
 
-              SizedBox(height: ResponsiveSize.getHeight(24)),
+                    // Icône
+                    Container(
+                      padding: EdgeInsets.all(ResponsiveSize.getWidth(20)),
+                      decoration: BoxDecoration(
+                        color: AppTheme.dtBlue.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.lock_outline,
+                        size: ResponsiveSize.getWidth(60),
+                        color: AppTheme.dtBlue,
+                      ),
+                    ),
 
-              // Titre
-              Text(
-                _isConfirmingPin
-                    ? 'Confirmez votre code PIN'
-                    : 'Créez un code PIN',
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(24),
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
+                    SizedBox(height: ResponsiveSize.getHeight(24)),
 
-              SizedBox(height: ResponsiveSize.getHeight(8)),
+                    // Titre
+                    Text(
+                      _isConfirmingPin
+                          ? 'Confirmez votre code PIN'
+                          : 'Créez un code PIN',
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(24),
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
 
-              // Description
-              Text(
-                _isConfirmingPin
-                    ? 'Entrez votre PIN une seconde fois'
-                    : 'Créez un code à 4 chiffres pour vous connecter rapidement',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(14),
-                  color: AppTheme.textSecondary,
-                ),
-              ),
+                    SizedBox(height: ResponsiveSize.getHeight(8)),
 
-              SizedBox(height: ResponsiveSize.getHeight(40)),
+                    // Description
+                    Text(
+                      _isConfirmingPin
+                          ? 'Entrez votre PIN une seconde fois'
+                          : 'Créez un code à 4 chiffres pour vous connecter rapidement',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(14),
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
 
-              // Affichage PIN (4 cercles)
-              PinDots(
-                pinLength: _isConfirmingPin ? _confirmPin.length : _pin.length,
-                maxLength: 4,
-              ),
+                    SizedBox(height: ResponsiveSize.getHeight(40)),
 
-              SizedBox(height: ResponsiveSize.getHeight(16)),
+                    // Affichage PIN (4 cercles)
+                    PinDots(
+                      pinLength:
+                          _isConfirmingPin ? _confirmPin.length : _pin.length,
+                      maxLength: 4,
+                    ),
 
-              // Avertissement PIN faible
-              if (_weakPinWarning != null && !_isConfirmingPin)
-                _buildWeakPinWarning(),
+                    SizedBox(height: ResponsiveSize.getHeight(16)),
 
-              // Message d'erreur
-              if (authProvider.errorMessage != null)
-                _buildErrorMessage(authProvider.errorMessage!),
+                    // Avertissement PIN faible
+                    if (_weakPinWarning != null && !_isConfirmingPin)
+                      _buildWeakPinWarning(),
 
-              const Spacer(),
+                    // Message d'erreur
+                    if (authProvider.errorMessage != null)
+                      _buildErrorMessage(authProvider.errorMessage!),
 
-              // Clavier numérique
-              PinKeyboard(
-                onNumberPressed: (number) {
-                  if (_isConfirmingPin) {
-                    if (_confirmPin.length < 4) {
-                      setState(() {
-                        _confirmPin += number;
-                      });
+                    const Spacer(),
 
-                      if (_confirmPin.length == 4) {
-                        _submitPin();
-                      }
-                    }
-                  } else {
-                    if (_pin.length < 4) {
-                      setState(() {
-                        _pin += number;
-                        _weakPinWarning = null;
-                      });
-
-                      if (_pin.length == 4) {
-                        _checkWeakPin();
-                        Future.delayed(const Duration(milliseconds: 300), () {
-                          if (mounted) {
+                    // Clavier numérique
+                    PinKeyboard(
+                      onNumberPressed: (number) {
+                        if (_isConfirmingPin) {
+                          if (_confirmPin.length < 4) {
                             setState(() {
-                              _isConfirmingPin = true;
+                              _confirmPin += number;
+                            });
+
+                            if (_confirmPin.length == 4) {
+                              _submitPin();
+                            }
+                          }
+                        } else {
+                          if (_pin.length < 4) {
+                            setState(() {
+                              _pin += number;
+                              _weakPinWarning = null;
+                            });
+
+                            if (_pin.length == 4) {
+                              _checkWeakPin();
+                              Future.delayed(
+                                const Duration(milliseconds: 300),
+                                () {
+                                  if (mounted) {
+                                    setState(() {
+                                      _isConfirmingPin = true;
+                                    });
+                                  }
+                                },
+                              );
+                            }
+                          }
+                        }
+                      },
+                      onDeletePressed: () {
+                        if (_isConfirmingPin) {
+                          if (_confirmPin.isNotEmpty) {
+                            setState(() {
+                              _confirmPin = _confirmPin.substring(
+                                0,
+                                _confirmPin.length - 1,
+                              );
+                            });
+                          } else {
+                            // Retour à la saisie du PIN
+                            setState(() {
+                              _isConfirmingPin = false;
+                              _pin = '';
+                              _weakPinWarning = null;
                             });
                           }
-                        });
-                      }
-                    }
-                  }
-                },
-                onDeletePressed: () {
-                  if (_isConfirmingPin) {
-                    if (_confirmPin.isNotEmpty) {
-                      setState(() {
-                        _confirmPin =
-                            _confirmPin.substring(0, _confirmPin.length - 1);
-                      });
-                    } else {
-                      // Retour à la saisie du PIN
-                      setState(() {
-                        _isConfirmingPin = false;
-                        _pin = '';
-                        _weakPinWarning = null;
-                      });
-                    }
-                  } else {
-                    if (_pin.isNotEmpty) {
-                      setState(() {
-                        _pin = _pin.substring(0, _pin.length - 1);
-                        _weakPinWarning = null;
-                      });
-                    }
-                  }
-                },
-              ),
+                        } else {
+                          if (_pin.isNotEmpty) {
+                            setState(() {
+                              _pin = _pin.substring(0, _pin.length - 1);
+                              _weakPinWarning = null;
+                            });
+                          }
+                        }
+                      },
+                    ),
 
-              SizedBox(height: ResponsiveSize.getHeight(40)),
-            ],
-          ),
+                    SizedBox(height: ResponsiveSize.getHeight(40)),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -200,18 +209,13 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
   Widget _buildWeakPinWarning() {
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-      margin: EdgeInsets.symmetric(
-        vertical: ResponsiveSize.getHeight(16),
-      ),
+      margin: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(16)),
       decoration: BoxDecoration(
         color: Colors.orange[50],
         borderRadius: BorderRadius.circular(
           ResponsiveSize.getWidth(AppTheme.radiusM),
         ),
-        border: Border.all(
-          color: Colors.orange[300]!,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.orange[300]!, width: 1),
       ),
       child: Row(
         children: [
@@ -238,18 +242,13 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
   Widget _buildErrorMessage(String message) {
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-      margin: EdgeInsets.symmetric(
-        vertical: ResponsiveSize.getHeight(16),
-      ),
+      margin: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(16)),
       decoration: BoxDecoration(
         color: Colors.red[50],
         borderRadius: BorderRadius.circular(
           ResponsiveSize.getWidth(AppTheme.radiusM),
         ),
-        border: Border.all(
-          color: Colors.red[300]!,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.red[300]!, width: 1),
       ),
       child: Row(
         children: [
