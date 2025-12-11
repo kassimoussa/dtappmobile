@@ -197,7 +197,9 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
               onPressed: () {
                 Navigator.of(context).pop(); // Fermer le dialog
                 Navigator.of(context).pushAndRemoveUntil(
-                  CustomRouteTransitions.fadeScaleRoute(page: const MainScreen()),
+                  CustomRouteTransitions.fadeScaleRoute(
+                    page: const MainScreen(),
+                  ),
                   (route) => false,
                 );
               },
@@ -266,8 +268,17 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
       if (!mounted) return;
 
       if (success) {
-        // Succès - Proposer configuration PIN puis naviguer vers MainScreen
-        _showPinSetupDialog();
+        // Succès
+        if (authProvider.hasPin) {
+          // PIN déjà configuré => vers MainScreen
+          Navigator.of(context).pushAndRemoveUntil(
+            CustomRouteTransitions.fadeScaleRoute(page: const MainScreen()),
+            (route) => false,
+          );
+        } else {
+          // PIN non configuré => proposer configuration
+          _showPinSetupDialog();
+        }
       } else {
         // Échec - Afficher erreur
         setState(() {

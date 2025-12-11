@@ -8,13 +8,19 @@ import '../otp_screen.dart';
 import '../../../routes/custom_route_transitions.dart';
 import 'change_pin_screen.dart';
 
-class PinManagementScreen extends StatelessWidget {
+class PinManagementScreen extends StatefulWidget {
   const PinManagementScreen({super.key});
+
+  @override
+  State<PinManagementScreen> createState() => _PinManagementScreenState();
+}
+
+class _PinManagementScreenState extends State<PinManagementScreen> {
+  bool _isSendingOtp = false;
 
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    final authProvider = context.read<AuthProvider>();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -22,54 +28,89 @@ class PinManagementScreen extends StatelessWidget {
         title: 'Gestion du code PIN',
         showAction: false,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-        child: Column(
-          children: [
-            _buildMenuOption(
-              context,
-              title: 'Modifier le code PIN',
-              onTap: () {
-                Navigator.of(context).push(
-                  CustomRouteTransitions.slideRightRoute(
-                    page: const ChangePinScreen(),
-                  ),
-                );
-              },
+      body: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+            child: Column(
+              children: [
+                _buildMenuOption(
+                  context,
+                  title: 'Modifier le code PIN',
+                  onTap: () {
+                    if (_isSendingOtp) return;
+                    Navigator.of(context).push(
+                      CustomRouteTransitions.slideRightRoute(
+                        page: const ChangePinScreen(),
+                      ),
+                    );
+                  },
+                ),
+                Divider(height: 1, color: Colors.grey[200]),
+                _buildMenuOption(
+                  context,
+                  title: 'Code PIN oublié',
+                  onTap: _handleForgotPin,
+                  showLoading: _isSendingOtp,
+                ),
+              ],
             ),
-            Divider(height: 1, color: Colors.grey[200]),
-            _buildMenuOption(
-              context,
-              title: 'Code PIN oublié',
-              onTap: () {
-                // Navigate to OTPScreen with key for resetting PIN
-                // Assuming we use the current user's phone number
-                final phoneNumber = authProvider.phoneNumber;
-                if (phoneNumber != null) {
-                  Navigator.of(context).push(
-                    CustomRouteTransitions.slideRightRoute(
-                      page: OTPScreen(phone: phoneNumber),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Numéro de téléphone introuvable'),
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
+          ),
+          if (_isSendingOtp)
+            const ModalBarrier(dismissible: false, color: Colors.black12),
+        ],
       ),
     );
+  }
+
+  Future<void> _handleForgotPin() async {
+    if (_isSendingOtp) return;
+
+    final authProvider = context.read<AuthProvider>();
+    final phoneNumber = authProvider.phoneNumber;
+
+    if (phoneNumber != null) {
+      setState(() {
+        _isSendingOtp = true;
+      });
+
+      authProvider.clearError();
+      final success = await authProvider.sendOtp(phoneNumber);
+
+      if (mounted) {
+        setState(() {
+          _isSendingOtp = false;
+        });
+
+        if (success) {
+          Navigator.of(context).push(
+            CustomRouteTransitions.slideRightRoute(
+              page: OTPScreen(phone: phoneNumber),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                authProvider.errorMessage ?? 'Erreur lors de l\'envoi du code',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Numéro de téléphone introuvable')),
+      );
+    }
   }
 
   Widget _buildMenuOption(
     BuildContext context, {
     required String title,
     required VoidCallback onTap,
+    bool showLoading = false,
   }) {
     return InkWell(
       onTap: onTap,
@@ -88,11 +129,18 @@ class PinManagementScreen extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.grey[400],
-              size: ResponsiveSize.getFontSize(16),
-            ),
+            if (showLoading)
+              SizedBox(
+                width: ResponsiveSize.getWidth(16),
+                height: ResponsiveSize.getHeight(16),
+                child: const CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey[400],
+                size: ResponsiveSize.getFontSize(16),
+              ),
           ],
         ),
       ),

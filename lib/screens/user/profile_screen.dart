@@ -7,6 +7,7 @@ import '../../widgets/appbar_widget.dart';
 import '../../extensions/color_extensions.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../settings/language_selection_screen.dart';
+import '../settings/connection_settings_screen.dart';
 import '../auth/pin/pin_management_screen.dart';
 import 'edit_profile_screen.dart';
 
@@ -253,6 +254,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return _buildSection(
       title: l10n.preferences,
       children: [
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ConnectionSettingsScreen(),
+              ),
+            );
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.settings,
+                  color: Colors.grey[600],
+                  size: ResponsiveSize.getFontSize(24),
+                ),
+                SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
+                Expanded(
+                  child: Text(
+                    'Paramètre de connexion',
+                    style: TextStyle(
+                      fontSize: ResponsiveSize.getFontSize(16),
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.grey[400],
+                  size: ResponsiveSize.getFontSize(16),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Divider(height: 1, color: Colors.grey[200]),
         InkWell(
           onTap: () {
             Navigator.push(

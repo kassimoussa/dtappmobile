@@ -44,6 +44,9 @@ class AuthProvider extends ChangeNotifier {
   /// Erreurs de validation (pour formulaires PIN)
   Map<String, dynamic>? _validationErrors;
 
+  /// Indique si l'utilisateur a un PIN configuré
+  bool _hasPin = false;
+
   /// Service OTP
   final _otpService = OtpService();
 
@@ -64,8 +67,112 @@ class AuthProvider extends ChangeNotifier {
   /// Statut d'authentification
   bool get isAuthenticated => _isAuthenticated;
 
+  /// Si l'utilisateur a un PIN configuré
+  bool get hasPin => _hasPin;
+
   /// Dernière activité
   DateTime? get lastActivityTime => _lastActivityTime;
+  // ... (skip lines)
+
+  /// Charge la session existante depuis SharedPreferences
+  Future<void> _loadExistingSession() async {
+    try {
+      final isAuth = await UserSession.isAuthenticated();
+
+      if (isAuth) {
+        _phoneNumber = await UserSession.getPhoneNumber();
+        _sessionToken = await UserSession.getSessionToken();
+        _hasPin = await UserSession.hasPin(); // Charger l'état du PIN
+        _isAuthenticated = true;
+        _lastActivityTime = DateTime.now();
+
+        debugPrint(
+          'AuthProvider: Session existante chargée pour $_phoneNumber (PIN: $_hasPin)',
+        );
+        notifyListeners();
+      } else {
+        debugPrint('AuthProvider: Aucune session active');
+      }
+    } catch (e) {
+      debugPrint('AuthProvider: Erreur chargement session: $e');
+    }
+  }
+
+  // ... (skip lines)
+
+  /// Vérifie le code OTP et crée la session
+  Future<bool> verifyOtp(String phoneNumber, String otp) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      debugPrint('AuthProvider: Vérification OTP pour $phoneNumber');
+
+      final result = await _otpService.verifyOtp(phoneNumber, otp);
+
+      if (result['status'] == 'success') {
+        // Extraire le session token et l'état du PIN
+        final data = result['data'] ?? {};
+        final sessionToken = data['session_token'];
+        // Vérifier plusieurs clés possibles pour la compatibilité API
+        final hasPin = data['has_pin'] ?? data['is_pin_set'] ?? false;
+
+        // Créer la session
+        await _createSession(phoneNumber, sessionToken, hasPin: hasPin);
+
+        // Envoyer le token FCM
+        try {
+          await FCMTokenService.updateTokenOnServer();
+          debugPrint('AuthProvider: Token FCM envoyé au serveur');
+        } catch (fcmError) {
+          debugPrint('AuthProvider: Erreur FCM (non bloquant): $fcmError');
+        }
+
+        debugPrint('AuthProvider: ✅ Authentification réussie (PIN: $hasPin)');
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = result['message'] ?? 'Code OTP incorrect';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      debugPrint('AuthProvider: Erreur vérification OTP: $e');
+      _errorMessage = 'Une erreur est survenue lors de la vérification';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Crée une session après vérification OTP réussie
+  Future<void> _createSession(
+    String phoneNumber,
+    String? sessionToken, {
+    bool hasPin = false,
+  }) async {
+    // Sauvegarder dans UserSession (pour persistence)
+    await UserSession.createSession(
+      phoneNumber,
+      sessionToken: sessionToken,
+      hasPin: hasPin,
+    );
+
+    // Mettre à jour l'état du provider
+    _phoneNumber = phoneNumber;
+    _sessionToken = sessionToken;
+    _hasPin = hasPin;
+    _isAuthenticated = true;
+    _lastActivityTime = DateTime.now();
+    _sessionCreatedAt = DateTime.now();
+
+    debugPrint(
+      'AuthProvider: Session créée - Phone: $phoneNumber, Token: ${sessionToken?.substring(0, 10)}..., PIN: $hasPin',
+    );
+  }
 
   /// Indicateur de chargement
   bool get isLoading => _isLoading;
@@ -133,27 +240,6 @@ class AuthProvider extends ChangeNotifier {
     _loadExistingSession();
   }
 
-  /// Charge la session existante depuis SharedPreferences
-  Future<void> _loadExistingSession() async {
-    try {
-      final isAuth = await UserSession.isAuthenticated();
-
-      if (isAuth) {
-        _phoneNumber = await UserSession.getPhoneNumber();
-        _sessionToken = await UserSession.getSessionToken();
-        _isAuthenticated = true;
-        _lastActivityTime = DateTime.now();
-
-        debugPrint('AuthProvider: Session existante chargée pour $_phoneNumber');
-        notifyListeners();
-      } else {
-        debugPrint('AuthProvider: Aucune session active');
-      }
-    } catch (e) {
-      debugPrint('AuthProvider: Erreur chargement session: $e');
-    }
-  }
-
   // ==================== Opérations d'authentification ====================
 
   /// Envoie un code OTP au numéro de téléphone
@@ -185,66 +271,6 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
-  }
-
-  /// Vérifie le code OTP et crée la session
-  Future<bool> verifyOtp(String phoneNumber, String otp) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      debugPrint('AuthProvider: Vérification OTP pour $phoneNumber');
-
-      final result = await _otpService.verifyOtp(phoneNumber, otp);
-
-      if (result['status'] == 'success') {
-        // Extraire le session token
-        final sessionToken = result['data']?['session_token'];
-
-        // Créer la session
-        await _createSession(phoneNumber, sessionToken);
-
-        // Envoyer le token FCM
-        try {
-          await FCMTokenService.updateTokenOnServer();
-          debugPrint('AuthProvider: Token FCM envoyé au serveur');
-        } catch (fcmError) {
-          debugPrint('AuthProvider: Erreur FCM (non bloquant): $fcmError');
-        }
-
-        debugPrint('AuthProvider: ✅ Authentification réussie');
-        _isLoading = false;
-        notifyListeners();
-        return true;
-      } else {
-        _errorMessage = result['message'] ?? 'Code OTP incorrect';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
-    } catch (e) {
-      debugPrint('AuthProvider: Erreur vérification OTP: $e');
-      _errorMessage = 'Une erreur est survenue lors de la vérification';
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    }
-  }
-
-  /// Crée une session après vérification OTP réussie
-  Future<void> _createSession(String phoneNumber, String? sessionToken) async {
-    // Sauvegarder dans UserSession (pour persistence)
-    await UserSession.createSession(phoneNumber, sessionToken: sessionToken);
-
-    // Mettre à jour l'état du provider
-    _phoneNumber = phoneNumber;
-    _sessionToken = sessionToken;
-    _isAuthenticated = true;
-    _lastActivityTime = DateTime.now();
-    _sessionCreatedAt = DateTime.now();
-
-    debugPrint('AuthProvider: Session créée - Phone: $phoneNumber, Token: ${sessionToken?.substring(0, 10)}...');
   }
 
   // ==================== Authentification PIN ====================
@@ -300,7 +326,9 @@ class AuthProvider extends ChangeNotifier {
           _remainingSeconds = result['data']?['remaining_seconds'];
         }
 
-        debugPrint('AuthProvider: ❌ Erreur connexion PIN: ${result['error_code']}');
+        debugPrint(
+          'AuthProvider: ❌ Erreur connexion PIN: ${result['error_code']}',
+        );
         _isLoading = false;
         notifyListeners();
         return false;
@@ -351,7 +379,9 @@ class AuthProvider extends ChangeNotifier {
         _errorCode = result['error_code'];
         _validationErrors = result['errors'];
 
-        debugPrint('AuthProvider: ❌ Erreur configuration PIN: ${result['error_code']}');
+        debugPrint(
+          'AuthProvider: ❌ Erreur configuration PIN: ${result['error_code']}',
+        );
         _isLoading = false;
         notifyListeners();
         return false;
@@ -370,7 +400,11 @@ class AuthProvider extends ChangeNotifier {
   ///
   /// Nécessite une session active et l'ancien PIN
   /// Retourne true si la modification réussit
-  Future<bool> changePin(String oldPin, String newPin, String newPinConfirmation) async {
+  Future<bool> changePin(
+    String oldPin,
+    String newPin,
+    String newPinConfirmation,
+  ) async {
     if (_sessionToken == null) {
       _errorMessage = 'Aucune session active';
       _errorCode = 'no_session';
@@ -403,7 +437,9 @@ class AuthProvider extends ChangeNotifier {
         _errorCode = result['error_code'];
         _validationErrors = result['errors'];
 
-        debugPrint('AuthProvider: ❌ Erreur modification PIN: ${result['error_code']}');
+        debugPrint(
+          'AuthProvider: ❌ Erreur modification PIN: ${result['error_code']}',
+        );
         _isLoading = false;
         notifyListeners();
         return false;
@@ -422,7 +458,12 @@ class AuthProvider extends ChangeNotifier {
   ///
   /// Efface automatiquement le verrouillage du compte
   /// Nécessite un code OTP valide
-  Future<bool> resetPin(String phoneNumber, String otp, String newPin, String newPinConfirmation) async {
+  Future<bool> resetPin(
+    String phoneNumber,
+    String otp,
+    String newPin,
+    String newPinConfirmation,
+  ) async {
     _isLoading = true;
     _errorMessage = null;
     _errorCode = null;
@@ -454,7 +495,9 @@ class AuthProvider extends ChangeNotifier {
         _errorCode = result['error_code'];
         _validationErrors = result['errors'];
 
-        debugPrint('AuthProvider: ❌ Erreur réinitialisation PIN: ${result['error_code']}');
+        debugPrint(
+          'AuthProvider: ❌ Erreur réinitialisation PIN: ${result['error_code']}',
+        );
         _isLoading = false;
         notifyListeners();
         return false;
