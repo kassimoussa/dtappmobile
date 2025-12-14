@@ -342,4 +342,21 @@ class UserSession {
     await prefs.setBool(_isPinEnabledKey, enabled);
     debugPrint('Connexion PIN ${enabled ? "activée" : "désactivée"}');
   }
+
+  // ==================== Gestion du Skip PIN Setup ====================
+
+  static const String _skipPinSetupKey = 'skip_pin_setup';
+
+  /// Vérifie si l'utilisateur a demandé de ne plus afficher la config PIN
+  static Future<bool> shouldSkipPinSetup() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_skipPinSetupKey) ?? false;
+  }
+
+  /// Enregistre la préférence "Plus tard" pour la config PIN
+  static Future<void> setSkipPinSetup(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_skipPinSetupKey, value);
+    debugPrint('Skip PIN setup set to: $value');
+  }
 }

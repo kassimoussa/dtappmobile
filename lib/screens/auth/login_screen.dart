@@ -11,6 +11,7 @@ import '../../extensions/color_extensions.dart';
 import 'otp_screen.dart';
 import 'pin/pin_login_screen.dart';
 import '../../generated/l10n/app_localizations.dart';
+import '../../services/user_session.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -83,46 +84,63 @@ class _LoginScreenState extends State<LoginScreen>
     // Enregistrer le numéro de téléphone pour pré-remplissage
     await UserService.savePhoneNumber(phoneNumber);
 
-    // Appeler AuthProvider pour envoyer l'OTP
-    final success = await authProvider.sendOtp(phoneNumber);
+    // Verify if user prefers PIN and has one set
+    final pinEnabled = await UserSession.isPinEnabled();
+    final hasPin = await UserSession.hasPin();
 
     if (!mounted) return;
 
-    if (success) {
-      // Naviguer vers l'écran OTP
-      Navigator.push(
-        context,
+    if (pinEnabled && hasPin) {
+      // Navigate to PIN login screen
+      Navigator.of(context).push(
         CustomRouteTransitions.fadeScaleRoute(
-          page: OTPScreen(phone: phoneNumber),
+          page: PinLoginScreen(phoneNumber: phoneNumber),
         ),
       );
     } else {
-      // Afficher erreur via SnackBar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-              Expanded(
-                child: Text(
-                  authProvider.errorMessage ??
-                      AppLocalizations.of(context)!.otpSendError,
-                  style: TextStyle(fontSize: ResponsiveSize.getFontSize(14)),
+      // Default OTP Flow
+
+      // Call AuthProvider to send OTP
+      final success = await authProvider.sendOtp(phoneNumber);
+
+      if (!mounted) return;
+
+      if (success) {
+        // Navigate to OTP screen
+        Navigator.push(
+          context,
+          CustomRouteTransitions.fadeScaleRoute(
+            page: OTPScreen(phone: phoneNumber),
+          ),
+        );
+      } else {
+        // Show error via SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+                Expanded(
+                  child: Text(
+                    authProvider.errorMessage ??
+                        AppLocalizations.of(context)!.otpSendError,
+                    style: TextStyle(fontSize: ResponsiveSize.getFontSize(14)),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              ResponsiveSize.getWidth(AppTheme.radiusS),
+              ],
             ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusS),
+              ),
+            ),
+            margin: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
           ),
-          margin: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -417,90 +435,6 @@ class _LoginScreenState extends State<LoginScreen>
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-            ),
-
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-
-            // Divider avec "OU"
-            Row(
-              children: [
-                Expanded(
-                  child: Divider(
-                    color: Colors.grey[400],
-                    thickness: 1,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
-                  ),
-                  child: Text(
-                    'OU',
-                    style: TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: ResponsiveSize.getFontSize(14),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Divider(
-                    color: Colors.grey[400],
-                    thickness: 1,
-                  ),
-                ),
-              ],
-            ),
-
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-
-            // Bouton connexion avec PIN
-            OutlinedButton(
-              onPressed: authProvider.isLoading
-                  ? null
-                  : () {
-                      if (_formKey.currentState!.validate()) {
-                        String phoneNumber = _phoneController.text.trim();
-                        Navigator.of(context).push(
-                          CustomRouteTransitions.fadeScaleRoute(
-                            page: PinLoginScreen(phoneNumber: phoneNumber),
-                          ),
-                        );
-                      }
-                    },
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(
-                  color: AppTheme.dtBlue,
-                  width: 2,
-                ),
-                padding: EdgeInsets.symmetric(
-                  vertical: ResponsiveSize.getHeight(18),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    ResponsiveSize.getWidth(AppTheme.radiusM),
-                  ),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.pin_outlined,
-                    color: AppTheme.dtBlue,
-                    size: ResponsiveSize.getFontSize(20),
-                  ),
-                  SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-                  Text(
-                    'Se connecter avec PIN',
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(16),
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.dtBlue,
-                    ),
-                  ),
-                ],
-              ),
             ),
 
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),

@@ -397,12 +397,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(18),
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.dtBlue,
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: ResponsiveSize.getFontSize(18),
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.dtBlue,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (action != null) action,

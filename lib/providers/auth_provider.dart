@@ -116,7 +116,17 @@ class AuthProvider extends ChangeNotifier {
         final data = result['data'] ?? {};
         final sessionToken = data['session_token'];
         // Vérifier plusieurs clés possibles pour la compatibilité API
-        final hasPin = data['has_pin'] ?? data['is_pin_set'] ?? false;
+        // Vérifier plusieurs clés possibles pour la compatibilité API et gérer les types (bool, string, int)
+        dynamic rawHasPin = data['has_pin'] ?? data['is_pin_set'];
+        bool hasPin = false;
+
+        if (rawHasPin is bool) {
+          hasPin = rawHasPin;
+        } else if (rawHasPin is String) {
+          hasPin = rawHasPin.toLowerCase() == 'true' || rawHasPin == '1';
+        } else if (rawHasPin is int) {
+          hasPin = rawHasPin == 1;
+        }
 
         // Créer la session
         await _createSession(phoneNumber, sessionToken, hasPin: hasPin);

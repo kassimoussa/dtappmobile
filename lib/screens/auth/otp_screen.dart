@@ -11,6 +11,7 @@ import '../../providers/auth_provider.dart';
 import '../core/main_screen.dart';
 import 'pin/pin_setup_screen.dart';
 import '../../generated/l10n/app_localizations.dart';
+import '../../services/user_session.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;
@@ -194,7 +195,11 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
           ),
           actions: [
             TextButton(
-              onPressed: () {
+              onPressed: () async {
+                // Save preference: Don't ask again
+                await UserSession.setSkipPinSetup(true);
+
+                if (!context.mounted) return;
                 Navigator.of(context).pop(); // Fermer le dialog
                 Navigator.of(context).pushAndRemoveUntil(
                   CustomRouteTransitions.fadeScaleRoute(
@@ -269,8 +274,12 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
 
       if (success) {
         // Succès
-        if (authProvider.hasPin) {
-          // PIN déjà configuré => vers MainScreen
+
+        // Check if user already asked to skip PIN setup
+        final shouldSkip = await UserSession.shouldSkipPinSetup();
+
+        if (authProvider.hasPin || shouldSkip) {
+          // PIN déjà configuré OU ignoré => vers MainScreen
           Navigator.of(context).pushAndRemoveUntil(
             CustomRouteTransitions.fadeScaleRoute(page: const MainScreen()),
             (route) => false,
@@ -408,6 +417,8 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                       focusNode: _focusNodes[index],
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
+                      textAlignVertical:
+                          TextAlignVertical.center, // AJOUT : Centrage vertical
                       style: TextStyle(
                         fontSize: ResponsiveSize.getFontSize(24),
                         fontWeight: FontWeight.bold,
@@ -416,6 +427,10 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                       decoration: InputDecoration(
                         fillColor: Colors.grey[100],
                         filled: true,
+                        // AJOUT : Réduire le padding pour éviter que le texte ne soit coupé
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: ResponsiveSize.getHeight(8),
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
                             ResponsiveSize.getWidth(AppTheme.radiusS),
