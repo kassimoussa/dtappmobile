@@ -242,10 +242,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return _buildSection(
       title: l10n.accountInfo,
       children: [
-        _buildInfoRow(l10n.phoneNumber, _phoneNumber ?? 'Non disponible'),
+        _buildInfoRow(l10n.phoneNumber, _phoneNumber ?? l10n.notAvailable),
         _buildInfoRow(l10n.lastLogin, _formatDate(_lastLoginAt)),
         _buildInfoRow(l10n.accountCreated, _formatDate(_createdAt)),
-        _buildInfoRow(l10n.deviceType, _deviceType ?? 'Non disponible'),
+        _buildInfoRow(l10n.deviceType, _deviceType ?? l10n.notAvailable),
       ],
     );
   }
@@ -277,7 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
                 Expanded(
                   child: Text(
-                    'Paramètre de connexion',
+                    l10n.connectionSettings,
                     style: TextStyle(
                       fontSize: ResponsiveSize.getFontSize(16),
                       color: Colors.black87,

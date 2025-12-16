@@ -308,8 +308,8 @@ class AuthProvider extends ChangeNotifier {
         final data = result['data'];
         final sessionToken = data?['session_token'];
 
-        // Créer la session
-        await _createSession(phoneNumber, sessionToken);
+        // Créer la session avec hasPin = true (puisque connexion via PIN)
+        await _createSession(phoneNumber, sessionToken, hasPin: true);
 
         // Envoyer le token FCM
         try {
@@ -380,6 +380,10 @@ class AuthProvider extends ChangeNotifier {
       );
 
       if (result['status'] == 'success') {
+        // Mettre à jour le flag hasPin après configuration réussie
+        _hasPin = true;
+        await UserSession.setPinConfigured(true);
+
         debugPrint('AuthProvider: ✅ PIN configuré avec succès');
         _isLoading = false;
         notifyListeners();

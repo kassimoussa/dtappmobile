@@ -4,6 +4,7 @@ import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../widgets/appbar_widget.dart';
 import '../../services/user_session.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class ConnectionSettingsScreen extends StatefulWidget {
   const ConnectionSettingsScreen({super.key});
@@ -70,11 +71,12 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const AppBarWidget(
-        title: 'Paramètre de connexion',
+      appBar: AppBarWidget(
+        title: l10n.connectionSettings,
         showAction: false,
       ),
       body:
@@ -88,7 +90,7 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
                   children: [
                     if (_isBiometricSupported) ...[
                       _buildSwitchOption(
-                        title: 'Connexion par empreinte digitale',
+                        title: l10n.biometricLogin,
                         value: _isBiometricEnabled,
                         onChanged: _toggleBiometric,
                       ),
@@ -97,7 +99,7 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
                       ),
                     ],
                     _buildSwitchOption(
-                      title: 'Connexion par code PIN',
+                      title: l10n.pinLogin,
                       value: _isPinEnabled,
                       onChanged: _togglePin,
                     ),
@@ -105,7 +107,7 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
                       height: ResponsiveSize.getHeight(AppTheme.spacingM),
                     ),
                     _buildSwitchOption(
-                      title: 'OTP',
+                      title: l10n.otpLogin,
                       value: _isOtpEnabled,
                       onChanged: _toggleOtp,
                     ),

@@ -266,6 +266,30 @@ abstract class AppLocalizations {
   /// **'Changer la langue'**
   String get changeLanguage;
 
+  /// No description provided for @connectionSettings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètre de connexion'**
+  String get connectionSettings;
+
+  /// No description provided for @biometricLogin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion par empreinte digitale'**
+  String get biometricLogin;
+
+  /// No description provided for @pinLogin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion par code PIN'**
+  String get pinLogin;
+
+  /// No description provided for @otpLogin.
+  ///
+  /// In fr, this message translates to:
+  /// **'OTP'**
+  String get otpLogin;
+
   /// No description provided for @french.
   ///
   /// In fr, this message translates to:

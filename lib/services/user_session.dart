@@ -74,6 +74,14 @@ class UserSession {
     return _cachedHasPin!;
   }
 
+  /// Met à jour le flag hasPin (à appeler après configuration du PIN)
+  static Future<void> setPinConfigured(bool configured) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hasPinKey, configured);
+    _cachedHasPin = configured;
+    debugPrint('UserSession: PIN configuré mis à jour: $configured');
+  }
+
   /// Met à jour le timestamp de dernière activité
   /// À appeler périodiquement lorsque l'utilisateur interagit avec l'app
   static Future<void> updateActivity() async {

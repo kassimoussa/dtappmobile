@@ -97,6 +97,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changeLanguage => 'Change Language';
 
   @override
+  String get connectionSettings => 'Connection Settings';
+
+  @override
+  String get biometricLogin => 'Fingerprint Login';
+
+  @override
+  String get pinLogin => 'PIN Code Login';
+
+  @override
+  String get otpLogin => 'OTP';
+
+  @override
   String get french => 'French';
 
   @override

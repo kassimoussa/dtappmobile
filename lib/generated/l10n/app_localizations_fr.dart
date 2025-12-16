@@ -98,6 +98,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get changeLanguage => 'Changer la langue';
 
   @override
+  String get connectionSettings => 'Paramètre de connexion';
+
+  @override
+  String get biometricLogin => 'Connexion par empreinte digitale';
+
+  @override
+  String get pinLogin => 'Connexion par code PIN';
+
+  @override
+  String get otpLogin => 'OTP';
+
+  @override
   String get french => 'Français';
 
   @override
