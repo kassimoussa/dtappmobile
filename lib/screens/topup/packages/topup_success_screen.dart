@@ -8,6 +8,7 @@ import '../../../models/topup_balance.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../utils/responsive_size.dart';
 import '../../core/main_screen.dart';
+import '../../../generated/l10n/app_localizations.dart';
 
 class TopUpSuccessScreen extends StatefulWidget {
   final TopUpPackage package;
@@ -51,29 +52,26 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
+      ),
+    );
 
-    _slideAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
-    ));
+    _slideAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
+      ),
+    );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
+      ),
+    );
 
     _animationController.forward();
   }
@@ -103,9 +101,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
   void _redirectToHome() {
     Navigator.pushAndRemoveUntil(
       context,
-      CustomRouteTransitions.fadeRoute(
-        page: const MainScreen(),
-      ),
+      CustomRouteTransitions.fadeRoute(page: const MainScreen()),
       (route) => false,
     );
   }
@@ -113,9 +109,9 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+
     final nouveauSolde = widget.ancienSolde - widget.package.price;
-    
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -123,7 +119,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
         appBar: AppBar(
           backgroundColor: AppTheme.dtBlue,
           title: Text(
-            'Achat réussi',
+            AppLocalizations.of(context)!.purchaseSuccessTitle,
             style: TextStyle(
               color: Colors.white,
               fontSize: ResponsiveSize.getFontSize(18),
@@ -137,18 +133,22 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
           animation: _animationController,
           builder: (context, child) {
             return SingleChildScrollView(
-              padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+              padding: EdgeInsets.all(
+                ResponsiveSize.getWidth(AppTheme.spacingL),
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: ResponsiveSize.getHeight(20)),
-                  
+
                   // Icône de succès avec animation
                   ScaleTransition(
                     scale: _scaleAnimation,
                     child: Container(
-                      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                      padding: EdgeInsets.all(
+                        ResponsiveSize.getWidth(AppTheme.spacingL),
+                      ),
                       decoration: BoxDecoration(
                         color: AppTheme.dtBlue.withOpacityValue(0.1),
                         shape: BoxShape.circle,
@@ -171,7 +171,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                       ),
                     ),
                   ),
-                  
+
                   // Container fixe pour les textes
                   Container(
                     width: double.infinity,
@@ -183,7 +183,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                       children: [
                         // Titre
                         Text(
-                          'Achat TopUp réussi !',
+                          AppLocalizations.of(context)!.topupPurchaseSuccess,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(24),
@@ -191,12 +191,14 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                             color: AppTheme.dtBlue,
                           ),
                         ),
-                        
+
                         SizedBox(height: ResponsiveSize.getHeight(16)),
-                        
+
                         // Message de confirmation
                         Text(
-                          'Le package ${widget.package.displayName} a été activé avec succès sur votre ligne fixe',
+                          AppLocalizations.of(context)!.packageActivatedMessage(
+                            widget.package.displayName,
+                          ),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(14),
@@ -207,52 +209,83 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                       ],
                     ),
                   ),
-                  
+
                   // Détails du package avec fade
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+                      padding: EdgeInsets.all(
+                        ResponsiveSize.getWidth(AppTheme.spacingM),
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveSize.getWidth(AppTheme.radiusM),
+                        ),
                         border: Border.all(color: Colors.grey[200]!),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildDetailRow('Package', widget.package.displayName),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.packageLabel,
+                            widget.package.displayName,
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('ID Transaction', widget.transactionId),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.transactionId,
+                            widget.transactionId,
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Ligne fixe', widget.fixedNumber),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.fixedLineLabel,
+                            widget.fixedNumber,
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Ligne mobile', widget.mobileNumber),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.mobileLineLabel,
+                            widget.mobileNumber,
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Prix', widget.package.formattedPrice),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.price,
+                            widget.package.formattedPrice,
+                          ),
                           _buildDivider(),
-                          _buildDetailRow('Nouveau solde mobile', '${nouveauSolde.toStringAsFixed(0)} DJF'),
-                          
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.newMobileBalance,
+                            '${nouveauSolde.toStringAsFixed(0)} DJF',
+                          ),
+
                           if (widget.package.isDataPackage) ...[
                             _buildDivider(),
-                            _buildDetailRow('Internet', widget.package.formattedData),
+                            _buildDetailRow(
+                              AppLocalizations.of(context)!.internetLabel,
+                              widget.package.formattedData,
+                            ),
                           ],
-                          
+
                           if (widget.package.isVoicePackage) ...[
                             _buildDivider(),
-                            _buildDetailRow('Minutes', widget.package.formattedVoice),
+                            _buildDetailRow(
+                              AppLocalizations.of(context)!.minutesLabel,
+                              widget.package.formattedVoice,
+                            ),
                           ],
-                          
+
                           _buildDivider(),
-                          _buildDetailRow('Validité', widget.package.formattedValidity),
+                          _buildDetailRow(
+                            AppLocalizations.of(context)!.validityLabel,
+                            widget.package.formattedValidity,
+                          ),
                         ],
                       ),
                     ),
                   ),
-                  
+
                   SizedBox(height: ResponsiveSize.getHeight(20)),
-                  
+
                   // Bouton pour retourner immédiatement à l'accueil avec fade
                   FadeTransition(
                     opacity: _fadeAnimation,
@@ -267,11 +300,15 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                               backgroundColor: AppTheme.dtBlue,
                               foregroundColor: AppTheme.dtYellow,
                               padding: EdgeInsets.symmetric(
-                                horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
+                                horizontal: ResponsiveSize.getWidth(
+                                  AppTheme.spacingL,
+                                ),
                                 vertical: ResponsiveSize.getHeight(16),
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveSize.getWidth(AppTheme.radiusM),
+                                ),
                               ),
                               elevation: 2,
                             ),
@@ -285,7 +322,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                                 ),
                                 SizedBox(width: ResponsiveSize.getWidth(8)),
                                 Text(
-                                  'Retour à l\'accueil',
+                                  AppLocalizations.of(context)!.returnHome,
                                   style: TextStyle(
                                     fontSize: ResponsiveSize.getFontSize(16),
                                     fontWeight: FontWeight.bold,
@@ -295,18 +332,22 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                             ),
                           ),
                         ),
-                        
+
                         SizedBox(height: ResponsiveSize.getHeight(16)),
-                        
+
                         // Compte à rebours
                         Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
+                            horizontal: ResponsiveSize.getWidth(
+                              AppTheme.spacingM,
+                            ),
                             vertical: ResponsiveSize.getHeight(8),
                           ),
                           decoration: BoxDecoration(
                             color: AppTheme.dtBlue.withOpacityValue(0.1),
-                            borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(20)),
+                            borderRadius: BorderRadius.circular(
+                              ResponsiveSize.getWidth(20),
+                            ),
                             border: Border.all(
                               color: AppTheme.dtBlue.withOpacityValue(0.3),
                             ),
@@ -321,7 +362,9 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                               ),
                               SizedBox(width: ResponsiveSize.getWidth(6)),
                               Text(
-                                'Redirection automatique dans $_remainingSeconds s',
+                                AppLocalizations.of(
+                                  context,
+                                )!.autoRedirect(_remainingSeconds),
                                 style: TextStyle(
                                   fontSize: ResponsiveSize.getFontSize(12),
                                   color: AppTheme.dtBlue,
@@ -331,15 +374,19 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                             ],
                           ),
                         ),
-                        
+
                         SizedBox(height: ResponsiveSize.getHeight(24)),
-                        
+
                         // Message de confirmation TopUp
                         Container(
-                          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+                          padding: EdgeInsets.all(
+                            ResponsiveSize.getWidth(AppTheme.spacingM),
+                          ),
                           decoration: BoxDecoration(
                             color: AppTheme.dtYellow.withOpacityValue(0.1),
-                            borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                            borderRadius: BorderRadius.circular(
+                              ResponsiveSize.getWidth(AppTheme.radiusM),
+                            ),
                             border: Border.all(
                               color: AppTheme.dtYellow.withOpacityValue(0.3),
                             ),
@@ -355,7 +402,9 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                               SizedBox(width: ResponsiveSize.getWidth(8)),
                               Expanded(
                                 child: Text(
-                                  'Le package a été activé sur votre ligne fixe ${widget.fixedNumber}',
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.packageActivatedFixed(widget.fixedNumber),
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: ResponsiveSize.getFontSize(12),
@@ -368,7 +417,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                             ],
                           ),
                         ),
-                        
+
                         // Espace pour le safe area
                         SizedBox(
                           height: MediaQuery.of(context).padding.bottom + 16,

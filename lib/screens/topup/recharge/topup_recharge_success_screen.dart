@@ -7,6 +7,7 @@ import '../../../extensions/color_extensions.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../utils/responsive_size.dart';
 import '../../core/main_screen.dart';
+import '../../../generated/l10n/app_localizations.dart';
 
 class TopUpRechargeSuccessScreen extends StatefulWidget {
   final double amount;
@@ -25,7 +26,8 @@ class TopUpRechargeSuccessScreen extends StatefulWidget {
   });
 
   @override
-  State<TopUpRechargeSuccessScreen> createState() => _TopUpRechargeSuccessScreenState();
+  State<TopUpRechargeSuccessScreen> createState() =>
+      _TopUpRechargeSuccessScreenState();
 }
 
 class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
@@ -49,21 +51,13 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.5,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
 
     _animationController.forward();
   }
@@ -101,7 +95,7 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: FadeTransition(
@@ -116,7 +110,9 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
                 ScaleTransition(
                   scale: _scaleAnimation,
                   child: Container(
-                    padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingXL)),
+                    padding: EdgeInsets.all(
+                      ResponsiveSize.getWidth(AppTheme.spacingXL),
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.dtBlue.withOpacityValue(0.1),
                       shape: BoxShape.circle,
@@ -135,12 +131,12 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
                     ),
                   ),
                 ),
-                
+
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-                
+
                 // Titre de succès
                 Text(
-                  'Recharge effectuée !',
+                  AppLocalizations.of(context)!.rechargeSuccessTitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(28),
@@ -148,35 +144,35 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
                     color: AppTheme.dtBlue,
                   ),
                 ),
-                
+
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                
+
                 Text(
-                  'Votre recharge a été effectuée avec succès',
+                  AppLocalizations.of(context)!.rechargeSuccessMessage,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(16),
                     color: Colors.grey[600],
                   ),
                 ),
-                
+
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-                
+
                 // Détails de la recharge
                 _buildRechargeDetails(),
-                
+
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-                
+
                 // Impact sur les comptes
                 if (widget.accountImpact != null) _buildAccountImpact(),
-                
+
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-                
+
                 // Boutons d'action
                 _buildActionButtons(),
-                
+
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                
+
                 // Compte à rebours
                 _buildCountdown(),
               ],
@@ -188,24 +184,28 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
   }
 
   Widget _buildRechargeDetails() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
       decoration: BoxDecoration(
         color: AppTheme.dtYellow.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-        border: Border.all(
-          color: AppTheme.dtYellow.withOpacityValue(0.3),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
         ),
+        border: Border.all(color: AppTheme.dtYellow.withOpacityValue(0.3)),
       ),
       child: Column(
         children: [
-          _buildDetailRow('Montant transféré', '${widget.amount.toStringAsFixed(0)} DJF'),
+          _buildDetailRow(
+            l10n.transferAmount,
+            '${widget.amount.toStringAsFixed(0)} DJF',
+          ),
           Divider(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          _buildDetailRow('De (Mobile)', widget.mobileNumber),
+          _buildDetailRow(l10n.fromMobileSource, widget.mobileNumber),
           Divider(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          _buildDetailRow('Vers (Fixe)', widget.fixedNumber),
+          _buildDetailRow(l10n.toFixedDestination, widget.fixedNumber),
           Divider(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          _buildDetailRow('Transaction ID', widget.transactionId),
+          _buildDetailRow(l10n.transactionId, widget.transactionId),
         ],
       ),
     );
@@ -239,25 +239,30 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
 
   Widget _buildAccountImpact() {
     final impact = widget.accountImpact!;
+    final l10n = AppLocalizations.of(context)!;
     final mobileAfter = impact['mobile_balance_after'] ?? 0.0;
     final fixedAfter = impact['fixed_balance_after'] ?? 0.0;
-    final formattedMobileAfter = impact['formatted_mobile_after'] ?? '${mobileAfter.toStringAsFixed(0)} DJF';
-    final formattedFixedAfter = impact['formatted_fixed_after'] ?? '${fixedAfter.toStringAsFixed(0)} DJF';
+    final formattedMobileAfter =
+        impact['formatted_mobile_after'] ??
+        '${mobileAfter.toStringAsFixed(0)} DJF';
+    final formattedFixedAfter =
+        impact['formatted_fixed_after'] ??
+        '${fixedAfter.toStringAsFixed(0)} DJF';
 
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
       decoration: BoxDecoration(
         color: AppTheme.dtBlue.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-        border: Border.all(
-          color: AppTheme.dtBlue.withOpacityValue(0.3),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusM),
         ),
+        border: Border.all(color: AppTheme.dtBlue.withOpacityValue(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Impact sur vos comptes',
+            l10n.accountImpact,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
               fontWeight: FontWeight.bold,
@@ -265,15 +270,16 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
             ),
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          _buildDetailRow('Nouveau solde mobile', formattedMobileAfter),
+          _buildDetailRow(l10n.newMobileBalance, formattedMobileAfter),
           Divider(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          _buildDetailRow('Nouveau solde fixe', formattedFixedAfter),
+          _buildDetailRow(l10n.newFixedBalance, formattedFixedAfter),
         ],
       ),
     );
   }
 
   Widget _buildActionButtons() {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
@@ -291,7 +297,7 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
               ),
             ),
             child: Text(
-              'Retour accueil',
+              l10n.returnHome,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(16),
                 fontWeight: FontWeight.bold,
@@ -320,7 +326,7 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
               ),
             ),
             child: Text(
-              'Nouvelle recharge',
+              l10n.newRecharge,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(16),
                 fontWeight: FontWeight.bold,
@@ -340,10 +346,12 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
       ),
       decoration: BoxDecoration(
         color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusS),
+        ),
       ),
       child: Text(
-        'Redirection automatique dans $_remainingSeconds seconde${_remainingSeconds > 1 ? 's' : ''}',
+        AppLocalizations.of(context)!.autoRedirect(_remainingSeconds),
         style: TextStyle(
           fontSize: ResponsiveSize.getFontSize(12),
           color: Colors.grey[600],

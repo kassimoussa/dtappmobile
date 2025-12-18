@@ -414,7 +414,7 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
             LengthLimitingTextInputFormatter(5),
           ],
           decoration: InputDecoration(
-            hintText: 'Ex: 1000',
+            hintText: l10n.amountHint,
             suffixText: 'DJF',
             prefixIcon: Icon(Icons.payments, color: AppTheme.dtBlue),
             border: OutlineInputBorder(

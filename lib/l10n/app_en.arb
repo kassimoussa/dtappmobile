@@ -89,16 +89,16 @@
     "feesKey": "Fees (5%)",
     "totalDebit": "Total to debit",
     "dateKey": "Date",
-    "currentBalance": "Current Balance: {balance} DJF",
-    "@currentBalance": {
+    "currentBalanceFormat": "Current Balance: {balance} DJF",
+    "@currentBalanceFormat": {
       "placeholders": {
         "balance": {
           "type": "String"
         }
       }
     },
-    "balanceAfterTransfer": "Balance after transfer: {balance} DJF",
-    "@balanceAfterTransfer": {
+    "balanceAfterTransferFormat": "Balance after transfer: {balance} DJF",
+    "@balanceAfterTransferFormat": {
       "placeholders": {
         "balance": {
           "type": "String"
@@ -419,5 +419,80 @@
            "type": "String"
          }
       }
-    }
-}
+    },
+    "checkFixedLine": "Check your fixed line",
+    "enterFixedNumberInfo": "Please enter your fixed line number to check balances",
+    "fixedLineNumberKey": "Fixed Line Number",
+    "fixedLineNumberHint": "Ex: 21XXXXXX",
+    "fixedBalances": "Fixed Balances",
+    "consult": "Check",
+    "consulting": "Checking...",
+    "consultingInProgress": "Checking balances...",
+    "numberSuspended": "Number Suspended",
+    "numberSuspendedInfo": "This number is temporarily suspended.",
+    "balancesConsultableOnly": "You can check balances but purchases are temporarily unavailable.",
+    "understood": "Understood",
+    "numberEligibleButBalancesUnavailable": "The number is eligible but balances are unavailable. Please try again later.",
+    "fixedLineNumberFormat": "Line: {number}",
+    "@fixedLineNumberFormat": {
+      "placeholders": {
+        "number": {
+          "type": "String"
+        }
+      }
+    },
+    "logoutTopUpSuccess": "TopUp logout successful",
+    "packagesUnavailable": "No packages available",
+    "packagesSoonAvailable": "{type} packages will be available soon for this line.",
+    "@packagesSoonAvailable": {
+      "placeholders": {
+        "type": {
+          "type": "String"
+        }
+      }
+    },
+    "choosePackageTitle": "Choose your package",
+    "availablePackagesCount": "{count} {type} package(s) available for your fixed line.",
+    "@availablePackagesCount": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "type": {
+          "type": "String"
+        }
+      }
+    },
+    "availableStatus": "Available",
+    "availability": "Availability",
+    "subscriptionLabel": "Subscription",
+    "rechargeSuccessTitle": "Recharge successful!",
+    "rechargeSuccessMessage": "Your recharge was successful",
+    "transferAmount": "Transferred amount",
+    "fromMobileSource": "From (Mobile)",
+    "toFixedDestination": "To (Fixed)",
+    "transactionId": "Transaction ID",
+    "accountImpact": "Impact on your accounts",
+    "newMobileBalance": "New mobile balance",
+    "newFixedBalance": "New fixed balance",
+    "returnHome": "Return to home",
+    "newRecharge": "New recharge",
+    "autoRedirect": "Automatic redirection in {seconds} s",
+    "purchaseSuccessTitle": "Purchase successful",
+    "topupPurchaseSuccess": "TopUp purchase successful!",
+    "packageActivatedMessage": "Package {package} has been successfully activated on your fixed line",
+    "packageLabel": "Package",
+    "fixedLineLabel": "Fixed line",
+    "mobileLineLabel": "Mobile line",
+    "internetLabel": "Internet",
+    "minutesLabel": "Minutes",
+    "subscriptionSuccessTitle": "Subscription successful",
+    "topupSubscriptionSuccess": "TopUp subscription successful!",
+    "subscriptionActivatedMessage": "Subscription {subscription} has been successfully activated on your fixed line",
+    "callsToFixed": "Calls to fixed lines",
+    "unlimited": "Unlimited",
+    "subscriptionMonthlyActivated": "The monthly subscription has been activated on your fixed line {number}",
+    "packageActivatedFixed": "The package has been activated on your fixed line {number}",
+    "unknownStatus": "Unknown status",
+    "money": "Credit"
+  }

@@ -684,11 +684,14 @@ class _TopUpPackageConfirmationScreenState
                           size: ResponsiveSize.getFontSize(18),
                         ),
                         SizedBox(width: ResponsiveSize.getWidth(8)),
-                        Text(
-                          l10n.confirmPurchaseAction,
-                          style: TextStyle(
-                            fontSize: ResponsiveSize.getFontSize(16),
-                            fontWeight: FontWeight.bold,
+                        Flexible(
+                          child: Text(
+                            l10n.confirmPurchaseAction,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: ResponsiveSize.getFontSize(16),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],

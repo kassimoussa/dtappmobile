@@ -170,6 +170,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
   }
 
   Widget _buildPackageList() {
+    final l10n = AppLocalizations.of(context)!;
     final response = _packageResponse!;
 
     if (response.packages.isEmpty) {
@@ -186,7 +187,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
               Text(
-                'Aucun package disponible',
+                l10n.packagesUnavailable,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(20),
                   fontWeight: FontWeight.bold,
@@ -195,7 +196,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
               Text(
-                'Les packages ${widget.typeLabel.toLowerCase()} seront bientôt disponibles pour cette ligne.',
+                l10n.packagesSoonAvailable(widget.typeLabel.toLowerCase()),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(14),
@@ -227,7 +228,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Choisissez votre package',
+                l10n.choosePackageTitle,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(18),
                   fontWeight: FontWeight.bold,
@@ -236,7 +237,10 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
               Text(
-                '${response.totalPackages} package(s) ${widget.typeLabel.toLowerCase()} disponible(s) pour votre ligne fixe.',
+                l10n.availablePackagesCount(
+                  response.totalPackages,
+                  widget.typeLabel.toLowerCase(),
+                ),
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(14),
                   color: Colors.grey[700],
@@ -303,75 +307,88 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
 
                 // Prix et bouton d'achat
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      package.formattedPrice,
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(20),
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.dtBlue,
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  package.formattedPrice,
+                  style: TextStyle(
+                    fontSize: ResponsiveSize.getFontSize(20),
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.dtBlue,
+                  ),
+                ),
+                SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: ElevatedButton(
+                    onPressed:
+                        package.price > widget.soldeActuel
+                            ? null
+                            : () => _navigateToConfirmation(package),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.dtBlue,
+                      foregroundColor: AppTheme.dtYellow,
+                      disabledBackgroundColor: Colors.grey[400],
+                      disabledForegroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
+                        vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveSize.getWidth(AppTheme.radiusS),
+                        ),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed:
-                          package.price > widget.soldeActuel
-                              ? null
-                              : () => _navigateToConfirmation(package),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.dtBlue,
-                        foregroundColor: AppTheme.dtYellow,
-                        disabledBackgroundColor: Colors.grey[400],
-                        disabledForegroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: ResponsiveSize.getWidth(
-                            AppTheme.spacingL,
-                          ),
-                          vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            ResponsiveSize.getWidth(AppTheme.radiusS),
-                          ),
-                        ),
-                      ),
-                      child:
-                          package.price > widget.soldeActuel
-                              ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.warning_amber_rounded,
-                                    size: ResponsiveSize.getFontSize(16),
+                    child:
+                        package.price > widget.soldeActuel
+                            ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.warning_amber_rounded,
+                                  size: ResponsiveSize.getFontSize(16),
+                                ),
+                                SizedBox(
+                                  width: ResponsiveSize.getWidth(
+                                    AppTheme.spacingXS,
                                   ),
-                                  SizedBox(
-                                    width: ResponsiveSize.getWidth(
-                                      AppTheme.spacingXS,
-                                    ),
-                                  ),
-                                  Text(
+                                ),
+                                Flexible(
+                                  child: Text(
                                     l10n.insufficientBalanceSimple,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: ResponsiveSize.getFontSize(14),
+                                      fontSize: ResponsiveSize.getFontSize(13),
                                     ),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
                                   ),
-                                ],
-                              )
-                              : Text(
-                                l10n.buyAction,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: ResponsiveSize.getFontSize(16),
                                 ),
+                              ],
+                            )
+                            : Text(
+                              l10n.buyAction,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: ResponsiveSize.getFontSize(16),
                               ),
-                    ),
-                  ],
+                            ),
+                  ),
                 ),
               ],
             ),
           ),
+          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
         ],
       ),
     );
@@ -419,6 +436,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
   }
 
   Widget _buildDataPackageDetails(TopUpPackage package, bool isSubscription) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
@@ -440,7 +458,15 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
             Expanded(
               child: _buildDetailItem(
                 Icons.schedule,
-                '${package.formattedValidity} jours',
+                l10n.validityDays(
+                  int.tryParse(
+                        package.formattedValidity.replaceAll(
+                          RegExp(r'[^0-9]'),
+                          '',
+                        ),
+                      ) ??
+                      0,
+                ),
               ),
             ),
           ],
@@ -450,6 +476,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
   }
 
   Widget _buildVoicePackageDetails(TopUpPackage package, bool isSubscription) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
@@ -471,7 +498,15 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
             Expanded(
               child: _buildDetailItem(
                 Icons.schedule,
-                '${package.formattedValidity} jours',
+                l10n.validityDays(
+                  int.tryParse(
+                        package.formattedValidity.replaceAll(
+                          RegExp(r'[^0-9]'),
+                          '',
+                        ),
+                      ) ??
+                      0,
+                ),
               ),
             ),
           ],
@@ -539,18 +574,18 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildDetailRow('Prix', package.formattedPrice),
+                _buildDetailRow(l10n.price, package.formattedPrice),
                 if (package.isDataPackage)
-                  _buildDetailRow('Données', package.formattedData),
+                  _buildDetailRow(l10n.dataType, package.formattedData),
                 if (package.isVoicePackage)
-                  _buildDetailRow('Minutes', package.formattedVoice),
+                  _buildDetailRow(l10n.minutesLabel, package.formattedVoice),
                 if (package.formattedValidity.isNotEmpty &&
                     package.formattedValidity != 'Non spécifiée')
-                  _buildDetailRow('Validité', package.formattedValidity),
+                  _buildDetailRow(l10n.validity, package.formattedValidity),
                 _buildDetailRow(
-                  'Disponibilité',
+                  l10n.availability,
                   package.price <= widget.soldeActuel
-                      ? 'Disponible'
+                      ? l10n.availableStatus
                       : l10n.insufficientBalanceSimple,
                 ),
               ],
@@ -612,6 +647,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
   }
 
   void _showComingSoonDialog(String feature) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder:
@@ -625,14 +661,14 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
               ),
             ),
             content: Text(
-              'Cette fonctionnalité sera bientôt disponible.',
+              l10n.comingSoonMessage,
               style: TextStyle(fontSize: ResponsiveSize.getFontSize(16)),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  'OK',
+                  l10n.ok,
                   style: TextStyle(
                     color: AppTheme.dtBlue,
                     fontSize: ResponsiveSize.getFontSize(16),

@@ -244,7 +244,7 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
                           _buildDivider(),
                           _buildDetailRow(
                             AppLocalizations.of(context)!
-                                .balanceAfterTransfer(
+                                .balanceAfterTransferFormat(
                                   nouveauSolde.toStringAsFixed(0),
                                 )
                                 .split(':')

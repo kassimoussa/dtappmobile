@@ -146,6 +146,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   }
 
   void _processNumberStatus(Map<String, dynamic> statusResponse) {
+    final l10n = AppLocalizations.of(context)!;
     final success = statusResponse['success'] ?? false;
     final returnCode = statusResponse['return_code'] ?? '';
     final description = statusResponse['description'] ?? '';
@@ -157,7 +158,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
 
     if (status != null) {
       final eligible = status['eligible'] ?? false;
-      final statusText = status['status_text'] ?? 'Statut inconnu';
+      final statusText = status['status_text'] ?? l10n.unknownStatus;
       final reason = status['reason'] ?? '';
       final rawDescription = status['raw_description'] ?? description;
 
@@ -173,6 +174,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
 
   void _showSuspendedDialog() {
     if (_numberStatus == null) return;
+    final l10n = AppLocalizations.of(context)!;
 
     final status = _numberStatus!['status'];
     final description = _numberStatus!['description'] ?? '';
@@ -187,7 +189,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               Icon(Icons.warning_amber, color: Colors.orange, size: 24),
               SizedBox(width: ResponsiveSize.getWidth(8)),
               Text(
-                'Numéro suspendu',
+                l10n.numberSuspended,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(18),
                   fontWeight: FontWeight.bold,
@@ -203,7 +205,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               Text(
                 rawDescription.isNotEmpty
                     ? rawDescription
-                    : 'Ce numéro est temporairement suspendu.',
+                    : l10n.numberSuspendedInfo,
                 style: TextStyle(fontSize: ResponsiveSize.getFontSize(16)),
               ),
               SizedBox(height: ResponsiveSize.getHeight(16)),
@@ -222,7 +224,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                     SizedBox(width: ResponsiveSize.getWidth(8)),
                     Expanded(
                       child: Text(
-                        'Vous pouvez consulter les soldes mais les achats sont temporairement indisponibles.',
+                        l10n.balancesConsultableOnly,
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(14),
                           color: Colors.orange[800],
@@ -238,7 +240,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                'Compris',
+                l10n.understood,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(16),
                   fontWeight: FontWeight.bold,
@@ -341,9 +343,9 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
 
         // Mettre à jour le message d'erreur avec plus de détails
         setState(() {
+          final l10n = AppLocalizations.of(context)!;
           if (eligible) {
-            _errorMessage =
-                'Le numéro est éligible mais les soldes sont indisponibles. Réessayez plus tard.';
+            _errorMessage = l10n.numberEligibleButBalancesUnavailable;
           } else {
             // Utiliser la description brute pour plus de précision
             _errorMessage =
@@ -538,6 +540,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   }
 
   Widget _buildInputForm() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       child: Card(
@@ -555,7 +558,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Consulter votre ligne fixe',
+                  l10n.checkFixedLine,
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(18),
                     fontWeight: FontWeight.bold,
@@ -564,7 +567,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 ),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
                 Text(
-                  'Veuillez entrer votre numéro de ligne fixe pour consulter ses soldes',
+                  l10n.enterFixedNumberInfo,
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(14),
                     color: AppTheme.textSecondary,
@@ -576,8 +579,8 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                   keyboardType: TextInputType.phone,
                   validator: _validateFixedNumber,
                   decoration: InputDecoration(
-                    labelText: 'Numéro de ligne fixe',
-                    hintText: 'Ex: 21XXXXXX',
+                    labelText: l10n.fixedLineNumberKey,
+                    hintText: l10n.fixedLineNumberHint,
                     prefixIcon: Icon(Icons.phone, color: AppTheme.dtBlue),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(
@@ -610,7 +613,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                       ),
                     ),
                     child: Text(
-                      _isLoading ? 'Consultation...' : 'Consulter',
+                      _isLoading ? l10n.consulting : l10n.consult,
                       style: TextStyle(
                         fontSize: ResponsiveSize.getFontSize(16),
                         fontWeight: FontWeight.bold,
@@ -627,6 +630,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   }
 
   Widget _buildLoadingState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         children: [
@@ -635,7 +639,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
           Text(
-            'Consultation des soldes en cours...',
+            l10n.consultingInProgress,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(14),
               color: AppTheme.textSecondary,
@@ -699,6 +703,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   }
 
   Widget _buildBalanceSummary() {
+    final l10n = AppLocalizations.of(context)!;
     final response = _balanceResponse!;
 
     return Card(
@@ -726,7 +731,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Soldes Fixes',
+                        l10n.fixedBalances,
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(18),
                           fontWeight: FontWeight.bold,
@@ -734,7 +739,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                         ),
                       ),
                       Text(
-                        'Ligne: $_currentFixedNumber',
+                        l10n.fixedLineNumberFormat(_currentFixedNumber ?? ''),
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(12),
                           color: AppTheme.textSecondary,
@@ -750,19 +755,19 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildSummaryItem(
-                  'Argent',
+                  l10n.money,
                   response.summary.moneyTotalFormatted,
                   Icons.monetization_on,
                   Colors.green,
                 ),
                 _buildSummaryItem(
-                  'Données',
+                  l10n.dataType,
                   response.summary.dataTotalFormatted,
                   Icons.data_usage,
                   Colors.blue,
                 ),
                 _buildSummaryItem(
-                  'Voix',
+                  l10n.voiceType,
                   response.summary.voiceTotalFormatted,
                   Icons.phone,
                   Colors.orange,

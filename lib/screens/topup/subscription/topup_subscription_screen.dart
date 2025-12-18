@@ -359,7 +359,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(16)),
             Text(
-              'Souscription',
+              AppLocalizations.of(context)!.subscriptionLabel,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
                 color: Colors.grey[600],

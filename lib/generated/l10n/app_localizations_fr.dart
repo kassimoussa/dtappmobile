@@ -290,12 +290,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dateKey => 'Date';
 
   @override
-  String currentBalance(String balance) {
-    return 'Solde actuel';
+  String currentBalanceFormat(String balance) {
+    return 'Solde actuel: $balance DJF';
   }
 
   @override
-  String balanceAfterTransfer(String balance) {
+  String balanceAfterTransferFormat(String balance) {
     return 'Solde après transfert: $balance DJF';
   }
 
@@ -429,7 +429,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get callsLabel => 'Appels';
 
   @override
-  String get minutesLabel => 'Minutes d\'appel';
+  String get minutesLabel => 'Minutes';
 
   @override
   String get smsLabel => 'SMS';
@@ -465,7 +465,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get packageLabel => 'Forfait';
+  String get packageLabel => 'Package';
 
   @override
   String get newBalance => 'Nouveau solde';
@@ -918,6 +918,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get days => 'jours';
 
   @override
+  String get currentBalance => 'Solde actuel';
+
+  @override
   String get balanceAfterPurchase => 'Solde après achat';
 
   @override
@@ -1074,4 +1077,157 @@ class AppLocalizationsFr extends AppLocalizations {
   String transferCurrentBalance(String balance) {
     return '• Votre solde actuel : $balance DJF';
   }
+
+  @override
+  String get checkFixedLine => 'Consulter votre ligne fixe';
+
+  @override
+  String get enterFixedNumberInfo =>
+      'Veuillez entrer votre numéro de ligne fixe pour consulter ses soldes';
+
+  @override
+  String get fixedLineNumberKey => 'Numéro de ligne fixe';
+
+  @override
+  String get fixedLineNumberHint => 'Ex: 21XXXXXX';
+
+  @override
+  String get fixedBalances => 'Soldes Fixes';
+
+  @override
+  String get consult => 'Consulter';
+
+  @override
+  String get consulting => 'Consultation...';
+
+  @override
+  String get consultingInProgress => 'Consultation des soldes en cours...';
+
+  @override
+  String get numberSuspended => 'Numéro suspendu';
+
+  @override
+  String get numberSuspendedInfo => 'Ce numéro est temporairement suspendu.';
+
+  @override
+  String get balancesConsultableOnly =>
+      'Vous pouvez consulter les soldes mais les achats sont temporairement indisponibles.';
+
+  @override
+  String get understood => 'Compris';
+
+  @override
+  String get numberEligibleButBalancesUnavailable =>
+      'Le numéro est éligible mais les soldes sont indisponibles. Réessayez plus tard.';
+
+  @override
+  String fixedLineNumberFormat(String number) {
+    return 'Ligne: $number';
+  }
+
+  @override
+  String get packagesUnavailable => 'Aucun package disponible';
+
+  @override
+  String packagesSoonAvailable(String type) {
+    return 'Les packages $type seront bientôt disponibles pour cette ligne.';
+  }
+
+  @override
+  String get choosePackageTitle => 'Choisissez votre package';
+
+  @override
+  String availablePackagesCount(int count, String type) {
+    return '$count package(s) $type disponible(s) pour votre ligne fixe.';
+  }
+
+  @override
+  String get availableStatus => 'Disponible';
+
+  @override
+  String get availability => 'Disponibilité';
+
+  @override
+  String get subscriptionLabel => 'Souscription';
+
+  @override
+  String get rechargeSuccessTitle => 'Recharge effectuée !';
+
+  @override
+  String get rechargeSuccessMessage =>
+      'Votre recharge a été effectuée avec succès';
+
+  @override
+  String get transferAmount => 'Montant transféré';
+
+  @override
+  String get fromMobileSource => 'De (Mobile)';
+
+  @override
+  String get toFixedDestination => 'Vers (Fixe)';
+
+  @override
+  String get transactionId => 'ID Transaction';
+
+  @override
+  String get accountImpact => 'Impact sur vos comptes';
+
+  @override
+  String get newMobileBalance => 'Nouveau solde mobile';
+
+  @override
+  String get newFixedBalance => 'Nouveau solde fixe';
+
+  @override
+  String get returnHome => 'Retour accueil';
+
+  @override
+  String get newRecharge => 'Nouvelle recharge';
+
+  @override
+  String get topupPurchaseSuccess => 'Achat TopUp réussi !';
+
+  @override
+  String packageActivatedMessage(Object package) {
+    return 'Le package $package a été activé avec succès sur votre ligne fixe';
+  }
+
+  @override
+  String get fixedLineLabel => 'Ligne fixe';
+
+  @override
+  String get mobileLineLabel => 'Ligne mobile';
+
+  @override
+  String get subscriptionSuccessTitle => 'Souscription réussie';
+
+  @override
+  String get topupSubscriptionSuccess => 'Souscription TopUp réussie !';
+
+  @override
+  String subscriptionActivatedMessage(Object subscription) {
+    return 'La souscription $subscription a été activée avec succès sur votre ligne fixe';
+  }
+
+  @override
+  String get callsToFixed => 'Appels vers fixes';
+
+  @override
+  String get unlimited => 'Illimités';
+
+  @override
+  String subscriptionMonthlyActivated(Object number) {
+    return 'La souscription mensuelle a été activée sur votre ligne fixe $number';
+  }
+
+  @override
+  String packageActivatedFixed(Object number) {
+    return 'Le package a été activé sur votre ligne fixe $number';
+  }
+
+  @override
+  String get unknownStatus => 'Statut inconnu';
+
+  @override
+  String get money => 'Crédit';
 }

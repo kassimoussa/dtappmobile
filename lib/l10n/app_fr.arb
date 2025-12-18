@@ -106,16 +106,16 @@
     "feesKey": "Frais (5%)",
     "totalDebit": "Total à débiter",
     "dateKey": "Date",
-    "currentBalance": "Solde actuel: {balance} DJF",
-    "@currentBalance": {
+    "currentBalanceFormat": "Solde actuel: {balance} DJF",
+    "@currentBalanceFormat": {
       "placeholders": {
         "balance": {
           "type": "String"
         }
       }
     },
-    "balanceAfterTransfer": "Solde après transfert: {balance} DJF",
-    "@balanceAfterTransfer": {
+    "balanceAfterTransferFormat": "Solde après transfert: {balance} DJF",
+    "@balanceAfterTransferFormat": {
       "placeholders": {
         "balance": {
           "type": "String"
@@ -437,5 +437,80 @@
            "type": "String"
          }
       }
-    }
-}
+    },
+    "checkFixedLine": "Consulter votre ligne fixe",
+    "enterFixedNumberInfo": "Veuillez entrer votre numéro de ligne fixe pour consulter ses soldes",
+    "fixedLineNumberKey": "Numéro de ligne fixe",
+    "fixedLineNumberHint": "Ex: 21XXXXXX",
+    "fixedBalances": "Soldes Fixes",
+    "consult": "Consulter",
+    "consulting": "Consultation...",
+    "consultingInProgress": "Consultation des soldes en cours...",
+    "numberSuspended": "Numéro suspendu",
+    "numberSuspendedInfo": "Ce numéro est temporairement suspendu.",
+    "balancesConsultableOnly": "Vous pouvez consulter les soldes mais les achats sont temporairement indisponibles.",
+    "understood": "Compris",
+    "numberEligibleButBalancesUnavailable": "Le numéro est éligible mais les soldes sont indisponibles. Réessayez plus tard.",
+    "fixedLineNumberFormat": "Ligne: {number}",
+    "@fixedLineNumberFormat": {
+      "placeholders": {
+        "number": {
+          "type": "String"
+        }
+      }
+    },
+    "logoutTopUpSuccess": "Déconnexion TopUp réussie",
+    "packagesUnavailable": "Aucun package disponible",
+    "packagesSoonAvailable": "Les packages {type} seront bientôt disponibles pour cette ligne.",
+    "@packagesSoonAvailable": {
+      "placeholders": {
+        "type": {
+          "type": "String"
+        }
+      }
+    },
+    "choosePackageTitle": "Choisissez votre package",
+    "availablePackagesCount": "{count} package(s) {type} disponible(s) pour votre ligne fixe.",
+    "@availablePackagesCount": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "type": {
+          "type": "String"
+        }
+      }
+    },
+    "availableStatus": "Disponible",
+    "availability": "Disponibilité",
+    "subscriptionLabel": "Souscription",
+    "rechargeSuccessTitle": "Recharge effectuée !",
+    "rechargeSuccessMessage": "Votre recharge a été effectuée avec succès",
+    "transferAmount": "Montant transféré",
+    "fromMobileSource": "De (Mobile)",
+    "toFixedDestination": "Vers (Fixe)",
+    "transactionId": "ID Transaction",
+    "accountImpact": "Impact sur vos comptes",
+    "newMobileBalance": "Nouveau solde mobile",
+    "newFixedBalance": "Nouveau solde fixe",
+    "returnHome": "Retour accueil",
+    "newRecharge": "Nouvelle recharge",
+    "autoRedirect": "Redirection automatique dans {seconds} s",
+    "purchaseSuccessTitle": "Achat réussi",
+    "topupPurchaseSuccess": "Achat TopUp réussi !",
+    "packageActivatedMessage": "Le package {package} a été activé avec succès sur votre ligne fixe",
+    "packageLabel": "Package",
+    "fixedLineLabel": "Ligne fixe",
+    "mobileLineLabel": "Ligne mobile",
+    "internetLabel": "Internet",
+    "minutesLabel": "Minutes",
+    "subscriptionSuccessTitle": "Souscription réussie",
+    "topupSubscriptionSuccess": "Souscription TopUp réussie !",
+    "subscriptionActivatedMessage": "La souscription {subscription} a été activée avec succès sur votre ligne fixe",
+    "callsToFixed": "Appels vers fixes",
+    "unlimited": "Illimités",
+    "subscriptionMonthlyActivated": "La souscription mensuelle a été activée sur votre ligne fixe {number}",
+    "packageActivatedFixed": "Le package a été activé sur votre ligne fixe {number}",
+    "unknownStatus": "Statut inconnu",
+    "money": "Crédit"
+  }

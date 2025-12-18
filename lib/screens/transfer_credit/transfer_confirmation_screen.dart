@@ -171,7 +171,7 @@ class _TransferConfirmationScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.currentBalance(
+                          AppLocalizations.of(context)!.currentBalanceFormat(
                             balanceProvider.solde.toStringAsFixed(0),
                           ),
                           style: TextStyle(
@@ -183,7 +183,9 @@ class _TransferConfirmationScreenState
                           height: ResponsiveSize.getHeight(AppTheme.spacingXS),
                         ),
                         Text(
-                          AppLocalizations.of(context)!.balanceAfterTransfer(
+                          AppLocalizations.of(
+                            context,
+                          )!.balanceAfterTransferFormat(
                             (balanceProvider.solde -
                                     widget.amount -
                                     widget.transferFee)

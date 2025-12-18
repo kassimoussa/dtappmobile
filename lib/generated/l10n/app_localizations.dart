@@ -632,17 +632,17 @@ abstract class AppLocalizations {
   /// **'Date'**
   String get dateKey;
 
-  /// No description provided for @currentBalance.
+  /// No description provided for @currentBalanceFormat.
   ///
   /// In fr, this message translates to:
-  /// **'Solde actuel'**
-  String currentBalance(String balance);
+  /// **'Solde actuel: {balance} DJF'**
+  String currentBalanceFormat(String balance);
 
-  /// No description provided for @balanceAfterTransfer.
+  /// No description provided for @balanceAfterTransferFormat.
   ///
   /// In fr, this message translates to:
   /// **'Solde après transfert: {balance} DJF'**
-  String balanceAfterTransfer(String balance);
+  String balanceAfterTransferFormat(String balance);
 
   /// No description provided for @transferWarning.
   ///
@@ -881,7 +881,7 @@ abstract class AppLocalizations {
   /// No description provided for @minutesLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Minutes d\'appel'**
+  /// **'Minutes'**
   String get minutesLabel;
 
   /// No description provided for @smsLabel.
@@ -941,7 +941,7 @@ abstract class AppLocalizations {
   /// No description provided for @packageLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Forfait'**
+  /// **'Package'**
   String get packageLabel;
 
   /// No description provided for @newBalance.
@@ -1682,6 +1682,12 @@ abstract class AppLocalizations {
   /// **'jours'**
   String get days;
 
+  /// No description provided for @currentBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde actuel'**
+  String get currentBalance;
+
   /// No description provided for @balanceAfterPurchase.
   ///
   /// In fr, this message translates to:
@@ -1975,6 +1981,276 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'• Votre solde actuel : {balance} DJF'**
   String transferCurrentBalance(String balance);
+
+  /// No description provided for @checkFixedLine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter votre ligne fixe'**
+  String get checkFixedLine;
+
+  /// No description provided for @enterFixedNumberInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez entrer votre numéro de ligne fixe pour consulter ses soldes'**
+  String get enterFixedNumberInfo;
+
+  /// No description provided for @fixedLineNumberKey.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de ligne fixe'**
+  String get fixedLineNumberKey;
+
+  /// No description provided for @fixedLineNumberHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: 21XXXXXX'**
+  String get fixedLineNumberHint;
+
+  /// No description provided for @fixedBalances.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soldes Fixes'**
+  String get fixedBalances;
+
+  /// No description provided for @consult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter'**
+  String get consult;
+
+  /// No description provided for @consulting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultation...'**
+  String get consulting;
+
+  /// No description provided for @consultingInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultation des soldes en cours...'**
+  String get consultingInProgress;
+
+  /// No description provided for @numberSuspended.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro suspendu'**
+  String get numberSuspended;
+
+  /// No description provided for @numberSuspendedInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro est temporairement suspendu.'**
+  String get numberSuspendedInfo;
+
+  /// No description provided for @balancesConsultableOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous pouvez consulter les soldes mais les achats sont temporairement indisponibles.'**
+  String get balancesConsultableOnly;
+
+  /// No description provided for @understood.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compris'**
+  String get understood;
+
+  /// No description provided for @numberEligibleButBalancesUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le numéro est éligible mais les soldes sont indisponibles. Réessayez plus tard.'**
+  String get numberEligibleButBalancesUnavailable;
+
+  /// No description provided for @fixedLineNumberFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ligne: {number}'**
+  String fixedLineNumberFormat(String number);
+
+  /// No description provided for @packagesUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun package disponible'**
+  String get packagesUnavailable;
+
+  /// No description provided for @packagesSoonAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les packages {type} seront bientôt disponibles pour cette ligne.'**
+  String packagesSoonAvailable(String type);
+
+  /// No description provided for @choosePackageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez votre package'**
+  String get choosePackageTitle;
+
+  /// No description provided for @availablePackagesCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} package(s) {type} disponible(s) pour votre ligne fixe.'**
+  String availablePackagesCount(int count, String type);
+
+  /// No description provided for @availableStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible'**
+  String get availableStatus;
+
+  /// No description provided for @availability.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponibilité'**
+  String get availability;
+
+  /// No description provided for @subscriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souscription'**
+  String get subscriptionLabel;
+
+  /// No description provided for @rechargeSuccessTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recharge effectuée !'**
+  String get rechargeSuccessTitle;
+
+  /// No description provided for @rechargeSuccessMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre recharge a été effectuée avec succès'**
+  String get rechargeSuccessMessage;
+
+  /// No description provided for @transferAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant transféré'**
+  String get transferAmount;
+
+  /// No description provided for @fromMobileSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'De (Mobile)'**
+  String get fromMobileSource;
+
+  /// No description provided for @toFixedDestination.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vers (Fixe)'**
+  String get toFixedDestination;
+
+  /// No description provided for @transactionId.
+  ///
+  /// In fr, this message translates to:
+  /// **'ID Transaction'**
+  String get transactionId;
+
+  /// No description provided for @accountImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact sur vos comptes'**
+  String get accountImpact;
+
+  /// No description provided for @newMobileBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau solde mobile'**
+  String get newMobileBalance;
+
+  /// No description provided for @newFixedBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau solde fixe'**
+  String get newFixedBalance;
+
+  /// No description provided for @returnHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour accueil'**
+  String get returnHome;
+
+  /// No description provided for @newRecharge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle recharge'**
+  String get newRecharge;
+
+  /// No description provided for @topupPurchaseSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat TopUp réussi !'**
+  String get topupPurchaseSuccess;
+
+  /// No description provided for @packageActivatedMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le package {package} a été activé avec succès sur votre ligne fixe'**
+  String packageActivatedMessage(Object package);
+
+  /// No description provided for @fixedLineLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ligne fixe'**
+  String get fixedLineLabel;
+
+  /// No description provided for @mobileLineLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ligne mobile'**
+  String get mobileLineLabel;
+
+  /// No description provided for @subscriptionSuccessTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souscription réussie'**
+  String get subscriptionSuccessTitle;
+
+  /// No description provided for @topupSubscriptionSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souscription TopUp réussie !'**
+  String get topupSubscriptionSuccess;
+
+  /// No description provided for @subscriptionActivatedMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'La souscription {subscription} a été activée avec succès sur votre ligne fixe'**
+  String subscriptionActivatedMessage(Object subscription);
+
+  /// No description provided for @callsToFixed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appels vers fixes'**
+  String get callsToFixed;
+
+  /// No description provided for @unlimited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Illimités'**
+  String get unlimited;
+
+  /// No description provided for @subscriptionMonthlyActivated.
+  ///
+  /// In fr, this message translates to:
+  /// **'La souscription mensuelle a été activée sur votre ligne fixe {number}'**
+  String subscriptionMonthlyActivated(Object number);
+
+  /// No description provided for @packageActivatedFixed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le package a été activé sur votre ligne fixe {number}'**
+  String packageActivatedFixed(Object number);
+
+  /// No description provided for @unknownStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut inconnu'**
+  String get unknownStatus;
+
+  /// No description provided for @money.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crédit'**
+  String get money;
 }
 
 class _AppLocalizationsDelegate
