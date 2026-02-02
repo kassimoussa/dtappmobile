@@ -271,17 +271,31 @@ class UserSession {
   /// Termine complètement la session utilisateur mais conserve le dernier numéro
   static Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // Sauvegarder le numéro actuel dans last_used_phone avant de le supprimer
+    final currentPhone = prefs.getString(_phoneNumberKey);
+    if (currentPhone != null && currentPhone.isNotEmpty) {
+      await prefs.setString(_lastUsedPhoneKey, currentPhone);
+    }
+
     await prefs.remove(_isAuthenticatedKey);
     await prefs.remove(_lastActivityTimeKey);
     await prefs.remove(_sessionTokenKey);
-    // Ne pas supprimer _lastUsedPhoneKey ni _phoneNumberKey pour permettre une reconnexion facile
+    await prefs.remove(_hasPinKey); // IMPORTANT: Supprimer le flag PIN
+    await prefs.remove(_isAppRunningKey);
+    await prefs.remove(_phoneNumberKey); // Supprimer le numéro actuel
+    // Conserver _lastUsedPhoneKey pour pré-remplir le champ de connexion
+    // Conserver les préférences utilisateur (_isBiometricEnabledKey, _isPinEnabledKey, _isOtpEnabledKey)
+    // Conserver _skipPinSetupKey car c'est une préférence globale du device
 
     // Réinitialiser le cache
+    _cachedPhoneNumber = null;
     _cachedIsAuthenticated = false;
     _cachedLastActivityTime = null;
     _cachedSessionToken = null;
+    _cachedHasPin = null;
 
-    debugPrint('Session utilisateur terminée');
+    debugPrint('Session utilisateur terminée - Numéro conservé pour réutilisation');
   }
 
   /// Supprime toutes les données, y compris le dernier numéro utilisé
@@ -294,6 +308,12 @@ class UserSession {
     await prefs.remove(_lastUsedPhoneKey);
     await prefs.remove(_isAppRunningKey);
     await prefs.remove(_sessionTokenKey);
+    await prefs.remove(_hasPinKey);
+    await prefs.remove(_skipPinSetupKey);
+    // Optionnel: supprimer aussi les préférences
+    // await prefs.remove(_isBiometricEnabledKey);
+    // await prefs.remove(_isPinEnabledKey);
+    // await prefs.remove(_isOtpEnabledKey);
 
     // Réinitialiser tout le cache
     _cachedPhoneNumber = null;
@@ -301,6 +321,7 @@ class UserSession {
     _cachedLastActivityTime = null;
     _cachedLastUsedPhone = null;
     _cachedSessionToken = null;
+    _cachedHasPin = null;
 
     debugPrint('Toutes les données utilisateur supprimées');
   }

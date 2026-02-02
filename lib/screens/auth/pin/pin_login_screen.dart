@@ -8,7 +8,7 @@ import '../../../widgets/pin_keyboard.dart';
 import '../../../widgets/pin_dots.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../core/main_screen.dart';
-import '../otp_screen.dart';
+import 'pin_reset_screen.dart';
 
 /// Écran de connexion par code PIN
 ///
@@ -119,10 +119,10 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                           _isProcessing
                               ? null
                               : () {
-                                // Naviguer vers reset PIN (via OTP)
+                                // Naviguer vers écran de réinitialisation PIN
                                 Navigator.of(context).push(
                                   CustomRouteTransitions.slideRightRoute(
-                                    page: OTPScreen(phone: widget.phoneNumber),
+                                    page: PinResetScreen(phoneNumber: widget.phoneNumber),
                                   ),
                                 );
                               },

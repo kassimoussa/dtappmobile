@@ -71,6 +71,8 @@ class FCMTokenService {
   }
 
   /// Supprime le token FCM du serveur (lors de la déconnexion)
+  /// IMPORTANT: Le token FCM local n'est PAS supprimé pour permettre les notifications
+  /// même après déconnexion (notifications système, etc.)
   static Future<bool> clearTokenOnServer() async {
     try {
       // Récupérer le session token
@@ -96,9 +98,9 @@ class FCMTokenService {
       if (response.statusCode == 200) {
         debugPrint('✅ Token FCM supprimé du serveur avec succès');
 
-        // Supprimer aussi le token local de Firebase
-        await FirebaseMessaging.instance.deleteToken();
-        debugPrint('✅ Token FCM local supprimé');
+        // NE PAS supprimer le token local Firebase
+        // Le token reste disponible pour la prochaine connexion
+        debugPrint('ℹ️ Token FCM local conservé pour réutilisation');
 
         return true;
       } else {

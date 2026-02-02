@@ -23,24 +23,29 @@ class PinDots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Ajuster la taille en fonction du nombre de cercles (4 ou 6)
+    final bool isOtp = maxLength == 6;
+    final double dotSize = isOtp ? 40.0 : 50.0;
+    final double spacing = isOtp ? 4.0 : 8.0;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
         maxLength,
         (index) => Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(8),
+            horizontal: ResponsiveSize.getWidth(spacing),
           ),
-          child: _buildDot(context, index < pinLength),
+          child: _buildDot(context, index < pinLength, dotSize),
         ),
       ),
     );
   }
 
-  Widget _buildDot(BuildContext context, bool isFilled) {
+  Widget _buildDot(BuildContext context, bool isFilled, double size) {
     return Container(
-      width: ResponsiveSize.getWidth(50),
-      height: ResponsiveSize.getHeight(50),
+      width: ResponsiveSize.getWidth(size),
+      height: ResponsiveSize.getHeight(size),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(

@@ -15,8 +15,18 @@ import '../../../services/pin_service.dart';
 class PinSetupScreen extends StatefulWidget {
   final VoidCallback onPinSet;
   final VoidCallback? onSkip;
+  final bool isResetting;
+  final String? phoneNumber;
+  final String? otpCode;
 
-  const PinSetupScreen({super.key, required this.onPinSet, this.onSkip});
+  const PinSetupScreen({
+    super.key,
+    required this.onPinSet,
+    this.onSkip,
+    this.isResetting = false,
+    this.phoneNumber,
+    this.otpCode,
+  });
 
   @override
   State<PinSetupScreen> createState() => _PinSetupScreenState();
@@ -109,6 +119,41 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                         color: AppTheme.textSecondary,
                       ),
                     ),
+
+                    // Avertissement pour réinitialisation
+                    if (widget.isResetting && !_isConfirmingPin) ...[
+                      SizedBox(height: ResponsiveSize.getHeight(16)),
+                      Container(
+                        padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(AppTheme.radiusS),
+                          border: Border.all(
+                            color: Colors.orange.shade300,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.orange.shade700,
+                              size: ResponsiveSize.getFontSize(18),
+                            ),
+                            SizedBox(width: ResponsiveSize.getWidth(8)),
+                            Expanded(
+                              child: Text(
+                                'Le code OTP expire dans quelques minutes. Configurez votre PIN rapidement.',
+                                style: TextStyle(
+                                  fontSize: ResponsiveSize.getFontSize(12),
+                                  color: Colors.orange.shade900,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
 
                     SizedBox(height: ResponsiveSize.getHeight(40)),
 
@@ -302,12 +347,36 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
     final authProvider = context.read<AuthProvider>();
     authProvider.clearError();
 
-    final success = await authProvider.setPin(_pin, _confirmPin);
+    bool success;
+
+    if (widget.isResetting) {
+      // Mode réinitialisation : utiliser resetPin avec OTP
+      if (widget.phoneNumber == null || widget.otpCode == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Erreur: informations manquantes pour la réinitialisation'),
+            backgroundColor: Colors.red[700],
+          ),
+        );
+        return;
+      }
+      success = await authProvider.resetPin(
+        widget.phoneNumber!,
+        widget.otpCode!,
+        _pin,
+        _confirmPin,
+      );
+    } else {
+      // Mode configuration initiale : utiliser setPin
+      success = await authProvider.setPin(_pin, _confirmPin);
+    }
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Code PIN configuré avec succès !'),
+          content: Text(widget.isResetting
+            ? 'Code PIN réinitialisé avec succès !'
+            : 'Code PIN configuré avec succès !'),
           backgroundColor: Colors.green[700],
         ),
       );
@@ -315,6 +384,33 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
       widget.onPinSet();
       Navigator.of(context).pop();
     } else if (!success && mounted) {
+      // Gestion spécifique pour OTP expiré en mode réinitialisation
+      if (widget.isResetting && authProvider.errorMessage != null &&
+          (authProvider.errorMessage!.toLowerCase().contains('expiré') ||
+           authProvider.errorMessage!.toLowerCase().contains('invalide') ||
+           authProvider.errorMessage!.toLowerCase().contains('expired'))) {
+
+        // Afficher dialog avec option de renvoyer OTP
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Code OTP expiré'),
+            content: const Text(
+              'Le code OTP a expiré. Vous devez obtenir un nouveau code pour réinitialiser votre PIN.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fermer dialog
+                  Navigator.of(context).pop(); // Retour à PinResetScreen
+                },
+                child: const Text('Obtenir un nouveau code'),
+              ),
+            ],
+          ),
+        );
+      }
+
       setState(() {
         _pin = '';
         _confirmPin = '';

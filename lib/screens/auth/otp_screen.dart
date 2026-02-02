@@ -15,8 +15,13 @@ import '../../services/user_session.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;
+  final bool isResettingPin;
 
-  const OTPScreen({super.key, required this.phone});
+  const OTPScreen({
+    super.key,
+    required this.phone,
+    this.isResettingPin = false,
+  });
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();
@@ -266,6 +271,33 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
     String otp = _controllers.map((c) => c.text).join();
     if (otp.length == 6) {
       final authProvider = context.read<AuthProvider>();
+
+      // Si l'utilisateur est en train de réinitialiser son PIN
+      if (widget.isResettingPin) {
+        // NE PAS appeler verifyOtp() pour ne pas consommer l'OTP
+        // L'endpoint /reset-pin fera la validation de l'OTP lui-même
+        // Cela évite le problème de "OTP déjà utilisé"
+        Navigator.of(context).pushAndRemoveUntil(
+          CustomRouteTransitions.fadeScaleRoute(
+            page: PinSetupScreen(
+              isResetting: true,
+              phoneNumber: widget.phone,
+              otpCode: otp,
+              onPinSet: () {
+                // Après configuration du nouveau PIN, aller vers MainScreen
+                Navigator.of(context).pushAndRemoveUntil(
+                  CustomRouteTransitions.fadeScaleRoute(
+                    page: const MainScreen(),
+                  ),
+                  (route) => false,
+                );
+              },
+            ),
+          ),
+          (route) => false,
+        );
+        return;
+      }
 
       // Vérifier OTP via AuthProvider (crée la session et envoie FCM automatiquement)
       final success = await authProvider.verifyOtp(widget.phone, otp);

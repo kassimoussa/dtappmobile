@@ -8,10 +8,8 @@ import '../../services/user_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../extensions/color_extensions.dart';
-import 'otp_screen.dart';
-import 'pin/pin_login_screen.dart';
+import 'connection_method_screen.dart';
 import '../../generated/l10n/app_localizations.dart';
-import '../../services/user_session.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -79,69 +77,18 @@ class _LoginScreenState extends State<LoginScreen>
     if (!_formKey.currentState!.validate()) return;
 
     final phoneNumber = _phoneController.text;
-    final authProvider = context.read<AuthProvider>();
 
     // Enregistrer le numéro de téléphone pour pré-remplissage
     await UserService.savePhoneNumber(phoneNumber);
 
-    // Verify if user prefers PIN and has one set
-    final pinEnabled = await UserSession.isPinEnabled();
-    final hasPin = await UserSession.hasPin();
-
     if (!mounted) return;
 
-    if (pinEnabled && hasPin) {
-      // Navigate to PIN login screen
-      Navigator.of(context).push(
-        CustomRouteTransitions.fadeScaleRoute(
-          page: PinLoginScreen(phoneNumber: phoneNumber),
-        ),
-      );
-    } else {
-      // Default OTP Flow
-
-      // Call AuthProvider to send OTP
-      final success = await authProvider.sendOtp(phoneNumber);
-
-      if (!mounted) return;
-
-      if (success) {
-        // Navigate to OTP screen
-        Navigator.push(
-          context,
-          CustomRouteTransitions.fadeScaleRoute(
-            page: OTPScreen(phone: phoneNumber),
-          ),
-        );
-      } else {
-        // Show error via SnackBar
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error_outline, color: Colors.white),
-                SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-                Expanded(
-                  child: Text(
-                    authProvider.errorMessage ??
-                        AppLocalizations.of(context)!.otpSendError,
-                    style: TextStyle(fontSize: ResponsiveSize.getFontSize(14)),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                ResponsiveSize.getWidth(AppTheme.radiusS),
-              ),
-            ),
-            margin: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-          ),
-        );
-      }
-    }
+    // Naviguer vers l'écran intermédiaire de sélection de méthode
+    Navigator.of(context).push(
+      CustomRouteTransitions.fadeScaleRoute(
+        page: ConnectionMethodScreen(phoneNumber: phoneNumber),
+      ),
+    );
   }
 
   @override
@@ -437,39 +384,38 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
             ),
 
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-
-            // Message d'information
-            Container(
-              padding: EdgeInsets.all(
-                ResponsiveSize.getWidth(AppTheme.spacingM),
-              ),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(
-                  ResponsiveSize.getWidth(AppTheme.radiusM),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.sms_outlined,
-                    color: AppTheme.dtBlue.withOpacityValue(0.7),
-                    size: ResponsiveSize.getFontSize(20),
-                  ),
-                  SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-                  Expanded(
-                    child: Text(
-                      AppLocalizations.of(context)!.smsVerificationMessage,
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: ResponsiveSize.getFontSize(14),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Message d'information SMS - Caché
+            // SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+            // Container(
+            //   padding: EdgeInsets.all(
+            //     ResponsiveSize.getWidth(AppTheme.spacingM),
+            //   ),
+            //   decoration: BoxDecoration(
+            //     color: Colors.grey[100],
+            //     borderRadius: BorderRadius.circular(
+            //       ResponsiveSize.getWidth(AppTheme.radiusM),
+            //     ),
+            //   ),
+            //   child: Row(
+            //     children: [
+            //       Icon(
+            //         Icons.sms_outlined,
+            //         color: AppTheme.dtBlue.withOpacityValue(0.7),
+            //         size: ResponsiveSize.getFontSize(20),
+            //       ),
+            //       SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+            //       Expanded(
+            //         child: Text(
+            //           AppLocalizations.of(context)!.smsVerificationMessage,
+            //           style: TextStyle(
+            //             color: Colors.grey[700],
+            //             fontSize: ResponsiveSize.getFontSize(14),
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),
