@@ -7,6 +7,7 @@ import '../../../providers/auth_provider.dart';
 import '../../../widgets/pin_keyboard.dart';
 import '../../../widgets/pin_dots.dart';
 import '../../../services/pin_service.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 
 class ChangePinScreen extends StatefulWidget {
   const ChangePinScreen({super.key});
@@ -36,18 +37,18 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
 
     switch (_stage) {
       case 0:
-        title = 'Ancien code PIN';
-        description = 'Entrez votre code PIN actuel';
+        title = AppLocalizations.of(context)!.oldPinTitle;
+        description = AppLocalizations.of(context)!.oldPinMessage;
         currentPin = _oldPin;
         break;
       case 1:
-        title = 'Nouveau code PIN';
-        description = 'Créez un nouveau code à 4 chiffres';
+        title = AppLocalizations.of(context)!.newPinTitle;
+        description = AppLocalizations.of(context)!.newPinMessage;
         currentPin = _newPin;
         break;
       case 2:
-        title = 'Confirmez le code PIN';
-        description = 'Entrez votre nouveau PIN une seconde fois';
+        title = AppLocalizations.of(context)!.confirmPinTitle;
+        description = AppLocalizations.of(context)!.confirmPinMessage;
         currentPin = _confirmPin;
         break;
       default:
@@ -58,8 +59,8 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const AppBarWidget(
-        title: 'Modifier le code PIN',
+      appBar: AppBarWidget(
+        title: AppLocalizations.of(context)!.changePinTitle,
         showAction: false,
       ),
       body: SafeArea(
@@ -262,7 +263,7 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Les nouveaux codes PIN ne correspondent pas'),
+          content: Text(AppLocalizations.of(context)!.newPinsDoNotMatch),
           backgroundColor: Colors.red[700],
         ),
       );
@@ -273,9 +274,7 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
     if (_oldPin == _newPin) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(
-            'Le nouveau PIN doit être différent de l\'ancien',
-          ),
+          content: Text(AppLocalizations.of(context)!.newPinMustBeDifferent),
           backgroundColor: Colors.orange[700],
         ),
       );
@@ -295,7 +294,7 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Code PIN modifié avec succès !'),
+          content: Text(AppLocalizations.of(context)!.pinChangedSuccess),
           backgroundColor: Colors.green[700],
         ),
       );

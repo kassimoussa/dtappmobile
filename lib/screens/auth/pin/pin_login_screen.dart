@@ -7,8 +7,10 @@ import '../../../providers/auth_provider.dart';
 import '../../../widgets/pin_keyboard.dart';
 import '../../../widgets/pin_dots.dart';
 import '../../../routes/custom_route_transitions.dart';
+import '../../../widgets/appbar_widget.dart';
 import '../../core/main_screen.dart';
 import 'pin_reset_screen.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 
 /// Écran de connexion par code PIN
 ///
@@ -33,13 +35,9 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.dtBlue),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+      appBar: AppBarWidget(
+        title: AppLocalizations.of(context)!.pinLoginTitle,
+        showAction: false,
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -53,16 +51,6 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                 child: Column(
                   children: [
                     SizedBox(height: ResponsiveSize.getHeight(20)),
-
-                    // Titre
-                    Text(
-                      'Entrez votre code PIN',
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(24),
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
 
                     SizedBox(height: ResponsiveSize.getHeight(8)),
 
@@ -122,12 +110,14 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                                 // Naviguer vers écran de réinitialisation PIN
                                 Navigator.of(context).push(
                                   CustomRouteTransitions.slideRightRoute(
-                                    page: PinResetScreen(phoneNumber: widget.phoneNumber),
+                                    page: PinResetScreen(
+                                      phoneNumber: widget.phoneNumber,
+                                    ),
                                   ),
                                 );
                               },
                       child: Text(
-                        'PIN oublié ?',
+                        AppLocalizations.of(context)!.forgotPin,
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(16),
                           color: AppTheme.dtBlue,
@@ -154,7 +144,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
     if (authProvider.errorCode == 'invalid_pin' &&
         authProvider.remainingAttempts != null) {
       errorText +=
-          '\n${authProvider.remainingAttempts} tentative(s) restante(s)';
+          '\n${AppLocalizations.of(context)!.remainingAttempts(authProvider.remainingAttempts!)}';
     }
 
     // Afficher le temps de verrouillage si disponible
@@ -162,7 +152,8 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
         authProvider.remainingSeconds != null) {
       final minutes = (authProvider.remainingSeconds! / 60).floor();
       final seconds = authProvider.remainingSeconds! % 60;
-      errorText += '\nRéessayez dans $minutes min $seconds sec';
+      errorText +=
+          '\n${AppLocalizations.of(context)!.retryIn(minutes, seconds)}';
     }
 
     return Container(

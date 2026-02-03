@@ -419,7 +419,7 @@ abstract class AppLocalizations {
   /// No description provided for @otpSendError.
   ///
   /// In fr, this message translates to:
-  /// **'Erreur lors de l\'envoi du code'**
+  /// **'Erreur lors de l\'envoi du code OTP'**
   String get otpSendError;
 
   /// No description provided for @welcome.
@@ -2251,6 +2251,336 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Crédit'**
   String get money;
+
+  /// No description provided for @invalidNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro invalide'**
+  String get invalidNumber;
+
+  /// No description provided for @numberNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro n\'existe pas dans le système.'**
+  String get numberNotFound;
+
+  /// No description provided for @biometricAuthPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Authentifiez-vous pour vous connecter'**
+  String get biometricAuthPrompt;
+
+  /// No description provided for @biometricAuthError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur d\'authentification biométrique'**
+  String get biometricAuthError;
+
+  /// No description provided for @chooseConnectionMethod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une méthode de connexion'**
+  String get chooseConnectionMethod;
+
+  /// No description provided for @smsCodeOtp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code SMS (OTP)'**
+  String get smsCodeOtp;
+
+  /// No description provided for @loginWithFingerprint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter avec empreinte'**
+  String get loginWithFingerprint;
+
+  /// No description provided for @loginWithPin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter avec PIN'**
+  String get loginWithPin;
+
+  /// No description provided for @loginWithSms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter avec SMS'**
+  String get loginWithSms;
+
+  /// No description provided for @otherConnectionMethod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre méthode de connexion'**
+  String get otherConnectionMethod;
+
+  /// No description provided for @forgotPin.
+  ///
+  /// In fr, this message translates to:
+  /// **'PIN oublié ?'**
+  String get forgotPin;
+
+  /// No description provided for @hello.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour !'**
+  String get hello;
+
+  /// No description provided for @setupPinTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Configurer un code PIN'**
+  String get setupPinTitle;
+
+  /// No description provided for @setupPinMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous créer un code PIN pour vous connecter plus rapidement la prochaine fois ?'**
+  String get setupPinMessage;
+
+  /// No description provided for @later.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get later;
+
+  /// No description provided for @setup.
+  ///
+  /// In fr, this message translates to:
+  /// **'Configurer'**
+  String get setup;
+
+  /// No description provided for @loading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement en cours...'**
+  String get loading;
+
+  /// No description provided for @pinLoginTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion PIN'**
+  String get pinLoginTitle;
+
+  /// No description provided for @remainingAttempts.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} tentative(s) restante(s)'**
+  String remainingAttempts(Object count);
+
+  /// No description provided for @retryIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayez dans {minutes} min {seconds} sec'**
+  String retryIn(Object minutes, Object seconds);
+
+  /// No description provided for @skip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get skip;
+
+  /// No description provided for @confirmPinTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmez votre code PIN'**
+  String get confirmPinTitle;
+
+  /// No description provided for @createPinTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez un code PIN'**
+  String get createPinTitle;
+
+  /// No description provided for @confirmPinMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez votre PIN une seconde fois'**
+  String get confirmPinMessage;
+
+  /// No description provided for @createPinMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez un code à 4 chiffres pour vous connecter rapidement'**
+  String get createPinMessage;
+
+  /// No description provided for @pinsDoNotMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les codes PIN ne correspondent pas'**
+  String get pinsDoNotMatch;
+
+  /// No description provided for @resetInfoMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur: informations manquantes pour la réinitialisation'**
+  String get resetInfoMissing;
+
+  /// No description provided for @pinResetSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code PIN réinitialisé avec succès !'**
+  String get pinResetSuccess;
+
+  /// No description provided for @pinSetupSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code PIN configuré avec succès !'**
+  String get pinSetupSuccess;
+
+  /// No description provided for @otpExpiredTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code OTP expiré'**
+  String get otpExpiredTitle;
+
+  /// No description provided for @otpExpiredMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code OTP a expiré. Vous devez obtenir un nouveau code pour réinitialiser votre PIN.'**
+  String get otpExpiredMessage;
+
+  /// No description provided for @getNewCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obtenir un nouveau code'**
+  String get getNewCode;
+
+  /// No description provided for @resetPinTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinitialiser le PIN'**
+  String get resetPinTitle;
+
+  /// No description provided for @genericError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue. Veuillez réessayer.'**
+  String get genericError;
+
+  /// No description provided for @errorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur'**
+  String get errorTitle;
+
+  /// No description provided for @howItWorks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment ça marche ?'**
+  String get howItWorks;
+
+  /// No description provided for @resetStep1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous allons vous envoyer un code de vérification par SMS'**
+  String get resetStep1;
+
+  /// No description provided for @resetStep2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez le code reçu pour vérifier votre identité'**
+  String get resetStep2;
+
+  /// No description provided for @resetStep3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez un nouveau code PIN sécurisé'**
+  String get resetStep3;
+
+  /// No description provided for @sendCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le code'**
+  String get sendCode;
+
+  /// No description provided for @enterReceivedCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez le code reçu'**
+  String get enterReceivedCode;
+
+  /// No description provided for @codeSentTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un code à 6 chiffres a été envoyé au\n{number}'**
+  String codeSentTo(Object number);
+
+  /// No description provided for @codeResentSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code renvoyé avec succès'**
+  String get codeResentSuccess;
+
+  /// No description provided for @continueText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get continueText;
+
+  /// No description provided for @oldPinTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ancien code PIN'**
+  String get oldPinTitle;
+
+  /// No description provided for @oldPinMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez votre code PIN actuel'**
+  String get oldPinMessage;
+
+  /// No description provided for @newPinTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau code PIN'**
+  String get newPinTitle;
+
+  /// No description provided for @newPinMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez un nouveau code à 4 chiffres'**
+  String get newPinMessage;
+
+  /// No description provided for @changePinTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le code PIN'**
+  String get changePinTitle;
+
+  /// No description provided for @newPinsDoNotMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les nouveaux codes PIN ne correspondent pas'**
+  String get newPinsDoNotMatch;
+
+  /// No description provided for @newPinMustBeDifferent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nouveau PIN doit être différent de l\'ancien'**
+  String get newPinMustBeDifferent;
+
+  /// No description provided for @pinChangedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code PIN modifié avec succès !'**
+  String get pinChangedSuccess;
+
+  /// No description provided for @pinManagementTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion du code PIN'**
+  String get pinManagementTitle;
+
+  /// No description provided for @forgotPinOption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code PIN oublié'**
+  String get forgotPinOption;
+
+  /// No description provided for @phoneNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de téléphone introuvable'**
+  String get phoneNotFound;
 }
 
 class _AppLocalizationsDelegate

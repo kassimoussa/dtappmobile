@@ -7,6 +7,7 @@ import '../../../providers/auth_provider.dart';
 import '../otp_screen.dart';
 import '../../../routes/custom_route_transitions.dart';
 import 'change_pin_screen.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 
 class PinManagementScreen extends StatefulWidget {
   const PinManagementScreen({super.key});
@@ -24,8 +25,8 @@ class _PinManagementScreenState extends State<PinManagementScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const AppBarWidget(
-        title: 'Gestion du code PIN',
+      appBar: AppBarWidget(
+        title: AppLocalizations.of(context)!.pinManagementTitle,
         showAction: false,
       ),
       body: Stack(
@@ -36,7 +37,7 @@ class _PinManagementScreenState extends State<PinManagementScreen> {
               children: [
                 _buildMenuOption(
                   context,
-                  title: 'Modifier le code PIN',
+                  title: AppLocalizations.of(context)!.changePinTitle,
                   onTap: () {
                     if (_isSendingOtp) return;
                     Navigator.of(context).push(
@@ -49,7 +50,7 @@ class _PinManagementScreenState extends State<PinManagementScreen> {
                 Divider(height: 1, color: Colors.grey[200]),
                 _buildMenuOption(
                   context,
-                  title: 'Code PIN oublié',
+                  title: AppLocalizations.of(context)!.forgotPinOption,
                   onTap: _handleForgotPin,
                   showLoading: _isSendingOtp,
                 ),
@@ -92,7 +93,8 @@ class _PinManagementScreenState extends State<PinManagementScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                authProvider.errorMessage ?? 'Erreur lors de l\'envoi du code',
+                authProvider.errorMessage ??
+                    AppLocalizations.of(context)!.otpSendError,
               ),
               backgroundColor: Colors.red,
             ),
@@ -101,7 +103,7 @@ class _PinManagementScreenState extends State<PinManagementScreen> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Numéro de téléphone introuvable')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.phoneNotFound)),
       );
     }
   }

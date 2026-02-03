@@ -158,6 +158,37 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Vérifie l'OTP pour la réinitialisation du PIN (sans créer de session)
+  Future<bool> verifyOtpForReset(String phoneNumber, String otp) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      debugPrint('AuthProvider: Vérification OTP (Reset) pour $phoneNumber');
+
+      final result = await _otpService.verifyOtp(phoneNumber, otp);
+
+      if (result['status'] == 'success') {
+        debugPrint('AuthProvider: ✅ OTP vérifié avec succès (Reset)');
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = result['message'] ?? 'Code OTP incorrect';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      debugPrint('AuthProvider: Erreur vérification OTP (Reset): $e');
+      _errorMessage = 'Une erreur est survenue lors de la vérification';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Crée une session après vérification OTP réussie
   Future<void> _createSession(
     String phoneNumber,
@@ -474,7 +505,6 @@ class AuthProvider extends ChangeNotifier {
   /// Nécessite un code OTP valide
   Future<bool> resetPin(
     String phoneNumber,
-    String otp,
     String newPin,
     String newPinConfirmation,
   ) async {
@@ -488,7 +518,6 @@ class AuthProvider extends ChangeNotifier {
 
       final result = await PinService.resetPin(
         phoneNumber: phoneNumber,
-        otp: otp,
         newPin: newPin,
         newPinConfirmation: newPinConfirmation,
       );

@@ -19,10 +19,7 @@ import '../../services/mobile_status_service.dart';
 class ConnectionMethodScreen extends StatefulWidget {
   final String phoneNumber;
 
-  const ConnectionMethodScreen({
-    super.key,
-    required this.phoneNumber,
-  });
+  const ConnectionMethodScreen({super.key, required this.phoneNumber});
 
   @override
   State<ConnectionMethodScreen> createState() => _ConnectionMethodScreenState();
@@ -80,16 +77,19 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
     try {
       // 1. Vérifier le statut du numéro via l'API
       debugPrint('📞 Vérification du statut du numéro via API...');
-      final statusData = await MobileStatusService.checkStatus(widget.phoneNumber);
+      final statusData = await MobileStatusService.checkStatus(
+        widget.phoneNumber,
+      );
 
       if (!mounted) return;
 
       // Vérifier si le numéro est valide
       if (!MobileStatusService.isValidNumber(statusData)) {
         // Numéro non trouvé dans AIR
+        final l10n = AppLocalizations.of(context)!;
         _showErrorDialog(
-          'Numéro invalide',
-          statusData['message'] ?? 'Ce numéro n\'existe pas dans le système.',
+          l10n.invalidNumber,
+          statusData['message'] ?? l10n.numberNotFound,
         );
         setState(() => _isLoading = false);
         return;
@@ -145,23 +145,24 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Fermer le dialog
-              Navigator.of(context).pop(); // Retourner à l'écran précédent
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.dtBlue,
-              foregroundColor: AppTheme.dtYellow,
-            ),
-            child: const Text('OK'),
+      builder:
+          (context) => AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fermer le dialog
+                  Navigator.of(context).pop(); // Retourner à l'écran précédent
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.dtBlue,
+                  foregroundColor: AppTheme.dtYellow,
+                ),
+                child: const Text('OK'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -182,7 +183,7 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
       final localAuth = LocalAuthentication();
 
       final didAuthenticate = await localAuth.authenticate(
-        localizedReason: 'Authentifiez-vous pour vous connecter',
+        localizedReason: AppLocalizations.of(context)!.biometricAuthPrompt,
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: true,
@@ -201,7 +202,7 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur d\'authentification biométrique'),
+          content: Text(AppLocalizations.of(context)!.biometricAuthError),
           backgroundColor: Colors.red,
         ),
       );
@@ -210,7 +211,7 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
 
   /// Connexion avec PIN
   void _navigateToPinLogin() {
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).push(
       CustomRouteTransitions.fadeScaleRoute(
         page: PinLoginScreen(phoneNumber: widget.phoneNumber),
       ),
@@ -227,7 +228,7 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
     if (!mounted) return;
 
     if (success) {
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context).push(
         CustomRouteTransitions.fadeScaleRoute(
           page: OTPScreen(phone: widget.phoneNumber),
         ),
@@ -236,7 +237,8 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            authProvider.errorMessage ?? 'Erreur lors de l\'envoi du code',
+            authProvider.errorMessage ??
+                AppLocalizations.of(context)!.otpSendError,
           ),
           backgroundColor: Colors.red,
         ),
@@ -251,79 +253,83 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(ResponsiveSize.getWidth(AppTheme.radiusL)),
-            topRight:
-                Radius.circular(ResponsiveSize.getWidth(AppTheme.radiusL)),
+      builder:
+          (context) => Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(
+                  ResponsiveSize.getWidth(AppTheme.radiusL),
+                ),
+                topRight: Radius.circular(
+                  ResponsiveSize.getWidth(AppTheme.radiusL),
+                ),
+              ),
+            ),
+            padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Barre de glissement
+                Container(
+                  width: ResponsiveSize.getWidth(40),
+                  height: ResponsiveSize.getHeight(4),
+                  margin: EdgeInsets.only(
+                    bottom: ResponsiveSize.getHeight(AppTheme.spacingL),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+
+                Text(
+                  l10n.chooseConnectionMethod,
+                  style: TextStyle(
+                    fontSize: ResponsiveSize.getFontSize(20),
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.dtBlue,
+                  ),
+                ),
+
+                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+
+                // Biométrie
+                if (_isBiometricSupported)
+                  _buildMethodOption(
+                    icon: Icons.fingerprint,
+                    title: l10n.biometricLogin,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _connectWithBiometric();
+                    },
+                  ),
+
+                // PIN
+                if (_hasPin)
+                  _buildMethodOption(
+                    icon: Icons.pin,
+                    title: l10n.pinLogin,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _navigateToPinLogin();
+                    },
+                  ),
+
+                // OTP
+                _buildMethodOption(
+                  icon: Icons.sms,
+                  title: l10n.smsCodeOtp,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _connectWithOtp();
+                  },
+                ),
+
+                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+              ],
+            ),
           ),
-        ),
-        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Barre de glissement
-            Container(
-              width: ResponsiveSize.getWidth(40),
-              height: ResponsiveSize.getHeight(4),
-              margin: EdgeInsets.only(
-                bottom: ResponsiveSize.getHeight(AppTheme.spacingL),
-              ),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-
-            Text(
-              'Choisir une méthode de connexion',
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(20),
-                fontWeight: FontWeight.bold,
-                color: AppTheme.dtBlue,
-              ),
-            ),
-
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-
-            // Biométrie
-            if (_isBiometricSupported)
-              _buildMethodOption(
-                icon: Icons.fingerprint,
-                title: l10n.biometricLogin,
-                onTap: () {
-                  Navigator.pop(context);
-                  _connectWithBiometric();
-                },
-              ),
-
-            // PIN
-            if (_hasPin)
-              _buildMethodOption(
-                icon: Icons.pin,
-                title: l10n.pinLogin,
-                onTap: () {
-                  Navigator.pop(context);
-                  _navigateToPinLogin();
-                },
-              ),
-
-            // OTP
-            _buildMethodOption(
-              icon: Icons.sms,
-              title: 'Code SMS (OTP)',
-              onTap: () {
-                Navigator.pop(context);
-                _connectWithOtp();
-              },
-            ),
-
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          ],
-        ),
-      ),
     );
   }
 
@@ -335,8 +341,9 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius:
-          BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+      borderRadius: BorderRadius.circular(
+        ResponsiveSize.getWidth(AppTheme.radiusM),
+      ),
       child: Container(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
         margin: EdgeInsets.only(
@@ -389,11 +396,11 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
   String _getPrimaryButtonText() {
     switch (_primaryMethod) {
       case 'biometric':
-        return 'Se connecter avec empreinte';
+        return AppLocalizations.of(context)!.loginWithFingerprint;
       case 'pin':
-        return 'Se connecter avec PIN';
+        return AppLocalizations.of(context)!.loginWithPin;
       default:
-        return 'Se connecter avec SMS';
+        return AppLocalizations.of(context)!.loginWithSms;
     }
   }
 
@@ -423,17 +430,27 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppTheme.dtBlue),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
           child: SlideTransition(
             position: _slideAnimation,
             child: SingleChildScrollView(
-              padding:
-                  EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+              padding: EdgeInsets.all(
+                ResponsiveSize.getWidth(AppTheme.spacingL),
+              ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height -
+                  minHeight:
+                      MediaQuery.of(context).size.height -
                       MediaQuery.of(context).padding.top -
                       MediaQuery.of(context).padding.bottom -
                       ResponsiveSize.getWidth(AppTheme.spacingL) * 2,
@@ -455,11 +472,12 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
                       ),
 
                       SizedBox(
-                          height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
+                        height: ResponsiveSize.getHeight(AppTheme.spacingXL),
+                      ),
 
                       // Salutation
                       Text(
-                        'Bonjour !',
+                        l10n.hello,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(28),
@@ -469,7 +487,8 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
                       ),
 
                       SizedBox(
-                          height: ResponsiveSize.getHeight(AppTheme.spacingS)),
+                        height: ResponsiveSize.getHeight(AppTheme.spacingS),
+                      ),
 
                       // Numéro de téléphone
                       Text(
@@ -483,85 +502,93 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
                       ),
 
                       SizedBox(
-                          height:
-                              ResponsiveSize.getHeight(AppTheme.spacingXL * 2)),
+                        height: ResponsiveSize.getHeight(
+                          AppTheme.spacingXL * 2,
+                        ),
+                      ),
 
                       // Bouton de connexion principal
                       ElevatedButton.icon(
-                    onPressed: _connectWithPrimaryMethod,
-                    icon: Icon(
-                      _getPrimaryButtonIcon(),
-                      size: ResponsiveSize.getFontSize(24),
-                    ),
-                    label: Text(
-                      _getPrimaryButtonText(),
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(18),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.dtBlue,
-                      foregroundColor: AppTheme.dtYellow,
-                      padding: EdgeInsets.symmetric(
-                        vertical: ResponsiveSize.getHeight(16),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          ResponsiveSize.getWidth(AppTheme.radiusM),
+                        onPressed: _connectWithPrimaryMethod,
+                        icon: Icon(
+                          _getPrimaryButtonIcon(),
+                          size: ResponsiveSize.getFontSize(24),
                         ),
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-
-                  // Bouton autre méthode
-                  OutlinedButton(
-                    onPressed: _showMethodSelectionModal,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.dtBlue,
-                      side: BorderSide(color: AppTheme.dtBlue, width: 2),
-                      padding: EdgeInsets.symmetric(
-                        vertical: ResponsiveSize.getHeight(14),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          ResponsiveSize.getWidth(AppTheme.radiusM),
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      'Autre méthode de connexion',
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(16),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-
-                  // Bouton PIN oublié
-                  if (_hasPin)
-                    TextButton(
-                      onPressed: () {
-                        // Naviguer vers l'écran de réinitialisation du PIN
-                        Navigator.of(context).push(
-                          CustomRouteTransitions.fadeScaleRoute(
-                            page: PinResetScreen(phoneNumber: widget.phoneNumber),
+                        label: Text(
+                          _getPrimaryButtonText(),
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(18),
+                            fontWeight: FontWeight.bold,
                           ),
-                        );
-                      },
-                      child: Text(
-                        'PIN oublié ?',
-                        style: TextStyle(
-                          fontSize: ResponsiveSize.getFontSize(16),
-                          color: AppTheme.dtBlue,
-                          fontWeight: FontWeight.w500,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.dtBlue,
+                          foregroundColor: AppTheme.dtYellow,
+                          padding: EdgeInsets.symmetric(
+                            vertical: ResponsiveSize.getHeight(16),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              ResponsiveSize.getWidth(AppTheme.radiusM),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(AppTheme.spacingL),
+                      ),
+
+                      // Bouton autre méthode
+                      OutlinedButton(
+                        onPressed: _showMethodSelectionModal,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.dtBlue,
+                          side: BorderSide(color: AppTheme.dtBlue, width: 2),
+                          padding: EdgeInsets.symmetric(
+                            vertical: ResponsiveSize.getHeight(14),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              ResponsiveSize.getWidth(AppTheme.radiusM),
+                            ),
+                          ),
+                        ),
+                        child: Text(
+                          l10n.otherConnectionMethod,
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(16),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(AppTheme.spacingM),
+                      ),
+
+                      // Bouton PIN oublié
+                      if (_hasPin)
+                        TextButton(
+                          onPressed: () {
+                            // Naviguer vers l'écran de réinitialisation du PIN
+                            Navigator.of(context).push(
+                              CustomRouteTransitions.fadeScaleRoute(
+                                page: PinResetScreen(
+                                  phoneNumber: widget.phoneNumber,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            l10n.forgotPin,
+                            style: TextStyle(
+                              fontSize: ResponsiveSize.getFontSize(16),
+                              color: AppTheme.dtBlue,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
 
                       const Spacer(),
                     ],

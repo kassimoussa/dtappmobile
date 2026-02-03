@@ -7,6 +7,7 @@ import '../../utils/responsive_size.dart';
 import '../../extensions/color_extensions.dart';
 import '../../providers/auth_provider.dart';
 import 'login_screen.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,7 +16,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -23,30 +25,30 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    
+
     // Configuration de l'animation
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.0, 0.6, curve: Curves.easeIn),
       ),
     );
-    
+
     _scaleAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.2, 0.8, curve: Curves.easeOut),
       ),
     );
-    
+
     // Démarrage de l'animation
     _animationController.forward();
-    
+
     // Vérification et navigation
     //_checkAuthentication();
 
@@ -54,35 +56,31 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   // Méthode pour afficher le splash puis vérifier la session et naviguer
-Future<void> _navigateAfterSplash() async {
-  // Affiche le splash screen pendant 2 secondes, quelle que soit la validité de la session
-  await Future.delayed(const Duration(seconds: 2));
+  Future<void> _navigateAfterSplash() async {
+    // Affiche le splash screen pendant 2 secondes, quelle que soit la validité de la session
+    await Future.delayed(const Duration(seconds: 2));
 
-  // Vérifie si l'utilisateur est authentifié après l'affichage du splash
-  if (!mounted) return; // Vérifie si le widget est toujours monté
+    // Vérifie si l'utilisateur est authentifié après l'affichage du splash
+    if (!mounted) return; // Vérifie si le widget est toujours monté
 
-  final authProvider = context.read<AuthProvider>();
-  final isAuthenticated = authProvider.isAuthenticated;
-  final phoneNumber = authProvider.phoneNumber;
+    final authProvider = context.read<AuthProvider>();
+    final isAuthenticated = authProvider.isAuthenticated;
+    final phoneNumber = authProvider.phoneNumber;
 
-  // Navigation vers la page appropriée
-  if (isAuthenticated && phoneNumber != null) {
-    // Utilisateur authentifié, rediriger vers l'écran principal
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const MainScreen(),
-      ),
-    );
-  } else {
-    // Utilisateur non authentifié, rediriger vers l'écran de connexion
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const LoginScreen(),
-      ),
-    );
+    // Navigation vers la page appropriée
+    if (isAuthenticated && phoneNumber != null) {
+      // Utilisateur authentifié, rediriger vers l'écran principal
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
+    } else {
+      // Utilisateur non authentifié, rediriger vers l'écran de connexion
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
   }
-}
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -93,7 +91,7 @@ Future<void> _navigateAfterSplash() async {
   Widget build(BuildContext context) {
     // Initialisation des dimensions responsives
     ResponsiveSize.init(context);
-    
+
     return Scaffold(
       backgroundColor: AppTheme.dtBlue,
       body: Container(
@@ -103,10 +101,7 @@ Future<void> _navigateAfterSplash() async {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.white,
-              Colors.white.withOpacityValue(0.9),
-            ],
+            colors: [Colors.white, Colors.white.withOpacityValue(0.9)],
           ),
         ),
         child: SafeArea(
@@ -133,9 +128,11 @@ Future<void> _navigateAfterSplash() async {
                           ),
                         ),
                       ),
-                      
-                      SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                      
+
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(AppTheme.spacingL),
+                      ),
+
                       // Indicateur de chargement animé
                       FadeTransition(
                         opacity: _fadeAnimation,
@@ -143,19 +140,23 @@ Future<void> _navigateAfterSplash() async {
                           width: ResponsiveSize.getWidth(40),
                           height: ResponsiveSize.getHeight(40),
                           child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlue),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppTheme.dtBlue,
+                            ),
                             strokeWidth: ResponsiveSize.isTablet ? 3.5 : 2.5,
                           ),
                         ),
                       ),
-                      
-                      SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                      
+
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(AppTheme.spacingM),
+                      ),
+
                       // Texte de chargement optionnel
                       FadeTransition(
                         opacity: _fadeAnimation,
                         child: Text(
-                          'Chargement en cours...',
+                          AppLocalizations.of(context)!.loading,
                           style: TextStyle(
                             color: AppTheme.textSecondary,
                             fontSize: ResponsiveSize.getFontSize(14),
@@ -166,7 +167,7 @@ Future<void> _navigateAfterSplash() async {
                   ),
                 ),
               );
-            }
+            },
           ),
         ),
       ),

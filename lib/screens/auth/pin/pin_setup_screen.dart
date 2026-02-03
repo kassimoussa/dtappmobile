@@ -7,6 +7,9 @@ import '../../../providers/auth_provider.dart';
 import '../../../widgets/pin_keyboard.dart';
 import '../../../widgets/pin_dots.dart';
 import '../../../services/pin_service.dart';
+import '../connection_method_screen.dart';
+import '../../../routes/custom_route_transitions.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 
 /// Écran de configuration initiale du code PIN
 ///
@@ -56,7 +59,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
             TextButton(
               onPressed: authProvider.isLoading ? null : widget.onSkip,
               child: Text(
-                'Passer',
+                AppLocalizations.of(context)!.skip,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(16),
                   color: AppTheme.dtBlue,
@@ -97,8 +100,8 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                     // Titre
                     Text(
                       _isConfirmingPin
-                          ? 'Confirmez votre code PIN'
-                          : 'Créez un code PIN',
+                          ? AppLocalizations.of(context)!.confirmPinTitle
+                          : AppLocalizations.of(context)!.createPinTitle,
                       style: TextStyle(
                         fontSize: ResponsiveSize.getFontSize(24),
                         fontWeight: FontWeight.bold,
@@ -111,49 +114,14 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                     // Description
                     Text(
                       _isConfirmingPin
-                          ? 'Entrez votre PIN une seconde fois'
-                          : 'Créez un code à 4 chiffres pour vous connecter rapidement',
+                          ? AppLocalizations.of(context)!.confirmPinMessage
+                          : AppLocalizations.of(context)!.createPinMessage,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: ResponsiveSize.getFontSize(14),
                         color: AppTheme.textSecondary,
                       ),
                     ),
-
-                    // Avertissement pour réinitialisation
-                    if (widget.isResetting && !_isConfirmingPin) ...[
-                      SizedBox(height: ResponsiveSize.getHeight(16)),
-                      Container(
-                        padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.shade50,
-                          borderRadius: BorderRadius.circular(AppTheme.radiusS),
-                          border: Border.all(
-                            color: Colors.orange.shade300,
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Colors.orange.shade700,
-                              size: ResponsiveSize.getFontSize(18),
-                            ),
-                            SizedBox(width: ResponsiveSize.getWidth(8)),
-                            Expanded(
-                              child: Text(
-                                'Le code OTP expire dans quelques minutes. Configurez votre PIN rapidement.',
-                                style: TextStyle(
-                                  fontSize: ResponsiveSize.getFontSize(12),
-                                  color: Colors.orange.shade900,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
 
                     SizedBox(height: ResponsiveSize.getHeight(40)),
 
@@ -337,7 +305,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Les codes PIN ne correspondent pas'),
+          content: Text(AppLocalizations.of(context)!.pinsDoNotMatch),
           backgroundColor: Colors.red[700],
         ),
       );
@@ -351,10 +319,11 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
 
     if (widget.isResetting) {
       // Mode réinitialisation : utiliser resetPin avec OTP
-      if (widget.phoneNumber == null || widget.otpCode == null) {
+      // Mode réinitialisation : utiliser resetPin
+      if (widget.phoneNumber == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Erreur: informations manquantes pour la réinitialisation'),
+            content: Text(AppLocalizations.of(context)!.resetInfoMissing),
             backgroundColor: Colors.red[700],
           ),
         );
@@ -362,7 +331,6 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
       }
       success = await authProvider.resetPin(
         widget.phoneNumber!,
-        widget.otpCode!,
         _pin,
         _confirmPin,
       );
@@ -374,40 +342,52 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.isResetting
-            ? 'Code PIN réinitialisé avec succès !'
-            : 'Code PIN configuré avec succès !'),
+          content: Text(
+            widget.isResetting
+                ? AppLocalizations.of(context)!.pinResetSuccess
+                : AppLocalizations.of(context)!.pinSetupSuccess,
+          ),
           backgroundColor: Colors.green[700],
         ),
       );
 
       widget.onPinSet();
-      Navigator.of(context).pop();
+
+      if (widget.isResetting) {
+        // Redirection vers l'écran de méthode de connexion (Bonjour !)
+        Navigator.of(context).pushAndRemoveUntil(
+          CustomRouteTransitions.fadeScaleRoute(
+            page: ConnectionMethodScreen(phoneNumber: widget.phoneNumber!),
+          ),
+          (route) => false,
+        );
+      } else {
+        if (mounted) Navigator.of(context).pop();
+      }
     } else if (!success && mounted) {
       // Gestion spécifique pour OTP expiré en mode réinitialisation
-      if (widget.isResetting && authProvider.errorMessage != null &&
+      if (widget.isResetting &&
+          authProvider.errorMessage != null &&
           (authProvider.errorMessage!.toLowerCase().contains('expiré') ||
-           authProvider.errorMessage!.toLowerCase().contains('invalide') ||
-           authProvider.errorMessage!.toLowerCase().contains('expired'))) {
-
+              authProvider.errorMessage!.toLowerCase().contains('invalide') ||
+              authProvider.errorMessage!.toLowerCase().contains('expired'))) {
         // Afficher dialog avec option de renvoyer OTP
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Code OTP expiré'),
-            content: const Text(
-              'Le code OTP a expiré. Vous devez obtenir un nouveau code pour réinitialiser votre PIN.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Fermer dialog
-                  Navigator.of(context).pop(); // Retour à PinResetScreen
-                },
-                child: const Text('Obtenir un nouveau code'),
+          builder:
+              (context) => AlertDialog(
+                title: Text(AppLocalizations.of(context)!.otpExpiredTitle),
+                content: Text(AppLocalizations.of(context)!.otpExpiredMessage),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Fermer dialog
+                      Navigator.of(context).pop(); // Retour à PinResetScreen
+                    },
+                    child: Text(AppLocalizations.of(context)!.getNewCode),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       }
 

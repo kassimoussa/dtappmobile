@@ -7,24 +7,24 @@ import '../../../providers/auth_provider.dart';
 import '../../../widgets/pin_keyboard.dart';
 import '../../../widgets/pin_dots.dart';
 import '../../../services/pin_service.dart';
-import '../../core/main_screen.dart';
 import '../../../routes/custom_route_transitions.dart';
+import 'pin_login_screen.dart';
+
+import 'package:sms_autofill/sms_autofill.dart';
 
 /// Écran combiné : OTP + Nouveau PIN sur le même écran
 /// Cela réduit le délai et évite l'expiration de l'OTP
 class PinResetWithOtpScreen extends StatefulWidget {
   final String phoneNumber;
 
-  const PinResetWithOtpScreen({
-    super.key,
-    required this.phoneNumber,
-  });
+  const PinResetWithOtpScreen({super.key, required this.phoneNumber});
 
   @override
   State<PinResetWithOtpScreen> createState() => _PinResetWithOtpScreenState();
 }
 
-class _PinResetWithOtpScreenState extends State<PinResetWithOtpScreen> {
+class _PinResetWithOtpScreenState extends State<PinResetWithOtpScreen>
+    with CodeAutoFill {
   // Étapes : 0 = OTP, 1 = Nouveau PIN, 2 = Confirmation PIN
   int _currentStep = 0;
 
@@ -33,6 +33,39 @@ class _PinResetWithOtpScreenState extends State<PinResetWithOtpScreen> {
   String _confirmPin = '';
   String? _weakPinWarning;
   bool _isProcessing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initSmsListener();
+  }
+
+  void _initSmsListener() async {
+    try {
+      await SmsAutoFill().listenForCode;
+      debugPrint('Écoute des SMS activée pour Reset PIN');
+    } catch (e) {
+      debugPrint('Erreur init SMS listener: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    SmsAutoFill().unregisterListener();
+    super.dispose();
+  }
+
+  @override
+  void codeUpdated() {
+    debugPrint('Code OTP détecté (Reset PIN): $code');
+    if (code != null && code!.length == 6 && _currentStep == 0) {
+      setState(() {
+        _otp = code!;
+      });
+      // Optionnel : Passer automatiquement à l'étape suivante
+      // Mais on laisse l'utilisateur valider visuellement pour l'instant ou cliquer sur continuer
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +104,8 @@ class _PinResetWithOtpScreenState extends State<PinResetWithOtpScreen> {
           ),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height -
+              minHeight:
+                  MediaQuery.of(context).size.height -
                   MediaQuery.of(context).padding.top -
                   MediaQuery.of(context).padding.bottom -
                   kToolbarHeight,
@@ -81,95 +115,96 @@ class _PinResetWithOtpScreenState extends State<PinResetWithOtpScreen> {
                 children: [
                   SizedBox(height: ResponsiveSize.getHeight(20)),
 
-                    // Indicateur d'étape
-                    _buildStepIndicator(),
+                  // Indicateur d'étape
+                  _buildStepIndicator(),
 
-                    SizedBox(height: ResponsiveSize.getHeight(40)),
+                  SizedBox(height: ResponsiveSize.getHeight(40)),
 
-                    // Titre
-                    Text(
-                      _getTitle(),
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(24),
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+                  // Titre
+                  Text(
+                    _getTitle(),
+                    style: TextStyle(
+                      fontSize: ResponsiveSize.getFontSize(24),
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+
+                  SizedBox(height: ResponsiveSize.getHeight(8)),
+
+                  // Description
+                  Text(
+                    _getDescription(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: ResponsiveSize.getFontSize(14),
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+
+                  SizedBox(height: ResponsiveSize.getHeight(40)),
+
+                  // Affichage des cercles
+                  PinDots(
+                    pinLength: _getCurrentInput().length,
+                    maxLength: _currentStep == 0 ? 6 : 4,
+                  ),
+
+                  SizedBox(height: ResponsiveSize.getHeight(16)),
+
+                  // Avertissement PIN faible
+                  if (_weakPinWarning != null && _currentStep == 1)
+                    _buildWeakPinWarning(),
+
+                  // Message d'erreur
+                  if (authProvider.errorMessage != null)
+                    _buildErrorMessage(authProvider.errorMessage!),
+
+                  const Spacer(),
+
+                  // Bouton Continuer pour l'étape OTP
+                  if (_currentStep == 0 && _otp.length == 6)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        bottom: ResponsiveSize.getHeight(16),
                       ),
-                    ),
-
-                    SizedBox(height: ResponsiveSize.getHeight(8)),
-
-                    // Description
-                    Text(
-                      _getDescription(),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(14),
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-
-                    SizedBox(height: ResponsiveSize.getHeight(40)),
-
-                    // Affichage des cercles
-                    PinDots(
-                      pinLength: _getCurrentInput().length,
-                      maxLength: _currentStep == 0 ? 6 : 4,
-                    ),
-
-                    SizedBox(height: ResponsiveSize.getHeight(16)),
-
-                    // Avertissement PIN faible
-                    if (_weakPinWarning != null && _currentStep == 1)
-                      _buildWeakPinWarning(),
-
-                    // Message d'erreur
-                    if (authProvider.errorMessage != null)
-                      _buildErrorMessage(authProvider.errorMessage!),
-
-                    const Spacer(),
-
-                    // Bouton Continuer pour l'étape OTP
-                    if (_currentStep == 0 && _otp.length == 6)
-                      Padding(
-                        padding: EdgeInsets.only(
-                          bottom: ResponsiveSize.getHeight(16),
-                        ),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: ResponsiveSize.getHeight(50),
-                          child: ElevatedButton(
-                            onPressed: _isProcessing
-                                ? null
-                                : () {
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: ResponsiveSize.getHeight(50),
+                        child: ElevatedButton(
+                          onPressed:
+                              _isProcessing
+                                  ? null
+                                  : () {
                                     setState(() => _currentStep = 1);
                                   },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.dtBlue,
-                              foregroundColor: AppTheme.dtYellow,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  AppTheme.radiusM,
-                                ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.dtBlue,
+                            foregroundColor: AppTheme.dtYellow,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusM,
                               ),
                             ),
-                            child: Text(
-                              'Continuer',
-                              style: TextStyle(
-                                fontSize: ResponsiveSize.getFontSize(16),
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          child: Text(
+                            'Continuer',
+                            style: TextStyle(
+                              fontSize: ResponsiveSize.getFontSize(16),
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
-
-                    // Clavier
-                    PinKeyboard(
-                      onNumberPressed: _isProcessing ? (_) {} : _onNumberPressed,
-                      onDeletePressed: _isProcessing ? () {} : _onDeletePressed,
                     ),
 
-                    SizedBox(height: ResponsiveSize.getHeight(40)),
+                  // Clavier
+                  PinKeyboard(
+                    onNumberPressed: _isProcessing ? (_) {} : _onNumberPressed,
+                    onDeletePressed: _isProcessing ? () {} : _onDeletePressed,
+                  ),
+
+                  SizedBox(height: ResponsiveSize.getHeight(40)),
                 ],
               ),
             ),
@@ -206,16 +241,21 @@ class _PinResetWithOtpScreenState extends State<PinResetWithOtpScreen> {
             shape: BoxShape.circle,
           ),
           child: Center(
-            child: isCompleted
-                ? Icon(Icons.check, color: Colors.white, size: ResponsiveSize.getFontSize(20))
-                : Text(
-                    '${step + 1}',
-                    style: TextStyle(
-                      color: isActive ? Colors.white : Colors.grey[600],
-                      fontSize: ResponsiveSize.getFontSize(16),
-                      fontWeight: FontWeight.bold,
+            child:
+                isCompleted
+                    ? Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: ResponsiveSize.getFontSize(20),
+                    )
+                    : Text(
+                      '${step + 1}',
+                      style: TextStyle(
+                        color: isActive ? Colors.white : Colors.grey[600],
+                        fontSize: ResponsiveSize.getFontSize(16),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
           ),
         ),
         SizedBox(height: ResponsiveSize.getHeight(4)),
@@ -378,9 +418,8 @@ class _PinResetWithOtpScreenState extends State<PinResetWithOtpScreen> {
     // Maintenant on utilise l'endpoint reset-pin qui accepte l'OTP déjà validé
     final success = await authProvider.resetPin(
       widget.phoneNumber,
-      _otp,
       _newPin,
-      _confirmPin,
+      _newPin,
     );
 
     if (!mounted) return;
@@ -395,9 +434,20 @@ class _PinResetWithOtpScreenState extends State<PinResetWithOtpScreen> {
         ),
       );
 
-      // Navigation vers MainScreen
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Code PIN réinitialisé avec succès ! Veuillez vous connecter.',
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Rediriger vers l'écran de connexion PIN
       Navigator.of(context).pushAndRemoveUntil(
-        CustomRouteTransitions.fadeScaleRoute(page: const MainScreen()),
+        CustomRouteTransitions.fadeScaleRoute(
+          page: PinLoginScreen(phoneNumber: widget.phoneNumber),
+        ),
         (route) => false,
       );
     } else {

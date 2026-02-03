@@ -52,7 +52,9 @@ class PinService {
         body: jsonEncode(body),
       );
 
-      debugPrint('PinService: Response ${response.statusCode} - ${response.body}');
+      debugPrint(
+        'PinService: Response ${response.statusCode} - ${response.body}',
+      );
 
       final responseData = jsonDecode(response.body);
 
@@ -97,7 +99,8 @@ class PinService {
         // Utilisateur introuvable
         return {
           'status': 'error',
-          'message': responseData['message'] ?? 'Numéro de téléphone non trouvé',
+          'message':
+              responseData['message'] ?? 'Numéro de téléphone non trouvé',
           'error_code': 'user_not_found',
         };
       } else {
@@ -142,14 +145,17 @@ class PinService {
         }),
       );
 
-      debugPrint('PinService: Response ${response.statusCode} - ${response.body}');
+      debugPrint(
+        'PinService: Response ${response.statusCode} - ${response.body}',
+      );
 
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200 && responseData['status'] == 'success') {
         return {
           'status': 'success',
-          'message': responseData['message'] ?? 'Code PIN configuré avec succès',
+          'message':
+              responseData['message'] ?? 'Code PIN configuré avec succès',
           'data': responseData['data'],
         };
       } else if (response.statusCode == 401) {
@@ -161,7 +167,8 @@ class PinService {
       } else if (response.statusCode == 400) {
         return {
           'status': 'error',
-          'message': responseData['message'] ?? 'Un code PIN est déjà configuré',
+          'message':
+              responseData['message'] ?? 'Un code PIN est déjà configuré',
           'error_code': 'pin_already_exists',
         };
       } else if (response.statusCode == 422) {
@@ -175,7 +182,9 @@ class PinService {
       } else {
         return {
           'status': 'error',
-          'message': responseData['message'] ?? 'Erreur lors de la configuration du PIN',
+          'message':
+              responseData['message'] ??
+              'Erreur lors de la configuration du PIN',
           'error_code': 'unknown_error',
         };
       }
@@ -216,7 +225,9 @@ class PinService {
         }),
       );
 
-      debugPrint('PinService: Response ${response.statusCode} - ${response.body}');
+      debugPrint(
+        'PinService: Response ${response.statusCode} - ${response.body}',
+      );
 
       final responseData = jsonDecode(response.body);
 
@@ -229,7 +240,8 @@ class PinService {
       } else if (response.statusCode == 401) {
         return {
           'status': 'error',
-          'message': responseData['message'] ?? 'L\'ancien code PIN est incorrect',
+          'message':
+              responseData['message'] ?? 'L\'ancien code PIN est incorrect',
           'error_code': 'invalid_old_pin',
         };
       } else if (response.statusCode == 422) {
@@ -242,7 +254,9 @@ class PinService {
       } else {
         return {
           'status': 'error',
-          'message': responseData['message'] ?? 'Erreur lors de la modification du PIN',
+          'message':
+              responseData['message'] ??
+              'Erreur lors de la modification du PIN',
           'error_code': 'unknown_error',
         };
       }
@@ -256,24 +270,31 @@ class PinService {
     }
   }
 
-  /// Réinitialise le PIN via OTP
+  /// Réinitialise le PIN
   ///
   /// Efface automatiquement le verrouillage du compte
-  /// Nécessite un code OTP valide (envoyé via /api/sms/otp/send)
+  /// L'OTP doit être vérifié au préalable via /verify
   static Future<Map<String, dynamic>> resetPin({
     required String phoneNumber,
-    required String otp,
     required String newPin,
     required String newPinConfirmation,
   }) async {
     try {
       debugPrint('PinService: Réinitialisation du PIN pour $phoneNumber');
 
-      // Formater le numéro
+      // Formater le numéro (OTP attend 8 chiffres)
       String formattedPhone = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
-      if (formattedPhone.length == 8 && !formattedPhone.startsWith('253')) {
-        formattedPhone = '253$formattedPhone';
+      if (formattedPhone.startsWith('253')) {
+        formattedPhone = formattedPhone.substring(3);
       }
+
+      final body = {
+        'phone_number': formattedPhone,
+        'new_pin': newPin,
+        'new_pin_confirmation': newPinConfirmation,
+      };
+
+      debugPrint('PinService: Sending Reset PIN Body: ${jsonEncode(body)}');
 
       final response = await http.post(
         Uri.parse('$baseUrl/mobile/reset-pin'),
@@ -281,22 +302,20 @@ class PinService {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: jsonEncode({
-          'phone_number': formattedPhone,
-          'otp': otp,
-          'new_pin': newPin,
-          'new_pin_confirmation': newPinConfirmation,
-        }),
+        body: jsonEncode(body),
       );
 
-      debugPrint('PinService: Response ${response.statusCode} - ${response.body}');
+      debugPrint(
+        'PinService: Response ${response.statusCode} - ${response.body}',
+      );
 
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200 && responseData['status'] == 'success') {
         return {
           'status': 'success',
-          'message': responseData['message'] ?? 'Code PIN réinitialisé avec succès',
+          'message':
+              responseData['message'] ?? 'Code PIN réinitialisé avec succès',
           'data': responseData['data'],
         };
       } else if (response.statusCode == 401) {
@@ -315,7 +334,9 @@ class PinService {
       } else {
         return {
           'status': 'error',
-          'message': responseData['message'] ?? 'Erreur lors de la réinitialisation du PIN',
+          'message':
+              responseData['message'] ??
+              'Erreur lors de la réinitialisation du PIN',
           'error_code': 'unknown_error',
         };
       }
@@ -352,10 +373,20 @@ class PinService {
 
     // Séquences communes
     const weakPins = [
-      '1234', '4321', '0123', '3210',
-      '1111', '2222', '3333', '4444',
-      '5555', '6666', '7777', '8888',
-      '9999', '0000',
+      '1234',
+      '4321',
+      '0123',
+      '3210',
+      '1111',
+      '2222',
+      '3333',
+      '4444',
+      '5555',
+      '6666',
+      '7777',
+      '8888',
+      '9999',
+      '0000',
     ];
 
     return weakPins.contains(pin);

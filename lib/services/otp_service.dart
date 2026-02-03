@@ -49,8 +49,15 @@ class OtpService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         debugPrint('Données décodées: $responseData');
-        
+
         // S'assurer de retourner un Map<String, dynamic> cohérent
+        final otp = responseData['debug']?['otp'];
+        if (otp != null) {
+          debugPrint('==========================================');
+          debugPrint('🔑 OTP POUR TEST : $otp');
+          debugPrint('==========================================');
+        }
+
         return {
           'status': responseData['status'] ?? 'success',
           'message': responseData['message'] ?? 'Code OTP envoyé avec succès',
@@ -60,7 +67,9 @@ class OtpService {
         final errorData = jsonDecode(response.body);
         return {
           'status': 'error',
-          'message': errorData['message'] ?? 'Échec de l\'envoi de l\'OTP: ${response.statusCode}',
+          'message':
+              errorData['message'] ??
+              'Échec de l\'envoi de l\'OTP: ${response.statusCode}',
         };
       }
     } catch (e) {
@@ -104,7 +113,7 @@ class OtpService {
           'os_version': deviceInfo['os_version'],
           'app_version': deviceInfo['app_version'],
           'device_id': deviceInfo['device_id'],
-        }
+        },
       };
 
       debugPrint('Payload OTP avec device_info: ${jsonEncode(payload)}');
@@ -131,7 +140,9 @@ class OtpService {
         final errorData = jsonDecode(response.body);
         return {
           'status': 'error',
-          'message': errorData['message'] ?? 'Échec de la vérification de l\'OTP: ${response.statusCode}',
+          'message':
+              errorData['message'] ??
+              'Échec de la vérification de l\'OTP: ${response.statusCode}',
         };
       }
     } catch (e) {
@@ -149,9 +160,7 @@ class OtpService {
       final deviceInfo = DeviceInfoPlugin();
       final packageInfo = await PackageInfo.fromPlatform();
 
-      Map<String, dynamic> info = {
-        'app_version': packageInfo.version,
-      };
+      Map<String, dynamic> info = {'app_version': packageInfo.version};
 
       if (Platform.isAndroid) {
         final androidInfo = await deviceInfo.androidInfo;

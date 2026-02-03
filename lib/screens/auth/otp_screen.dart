@@ -6,6 +6,7 @@ import 'package:sms_autofill/sms_autofill.dart';
 import 'dart:async';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
+import '../../widgets/appbar_widget.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../providers/auth_provider.dart';
 import '../core/main_screen.dart';
@@ -181,7 +182,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
               SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
               Expanded(
                 child: Text(
-                  'Configurer un code PIN',
+                  AppLocalizations.of(context)!.setupPinTitle,
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(20),
                     fontWeight: FontWeight.bold,
@@ -192,7 +193,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
             ],
           ),
           content: Text(
-            'Voulez-vous créer un code PIN pour vous connecter plus rapidement la prochaine fois ?',
+            AppLocalizations.of(context)!.setupPinMessage,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
               color: AppTheme.textSecondary,
@@ -214,7 +215,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                 );
               },
               child: Text(
-                'Plus tard',
+                AppLocalizations.of(context)!.later,
                 style: TextStyle(
                   color: AppTheme.textSecondary,
                   fontSize: ResponsiveSize.getFontSize(16),
@@ -254,7 +255,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                 ),
               ),
               child: Text(
-                'Configurer',
+                AppLocalizations.of(context)!.setup,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(16),
                   fontWeight: FontWeight.bold,
@@ -360,32 +361,13 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: AppTheme.dtBlue,
-            size: ResponsiveSize.getFontSize(24),
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      appBar: const AppBarWidget(title: 'Vérification OTP', showAction: false),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                AppLocalizations.of(context)!.verificationTitle,
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(28),
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.dtBlue,
-                ),
-              ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
               Text(
                 AppLocalizations.of(

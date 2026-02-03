@@ -174,7 +174,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get defaultUser => 'Utilisateur';
 
   @override
-  String get otpSendError => 'Erreur lors de l\'envoi du code';
+  String get otpSendError => 'Erreur lors de l\'envoi du code OTP';
 
   @override
   String get welcome => 'Bienvenue';
@@ -1230,4 +1230,181 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get money => 'Crédit';
+
+  @override
+  String get invalidNumber => 'Numéro invalide';
+
+  @override
+  String get numberNotFound => 'Ce numéro n\'existe pas dans le système.';
+
+  @override
+  String get biometricAuthPrompt => 'Authentifiez-vous pour vous connecter';
+
+  @override
+  String get biometricAuthError => 'Erreur d\'authentification biométrique';
+
+  @override
+  String get chooseConnectionMethod => 'Choisir une méthode de connexion';
+
+  @override
+  String get smsCodeOtp => 'Code SMS (OTP)';
+
+  @override
+  String get loginWithFingerprint => 'Se connecter avec empreinte';
+
+  @override
+  String get loginWithPin => 'Se connecter avec PIN';
+
+  @override
+  String get loginWithSms => 'Se connecter avec SMS';
+
+  @override
+  String get otherConnectionMethod => 'Autre méthode de connexion';
+
+  @override
+  String get forgotPin => 'PIN oublié ?';
+
+  @override
+  String get hello => 'Bonjour !';
+
+  @override
+  String get setupPinTitle => 'Configurer un code PIN';
+
+  @override
+  String get setupPinMessage =>
+      'Voulez-vous créer un code PIN pour vous connecter plus rapidement la prochaine fois ?';
+
+  @override
+  String get later => 'Plus tard';
+
+  @override
+  String get setup => 'Configurer';
+
+  @override
+  String get loading => 'Chargement en cours...';
+
+  @override
+  String get pinLoginTitle => 'Connexion PIN';
+
+  @override
+  String remainingAttempts(Object count) {
+    return '$count tentative(s) restante(s)';
+  }
+
+  @override
+  String retryIn(Object minutes, Object seconds) {
+    return 'Réessayez dans $minutes min $seconds sec';
+  }
+
+  @override
+  String get skip => 'Passer';
+
+  @override
+  String get confirmPinTitle => 'Confirmez votre code PIN';
+
+  @override
+  String get createPinTitle => 'Créez un code PIN';
+
+  @override
+  String get confirmPinMessage => 'Entrez votre PIN une seconde fois';
+
+  @override
+  String get createPinMessage =>
+      'Créez un code à 4 chiffres pour vous connecter rapidement';
+
+  @override
+  String get pinsDoNotMatch => 'Les codes PIN ne correspondent pas';
+
+  @override
+  String get resetInfoMissing =>
+      'Erreur: informations manquantes pour la réinitialisation';
+
+  @override
+  String get pinResetSuccess => 'Code PIN réinitialisé avec succès !';
+
+  @override
+  String get pinSetupSuccess => 'Code PIN configuré avec succès !';
+
+  @override
+  String get otpExpiredTitle => 'Code OTP expiré';
+
+  @override
+  String get otpExpiredMessage =>
+      'Le code OTP a expiré. Vous devez obtenir un nouveau code pour réinitialiser votre PIN.';
+
+  @override
+  String get getNewCode => 'Obtenir un nouveau code';
+
+  @override
+  String get resetPinTitle => 'Réinitialiser le PIN';
+
+  @override
+  String get genericError => 'Une erreur est survenue. Veuillez réessayer.';
+
+  @override
+  String get errorTitle => 'Erreur';
+
+  @override
+  String get howItWorks => 'Comment ça marche ?';
+
+  @override
+  String get resetStep1 =>
+      'Nous allons vous envoyer un code de vérification par SMS';
+
+  @override
+  String get resetStep2 => 'Entrez le code reçu pour vérifier votre identité';
+
+  @override
+  String get resetStep3 => 'Créez un nouveau code PIN sécurisé';
+
+  @override
+  String get sendCode => 'Envoyer le code';
+
+  @override
+  String get enterReceivedCode => 'Entrez le code reçu';
+
+  @override
+  String codeSentTo(Object number) {
+    return 'Un code à 6 chiffres a été envoyé au\n$number';
+  }
+
+  @override
+  String get codeResentSuccess => 'Code renvoyé avec succès';
+
+  @override
+  String get continueText => 'Continuer';
+
+  @override
+  String get oldPinTitle => 'Ancien code PIN';
+
+  @override
+  String get oldPinMessage => 'Entrez votre code PIN actuel';
+
+  @override
+  String get newPinTitle => 'Nouveau code PIN';
+
+  @override
+  String get newPinMessage => 'Créez un nouveau code à 4 chiffres';
+
+  @override
+  String get changePinTitle => 'Modifier le code PIN';
+
+  @override
+  String get newPinsDoNotMatch => 'Les nouveaux codes PIN ne correspondent pas';
+
+  @override
+  String get newPinMustBeDifferent =>
+      'Le nouveau PIN doit être différent de l\'ancien';
+
+  @override
+  String get pinChangedSuccess => 'Code PIN modifié avec succès !';
+
+  @override
+  String get pinManagementTitle => 'Gestion du code PIN';
+
+  @override
+  String get forgotPinOption => 'Code PIN oublié';
+
+  @override
+  String get phoneNotFound => 'Numéro de téléphone introuvable';
 }

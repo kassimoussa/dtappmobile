@@ -4,19 +4,17 @@ import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
 import '../../../widgets/appbar_widget.dart';
 import '../../../routes/custom_route_transitions.dart';
-import 'pin_reset_with_otp_screen.dart';
+import 'pin_reset_otp_screen.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 
 /// Écran de réinitialisation du PIN
 /// Affiche les informations et permet d'envoyer un OTP pour réinitialiser le PIN
 class PinResetScreen extends StatefulWidget {
   final String phoneNumber;
 
-  const PinResetScreen({
-    super.key,
-    required this.phoneNumber,
-  });
+  const PinResetScreen({super.key, required this.phoneNumber});
 
   @override
   State<PinResetScreen> createState() => _PinResetScreenState();
@@ -38,24 +36,23 @@ class _PinResetScreenState extends State<PinResetScreen> {
       setState(() => _isLoading = false);
 
       if (success) {
-        // Naviguer vers l'écran combiné OTP+PIN pour réinitialisation
+        // Naviguer vers l'écran dédié de vérification OTP pour réinitialisation
         Navigator.of(context).pushReplacement(
           CustomRouteTransitions.fadeScaleRoute(
-            page: PinResetWithOtpScreen(
-              phoneNumber: widget.phoneNumber,
-            ),
+            page: PinResetOtpScreen(phoneNumber: widget.phoneNumber),
           ),
         );
       } else {
         // Afficher l'erreur
         _showErrorDialog(
-          authProvider.errorMessage ?? 'Erreur lors de l\'envoi du code OTP',
+          authProvider.errorMessage ??
+              AppLocalizations.of(context)!.otpSendError,
         );
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      _showErrorDialog('Une erreur est survenue. Veuillez réessayer.');
+      _showErrorDialog(AppLocalizations.of(context)!.genericError);
     }
   }
 
@@ -63,20 +60,21 @@ class _PinResetScreenState extends State<PinResetScreen> {
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Erreur'),
-        content: Text(message),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.dtBlue,
-              foregroundColor: AppTheme.dtYellow,
-            ),
-            child: const Text('OK'),
+      builder:
+          (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.errorTitle),
+            content: Text(message),
+            actions: [
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.dtBlue,
+                  foregroundColor: AppTheme.dtYellow,
+                ),
+                child: Text(AppLocalizations.of(context)!.ok),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -87,7 +85,7 @@ class _PinResetScreenState extends State<PinResetScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarWidget(
-        title: 'Réinitialiser le PIN',
+        title: AppLocalizations.of(context)!.resetPinTitle,
         showAction: false,
       ),
       body: SafeArea(
@@ -95,7 +93,8 @@ class _PinResetScreenState extends State<PinResetScreen> {
           padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height -
+              minHeight:
+                  MediaQuery.of(context).size.height -
                   MediaQuery.of(context).padding.top -
                   MediaQuery.of(context).padding.bottom -
                   kToolbarHeight -
@@ -105,7 +104,9 @@ class _PinResetScreenState extends State<PinResetScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
+                  SizedBox(
+                    height: ResponsiveSize.getHeight(AppTheme.spacingXL),
+                  ),
 
                   // Icône
                   Icon(
@@ -118,7 +119,7 @@ class _PinResetScreenState extends State<PinResetScreen> {
 
                   // Titre
                   Text(
-                    'PIN oublié ?',
+                    AppLocalizations.of(context)!.forgotPin,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: ResponsiveSize.getFontSize(24),
@@ -140,11 +141,15 @@ class _PinResetScreenState extends State<PinResetScreen> {
                     ),
                   ),
 
-                  SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
+                  SizedBox(
+                    height: ResponsiveSize.getHeight(AppTheme.spacingXL),
+                  ),
 
                   // Instructions
                   Container(
-                    padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+                    padding: EdgeInsets.all(
+                      ResponsiveSize.getWidth(AppTheme.spacingM),
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.dtBlue.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(AppTheme.radiusM),
@@ -157,27 +162,33 @@ class _PinResetScreenState extends State<PinResetScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Comment ça marche ?',
+                          AppLocalizations.of(context)!.howItWorks,
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(16),
                             fontWeight: FontWeight.bold,
                             color: AppTheme.dtBlue,
                           ),
                         ),
-                        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                        SizedBox(
+                          height: ResponsiveSize.getHeight(AppTheme.spacingM),
+                        ),
                         _buildStep(
                           number: '1',
-                          text: 'Nous allons vous envoyer un code de vérification par SMS',
+                          text: AppLocalizations.of(context)!.resetStep1,
                         ),
-                        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
+                        SizedBox(
+                          height: ResponsiveSize.getHeight(AppTheme.spacingS),
+                        ),
                         _buildStep(
                           number: '2',
-                          text: 'Entrez le code reçu pour vérifier votre identité',
+                          text: AppLocalizations.of(context)!.resetStep2,
                         ),
-                        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
+                        SizedBox(
+                          height: ResponsiveSize.getHeight(AppTheme.spacingS),
+                        ),
                         _buildStep(
                           number: '3',
-                          text: 'Créez un nouveau code PIN sécurisé',
+                          text: AppLocalizations.of(context)!.resetStep3,
                         ),
                       ],
                     ),
@@ -200,24 +211,25 @@ class _PinResetScreenState extends State<PinResetScreen> {
                         ),
                         elevation: 0,
                       ),
-                      child: _isLoading
-                          ? SizedBox(
-                              height: ResponsiveSize.getHeight(24),
-                              width: ResponsiveSize.getWidth(24),
-                              child: const CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppTheme.dtYellow,
+                      child:
+                          _isLoading
+                              ? SizedBox(
+                                height: ResponsiveSize.getHeight(24),
+                                width: ResponsiveSize.getWidth(24),
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppTheme.dtYellow,
+                                  ),
+                                ),
+                              )
+                              : Text(
+                                AppLocalizations.of(context)!.sendCode,
+                                style: TextStyle(
+                                  fontSize: ResponsiveSize.getFontSize(16),
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            )
-                          : Text(
-                              'Envoyer le code',
-                              style: TextStyle(
-                                fontSize: ResponsiveSize.getFontSize(16),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
                     ),
                   ),
 
@@ -227,7 +239,7 @@ class _PinResetScreenState extends State<PinResetScreen> {
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: Text(
-                      'Annuler',
+                      AppLocalizations.of(context)!.cancel,
                       style: TextStyle(
                         fontSize: ResponsiveSize.getFontSize(16),
                         color: AppTheme.textSecondary,
