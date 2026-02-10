@@ -8,6 +8,7 @@ import '../../../widgets/pin_keyboard.dart';
 import '../../../widgets/pin_dots.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../widgets/appbar_widget.dart';
+import '../../../services/user_session.dart';
 import '../../core/main_screen.dart';
 import 'pin_reset_screen.dart';
 import '../../../../generated/l10n/app_localizations.dart';
@@ -200,7 +201,15 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
 
     final success = await authProvider.loginWithPin(widget.phoneNumber, _pin);
 
-    if (success && mounted) {
+    if (success) {
+      // Sauvegarder le PIN de manière sécurisée si la biométrie est activée
+      final isBiometricEnabled = await UserSession.isBiometricEnabled();
+      if (isBiometricEnabled) {
+        await UserSession.saveSecurePin(widget.phoneNumber, _pin);
+        debugPrint('✅ PIN sauvegardé pour authentification biométrique');
+      }
+
+      if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         CustomRouteTransitions.slideRightRoute(page: const MainScreen()),
         (route) => false,

@@ -3,12 +3,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'user_session.dart';
-import 'fcm_token_service.dart';
 
 class LogoutService {
   static const String logoutUrl = 'http://10.39.230.106/api/mobile/logout';
 
-  /// Effectue la déconnexion complète (API + local + FCM)
+  /// Effectue la déconnexion complète (API + local)
+  /// NOTE: Le token FCM n'est PAS supprimé pour permettre les notifications
+  /// même après déconnexion
   static Future<bool> logout() async {
     try {
       // Récupérer le session token
@@ -23,16 +24,11 @@ class LogoutService {
 
       debugPrint('Logout: Appel API avec token: ${sessionToken.substring(0, 10)}...');
 
-      // 1. Supprimer le token FCM du serveur en premier
-      debugPrint('🔔 Suppression du token FCM du serveur...');
-      try {
-        await FCMTokenService.clearTokenOnServer();
-      } catch (fcmError) {
-        debugPrint('⚠️ Erreur lors de la suppression du token FCM: $fcmError');
-        // On continue même en cas d'erreur FCM
-      }
+      // NOTE: On ne supprime PAS le token FCM du serveur
+      // L'utilisateur continuera à recevoir des notifications même déconnecté
+      debugPrint('ℹ️ Token FCM conservé pour notifications hors connexion');
 
-      // 2. Appeler l'API logout
+      // Appeler l'API logout
       final response = await http.post(
         Uri.parse(logoutUrl),
         headers: {

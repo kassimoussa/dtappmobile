@@ -10,6 +10,7 @@ import '../../extensions/color_extensions.dart';
 import 'otp_screen.dart';
 import 'pin/pin_login_screen.dart';
 import 'pin/pin_reset_screen.dart';
+import '../core/main_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/mobile_status_service.dart';
@@ -193,8 +194,8 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
       if (!mounted) return;
 
       if (didAuthenticate) {
-        // Authentification biométrique réussie -> Connexion PIN en arrière-plan
-        _navigateToPinLogin();
+        // Authentification biométrique réussie -> Connexion automatique avec PIN stocké
+        await _autoLoginWithStoredPin();
       }
     } catch (e) {
       debugPrint('Erreur authentification biométrique: $e');
@@ -206,6 +207,76 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
           backgroundColor: Colors.red,
         ),
       );
+    }
+  }
+
+  /// Connexion automatique avec le PIN stocké après validation biométrique
+  Future<void> _autoLoginWithStoredPin() async {
+    // Récupérer le PIN stocké de manière sécurisée
+    final storedPin = await UserSession.getSecurePin(widget.phoneNumber);
+
+    if (storedPin == null || storedPin.isEmpty) {
+      // Pas de PIN stocké, rediriger vers l'écran PIN pour saisie manuelle
+      debugPrint('⚠️ Aucun PIN stocké, redirection vers saisie manuelle');
+      _navigateToPinLogin();
+      return;
+    }
+
+    // Afficher un indicateur de chargement
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(color: AppTheme.dtYellow),
+      ),
+    );
+
+    try {
+      // Connexion avec le PIN stocké
+      final authProvider = context.read<AuthProvider>();
+      final success = await authProvider.loginWithPin(widget.phoneNumber, storedPin);
+
+      if (!mounted) return;
+
+      // Fermer le dialog de chargement
+      Navigator.of(context).pop();
+
+      if (success) {
+        // Connexion réussie -> Naviguer vers MainScreen
+        debugPrint('✅ Connexion biométrique automatique réussie');
+        Navigator.of(context).pushAndRemoveUntil(
+          CustomRouteTransitions.slideRightRoute(page: const MainScreen()),
+          (route) => false,
+        );
+      } else {
+        // PIN invalide (peut-être changé côté serveur)
+        // Supprimer le PIN stocké et rediriger vers saisie manuelle
+        debugPrint('❌ PIN stocké invalide, suppression et redirection');
+        await UserSession.deleteSecurePin(widget.phoneNumber);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Veuillez ressaisir votre code PIN'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+
+        _navigateToPinLogin();
+      }
+    } catch (e) {
+      debugPrint('Erreur connexion automatique: $e');
+
+      if (!mounted) return;
+
+      // Fermer le dialog si encore visible
+      Navigator.of(context).pop();
+
+      // Fallback vers saisie manuelle
+      _navigateToPinLogin();
     }
   }
 

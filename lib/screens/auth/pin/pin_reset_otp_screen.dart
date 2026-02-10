@@ -33,7 +33,7 @@ class _PinResetOtpScreenState extends State<PinResetOtpScreen>
 
   void _initSmsListener() async {
     try {
-      await SmsAutoFill().listenForCode;
+      SmsAutoFill().listenForCode;
       debugPrint('Écoute des SMS activée (PinResetOtpScreen)');
     } catch (e) {
       debugPrint('Erreur init SMS listener: $e');

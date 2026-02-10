@@ -93,7 +93,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBarWidget(
         title: l10n.myProfile,
         showAction: false,
-        showCancelToHome: true,
       ),
       body:
           _isLoading

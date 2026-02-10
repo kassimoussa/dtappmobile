@@ -7,6 +7,7 @@ import '../../../providers/auth_provider.dart';
 import '../../../widgets/pin_keyboard.dart';
 import '../../../widgets/pin_dots.dart';
 import '../../../services/pin_service.dart';
+import '../../../services/user_session.dart';
 import '../../../../generated/l10n/app_localizations.dart';
 
 class ChangePinScreen extends StatefulWidget {
@@ -291,7 +292,19 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
 
     final success = await authProvider.changePin(_oldPin, _newPin, _confirmPin);
 
-    if (success && mounted) {
+    if (success) {
+      // Mettre à jour le PIN stocké de manière sécurisée si biométrie activée
+      final phoneNumber = authProvider.phoneNumber;
+      if (phoneNumber != null) {
+        final isBiometricEnabled = await UserSession.isBiometricEnabled();
+        if (isBiometricEnabled) {
+          await UserSession.saveSecurePin(phoneNumber, _newPin);
+          debugPrint('✅ Nouveau PIN sauvegardé pour authentification biométrique');
+        }
+      }
+
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocalizations.of(context)!.pinChangedSuccess),

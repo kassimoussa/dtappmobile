@@ -5,5 +5,4 @@ output-class: AppLocalizations
 preferred-supported-locales: [fr, en]
 strict: true
 use-deferred-loading: false
-synthetic-package: false
 output-dir: lib/generated/l10n

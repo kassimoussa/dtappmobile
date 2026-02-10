@@ -296,6 +296,14 @@ class AuthProvider extends ChangeNotifier {
 
       if (result['status'] == 'success') {
         debugPrint('AuthProvider: OTP envoyé avec succès');
+
+        // Enregistrer le token FCM pour ce numéro (permet les notifications hors connexion)
+        FCMTokenService.registerTokenWithPhone(phoneNumber).then((success) {
+          if (success) {
+            debugPrint('✅ Token FCM enregistré pour $phoneNumber');
+          }
+        });
+
         _isLoading = false;
         notifyListeners();
         return true;
