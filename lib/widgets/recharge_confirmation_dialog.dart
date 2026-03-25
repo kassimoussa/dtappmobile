@@ -1,5 +1,6 @@
 // lib/widgets/recharge_confirmation_dialog.dart
 import 'package:flutter/material.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class RechargeConfirmationDialog extends StatelessWidget {
   final String amount;
@@ -14,6 +15,7 @@ class RechargeConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color djiboutiBlue = const Color(0xFF002555);
+    final l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -41,7 +43,7 @@ class RechargeConfirmationDialog extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Demande envoyée',
+              l10n.requestSent,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -51,8 +53,8 @@ class RechargeConfirmationDialog extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               paymentMethod == 'D-Money'
-                  ? 'Votre demande de rechargement de $amount DJF via D-Money a été envoyée. Veuillez suivre les instructions sur votre téléphone pour finaliser la transaction.'
-                  : 'Votre demande de transfert de $amount DJF depuis votre compte principal mobile a été traitée avec succès. Le montant a été ajouté à votre solde fixe.',
+                  ? l10n.rechargeRequestDmoney(amount)
+                  : l10n.rechargeRequestMobile(amount),
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.black87,
@@ -74,9 +76,9 @@ class RechargeConfirmationDialog extends StatelessWidget {
                   elevation: 0,
                 ),
                 onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'OK',
-                  style: TextStyle(
+                child: Text(
+                  l10n.ok,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),

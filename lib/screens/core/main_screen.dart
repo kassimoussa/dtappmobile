@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
+import '../../generated/l10n/app_localizations.dart';
 import 'home_screen.dart';
 import '../topup/home/topup_home_screen.dart';
 import '../user/history_screen.dart';
@@ -116,15 +117,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             items: [
               BottomNavigationBarItem(
                 icon: _buildAnimatedIcon(Icons.home, 0),
-                label: 'Accueil',
+                label: AppLocalizations.of(context)!.navHome,
               ),
               BottomNavigationBarItem(
                 icon: _buildAnimatedIcon(Icons.history, 1),
-                label: 'Historique',
+                label: AppLocalizations.of(context)!.navHistory,
               ),
               BottomNavigationBarItem(
                 icon: _buildAnimatedIcon(Icons.phone, 2),
-                label: 'Ma ligne',
+                label: AppLocalizations.of(context)!.navMyLine,
               ),
             ],
           ),

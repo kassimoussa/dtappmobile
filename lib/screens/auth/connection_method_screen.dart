@@ -160,7 +160,7 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
                   backgroundColor: AppTheme.dtBlue,
                   foregroundColor: AppTheme.dtYellow,
                 ),
-                child: const Text('OK'),
+                child: Text(AppLocalizations.of(context)!.ok),
               ),
             ],
           ),
@@ -258,8 +258,8 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Veuillez ressaisir votre code PIN'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.pleaseReenterPin),
               backgroundColor: Colors.orange,
             ),
           );

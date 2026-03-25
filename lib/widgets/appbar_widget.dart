@@ -2,6 +2,7 @@ import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:flutter/material.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -41,7 +42,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+
     final bgColor = backgroundColor ?? AppTheme.dtBlue;
     final fgColor = foregroundColor ?? Colors.white;
 
@@ -64,9 +65,9 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
 
   Widget? _buildLeading(BuildContext context, Color foregroundColor) {
     if (!showLeading) return null;
-    
+
     if (customLeading != null) return customLeading;
-    
+
     return IconButton(
       icon: Icon(
         Icons.arrow_back,
@@ -74,28 +75,28 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         size: ResponsiveSize.getFontSize(24),
       ),
       onPressed: onLeadingPressed ?? () => Navigator.of(context).pop(),
-      tooltip: 'Retour',
+      tooltip: AppLocalizations.of(context)!.back,
     );
   }
 
   List<Widget>? _buildActions(BuildContext context, Color foregroundColor) {
     final actions = <Widget>[];
-    
+
     // Ajouter le bouton "Annuler" vers l'accueil si demandé
     if (showCancelToHome) {
       actions.add(_buildCancelButton(context, foregroundColor));
     }
-    
+
     // Ajouter l'affichage du solde si demandé
     if (showAction && value != null) {
-      actions.add(_buildSoldeWidget(foregroundColor));
+      actions.add(_buildSoldeWidget(context, foregroundColor));
     }
-    
+
     // Ajouter des actions personnalisées si fournies
     if (customActions != null) {
       actions.addAll(customActions!);
     }
-    
+
     return actions.isEmpty ? null : actions;
   }
 
@@ -123,7 +124,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
             ),
             SizedBox(width: ResponsiveSize.getWidth(4)),
             Text(
-              'Annuler',
+              AppLocalizations.of(context)!.cancel,
               style: TextStyle(
                 color: foregroundColor,
                 fontSize: ResponsiveSize.getFontSize(14),
@@ -149,7 +150,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     }
   }
 
-  Widget _buildSoldeWidget(Color foregroundColor) {
+  Widget _buildSoldeWidget(BuildContext context, Color foregroundColor) {
     return Padding(
       padding: EdgeInsets.only(
         right: ResponsiveSize.getWidth(AppTheme.spacingM),
@@ -180,7 +181,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
               ),
               SizedBox(width: ResponsiveSize.getWidth(4)),
               Text(
-                'Solde: ${_formatValue(value!)} $currency',
+                AppLocalizations.of(context)!.balanceDisplay(_formatValue(value!), currency ?? 'FDJ'),
                 style: TextStyle(
                   color: foregroundColor,
                   fontSize: ResponsiveSize.getFontSize(12),

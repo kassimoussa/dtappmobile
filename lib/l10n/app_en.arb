@@ -554,5 +554,171 @@
     "pinChangedSuccess": "PIN code changed successfully!",
     "pinManagementTitle": "PIN Management",
     "forgotPinOption": "Forgot PIN code",
-    "phoneNotFound": "Phone number not found"
+    "phoneNotFound": "Phone number not found",
+
+    "topupFixedBalances": "TopUp - Fixed Balances",
+    "detailedConsultation": "Detailed consultation",
+    "dataExpireOn": "Data expires on {date}",
+    "@dataExpireOn": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "topupActions": "TopUp Actions",
+    "topupRecharge": "TopUp\nRefill",
+    "fixedPackage": "Fixed\nPackage",
+    "transferToFixed": "Transfer\nto Fixed",
+    "topupHistory": "TopUp\nHistory",
+    "logoutTopUp": "TopUp Logout",
+    "fixedNumberRequired": "Please enter a fixed line number",
+    "fixedNumberFormatError": "Number must start with 21 or 25321 and contain 8 or 11 digits",
+    "fixedHistory": "Fixed\nHistory",
+    "confirm": "Confirm",
+    "purchaseConfirmQuestion": "Do you want to buy {name}?",
+    "@purchaseConfirmQuestion": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "balanceAfterPurchaseAmount": "Balance after purchase: {amount} DJF",
+    "@balanceAfterPurchaseAmount": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        }
+      }
+    },
+    "priceRow": "Price:",
+    "dataRow": "Data:",
+    "minutesRow": "Minutes:",
+    "validityRow": "Validity:",
+    "searchActionHint": "Search for an action...",
+    "searchActionsAvailable": "{count} actions available",
+    "@searchActionsAvailable": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "searchResultsFound": "{count} result{count, plural, =1{} other{s}} found",
+    "@searchResultsFound": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "searchFor": "for \"{query}\"",
+    "@searchFor": {
+      "placeholders": {
+        "query": {
+          "type": "String"
+        }
+      }
+    },
+    "noResultsFound": "No results found",
+    "searchSuggestions": "Try with different keywords like:\n\"package\", \"refill\", \"topup\", \"profile\"",
+    "searchBuyPackage": "Buy package",
+    "searchBuyPackageSub": "Buy voice and data packages",
+    "searchCreditRefill": "Credit refill",
+    "searchCreditRefillSub": "Refill your mobile account",
+    "searchCreditTransfer": "Credit transfer",
+    "searchCreditTransferSub": "Transfer credit to another number",
+    "searchMyPackages": "My packages",
+    "searchMyPackagesSub": "View your active packages",
+    "searchTopUpLine": "TopUp - My line",
+    "searchTopUpLineSub": "Manage your TopUp fixed line",
+    "searchBuySubscription": "Buy subscription",
+    "searchBuySubscriptionSub": "Subscribe to TopUp packages",
+    "searchRechargeFixed": "Refill fixed account",
+    "searchRechargeFixedSub": "Transfer credit to fixed line",
+    "searchMyProfile": "My profile",
+    "searchMyProfileSub": "Manage your personal information",
+    "searchMainBalance": "Main balance",
+    "searchMainBalanceSub": "Check your mobile balance",
+    "searchBonusBalance": "Bonus balance",
+    "searchBonusBalanceSub": "Check your bonus balance",
+    "categoryActions": "Actions",
+    "categoryConsultation": "Consultation",
+    "categoryTopUp": "TopUp",
+    "categoryAccount": "Account",
+    "pleaseReenterPin": "Please re-enter your PIN code",
+    "expiredOn": "Expired on {date}",
+    "@expiredOn": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "buySubscriptionBtn": "Buy a\nsubscription",
+    "buyPackagesBtn": "Buy\npackages",
+    "rechargeAccountBtn": "Refill\naccount",
+    "fixedHistoryComingSoon": "Fixed History - Coming soon",
+
+    "selectContact": "Select a contact",
+    "searchContact": "Search for a contact...",
+    "noContactFound": "No contacts found",
+    "noNumber": "No number",
+    "contactNoPhone": "This contact has no phone number",
+    "contactPermissionDenied": "Contact access permission denied",
+    "contactRetrievalError": "Error retrieving contacts",
+    "djiboutiMobileStart": "Djibouti mobile numbers start with 77",
+    "choosePackageType": "Choose a package type",
+    "dataForBrowsing": "Data for your browsing",
+    "voicePackage": "Voice Package",
+    "minutesForCalls": "Minutes for your calls",
+    "internetPackages": "Internet Packages",
+    "voicePackages": "Voice Packages",
+    "packageSummary": "Package summary",
+    "packageRow": "Package:",
+    "rechargeYourAccount": "Refill your account",
+    "amountToRecharge": "Amount to refill (DJF)",
+    "paymentMethod": "Payment method",
+    "dmoneyPaymentDesc": "Payment via your D-Money account",
+    "mobileMainAccount": "Mobile main account",
+    "mobileTransferDesc": "Transfer from your mobile account",
+    "pleaseEnterRechargeAmount": "Please enter an amount to refill",
+    "requestSent": "Request sent",
+    "rechargeRequestDmoney": "Your request to refill {amount} DJF via D-Money has been sent. Please follow the instructions on your phone to finalize the transaction.",
+    "@rechargeRequestDmoney": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        }
+      }
+    },
+    "rechargeRequestMobile": "Your request to transfer {amount} DJF from your main mobile account has been processed successfully. The amount has been added to your fixed balance.",
+    "@rechargeRequestMobile": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        }
+      }
+    },
+    "payBill": "Pay the bill",
+    "processingPayment": "Processing payment...",
+    "pleaseWaitPayment": "Please wait while we process your payment.",
+    "choosePaymentMethod": "Choose a payment method:",
+    "mobileLinePayment": "Payment via your mobile line credit",
+    "payNow": "Pay now",
+    "invoiceLabel": "Invoice:",
+    "dueDateLabel": "Due date:",
+    "typeLabel": "Type:",
+    "balanceDisplay": "Balance: {amount} {currency}",
+    "@balanceDisplay": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        },
+        "currency": {
+          "type": "String"
+        }
+      }
+    }
   }

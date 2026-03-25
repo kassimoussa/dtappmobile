@@ -1407,4 +1407,319 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneNotFound => 'Numéro de téléphone introuvable';
+
+  @override
+  String get topupFixedBalances => 'TopUp - Soldes Fixes';
+
+  @override
+  String get detailedConsultation => 'Consultation détaillée';
+
+  @override
+  String dataExpireOn(String date) {
+    return 'Données expirent le $date';
+  }
+
+  @override
+  String get topupActions => 'Actions TopUp';
+
+  @override
+  String get topupRecharge => 'Recharge\nTopUp';
+
+  @override
+  String get fixedPackage => 'Forfait\nFixe';
+
+  @override
+  String get transferToFixed => 'Transfert\nvers Fixe';
+
+  @override
+  String get topupHistory => 'Historique\nTopUp';
+
+  @override
+  String get logoutTopUp => 'Déconnexion TopUp';
+
+  @override
+  String get fixedNumberRequired =>
+      'Veuillez entrer un numéro de téléphone fixe';
+
+  @override
+  String get fixedNumberFormatError =>
+      'Le numéro doit commencer par 21 ou 25321 et contenir 8 ou 11 chiffres';
+
+  @override
+  String get fixedHistory => 'Historique\nFixe';
+
+  @override
+  String get confirm => 'Confirmer';
+
+  @override
+  String purchaseConfirmQuestion(String name) {
+    return 'Voulez-vous acheter le $name ?';
+  }
+
+  @override
+  String balanceAfterPurchaseAmount(String amount) {
+    return 'Solde après achat: $amount FDJ';
+  }
+
+  @override
+  String get priceRow => 'Prix:';
+
+  @override
+  String get dataRow => 'Data:';
+
+  @override
+  String get minutesRow => 'Minutes:';
+
+  @override
+  String get validityRow => 'Validité:';
+
+  @override
+  String get searchActionHint => 'Rechercher une action...';
+
+  @override
+  String searchActionsAvailable(int count) {
+    return '$count actions disponibles';
+  }
+
+  @override
+  String searchResultsFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count résultat$_temp0 trouvé$_temp1';
+  }
+
+  @override
+  String searchFor(String query) {
+    return 'pour \"$query\"';
+  }
+
+  @override
+  String get noResultsFound => 'Aucun résultat trouvé';
+
+  @override
+  String get searchSuggestions =>
+      'Essayez avec des mots-clés différents comme :\n\"forfait\", \"recharge\", \"topup\", \"profil\"';
+
+  @override
+  String get searchBuyPackage => 'Achat de forfait';
+
+  @override
+  String get searchBuyPackageSub => 'Acheter des forfaits voix et data';
+
+  @override
+  String get searchCreditRefill => 'Recharge de crédit';
+
+  @override
+  String get searchCreditRefillSub => 'Recharger votre compte mobile';
+
+  @override
+  String get searchCreditTransfer => 'Transfert de crédit';
+
+  @override
+  String get searchCreditTransferSub =>
+      'Transférer du crédit vers un autre numéro';
+
+  @override
+  String get searchMyPackages => 'Mes forfaits';
+
+  @override
+  String get searchMyPackagesSub => 'Consulter vos forfaits actifs';
+
+  @override
+  String get searchTopUpLine => 'TopUp - Ma ligne';
+
+  @override
+  String get searchTopUpLineSub => 'Gérer votre ligne fixe TopUp';
+
+  @override
+  String get searchBuySubscription => 'Acheter souscription';
+
+  @override
+  String get searchBuySubscriptionSub => 'Souscrire à des packages TopUp';
+
+  @override
+  String get searchRechargeFixed => 'Recharger compte fixe';
+
+  @override
+  String get searchRechargeFixedSub => 'Transférer crédit vers ligne fixe';
+
+  @override
+  String get searchMyProfile => 'Mon profil';
+
+  @override
+  String get searchMyProfileSub => 'Gérer vos informations personnelles';
+
+  @override
+  String get searchMainBalance => 'Solde principal';
+
+  @override
+  String get searchMainBalanceSub => 'Consulter votre solde mobile';
+
+  @override
+  String get searchBonusBalance => 'Solde bonus';
+
+  @override
+  String get searchBonusBalanceSub => 'Consulter votre solde bonus';
+
+  @override
+  String get categoryActions => 'Actions';
+
+  @override
+  String get categoryConsultation => 'Consultation';
+
+  @override
+  String get categoryTopUp => 'TopUp';
+
+  @override
+  String get categoryAccount => 'Compte';
+
+  @override
+  String get pleaseReenterPin => 'Veuillez ressaisir votre code PIN';
+
+  @override
+  String expiredOn(String date) {
+    return 'Expiré le $date';
+  }
+
+  @override
+  String get buySubscriptionBtn => 'Acheter une\nsouscription';
+
+  @override
+  String get buyPackagesBtn => 'Acheter\npackages';
+
+  @override
+  String get rechargeAccountBtn => 'Recharger\ncompte';
+
+  @override
+  String get fixedHistoryComingSoon => 'Historique Fixe - Bientôt disponible';
+
+  @override
+  String get selectContact => 'Sélectionner un contact';
+
+  @override
+  String get searchContact => 'Rechercher un contact...';
+
+  @override
+  String get noContactFound => 'Aucun contact trouvé';
+
+  @override
+  String get noNumber => 'Aucun numéro';
+
+  @override
+  String get contactNoPhone => 'Ce contact n\'a pas de numéro de téléphone';
+
+  @override
+  String get contactPermissionDenied =>
+      'Permission d\'accès aux contacts refusée';
+
+  @override
+  String get contactRetrievalError =>
+      'Erreur lors de la récupération des contacts';
+
+  @override
+  String get djiboutiMobileStart =>
+      'Les numéros mobiles djiboutiens commencent par 77';
+
+  @override
+  String get choosePackageType => 'Choisir un type de forfait';
+
+  @override
+  String get dataForBrowsing => 'Données pour votre navigation';
+
+  @override
+  String get voicePackage => 'Forfait Appels';
+
+  @override
+  String get minutesForCalls => 'Minutes pour vos appels';
+
+  @override
+  String get internetPackages => 'Forfaits Internet';
+
+  @override
+  String get voicePackages => 'Forfaits Appels';
+
+  @override
+  String get packageSummary => 'Résumé du forfait';
+
+  @override
+  String get packageRow => 'Forfait:';
+
+  @override
+  String get rechargeYourAccount => 'Recharger votre compte';
+
+  @override
+  String get amountToRecharge => 'Montant à recharger (DJF)';
+
+  @override
+  String get paymentMethod => 'Méthode de paiement';
+
+  @override
+  String get dmoneyPaymentDesc => 'Paiement via votre compte D-Money';
+
+  @override
+  String get mobileMainAccount => 'Compte principal mobile';
+
+  @override
+  String get mobileTransferDesc => 'Transfert depuis votre compte mobile';
+
+  @override
+  String get pleaseEnterRechargeAmount =>
+      'Veuillez saisir un montant à recharger';
+
+  @override
+  String get requestSent => 'Demande envoyée';
+
+  @override
+  String rechargeRequestDmoney(String amount) {
+    return 'Votre demande de rechargement de $amount DJF via D-Money a été envoyée. Veuillez suivre les instructions sur votre téléphone pour finaliser la transaction.';
+  }
+
+  @override
+  String rechargeRequestMobile(String amount) {
+    return 'Votre demande de transfert de $amount DJF depuis votre compte principal mobile a été traitée avec succès. Le montant a été ajouté à votre solde fixe.';
+  }
+
+  @override
+  String get payBill => 'Payer la facture';
+
+  @override
+  String get processingPayment => 'Traitement du paiement...';
+
+  @override
+  String get pleaseWaitPayment =>
+      'Veuillez patienter pendant que nous traitons votre paiement.';
+
+  @override
+  String get choosePaymentMethod => 'Choisissez une méthode de paiement:';
+
+  @override
+  String get mobileLinePayment =>
+      'Paiement via le crédit de votre ligne mobile';
+
+  @override
+  String get payNow => 'Payer maintenant';
+
+  @override
+  String get invoiceLabel => 'Facture:';
+
+  @override
+  String get dueDateLabel => 'Date d\'échéance:';
+
+  @override
+  String get typeLabel => 'Type:';
+
+  @override
+  String balanceDisplay(String amount, String currency) {
+    return 'Solde: $amount $currency';
+  }
 }

@@ -139,7 +139,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
             'TopUp Home - Erreur type: ${e.returnCode} - ${e.userFriendlyMessage}',
           );
         } else {
-          _errorMessage = 'Une erreur inattendue est survenue';
+          _errorMessage = AppLocalizations.of(context)!.unexpectedError;
         }
       });
     }
@@ -414,19 +414,20 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
         if (e is TopUpException) {
           _errorMessage = e.userFriendlyMessage;
         } else {
-          _errorMessage = 'Une erreur inattendue est survenue';
+          _errorMessage = AppLocalizations.of(context)!.unexpectedError;
         }
       });
     }
   }
 
   String? _validateFixedNumber(String? value) {
+    final l10n = AppLocalizations.of(context)!;
     if (value == null || value.trim().isEmpty) {
-      return 'Veuillez entrer un numéro de téléphone fixe';
+      return l10n.fixedNumberRequired;
     }
 
     if (!TopUpValidator.isValidFixed(value.trim())) {
-      return 'Le numéro doit commencer par 21 ou 25321 et contenir 8 ou 11 chiffres';
+      return l10n.fixedNumberFormatError;
     }
 
     return null;
@@ -881,8 +882,8 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
           ],
           Text(
             isExpired
-                ? "Expiré le ${dataBalance.expireDateFormatted}"
-                : "Expire le ${dataBalance.expireDateFormatted}",
+                ? AppLocalizations.of(context)!.expiredOn(dataBalance.expireDateFormatted)
+                : AppLocalizations.of(context)!.expiresOn(dataBalance.expireDateFormatted),
             style: TextStyle(
               color: textColor,
               fontSize: ResponsiveSize.getFontSize(12),
@@ -906,7 +907,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Actions',
+            AppLocalizations.of(context)!.topupActions,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(18),
               fontWeight: FontWeight.bold,
@@ -919,7 +920,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
             children: [
               _buildActionButton(
                 icon: Icons.subscriptions,
-                label: 'Acheter une\nsouscription',
+                label: AppLocalizations.of(context)!.buySubscriptionBtn,
                 onTap: () {
                   if (_isNumberSuspended) {
                     _showSuspendedDialog();
@@ -940,7 +941,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               ),
               _buildActionButton(
                 icon: Icons.shopping_cart,
-                label: 'Acheter\npackages',
+                label: AppLocalizations.of(context)!.buyPackagesBtn,
                 onTap: () {
                   if (_isNumberSuspended) {
                     _showSuspendedDialog();
@@ -961,7 +962,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               ),
               _buildActionButton(
                 icon: Icons.account_balance_wallet,
-                label: 'Recharger\ncompte',
+                label: AppLocalizations.of(context)!.rechargeAccountBtn,
                 onTap: () {
                   if (_isNumberSuspended) {
                     _showSuspendedDialog();
@@ -981,12 +982,12 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               ),
               _buildActionButton(
                 icon: Icons.history,
-                label: 'Historique\nFixe',
+                label: AppLocalizations.of(context)!.fixedHistory,
                 onTap: () {
                   // TODO: Implémenter historique TopUp
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Historique Fixe - À implémenter'),
+                    SnackBar(
+                      content: Text(AppLocalizations.of(context)!.comingSoonMessage),
                     ),
                   );
                 },
