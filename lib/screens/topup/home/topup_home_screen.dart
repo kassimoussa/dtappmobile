@@ -978,7 +978,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                     );
                   }
                 },
-              ),
+              ),/* 
               _buildActionButton(
                 icon: Icons.history,
                 label: 'Historique\nFixe',
@@ -990,7 +990,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                     ),
                   );
                 },
-              ),
+              ), */
             ],
           ),
         ],
