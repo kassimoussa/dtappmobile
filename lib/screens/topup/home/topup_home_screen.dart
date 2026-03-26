@@ -1,14 +1,13 @@
 // lib/screens/topup/topup_home_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
 import '../../../models/topup_balance.dart';
-import '../../../services/topup_api_service.dart';
-import '../../../services/user_session.dart';
-import '../../../services/topup_session.dart';
-import '../../../services/balance_service.dart';
 import '../../../exceptions/topup_exception.dart';
+import '../../../providers/topup_provider.dart';
+import '../../../providers/balance_provider.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../packages/topup_package_screen.dart';
 import '../subscription/topup_subscription_screen.dart';
@@ -26,22 +25,13 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   final TextEditingController _fixedNumberController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  TopUpBalanceResponse? _balanceResponse;
-  bool _isLoading = false;
-  String? _errorMessage;
-  Map<String, dynamic>? _numberStatus;
-  bool _isNumberSuspended = false;
-  String? _userMobile;
-  String? _currentFixedNumber;
-  bool _hasActiveSession = false;
-
-  // Données du solde mobile depuis BalanceService (pour les achats seulement)
-  double _mobileSolde = 0.0;
-
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    // Initialiser le provider TopUp
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TopUpProvider>().initialize();
+    });
   }
 
   @override
@@ -50,134 +40,12 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     super.dispose();
   }
 
-  Future<void> _loadUserData() async {
-    // Charger le numéro mobile de l'utilisateur
-    final phoneNumber = await UserSession.getPhoneNumber();
-
-    // Charger le solde mobile depuis BalanceService
-    await _loadMobileBalance();
-
-    // Vérifier s'il y a une session TopUp active
-    final hasSession = await TopUpSession.hasActiveSession();
-
-    if (hasSession) {
-      // Récupérer les données de session
-      final sessionData = await TopUpSession.getSessionData();
-
-      debugPrint('TopUp Home - Données session: ${sessionData['fixed']}');
-
-      setState(() {
-        _userMobile = phoneNumber;
-        _hasActiveSession = true;
-        _currentFixedNumber = sessionData['fixed'];
-      });
-
-      // Charger automatiquement les soldes
-      if (_currentFixedNumber != null && _userMobile != null) {
-        debugPrint(
-          'TopUp Home - Chargement soldes automatique pour: $_userMobile -> $_currentFixedNumber',
-        );
-        await _loadBalancesFromSession();
-      }
-    } else {
-      setState(() {
-        _userMobile = phoneNumber;
-        _hasActiveSession = false;
-      });
-    }
-  }
-
-  Future<void> _loadBalancesFromSession() async {
-    if (_userMobile == null || _currentFixedNumber == null) {
-      debugPrint(
-        'TopUp Home - Impossible de charger les soldes: mobile=$_userMobile, fixed=$_currentFixedNumber',
-      );
-      return;
-    }
-
-    debugPrint(
-      'TopUp Home - Début chargement parallèle statut/soldes: $_userMobile -> $_currentFixedNumber',
-    );
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _isNumberSuspended = false;
-    });
-
-    try {
-      // Récupérer le statut et les soldes en parallèle
-      final results = await Future.wait([
-        TopUpApi.instance.getStatusForRecharge(isdn: _currentFixedNumber!),
-        TopUpApi.instance.getBalances(
-          msisdn: _userMobile!,
-          isdn: _currentFixedNumber!,
-          useCache: false,
-        ),
-      ]);
-
-      final statusResponse = results[0] as Map<String, dynamic>;
-      final balanceResponse = results[1] as TopUpBalanceResponse;
-
-      // Traiter le statut
-      _processNumberStatus(statusResponse);
-
-      setState(() {
-        _balanceResponse = balanceResponse;
-        _isLoading = false;
-      });
-
-      // Ne plus afficher automatiquement le dialogue - il apparaîtra au clic sur les boutons
-    } catch (e) {
-      debugPrint('TopUp Home - Erreur chargement: $e');
-
-      setState(() {
-        _isLoading = false;
-        if (e is TopUpException) {
-          _errorMessage = e.userFriendlyMessage;
-          debugPrint(
-            'TopUp Home - Erreur type: ${e.returnCode} - ${e.userFriendlyMessage}',
-          );
-        } else {
-          _errorMessage = AppLocalizations.of(context)!.unexpectedError;
-        }
-      });
-    }
-  }
-
-  void _processNumberStatus(Map<String, dynamic> statusResponse) {
-    final l10n = AppLocalizations.of(context)!;
-    final success = statusResponse['success'] ?? false;
-    final returnCode = statusResponse['return_code'] ?? '';
-    final description = statusResponse['description'] ?? '';
-    final status = statusResponse['status'];
-
-    debugPrint(
-      'TopUp Home - Traitement statut: success=$success, return_code=$returnCode',
-    );
-
-    if (status != null) {
-      final eligible = status['eligible'] ?? false;
-      final statusText = status['status_text'] ?? l10n.unknownStatus;
-      final reason = status['reason'] ?? '';
-      final rawDescription = status['raw_description'] ?? description;
-
-      debugPrint(
-        'TopUp Home - Statut détaillé: eligible=$eligible, status=$statusText',
-      );
-      debugPrint('TopUp Home - Description: $rawDescription');
-
-      _numberStatus = statusResponse;
-      _isNumberSuspended = !eligible;
-    }
-  }
-
-  void _showSuspendedDialog() {
-    if (_numberStatus == null) return;
+  void _showSuspendedDialog(TopUpProvider provider) {
+    if (provider.numberStatus == null) return;
     final l10n = AppLocalizations.of(context)!;
 
-    final status = _numberStatus!['status'];
-    final description = _numberStatus!['description'] ?? '';
+    final status = provider.numberStatus!['status'];
+    final description = provider.numberStatus!['description'] ?? '';
     final rawDescription = status?['raw_description'] ?? description;
 
     showDialog(
@@ -254,170 +122,11 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     );
   }
 
-  Future<bool> _checkNumberStatusFirst() async {
-    if (_currentFixedNumber == null) return false;
-
-    try {
-      debugPrint(
-        'TopUp Home - Vérification statut du numéro: $_currentFixedNumber',
-      );
-
-      final statusResponse = await TopUpApi.instance.getStatusForRecharge(
-        isdn: _currentFixedNumber!,
-      );
-
-      final success = statusResponse['success'] ?? false;
-      final returnCode = statusResponse['return_code'] ?? '';
-      final description = statusResponse['description'] ?? '';
-      final status = statusResponse['status'];
-
-      if (status != null) {
-        final eligible = status['eligible'] ?? false;
-        final statusText = status['status_text'] ?? 'Statut inconnu';
-        final reason = status['reason'] ?? '';
-        final rawDescription = status['raw_description'] ?? description;
-
-        debugPrint(
-          'TopUp Home - Statut API: success=$success, return_code=$returnCode',
-        );
-        debugPrint(
-          'TopUp Home - Statut numéro: eligible=$eligible, status=$statusText, reason=$reason',
-        );
-        debugPrint('TopUp Home - Description: $rawDescription');
-
-        if (!eligible) {
-          // Numéro non éligible - afficher l'erreur et arrêter le chargement
-          setState(() {
-            _isLoading = false;
-            _errorMessage =
-                rawDescription.isNotEmpty
-                    ? rawDescription
-                    : '$statusText${reason.isNotEmpty ? ' - $reason' : ''}';
-          });
-          return false;
-        }
-
-        // Numéro éligible, continuer avec le chargement des soldes
-        return true;
-      }
-
-      // Pas de statut dans la réponse, essayer quand même
-      return true;
-    } catch (e) {
-      debugPrint('TopUp Home - Erreur vérification statut: $e');
-      // En cas d'erreur de vérification, essayer quand même de charger les soldes
-      return true;
-    }
-  }
-
-  Future<void> _checkNumberStatus() async {
-    if (_currentFixedNumber == null) return;
-
-    try {
-      debugPrint(
-        'TopUp Home - Vérification statut du numéro: $_currentFixedNumber',
-      );
-
-      final statusResponse = await TopUpApi.instance.getStatusForRecharge(
-        isdn: _currentFixedNumber!,
-      );
-
-      final success = statusResponse['success'] ?? false;
-      final returnCode = statusResponse['return_code'] ?? '';
-      final description = statusResponse['description'] ?? '';
-      final status = statusResponse['status'];
-
-      if (status != null) {
-        final eligible = status['eligible'] ?? false;
-        final statusText = status['status_text'] ?? 'Statut inconnu';
-        final reason = status['reason'] ?? '';
-        final rawDescription = status['raw_description'] ?? description;
-
-        debugPrint(
-          'TopUp Home - Statut API: success=$success, return_code=$returnCode',
-        );
-        debugPrint(
-          'TopUp Home - Statut numéro: eligible=$eligible, status=$statusText, reason=$reason',
-        );
-        debugPrint('TopUp Home - Description: $rawDescription');
-
-        // Mettre à jour le message d'erreur avec plus de détails
-        setState(() {
-          final l10n = AppLocalizations.of(context)!;
-          if (eligible) {
-            _errorMessage = l10n.numberEligibleButBalancesUnavailable;
-          } else {
-            // Utiliser la description brute pour plus de précision
-            _errorMessage =
-                rawDescription.isNotEmpty
-                    ? rawDescription
-                    : '$statusText${reason.isNotEmpty ? ' - $reason' : ''}';
-          }
-        });
-      }
-    } catch (e) {
-      debugPrint('TopUp Home - Erreur vérification statut: $e');
-      // Ne pas changer le message d'erreur existant si la vérification de statut échoue
-    }
-  }
-
-  Future<void> _loadMobileBalance() async {
-    try {
-      // Utiliser le service pour charger le solde mobile (comme dans HomeScreen)
-      final data = await BalanceService.getCurrentBalance();
-
-      if (mounted && data['solde'] != null) {
-        // La valeur est stockée en centimes, donc diviser par 100 pour obtenir en DJF
-        _mobileSolde =
-            double.tryParse(data['solde']) != null
-                ? double.parse(data['solde']) / 100
-                : 0.0;
-      }
-    } catch (e) {
-      debugPrint('Erreur lors du chargement du solde mobile pour TopUp: $e');
-      _mobileSolde = 0.0;
-    }
-  }
-
   Future<void> _consultBalances() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_userMobile == null) return;
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _balanceResponse = null;
-    });
-
-    try {
-      final response = await TopUpApi.instance.getBalances(
-        msisdn: _userMobile!,
-        isdn: _fixedNumberController.text.trim(),
-        useCache: true,
-      );
-
-      // Sauvegarder la session TopUp
-      await TopUpSession.saveSession(
-        mobileNumber: _userMobile!,
-        fixedNumber: _fixedNumberController.text.trim(),
-      );
-
-      setState(() {
-        _balanceResponse = response;
-        _currentFixedNumber = _fixedNumberController.text.trim();
-        _hasActiveSession = true;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        if (e is TopUpException) {
-          _errorMessage = e.userFriendlyMessage;
-        } else {
-          _errorMessage = AppLocalizations.of(context)!.unexpectedError;
-        }
-      });
-    }
+    final topUpProvider = context.read<TopUpProvider>();
+    await topUpProvider.startSession(_fixedNumberController.text.trim());
   }
 
   String? _validateFixedNumber(String? value) {
@@ -435,13 +144,14 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
 
   Future<void> _disconnectTopUp() async {
     final l10n = AppLocalizations.of(context)!;
-    // Afficher confirmation
+    final topUpProvider = context.read<TopUpProvider>();
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder:
           (context) => AlertDialog(
             title: Text(l10n.logout),
-            content: Text(l10n.logoutConfirmMessage(_currentFixedNumber!)),
+            content: Text(l10n.logoutConfirmMessage(topUpProvider.fixedNumber!)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
@@ -457,19 +167,9 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     );
 
     if (confirmed == true) {
-      // Supprimer la session
-      await TopUpSession.clearSession();
+      await topUpProvider.endSession();
+      _fixedNumberController.clear();
 
-      // Réinitialiser l'état
-      setState(() {
-        _hasActiveSession = false;
-        _currentFixedNumber = null;
-        _balanceResponse = null;
-        _errorMessage = null;
-        _fixedNumberController.clear();
-      });
-
-      // Afficher confirmation
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -485,6 +185,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
     final l10n = AppLocalizations.of(context)!;
+    final topUpProvider = context.watch<TopUpProvider>();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundGrey,
@@ -500,7 +201,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
         backgroundColor: AppTheme.dtBlue,
         elevation: 0,
         actions: [
-          if (_hasActiveSession) ...[
+          if (topUpProvider.hasActiveSession) ...[
             IconButton(
               icon: const Icon(Icons.logout, color: Colors.white),
               onPressed: _disconnectTopUp,
@@ -516,22 +217,22 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Afficher les inputs seulement s'il n'y a pas de session active
-              if (!_hasActiveSession) ...[
+              if (!topUpProvider.hasActiveSession) ...[
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                _buildInputForm(),
+                _buildInputForm(topUpProvider),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
               ],
 
               // États de chargement et d'erreur
-              if (_isLoading) _buildLoadingState(),
-              if (_errorMessage != null) _buildErrorState(),
+              if (topUpProvider.isLoading) _buildLoadingState(),
+              if (topUpProvider.errorMessage != null) _buildErrorState(topUpProvider),
 
               // Résultats (toujours affichés s'ils existent)
-              if (_balanceResponse != null) ...[
-                _buildBalanceSummary(),
-                _buildExpirationInfo(),
+              if (topUpProvider.balanceResponse != null) ...[
+                _buildBalanceSummary(topUpProvider),
+                _buildExpirationInfo(topUpProvider),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                _buildActionButtons(),
+                _buildActionButtons(topUpProvider),
               ],
             ],
           ),
@@ -540,7 +241,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     );
   }
 
-  Widget _buildInputForm() {
+  Widget _buildInputForm(TopUpProvider provider) {
     final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -600,7 +301,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _consultBalances,
+                    onPressed: provider.isLoading ? null : _consultBalances,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.dtBlue,
                       foregroundColor: Colors.white,
@@ -614,7 +315,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                       ),
                     ),
                     child: Text(
-                      _isLoading ? l10n.consulting : l10n.consult,
+                      provider.isLoading ? l10n.consulting : l10n.consult,
                       style: TextStyle(
                         fontSize: ResponsiveSize.getFontSize(16),
                         fontWeight: FontWeight.bold,
@@ -651,7 +352,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     );
   }
 
-  Widget _buildErrorState() {
+  Widget _buildErrorState(TopUpProvider provider) {
     final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 2,
@@ -680,7 +381,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
             Text(
-              _errorMessage!,
+              provider.errorMessage!,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
@@ -689,7 +390,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
             ElevatedButton.icon(
-              onPressed: _consultBalances,
+              onPressed: () => provider.refreshBalances(),
               icon: const Icon(Icons.refresh),
               label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
@@ -703,9 +404,9 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     );
   }
 
-  Widget _buildBalanceSummary() {
+  Widget _buildBalanceSummary(TopUpProvider provider) {
     final l10n = AppLocalizations.of(context)!;
-    final response = _balanceResponse!;
+    final response = provider.balanceResponse!;
 
     return Card(
       elevation: 3,
@@ -740,7 +441,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                         ),
                       ),
                       Text(
-                        l10n.fixedLineNumberFormat(_currentFixedNumber ?? ''),
+                        l10n.fixedLineNumberFormat(provider.fixedNumber ?? ''),
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(12),
                           color: AppTheme.textSecondary,
@@ -817,8 +518,8 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     );
   }
 
-  Widget _buildExpirationInfo() {
-    final response = _balanceResponse!;
+  Widget _buildExpirationInfo(TopUpProvider provider) {
+    final response = provider.balanceResponse!;
 
     // Chercher les données prépayées (type data)
     TopUpBalance? dataBalance;
@@ -837,7 +538,6 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     }
 
     // Vérifier si la date est expirée
-    final now = DateTime.now();
     final isExpired = dataBalance.isExpired;
     final isExpiringSoon = dataBalance.isExpiringSoon;
 
@@ -898,7 +598,11 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(TopUpProvider topUpProvider) {
+    // Utiliser le BalanceProvider pour le solde mobile
+    final balanceProvider = context.read<BalanceProvider>();
+    final mobileSolde = balanceProvider.solde;
+
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
@@ -922,17 +626,16 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 icon: Icons.subscriptions,
                 label: AppLocalizations.of(context)!.buySubscriptionBtn,
                 onTap: () {
-                  if (_isNumberSuspended) {
-                    _showSuspendedDialog();
+                  if (topUpProvider.isNumberSuspended) {
+                    _showSuspendedDialog(topUpProvider);
                   } else {
                     Navigator.push(
                       context,
                       CustomRouteTransitions.slideRightRoute(
                         page: TopUpSubscriptionScreen(
-                          fixedNumber: _currentFixedNumber!,
-                          mobileNumber: _userMobile!,
-                          soldeActuel:
-                              _mobileSolde, // Utilise le solde mobile depuis BalanceService
+                          fixedNumber: topUpProvider.fixedNumber!,
+                          mobileNumber: topUpProvider.mobileNumber!,
+                          soldeActuel: mobileSolde,
                         ),
                       ),
                     );
@@ -943,17 +646,16 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 icon: Icons.shopping_cart,
                 label: AppLocalizations.of(context)!.buyPackagesBtn,
                 onTap: () {
-                  if (_isNumberSuspended) {
-                    _showSuspendedDialog();
+                  if (topUpProvider.isNumberSuspended) {
+                    _showSuspendedDialog(topUpProvider);
                   } else {
                     Navigator.push(
                       context,
                       CustomRouteTransitions.slideRightRoute(
                         page: TopUpPackageScreen(
-                          fixedNumber: _currentFixedNumber!,
-                          mobileNumber: _userMobile!,
-                          soldeActuel:
-                              _mobileSolde, // Utilise le solde mobile depuis BalanceService
+                          fixedNumber: topUpProvider.fixedNumber!,
+                          mobileNumber: topUpProvider.mobileNumber!,
+                          soldeActuel: mobileSolde,
                         ),
                       ),
                     );
@@ -964,16 +666,16 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 icon: Icons.account_balance_wallet,
                 label: AppLocalizations.of(context)!.rechargeAccountBtn,
                 onTap: () {
-                  if (_isNumberSuspended) {
-                    _showSuspendedDialog();
+                  if (topUpProvider.isNumberSuspended) {
+                    _showSuspendedDialog(topUpProvider);
                   } else {
                     Navigator.push(
                       context,
                       CustomRouteTransitions.slideRightRoute(
                         page: TopUpRechargeScreen(
-                          fixedNumber: _currentFixedNumber!,
-                          mobileNumber: _userMobile!,
-                          soldeActuel: _mobileSolde,
+                          fixedNumber: topUpProvider.fixedNumber!,
+                          mobileNumber: topUpProvider.mobileNumber!,
+                          soldeActuel: mobileSolde,
                         ),
                       ),
                     );
@@ -984,7 +686,6 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 icon: Icons.history,
                 label: AppLocalizations.of(context)!.fixedHistory,
                 onTap: () {
-                  // TODO: Implémenter historique TopUp
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(AppLocalizations.of(context)!.comingSoonMessage),

@@ -5,7 +5,12 @@ import '../models/banner.dart';
 class BannerService {
   static const String baseUrl = 'http://10.39.230.106/api';
 
+  /// Cache statique des bannières
+  static List<PromoBanner>? _cachedBanners;
+
   static Future<List<PromoBanner>> getBanners() async {
+    if (_cachedBanners != null) return _cachedBanners!;
+
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/banners'),
@@ -20,6 +25,7 @@ class BannerService {
           final banners =
               bannersData.map((json) => PromoBanner.fromJson(json)).toList();
           banners.sort((a, b) => a.order.compareTo(b.order));
+          _cachedBanners = banners;
           return banners;
         } else {
           throw Exception('Format de réponse invalide');

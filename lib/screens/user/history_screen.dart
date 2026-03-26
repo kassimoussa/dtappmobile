@@ -1,9 +1,10 @@
 // lib/screens/user/history_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../models/activity.dart';
-import '../../services/activity_service.dart';
+import '../../providers/transaction_provider.dart';
 import '../../extensions/color_extensions.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../statistics/statistics_screen.dart';
@@ -17,29 +18,18 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  List<Activity> _activities = [];
-  ActivityPagination? _pagination;
-  ActivityFilters? _filters;
-
-  bool _isLoading = true;
-  bool _isLoadingMore = false;
-  String? _errorMessage;
-
-  // Filtres
-  int _selectedDays = 30;
   final List<int> _daysOptions = [7, 15, 30, 60, 90];
-
-  // Pagination
-  int _currentPage = 1;
-  final int _perPage = 20;
-
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _loadHistory();
     _scrollController.addListener(_onScroll);
+
+    // Charger l'historique via le provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TransactionProvider>().loadHistory();
+    });
   }
 
   @override
@@ -51,77 +41,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      _loadMoreHistory();
+      context.read<TransactionProvider>().loadMore();
     }
-  }
-
-  Future<void> _loadHistory({bool refresh = false}) async {
-    if (refresh) {
-      setState(() {
-        _currentPage = 1;
-        _activities.clear();
-        _isLoading = true;
-        _errorMessage = null;
-      });
-    }
-
-    try {
-      final response = await ActivityService.getHistory(
-        page: _currentPage,
-        perPage: _perPage,
-        days: _selectedDays,
-      );
-
-      if (response != null && mounted) {
-        setState(() {
-          if (refresh || _currentPage == 1) {
-            _activities = response.data;
-          } else {
-            _activities.addAll(response.data);
-          }
-          _pagination = response.pagination;
-          _filters = response.filters;
-          _isLoading = false;
-          _isLoadingMore = false;
-        });
-      } else if (mounted) {
-        setState(() {
-          _errorMessage = AppLocalizations.of(context)!.historyLoadError;
-          _isLoading = false;
-          _isLoadingMore = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('Erreur chargement historique: $e');
-      if (mounted) {
-        setState(() {
-          _errorMessage = AppLocalizations.of(context)!.historyLoadError;
-          _isLoading = false;
-          _isLoadingMore = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _loadMoreHistory() async {
-    if (_isLoadingMore || _pagination == null || !_pagination!.hasNextPage) {
-      return;
-    }
-
-    setState(() {
-      _isLoadingMore = true;
-      _currentPage++;
-    });
-
-    await _loadHistory();
-  }
-
-  void _onDaysFilterChanged(int days) {
-    setState(() {
-      _selectedDays = days;
-      _currentPage = 1;
-    });
-    _loadHistory(refresh: true);
   }
 
   Color _getStatusColor(String status) {
@@ -167,6 +88,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
     final l10n = AppLocalizations.of(context)!;
+    final transactionProvider = context.watch<TransactionProvider>();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -198,23 +120,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       body: Column(
         children: [
-          _buildFiltersSection(),
+          _buildFiltersSection(transactionProvider),
           Expanded(
             child:
-                _isLoading && _activities.isEmpty
+                transactionProvider.isLoading && transactionProvider.activities.isEmpty
                     ? _buildLoadingState()
-                    : _errorMessage != null && _activities.isEmpty
-                    ? _buildErrorState()
-                    : _activities.isEmpty
+                    : transactionProvider.errorMessage != null && transactionProvider.activities.isEmpty
+                    ? _buildErrorState(transactionProvider)
+                    : transactionProvider.activities.isEmpty
                     ? _buildEmptyState()
-                    : _buildHistoryList(),
+                    : _buildHistoryList(transactionProvider),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFiltersSection() {
+  Widget _buildFiltersSection(TransactionProvider provider) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -239,7 +161,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: Row(
               children:
                   _daysOptions.map((days) {
-                    final isSelected = days == _selectedDays;
+                    final isSelected = days == provider.selectedDays;
                     return Padding(
                       padding: EdgeInsets.only(
                         right: ResponsiveSize.getWidth(8),
@@ -254,7 +176,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                         ),
                         selected: isSelected,
-                        onSelected: (_) => _onDaysFilterChanged(days),
+                        onSelected: (_) => provider.changeDaysFilter(days),
                         backgroundColor: Colors.white,
                         selectedColor: AppTheme.dtBlue,
                         checkmarkColor: Colors.white,
@@ -267,11 +189,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   }).toList(),
             ),
           ),
-          if (_pagination != null)
+          if (provider.pagination != null)
             Padding(
               padding: EdgeInsets.only(top: ResponsiveSize.getHeight(8)),
               child: Text(
-                l10n.activitiesFound(_pagination!.total),
+                l10n.activitiesFound(provider.pagination!.total),
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(12),
                   color: Colors.grey[600],
@@ -303,7 +225,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildErrorState() {
+  Widget _buildErrorState(TransactionProvider provider) {
     final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
@@ -327,7 +249,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(8)),
             Text(
-              _errorMessage ?? l10n.error,
+              provider.errorMessage ?? l10n.error,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
@@ -336,7 +258,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(24)),
             ElevatedButton(
-              onPressed: () => _loadHistory(refresh: true),
+              onPressed: () => provider.refresh(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
                 foregroundColor: Colors.white,
@@ -386,20 +308,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildHistoryList() {
+  Widget _buildHistoryList(TransactionProvider provider) {
     return RefreshIndicator(
-      onRefresh: () => _loadHistory(refresh: true),
+      onRefresh: () => provider.refresh(),
       color: AppTheme.dtBlue,
       child: ListView.builder(
         controller: _scrollController,
         padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-        itemCount: _activities.length + (_isLoadingMore ? 1 : 0),
+        itemCount: provider.activities.length + (provider.isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == _activities.length) {
+          if (index == provider.activities.length) {
             return _buildLoadingMoreIndicator();
           }
 
-          final activity = _activities[index];
+          final activity = provider.activities[index];
           return _buildActivityCard(activity);
         },
       ),
@@ -484,7 +406,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       decoration: BoxDecoration(
                         color: _getStatusColor(
                           activity.status,
-                        ).withOpacity(0.1),
+                        ).withOpacityValue(0.1),
                         borderRadius: BorderRadius.circular(
                           ResponsiveSize.getWidth(12),
                         ),

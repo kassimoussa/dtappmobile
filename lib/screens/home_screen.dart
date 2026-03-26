@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: _buildAppBar(l10n),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

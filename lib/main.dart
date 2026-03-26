@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'generated/l10n/app_localizations.dart';
 import 'screens/auth/splash_screen.dart';
+import 'screens/auth/login_screen.dart';
 import 'utils/responsive_size.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -116,8 +117,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         // L'application est revenue au premier plan
-        authProvider.appResumed();
-        debugPrint('Application revenue au premier plan');
+        authProvider.appResumed().then((_) {
+          if (authProvider.sessionExpiredWhileAway) {
+            authProvider.clearSessionExpiredFlag();
+            debugPrint('Session expirée — redirection vers login');
+            NotificationService.navigatorKey.currentState?.pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const LoginScreen()),
+              (route) => false,
+            );
+          }
+        });
         break;
       case AppLifecycleState.paused:
         // L'application est mise en pause (en arrière-plan)

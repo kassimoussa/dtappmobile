@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/banner.dart';
 import '../services/banner_service.dart';
@@ -57,10 +58,10 @@ class _BannerSliderState extends State<BannerSlider> {
   }
 
   void _startAutoScroll() {
-    _autoScrollTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!mounted || !_pageController.hasClients) return;
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
     });
@@ -89,7 +90,7 @@ class _BannerSliderState extends State<BannerSlider> {
 
     if (_banners.isEmpty) return const SizedBox.shrink();
 
-    final double sliderHeight = ResponsiveSize.getHeight(120);
+    final double sliderHeight = ResponsiveSize.getHeight(100);
 
     return Column(
       children: [
@@ -112,40 +113,31 @@ class _BannerSliderState extends State<BannerSlider> {
                     borderRadius: BorderRadius.circular(
                       ResponsiveSize.getWidth(AppTheme.radiusM),
                     ),
-                    child: Image.network(
-                      banner.imageUrl,
+                    child: CachedNetworkImage(
+                      imageUrl: banner.imageUrl,
                       fit: BoxFit.fill,
                       width: double.infinity,
                       height: sliderHeight,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: Colors.grey[200],
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                AppTheme.dtBlue,
-                              ),
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[200],
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              AppTheme.dtBlue,
                             ),
                           ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey[200],
-                          child: Center(
-                            child: Icon(
-                              Icons.image_not_supported_outlined,
-                              color: Colors.grey[400],
-                              size: ResponsiveSize.getFontSize(40),
-                            ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[200],
+                        child: Center(
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            color: Colors.grey[400],
+                            size: ResponsiveSize.getFontSize(40),
                           ),
-                        );
-                      },
+                        ),
+                      ),
                     ),
                   ),
                 ),
