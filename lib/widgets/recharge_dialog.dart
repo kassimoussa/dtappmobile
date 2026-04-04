@@ -1,6 +1,7 @@
 // lib/widgets/recharge_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:dtservices/widgets/recharge_confirmation_dialog.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class RechargeDialog extends StatefulWidget {
   const RechargeDialog({super.key});
@@ -34,8 +35,7 @@ class _RechargeDialogState extends State<RechargeDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isSmallScreen = size.width < 360;
+    final l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       backgroundColor: Colors.grey[50],
@@ -52,7 +52,6 @@ class _RechargeDialogState extends State<RechargeDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // En-tête
             Container(
               padding: const EdgeInsets.symmetric(
                 vertical: 16.0,
@@ -66,7 +65,7 @@ class _RechargeDialogState extends State<RechargeDialog> {
                 ),
               ),
               child: Text(
-                'Recharger votre compte',
+                l10n.rechargeYourAccount,
                 style: TextStyle(
                   color: djiboutiBlue,
                   fontWeight: FontWeight.bold,
@@ -75,92 +74,59 @@ class _RechargeDialogState extends State<RechargeDialog> {
                 textAlign: TextAlign.left,
               ),
             ),
-
-            // Contenu
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  20.0,
-                  10.0,
-                  20.0,
-                  20.0,
-                ),
+                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Montant à recharger (DJF)',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                      ),
+                    Text(
+                      l10n.amountToRecharge,
+                      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: _rechargeAmountController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 16,
-                        ),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey[300]!,
-                          ),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey[300]!,
-                          ),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: djiboutiBlue,
-                            width: 2,
-                          ),
+                          borderSide: BorderSide(color: djiboutiBlue, width: 2),
                         ),
                         hintText: 'Ex: 1000',
-                        hintStyle: TextStyle(
-                          color: Colors.grey[400],
-                        ),
-                        prefixIcon: Icon(
-                          Icons.attach_money,
-                          color: djiboutiBlue,
-                        ),
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.attach_money, color: djiboutiBlue),
                         filled: true,
                         fillColor: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'Méthode de paiement',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                      ),
+                    Text(
+                      l10n.paymentMethod,
+                      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                     ),
                     const SizedBox(height: 12),
-
-                    // D-Money option
                     _buildPaymentOption(
                       title: 'D-Money',
-                      subtitle: 'Paiement via votre compte D-Money',
+                      subtitle: l10n.dmoneyPaymentDesc,
                       value: 'D-Money',
                       icon: Icons.account_balance_wallet,
                       iconColor: djiboutiBlue,
                       backgroundColor: Colors.blue[50],
                     ),
-
                     const SizedBox(height: 12),
-
-                    // Mobile Account option
                     _buildPaymentOption(
-                      title: 'Compte principal mobile',
-                      subtitle: 'Transfert depuis votre compte mobile',
+                      title: l10n.mobileMainAccount,
+                      subtitle: l10n.mobileTransferDesc,
                       value: 'Mobile',
                       icon: Icons.smartphone,
                       iconColor: Colors.green[700],
@@ -170,15 +136,8 @@ class _RechargeDialogState extends State<RechargeDialog> {
                 ),
               ),
             ),
-
-            // Boutons d'action
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                20.0,
-                0.0,
-                20.0,
-                20.0,
-              ),
+              padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -187,56 +146,35 @@ class _RechargeDialogState extends State<RechargeDialog> {
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.grey[700],
                       backgroundColor: Colors.grey[200],
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     ),
-                    child: const Text(
-                      'Annuler',
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    ),
+                    child: Text(l10n.cancel, style: const TextStyle(fontWeight: FontWeight.w500)),
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: djiboutiYellow,
                       foregroundColor: djiboutiBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 14,
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                       elevation: 0,
                     ),
                     onPressed: () {
-                      // Validation simple
                       if (_rechargeAmountController.text.trim().isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Veuillez saisir un montant à recharger',
-                            ),
+                          SnackBar(
+                            content: Text(l10n.pleaseEnterRechargeAmount),
                             backgroundColor: Colors.red,
                           ),
                         );
                         return;
                       }
-
-                      // Fermer cette boîte de dialogue et passer à la confirmation
                       Navigator.pop(context);
                       _showRechargeConfirmation();
                     },
-                    child: const Text(
-                      'Confirmer',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                    child: Text(
+                      l10n.confirm,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ),
                 ],
@@ -290,11 +228,7 @@ class _RechargeDialogState extends State<RechargeDialog> {
                     ),
                   ],
                 ),
-                child: Icon(
-                  icon,
-                  color: iconColor,
-                  size: 26,
-                ),
+                child: Icon(icon, color: iconColor, size: 26),
               ),
               const SizedBox(width: 15),
               Expanded(
@@ -303,19 +237,12 @@ class _RechargeDialogState extends State<RechargeDialog> {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: Colors.black87,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black87),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -324,24 +251,15 @@ class _RechargeDialogState extends State<RechargeDialog> {
                   ? Container(
                       width: 24,
                       height: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: djiboutiYellow,
-                      ),
-                      child: const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 16,
-                      ),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: djiboutiYellow),
+                      child: const Icon(Icons.check, color: Colors.white, size: 16),
                     )
                   : Container(
                       width: 24,
                       height: 24,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.grey[400]!,
-                        ),
+                        border: Border.all(color: Colors.grey[400]!),
                         color: Colors.white,
                       ),
                     ),

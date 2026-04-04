@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Service pour gérer la session utilisateur
-/// La session expire automatiquement à la fermeture de l'application
+/// La session expire après 5 minutes d'inactivité (persiste entre les fermetures d'app)
 class UserSession {
+  /// Durée d'inactivité avant expiration de session
+  static const Duration _inactivityTimeout = Duration(minutes: 5);
   // Clés pour SharedPreferences
   static const String _phoneNumberKey = 'user_phone_number';
   static const String _lastActivityTimeKey = 'last_activity_time';
@@ -15,7 +17,7 @@ class UserSession {
   static const String _hasPinKey = 'has_pin';
 
   // Cache pour optimiser les performances
-  // Note: _cachedIsAuthenticated est uniquement en mémoire = session expire à la fermeture
+  // Note: _cachedIsAuthenticated sert de cache rapide, la source de vérité est le timestamp persisté
   static String? _cachedPhoneNumber;
   static bool _cachedIsAuthenticated = false;
   static String? _cachedLastUsedPhone;
@@ -34,7 +36,7 @@ class UserSession {
     final now = DateTime.now();
     final activityTimestamp = now.millisecondsSinceEpoch;
 
-    // Enregistrer les données de session (sauf isAuthenticated qui reste en mémoire uniquement)
+    // Enregistrer les données de session
     await prefs.setString(_phoneNumberKey, phoneNumber);
     await prefs.setInt(_lastActivityTimeKey, activityTimestamp);
     await prefs.setBool(_isAppRunningKey, true);
@@ -49,7 +51,7 @@ class UserSession {
     // Stocker également comme dernier numéro utilisé
     await prefs.setString(_lastUsedPhoneKey, phoneNumber);
 
-    // Mettre à jour le cache (isAuthenticated uniquement en mémoire = expire à la fermeture)
+    // Mettre à jour le cache mémoire
     _cachedPhoneNumber = phoneNumber;
     _cachedIsAuthenticated = true;
     _cachedLastUsedPhone = phoneNumber;
@@ -120,21 +122,45 @@ class UserSession {
   }
 
   /// Doit être appelé quand l'application est complètement fermée
+  /// Le timestamp de dernière activité est déjà persisté — la session
+  /// expirera naturellement si l'inactivité dépasse 5 minutes
   static Future<void> appTerminated() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_isAppRunningKey, false);
-    _cachedIsAuthenticated = false;
 
-    debugPrint('Application terminée, session invalidée');
+    debugPrint('Application terminée');
   }
 
   /// Vérifie si l'utilisateur est authentifié
-  /// La session expire automatiquement à la fermeture de l'application
-  /// car isAuthenticated est uniquement stocké en mémoire (pas persisté)
+  /// La session expire après 5 minutes d'inactivité
+  /// Persiste entre les fermetures d'app grâce au timestamp dans SharedPreferences
   static Future<bool> isAuthenticated() async {
-    // L'authentification est uniquement en mémoire
-    // Si l'app a été fermée et rouverte, _cachedIsAuthenticated sera false
-    return _cachedIsAuthenticated;
+    // Cache rapide : si déjà validé en mémoire, pas besoin de lire SharedPreferences
+    if (_cachedIsAuthenticated) return true;
+
+    // Cold start : vérifier le timestamp persisté
+    final prefs = await SharedPreferences.getInstance();
+    final lastActivity = prefs.getInt(_lastActivityTimeKey);
+    final phoneNumber = prefs.getString(_phoneNumberKey);
+
+    if (lastActivity == null || phoneNumber == null) return false;
+
+    final elapsed = DateTime.now().difference(
+      DateTime.fromMillisecondsSinceEpoch(lastActivity),
+    );
+
+    if (elapsed <= _inactivityTimeout) {
+      // Session encore valide — restaurer le cache mémoire
+      _cachedIsAuthenticated = true;
+      _cachedPhoneNumber = phoneNumber;
+      _cachedSessionToken = prefs.getString(_sessionTokenKey);
+      _cachedHasPin = prefs.getBool(_hasPinKey) ?? false;
+      return true;
+    }
+
+    // Session expirée par inactivité
+    debugPrint('Session expirée: inactivité de ${elapsed.inMinutes} min');
+    return false;
   }
 
   /// Récupère le numéro de téléphone de l'utilisateur connecté

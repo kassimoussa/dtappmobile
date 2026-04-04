@@ -1,6 +1,7 @@
 // lib/widgets/bill_payment_dialog.dart
 import 'package:dtservices/widgets/bill_payment_confirmation_dialog.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class BillPaymentDialog extends StatefulWidget {
   final Map<String, dynamic> bill;
@@ -20,6 +21,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
   final Color djiboutiYellow = const Color(0xFFF7C700);
 
   void _showBillPaymentLoading() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -46,7 +48,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
               CircularProgressIndicator(color: djiboutiYellow, strokeWidth: 6),
               const SizedBox(height: 24),
               Text(
-                'Traitement du paiement...',
+                l10n.processingPayment,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -55,7 +57,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Veuillez patienter pendant que nous traitons votre paiement.',
+                l10n.pleaseWaitPayment,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[600]),
               ),
@@ -69,9 +71,9 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // Obtenir la taille de l'écran pour la responsivité
     final size = MediaQuery.of(context).size;
     final isSmallScreen = size.width < 360;
+    final l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -80,7 +82,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
       child: Container(
         width: size.width > 600 ? 500 : null,
         constraints: BoxConstraints(
-          maxHeight: size.height * 0.7, // Limite la hauteur à 70% de l'écran
+          maxHeight: size.height * 0.7,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -88,7 +90,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'Payer la facture',
+                l10n.payBill,
                 style: TextStyle(
                   color: djiboutiBlue,
                   fontWeight: FontWeight.bold,
@@ -105,7 +107,6 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Détails de la facture
                       Container(
                         width: double.infinity,
                         padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
@@ -117,7 +118,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Facture: ${widget.bill['invoiceNumber']}',
+                              '${l10n.invoiceLabel} ${widget.bill['invoiceNumber']}',
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: isSmallScreen ? 13 : 15,
@@ -134,7 +135,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Date d\'échéance: ${widget.bill['dueDate']}',
+                              '${l10n.dueDateLabel} ${widget.bill['dueDate']}',
                               style: TextStyle(
                                 fontSize: isSmallScreen ? 12 : 14,
                                 color: Colors.grey[700],
@@ -142,7 +143,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Type: ${widget.bill['type']}',
+                              '${l10n.typeLabel} ${widget.bill['type']}',
                               style: TextStyle(
                                 fontSize: isSmallScreen ? 12 : 14,
                                 color: Colors.grey[700],
@@ -154,7 +155,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
 
                       const SizedBox(height: 20),
                       Text(
-                        'Choisissez une méthode de paiement:',
+                        l10n.choosePaymentMethod,
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           color: djiboutiBlue,
@@ -163,10 +164,9 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Option D-Money
                       _buildPaymentOption(
                         title: 'D-Money',
-                        subtitle: 'Paiement via votre compte D-Money',
+                        subtitle: l10n.dmoneyPaymentDesc,
                         value: 'D-Money',
                         icon: Icons.account_balance_wallet,
                         iconColor: djiboutiBlue,
@@ -176,10 +176,9 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
 
                       const SizedBox(height: 8),
 
-                      // Option Mobile Account
                       _buildPaymentOption(
-                        title: 'Compte principal mobile',
-                        subtitle: 'Paiement via le crédit de votre ligne mobile',
+                        title: l10n.mobileMainAccount,
+                        subtitle: l10n.mobileLinePayment,
                         value: 'Mobile',
                         icon: Icons.smartphone,
                         iconColor: Colors.green[700],
@@ -200,7 +199,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: Text(
-                      'Annuler',
+                      l10n.cancel,
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: isSmallScreen ? 13 : 14,
@@ -218,12 +217,11 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
                       ),
                     ),
                     onPressed: () {
-                      // Finaliser le paiement
                       Navigator.pop(context);
                       _showBillPaymentLoading();
                     },
                     child: Text(
-                      'Payer maintenant',
+                      l10n.payNow,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: isSmallScreen ? 13 : 14,

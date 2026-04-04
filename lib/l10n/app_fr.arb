@@ -572,5 +572,171 @@
     "pinChangedSuccess": "Code PIN modifié avec succès !",
     "pinManagementTitle": "Gestion du code PIN",
     "forgotPinOption": "Code PIN oublié",
-    "phoneNotFound": "Numéro de téléphone introuvable"
+    "phoneNotFound": "Numéro de téléphone introuvable",
+
+    "topupFixedBalances": "TopUp - Soldes Fixes",
+    "detailedConsultation": "Consultation détaillée",
+    "dataExpireOn": "Données expirent le {date}",
+    "@dataExpireOn": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "topupActions": "Actions TopUp",
+    "topupRecharge": "Recharge\nTopUp",
+    "fixedPackage": "Forfait\nFixe",
+    "transferToFixed": "Transfert\nvers Fixe",
+    "topupHistory": "Historique\nTopUp",
+    "logoutTopUp": "Déconnexion TopUp",
+    "fixedNumberRequired": "Veuillez entrer un numéro de téléphone fixe",
+    "fixedNumberFormatError": "Le numéro doit commencer par 21 ou 25321 et contenir 8 ou 11 chiffres",
+    "fixedHistory": "Historique\nFixe",
+    "confirm": "Confirmer",
+    "purchaseConfirmQuestion": "Voulez-vous acheter le {name} ?",
+    "@purchaseConfirmQuestion": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "balanceAfterPurchaseAmount": "Solde après achat: {amount} FDJ",
+    "@balanceAfterPurchaseAmount": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        }
+      }
+    },
+    "priceRow": "Prix:",
+    "dataRow": "Data:",
+    "minutesRow": "Minutes:",
+    "validityRow": "Validité:",
+    "searchActionHint": "Rechercher une action...",
+    "searchActionsAvailable": "{count} actions disponibles",
+    "@searchActionsAvailable": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "searchResultsFound": "{count} résultat{count, plural, =1{} other{s}} trouvé{count, plural, =1{} other{s}}",
+    "@searchResultsFound": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "searchFor": "pour \"{query}\"",
+    "@searchFor": {
+      "placeholders": {
+        "query": {
+          "type": "String"
+        }
+      }
+    },
+    "noResultsFound": "Aucun résultat trouvé",
+    "searchSuggestions": "Essayez avec des mots-clés différents comme :\n\"forfait\", \"recharge\", \"topup\", \"profil\"",
+    "searchBuyPackage": "Achat de forfait",
+    "searchBuyPackageSub": "Acheter des forfaits voix et data",
+    "searchCreditRefill": "Recharge de crédit",
+    "searchCreditRefillSub": "Recharger votre compte mobile",
+    "searchCreditTransfer": "Transfert de crédit",
+    "searchCreditTransferSub": "Transférer du crédit vers un autre numéro",
+    "searchMyPackages": "Mes forfaits",
+    "searchMyPackagesSub": "Consulter vos forfaits actifs",
+    "searchTopUpLine": "TopUp - Ma ligne",
+    "searchTopUpLineSub": "Gérer votre ligne fixe TopUp",
+    "searchBuySubscription": "Acheter souscription",
+    "searchBuySubscriptionSub": "Souscrire à des packages TopUp",
+    "searchRechargeFixed": "Recharger compte fixe",
+    "searchRechargeFixedSub": "Transférer crédit vers ligne fixe",
+    "searchMyProfile": "Mon profil",
+    "searchMyProfileSub": "Gérer vos informations personnelles",
+    "searchMainBalance": "Solde principal",
+    "searchMainBalanceSub": "Consulter votre solde mobile",
+    "searchBonusBalance": "Solde bonus",
+    "searchBonusBalanceSub": "Consulter votre solde bonus",
+    "categoryActions": "Actions",
+    "categoryConsultation": "Consultation",
+    "categoryTopUp": "TopUp",
+    "categoryAccount": "Compte",
+    "pleaseReenterPin": "Veuillez ressaisir votre code PIN",
+    "expiredOn": "Expiré le {date}",
+    "@expiredOn": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "buySubscriptionBtn": "Acheter une\nsouscription",
+    "buyPackagesBtn": "Acheter\npackages",
+    "rechargeAccountBtn": "Recharger\ncompte",
+    "fixedHistoryComingSoon": "Historique Fixe - Bientôt disponible",
+
+    "selectContact": "Sélectionner un contact",
+    "searchContact": "Rechercher un contact...",
+    "noContactFound": "Aucun contact trouvé",
+    "noNumber": "Aucun numéro",
+    "contactNoPhone": "Ce contact n'a pas de numéro de téléphone",
+    "contactPermissionDenied": "Permission d'accès aux contacts refusée",
+    "contactRetrievalError": "Erreur lors de la récupération des contacts",
+    "djiboutiMobileStart": "Les numéros mobiles djiboutiens commencent par 77",
+    "choosePackageType": "Choisir un type de forfait",
+    "dataForBrowsing": "Données pour votre navigation",
+    "voicePackage": "Forfait Appels",
+    "minutesForCalls": "Minutes pour vos appels",
+    "internetPackages": "Forfaits Internet",
+    "voicePackages": "Forfaits Appels",
+    "packageSummary": "Résumé du forfait",
+    "packageRow": "Forfait:",
+    "rechargeYourAccount": "Recharger votre compte",
+    "amountToRecharge": "Montant à recharger (DJF)",
+    "paymentMethod": "Méthode de paiement",
+    "dmoneyPaymentDesc": "Paiement via votre compte D-Money",
+    "mobileMainAccount": "Compte principal mobile",
+    "mobileTransferDesc": "Transfert depuis votre compte mobile",
+    "pleaseEnterRechargeAmount": "Veuillez saisir un montant à recharger",
+    "requestSent": "Demande envoyée",
+    "rechargeRequestDmoney": "Votre demande de rechargement de {amount} DJF via D-Money a été envoyée. Veuillez suivre les instructions sur votre téléphone pour finaliser la transaction.",
+    "@rechargeRequestDmoney": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        }
+      }
+    },
+    "rechargeRequestMobile": "Votre demande de transfert de {amount} DJF depuis votre compte principal mobile a été traitée avec succès. Le montant a été ajouté à votre solde fixe.",
+    "@rechargeRequestMobile": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        }
+      }
+    },
+    "payBill": "Payer la facture",
+    "processingPayment": "Traitement du paiement...",
+    "pleaseWaitPayment": "Veuillez patienter pendant que nous traitons votre paiement.",
+    "choosePaymentMethod": "Choisissez une méthode de paiement:",
+    "mobileLinePayment": "Paiement via le crédit de votre ligne mobile",
+    "payNow": "Payer maintenant",
+    "invoiceLabel": "Facture:",
+    "dueDateLabel": "Date d'échéance:",
+    "typeLabel": "Type:",
+    "balanceDisplay": "Solde: {amount} {currency}",
+    "@balanceDisplay": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        },
+        "currency": {
+          "type": "String"
+        }
+      }
+    }
   }

@@ -17,7 +17,9 @@
       "Bash(flutter clean:*)",
       "Bash(flutter run:*)",
       "Bash(flutter devices:*)",
-      "Bash(flutter build:*)"
+      "Bash(flutter build:*)",
+      "Bash(dart run:*)",
+      "Bash(flutter pub add:*)"
     ],
     "deny": [],
     "ask": []

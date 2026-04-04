@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class PhoneNumberSelector extends StatefulWidget {
   final TextEditingController controller;
@@ -54,14 +55,14 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
   // Filtre les contacts selon le texte de recherche
   void _filterContacts() {
     final String query = _searchController.text.toLowerCase();
-    
+
     setState(() {
       if (query.isEmpty) {
         _filteredContacts = List.from(_contacts);
       } else {
         _filteredContacts = _contacts.where((contact) {
           final String name = contact.displayName.toLowerCase();
-          final String phone = contact.phones.isNotEmpty 
+          final String phone = contact.phones.isNotEmpty
               ? contact.phones.first.number.replaceAll(RegExp(r'[^0-9]'), '')
               : '';
           return name.contains(query) || phone.contains(query);
@@ -73,11 +74,11 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
   // Demande la permission d'accéder aux contacts
   Future<bool> _requestContactPermission() async {
     PermissionStatus permissionStatus = await Permission.contacts.status;
-    
+
     if (permissionStatus != PermissionStatus.granted) {
       permissionStatus = await Permission.contacts.request();
     }
-    
+
     return permissionStatus == PermissionStatus.granted;
   }
 
@@ -86,10 +87,10 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       bool permissionGranted = await _requestContactPermission();
-      
+
       if (permissionGranted) {
         Iterable<Contact> contacts = await FlutterContacts.getContacts(
           withProperties: true,
@@ -105,35 +106,39 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
         setState(() {
           _isLoading = false;
         });
-        _showErrorMessage('Permission d\'accès aux contacts refusée');
+        if (mounted) {
+          _showErrorMessage(AppLocalizations.of(context)!.contactPermissionDenied);
+        }
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      _showErrorMessage('Erreur lors de la récupération des contacts: $e');
+      if (mounted) {
+        _showErrorMessage('${AppLocalizations.of(context)!.contactRetrievalError}: $e');
+      }
     }
   }
 
   // Extraction du numéro de téléphone pour Djibouti
   String _extractPhoneNumber(String phoneNumber) {
     String cleanNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
-    
+
     if (cleanNumber.startsWith('253')) {
       cleanNumber = cleanNumber.substring(3);
     }
-    
+
     if (cleanNumber.length > 8) {
       cleanNumber = cleanNumber.substring(cleanNumber.length - 8);
     }
-    
+
     return cleanNumber;
   }
 
   // Affiche un message d'erreur
   void _showErrorMessage(String message) {
     if (!mounted) return;
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -147,9 +152,11 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
     if (_contacts.isEmpty) {
       await _getPhoneContacts();
     }
-    
+
     if (!mounted) return;
-    
+
+    final l10n = AppLocalizations.of(context)!;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -167,9 +174,9 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Sélectionner un contact',
-                    style: TextStyle(
+                  Text(
+                    l10n.selectContact,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -181,7 +188,7 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
                 ],
               ),
               const SizedBox(height: 8),
-              
+
               // Barre de recherche
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -191,10 +198,10 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
                 ),
                 child: TextField(
                   controller: _searchController,
-                  decoration: const InputDecoration(
-                    hintText: 'Rechercher un contact...',
+                  decoration: InputDecoration(
+                    hintText: l10n.searchContact,
                     border: InputBorder.none,
-                    icon: Icon(Icons.search),
+                    icon: const Icon(Icons.search),
                   ),
                   onChanged: (_) {
                     setModalState(() {
@@ -204,16 +211,16 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Liste des contacts
               Expanded(
                 child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : _filteredContacts.isEmpty
-                        ? const Center(
+                        ? Center(
                             child: Text(
-                              'Aucun contact trouvé',
-                              style: TextStyle(
+                              l10n.noContactFound,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey,
                               ),
@@ -230,19 +237,20 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
 
   // Construit la liste des contacts
   Widget _buildContactsList(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ListView.builder(
       itemCount: _filteredContacts.length,
       itemBuilder: (context, index) {
         final Contact contact = _filteredContacts[index];
-        
+
         String phoneNumber = '';
         if (contact.phones.isNotEmpty) {
           phoneNumber = contact.phones.first.number;
           phoneNumber = _extractPhoneNumber(phoneNumber);
         }
-        
+
         return ListTile(
-          leading: contact.photo != null 
+          leading: contact.photo != null
               ? CircleAvatar(
                   backgroundImage: MemoryImage(contact.photo!),
                   radius: 20,
@@ -268,7 +276,7 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
           ),
           subtitle: phoneNumber.isNotEmpty
               ? Text('${widget.countryCode} $phoneNumber')
-              : const Text('Aucun numéro'),
+              : Text(l10n.noNumber),
           trailing: phoneNumber.isNotEmpty
               ? Icon(
                   Icons.phone,
@@ -284,7 +292,7 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
               }
               Navigator.pop(context);
             } else {
-              _showErrorMessage('Ce contact n\'a pas de numéro de téléphone');
+              _showErrorMessage(l10n.contactNoPhone);
             }
           },
         );
@@ -308,7 +316,7 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
           ),
           const SizedBox(height: 8),
         ],
-        
+
         Container(
           decoration: BoxDecoration(
             color: widget.enabled ? Colors.grey[100] : Colors.grey[200],
@@ -332,7 +340,7 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
                     ),
                   ),
                 ),
-                
+
                 // Ligne de séparation
                 Container(
                   height: 24,
@@ -340,7 +348,7 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
                   color: Colors.grey[300],
                 ),
               ],
-              
+
               // Champ de saisie
               Expanded(
                 child: TextFormField(
@@ -370,7 +378,7 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
                   validator: widget.validator,
                 ),
               ),
-              
+
               // Bouton contacts
               Material(
                 color: Colors.transparent,
@@ -403,11 +411,11 @@ class _PhoneNumberFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text;
-    
+
     if (text.length <= 2) {
       return newValue;
     }
-    
+
     String formatted = '';
     for (int i = 0; i < text.length; i++) {
       if (i == 2 || i == 4 || i == 6) {
@@ -415,7 +423,7 @@ class _PhoneNumberFormatter extends TextInputFormatter {
       }
       formatted += text[i];
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -425,25 +433,27 @@ class _PhoneNumberFormatter extends TextInputFormatter {
 
 // Utilitaire pour valider les numéros djiboutiens
 class DjiboutiPhoneValidator {
+  // Note: This validator cannot use l10n since it's a static utility.
+  // Callers should provide their own l10n-based validator when possible.
   static String? validatePhoneNumber(String? value) {
     if (value == null || value.isEmpty) {
       return 'Veuillez saisir un numéro de téléphone';
     }
-    
+
     // Enlever les espaces pour la validation
     final cleanNumber = value.replaceAll(' ', '');
-    
+
     if (cleanNumber.length != 8) {
       return 'Le numéro doit contenir 8 chiffres';
     }
-    
+
     if (!cleanNumber.startsWith('77')) {
       return 'Les numéros mobiles djiboutiens commencent par 77';
     }
-    
+
     return null;
   }
-  
+
   static String cleanPhoneNumber(String phoneNumber) {
     return phoneNumber.replaceAll(' ', '');
   }

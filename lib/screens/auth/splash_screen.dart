@@ -1,4 +1,5 @@
 // lib/screens/auth/splash_screen.dart
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dtservices/screens/core/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +7,10 @@ import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../extensions/color_extensions.dart';
 import '../../providers/auth_provider.dart';
+import '../../models/banner.dart';
+import '../../models/popup.dart';
+import '../../services/banner_service.dart';
+import '../../services/popup_service.dart';
 import 'login_screen.dart';
 import '../../generated/l10n/app_localizations.dart';
 
@@ -57,27 +62,61 @@ class _SplashScreenState extends State<SplashScreen>
 
   // Méthode pour afficher le splash puis vérifier la session et naviguer
   Future<void> _navigateAfterSplash() async {
-    // Affiche le splash screen pendant 2 secondes, quelle que soit la validité de la session
-    await Future.delayed(const Duration(seconds: 2));
+    // Pré-charger les images en parallèle avec le délai du splash
+    await Future.wait([
+      Future.delayed(const Duration(seconds: 2)),
+      _preloadImages(),
+    ]);
 
-    // Vérifie si l'utilisateur est authentifié après l'affichage du splash
-    if (!mounted) return; // Vérifie si le widget est toujours monté
+    if (!mounted) return;
 
     final authProvider = context.read<AuthProvider>();
     final isAuthenticated = authProvider.isAuthenticated;
     final phoneNumber = authProvider.phoneNumber;
 
-    // Navigation vers la page appropriée
     if (isAuthenticated && phoneNumber != null) {
-      // Utilisateur authentifié, rediriger vers l'écran principal
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const MainScreen()),
       );
     } else {
-      // Utilisateur non authentifié, rediriger vers l'écran de connexion
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
+    }
+  }
+
+  /// Pré-charge les données bannières/popup et met leurs images en cache
+  Future<void> _preloadImages() async {
+    try {
+      // Lancer les deux requêtes API en parallèle
+      final results = await Future.wait<dynamic>([
+        BannerService.getBanners().catchError((_) => <PromoBanner>[]),
+        PopupService.getPopup().catchError((_) => null),
+      ]);
+
+      if (!mounted) return;
+
+      final banners = results[0] as List<PromoBanner>;
+      final popup = results[1] as PromoPopup?;
+
+      // Pré-cacher toutes les images dans le cache disque
+      final precacheFutures = <Future>[];
+      for (final banner in banners) {
+        precacheFutures.add(
+          precacheImage(CachedNetworkImageProvider(banner.imageUrl), context)
+              .catchError((_) {}),
+        );
+      }
+      if (popup != null) {
+        precacheFutures.add(
+          precacheImage(CachedNetworkImageProvider(popup.imageUrl), context)
+              .catchError((_) {}),
+        );
+      }
+
+      await Future.wait(precacheFutures);
+    } catch (_) {
+      // Silencieux - les images se chargeront normalement plus tard
     }
   }
 

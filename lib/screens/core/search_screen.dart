@@ -11,6 +11,7 @@ import '../../utils/responsive_size.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../services/user_session.dart';
 import '../../services/balance_service.dart';
+import '../../generated/l10n/app_localizations.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -22,12 +23,12 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  
+
   List<SearchItem> _allItems = [];
   List<SearchItem> _filteredItems = [];
   String _searchQuery = '';
   bool _isLoading = true;
-  
+
   // Données utilisateur pour navigation
   String _phoneNumber = '';
   double _soldeActuel = 0.0;
@@ -35,13 +36,18 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeSearchItems();
     _loadUserData();
-    
+
     // Auto-focus sur le champ de recherche
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _searchFocusNode.requestFocus();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initializeSearchItems();
   }
 
   @override
@@ -55,12 +61,12 @@ class _SearchScreenState extends State<SearchScreen> {
     try {
       final phoneNumber = await UserSession.getPhoneNumber();
       final balanceData = await BalanceService.getCurrentBalance();
-      
+
       if (mounted) {
         setState(() {
           _phoneNumber = phoneNumber ?? '';
-          _soldeActuel = balanceData['solde'] != null 
-              ? double.parse(balanceData['solde']) / 100 
+          _soldeActuel = balanceData['solde'] != null
+              ? double.parse(balanceData['solde']) / 100
               : 0.0;
           _isLoading = false;
         });
@@ -76,94 +82,95 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _initializeSearchItems() {
+    final l10n = AppLocalizations.of(context)!;
     _allItems = [
       // Actions principales
       SearchItem(
-        title: 'Achat de forfait',
-        subtitle: 'Acheter des forfaits voix et data',
+        title: l10n.searchBuyPackage,
+        subtitle: l10n.searchBuyPackageSub,
         keywords: ['forfait', 'achat', 'package', 'data', 'voix', 'internet'],
         icon: Icons.local_mall_sharp,
-        category: 'Actions',
+        category: l10n.categoryActions,
         action: () => _navigateToForfait(),
       ),
       SearchItem(
-        title: 'Recharge de crédit',
-        subtitle: 'Recharger votre compte mobile',
-        keywords: ['recharge', 'credit', 'argent', 'solde'],
+        title: l10n.searchCreditRefill,
+        subtitle: l10n.searchCreditRefillSub,
+        keywords: ['recharge', 'credit', 'argent', 'solde', 'refill'],
         icon: Icons.add_circle,
-        category: 'Actions',
+        category: l10n.categoryActions,
         action: () => _navigateToRecharge(),
       ),
       SearchItem(
-        title: 'Transfert de crédit',
-        subtitle: 'Transférer du crédit vers un autre numéro',
-        keywords: ['transfert', 'envoyer', 'credit', 'partage'],
+        title: l10n.searchCreditTransfer,
+        subtitle: l10n.searchCreditTransferSub,
+        keywords: ['transfert', 'envoyer', 'credit', 'partage', 'transfer'],
         icon: Icons.send,
-        category: 'Actions',
+        category: l10n.categoryActions,
         action: () => _navigateToTransfer(),
       ),
       SearchItem(
-        title: 'Mes forfaits',
-        subtitle: 'Consulter vos forfaits actifs',
-        keywords: ['mes forfaits', 'actifs', 'consommation', 'historique'],
+        title: l10n.searchMyPackages,
+        subtitle: l10n.searchMyPackagesSub,
+        keywords: ['mes forfaits', 'actifs', 'consommation', 'historique', 'packages'],
         icon: Icons.timer,
-        category: 'Consultation',
+        category: l10n.categoryConsultation,
         action: () => _navigateToForfaitsActifs(),
       ),
-      
+
       // TopUp
       SearchItem(
-        title: 'TopUp - Ma ligne',
-        subtitle: 'Gérer votre ligne fixe TopUp',
-        keywords: ['topup', 'fixe', 'ligne', 'consultation'],
+        title: l10n.searchTopUpLine,
+        subtitle: l10n.searchTopUpLineSub,
+        keywords: ['topup', 'fixe', 'ligne', 'consultation', 'fixed'],
         icon: Icons.phone,
-        category: 'TopUp',
+        category: l10n.categoryTopUp,
         action: () => _navigateToTopUp(),
       ),
       SearchItem(
-        title: 'Acheter souscription',
-        subtitle: 'Souscrire à des packages TopUp',
-        keywords: ['souscription', 'topup', 'package', 'fixe'],
+        title: l10n.searchBuySubscription,
+        subtitle: l10n.searchBuySubscriptionSub,
+        keywords: ['souscription', 'topup', 'package', 'fixe', 'subscription'],
         icon: Icons.subscriptions,
-        category: 'TopUp',
+        category: l10n.categoryTopUp,
         action: () => _navigateToTopUp(),
       ),
       SearchItem(
-        title: 'Recharger compte fixe',
-        subtitle: 'Transférer crédit vers ligne fixe',
-        keywords: ['recharge', 'fixe', 'transfert', 'topup'],
+        title: l10n.searchRechargeFixed,
+        subtitle: l10n.searchRechargeFixedSub,
+        keywords: ['recharge', 'fixe', 'transfert', 'topup', 'fixed'],
         icon: Icons.account_balance_wallet,
-        category: 'TopUp',
+        category: l10n.categoryTopUp,
         action: () => _navigateToTopUp(),
       ),
-      
+
       // Profil et compte
       SearchItem(
-        title: 'Mon profil',
-        subtitle: 'Gérer vos informations personnelles',
-        keywords: ['profil', 'compte', 'informations', 'email', 'nom'],
+        title: l10n.searchMyProfile,
+        subtitle: l10n.searchMyProfileSub,
+        keywords: ['profil', 'compte', 'informations', 'email', 'nom', 'profile'],
         icon: Icons.person,
-        category: 'Compte',
+        category: l10n.categoryAccount,
         action: () => _navigateToProfile(),
       ),
       SearchItem(
-        title: 'Solde principal',
-        subtitle: 'Consulter votre solde mobile',
+        title: l10n.searchMainBalance,
+        subtitle: l10n.searchMainBalanceSub,
         keywords: ['solde', 'argent', 'balance', 'credit'],
         icon: Icons.account_balance_wallet_outlined,
-        category: 'Consultation',
+        category: l10n.categoryConsultation,
         action: () => Navigator.pop(context),
       ),
       SearchItem(
-        title: 'Solde bonus',
-        subtitle: 'Consulter votre solde bonus',
+        title: l10n.searchBonusBalance,
+        subtitle: l10n.searchBonusBalanceSub,
         keywords: ['bonus', 'solde', 'compte', 'dedié'],
         icon: Icons.add_card,
-        category: 'Consultation',
+        category: l10n.categoryConsultation,
         action: () => Navigator.pop(context),
       ),
     ];
-    
+
     _filteredItems = List.from(_allItems);
   }
 
@@ -244,7 +251,8 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -265,7 +273,7 @@ class _SearchScreenState extends State<SearchScreen> {
             focusNode: _searchFocusNode,
             onChanged: _onSearchChanged,
             decoration: InputDecoration(
-              hintText: 'Rechercher une action...',
+              hintText: l10n.searchActionHint,
               hintStyle: TextStyle(
                 color: Colors.grey[500],
                 fontSize: ResponsiveSize.getFontSize(14),
@@ -301,13 +309,13 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
       body: _isLoading
-          ? _buildLoadingState()
+          ? _buildLoadingState(l10n)
           : Column(
               children: [
-                _buildSearchSummary(),
+                _buildSearchSummary(l10n),
                 Expanded(
                   child: _filteredItems.isEmpty
-                      ? _buildNoResultsState()
+                      ? _buildNoResultsState(l10n)
                       : _buildSearchResults(),
                 ),
               ],
@@ -315,7 +323,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -323,7 +331,7 @@ class _SearchScreenState extends State<SearchScreen> {
           CircularProgressIndicator(color: AppTheme.dtBlue),
           SizedBox(height: ResponsiveSize.getHeight(16)),
           Text(
-            'Chargement...',
+            l10n.loading,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(14),
               color: Colors.grey[600],
@@ -334,10 +342,10 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildSearchSummary() {
+  Widget _buildSearchSummary(AppLocalizations l10n) {
     final resultCount = _filteredItems.length;
     final totalCount = _allItems.length;
-    
+
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
       color: Colors.grey[50],
@@ -346,8 +354,8 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           Text(
             _searchQuery.isEmpty
-                ? '$totalCount actions disponibles'
-                : '$resultCount résultat${resultCount > 1 ? 's' : ''} trouvé${resultCount > 1 ? 's' : ''}',
+                ? l10n.searchActionsAvailable(totalCount)
+                : l10n.searchResultsFound(resultCount),
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(14),
               color: Colors.grey[700],
@@ -356,7 +364,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           if (_searchQuery.isNotEmpty)
             Text(
-              'pour "$_searchQuery"',
+              l10n.searchFor(_searchQuery),
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(12),
                 color: AppTheme.dtBlue,
@@ -368,7 +376,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildNoResultsState() {
+  Widget _buildNoResultsState(AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(32)),
@@ -382,7 +390,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(16)),
             Text(
-              'Aucun résultat trouvé',
+              l10n.noResultsFound,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
                 fontWeight: FontWeight.bold,
@@ -391,7 +399,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(8)),
             Text(
-              'Essayez avec des mots-clés différents comme :\n"forfait", "recharge", "topup", "profil"',
+              l10n.searchSuggestions,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
@@ -417,7 +425,7 @@ class _SearchScreenState extends State<SearchScreen> {
       itemBuilder: (context, index) {
         final category = groupedItems.keys.elementAt(index);
         final items = groupedItems[category]!;
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

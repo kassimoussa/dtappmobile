@@ -18,6 +18,7 @@ import '../../utils/responsive_size.dart';
 import '../../extensions/color_extensions.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../generated/l10n/app_localizations.dart';
+import '../../widgets/banner_slider.dart';
 
 class HomeScreen extends StatefulWidget {
   // final String phoneNumber;
@@ -95,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: _buildAppBar(l10n),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -157,7 +158,12 @@ class _HomeScreenState extends State<HomeScreen> {
               // Boutons d'actions rapides
               _buildQuickActions(l10n),
 
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)), 
+
+              // Bannières promotionnelles
+              const BannerSlider(),
+
+              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
 
               // Section historique récent (uniquement sur l'écran d'accueil)
               /* _buildRecentHistorySection(), */

@@ -18,6 +18,8 @@ import '../utils/responsive_size.dart';
 import '../extensions/color_extensions.dart';
 import '../routes/custom_route_transitions.dart';
 import '../generated/l10n/app_localizations.dart';
+import '../widgets/banner_slider.dart';
+import '../widgets/promo_popup_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   // final String phoneNumber;
@@ -48,6 +50,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<BalanceProvider>().loadBalance();
+        // Afficher le popup promotionnel
+        PromoPopupDialog.showIfAvailable(context);
       });
     }
   }
@@ -95,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: _buildAppBar(l10n),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -156,6 +160,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Boutons d'actions rapides
               _buildQuickActions(l10n),
+
+              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+
+              // Bannières promotionnelles
+              const BannerSlider(),
 
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
 
@@ -400,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen> {
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         crossAxisSpacing: ResponsiveSize.getWidth(AppTheme.spacingS),
-        mainAxisSpacing: ResponsiveSize.getHeight(AppTheme.spacingM),
+        mainAxisSpacing: ResponsiveSize.getHeight(AppTheme.spacingS),
         childAspectRatio: 0.85,
       ),
       itemCount: actions.length,

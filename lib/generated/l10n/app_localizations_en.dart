@@ -914,7 +914,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get balanceAfterPurchase => 'Balance after purchase';
 
   @override
-  String get fixedLineRecipient => 'Recipient Fixed Line';
+  String get fixedLineRecipient => 'Recipient Landline';
 
   @override
   String get fromMobile => 'From your mobile';
@@ -923,20 +923,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmPurchaseAction => 'Confirm Purchase';
 
   @override
-  String get rechargeTitle => 'Refill Fixed Account';
+  String get rechargeTitle => 'Refill Landline Account';
 
   @override
   String get rechargeSubtitle => 'Account Refill';
 
   @override
   String get rechargeDescription =>
-      'Transfer credit from your mobile to your fixed line';
+      'Transfer credit from your mobile to your landline';
 
   @override
   String get mobileSource => 'Mobile (source)';
 
   @override
-  String get fixedDestination => 'Fixed (destination)';
+  String get fixedDestination => 'Landline (destination)';
 
   @override
   String get mobileBalanceAvailable => 'Available mobile balance';
@@ -1067,20 +1067,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get checkFixedLine => 'Check your fixed line';
+  String get checkFixedLine => 'Check your landline';
 
   @override
   String get enterFixedNumberInfo =>
-      'Please enter your fixed line number to check balances';
+      'Please enter your landline number to check balances';
 
   @override
-  String get fixedLineNumberKey => 'Fixed Line Number';
+  String get fixedLineNumberKey => 'Landline Number';
 
   @override
   String get fixedLineNumberHint => 'Ex: 21XXXXXX';
 
   @override
-  String get fixedBalances => 'Fixed Balances';
+  String get fixedBalances => 'Landline Balances';
 
   @override
   String get consult => 'Check';
@@ -1126,7 +1126,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String availablePackagesCount(int count, String type) {
-    return '$count $type package(s) available for your fixed line.';
+    return '$count $type package(s) available for your landline.';
   }
 
   @override
@@ -1151,7 +1151,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fromMobileSource => 'From (Mobile)';
 
   @override
-  String get toFixedDestination => 'To (Fixed)';
+  String get toFixedDestination => 'To (Landline)';
 
   @override
   String get transactionId => 'Transaction ID';
@@ -1163,7 +1163,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newMobileBalance => 'New mobile balance';
 
   @override
-  String get newFixedBalance => 'New fixed balance';
+  String get newFixedBalance => 'New landline balance';
 
   @override
   String get returnHome => 'Return to home';
@@ -1176,11 +1176,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String packageActivatedMessage(Object package) {
-    return 'Package $package has been successfully activated on your fixed line';
+    return 'Package $package has been successfully activated on your landline';
   }
 
   @override
-  String get fixedLineLabel => 'Fixed line';
+  String get fixedLineLabel => 'Landline';
 
   @override
   String get mobileLineLabel => 'Mobile line';
@@ -1193,23 +1193,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String subscriptionActivatedMessage(Object subscription) {
-    return 'Subscription $subscription has been successfully activated on your fixed line';
+    return 'Subscription $subscription has been successfully activated on your landline';
   }
 
   @override
-  String get callsToFixed => 'Calls to fixed lines';
+  String get callsToFixed => 'Calls to landlines';
 
   @override
   String get unlimited => 'Unlimited';
 
   @override
   String subscriptionMonthlyActivated(Object number) {
-    return 'The monthly subscription has been activated on your fixed line $number';
+    return 'The monthly subscription has been activated on your landline $number';
   }
 
   @override
   String packageActivatedFixed(Object number) {
-    return 'The package has been activated on your fixed line $number';
+    return 'The package has been activated on your landline $number';
   }
 
   @override
@@ -1391,4 +1391,305 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneNotFound => 'Phone number not found';
+
+  @override
+  String get topupFixedBalances => 'TopUp - Landline Balances';
+
+  @override
+  String get detailedConsultation => 'Detailed consultation';
+
+  @override
+  String dataExpireOn(String date) {
+    return 'Data expires on $date';
+  }
+
+  @override
+  String get topupActions => 'TopUp Actions';
+
+  @override
+  String get topupRecharge => 'TopUp\nRefill';
+
+  @override
+  String get fixedPackage => 'Landline\nPackage';
+
+  @override
+  String get transferToFixed => 'Transfer\nto Landline';
+
+  @override
+  String get topupHistory => 'TopUp\nHistory';
+
+  @override
+  String get logoutTopUp => 'TopUp Logout';
+
+  @override
+  String get fixedNumberRequired => 'Please enter a landline number';
+
+  @override
+  String get fixedNumberFormatError =>
+      'Number must start with 21 or 25321 and contain 8 or 11 digits';
+
+  @override
+  String get fixedHistory => 'Landline\nHistory';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String purchaseConfirmQuestion(String name) {
+    return 'Do you want to buy $name?';
+  }
+
+  @override
+  String balanceAfterPurchaseAmount(String amount) {
+    return 'Balance after purchase: $amount DJF';
+  }
+
+  @override
+  String get priceRow => 'Price:';
+
+  @override
+  String get dataRow => 'Data:';
+
+  @override
+  String get minutesRow => 'Minutes:';
+
+  @override
+  String get validityRow => 'Validity:';
+
+  @override
+  String get searchActionHint => 'Search for an action...';
+
+  @override
+  String searchActionsAvailable(int count) {
+    return '$count actions available';
+  }
+
+  @override
+  String searchResultsFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count result$_temp0 found';
+  }
+
+  @override
+  String searchFor(String query) {
+    return 'for \"$query\"';
+  }
+
+  @override
+  String get noResultsFound => 'No results found';
+
+  @override
+  String get searchSuggestions =>
+      'Try with different keywords like:\n\"package\", \"refill\", \"topup\", \"profile\"';
+
+  @override
+  String get searchBuyPackage => 'Buy package';
+
+  @override
+  String get searchBuyPackageSub => 'Buy voice and data packages';
+
+  @override
+  String get searchCreditRefill => 'Credit refill';
+
+  @override
+  String get searchCreditRefillSub => 'Refill your mobile account';
+
+  @override
+  String get searchCreditTransfer => 'Credit transfer';
+
+  @override
+  String get searchCreditTransferSub => 'Transfer credit to another number';
+
+  @override
+  String get searchMyPackages => 'My packages';
+
+  @override
+  String get searchMyPackagesSub => 'View your active packages';
+
+  @override
+  String get searchTopUpLine => 'TopUp - My line';
+
+  @override
+  String get searchTopUpLineSub => 'Manage your TopUp landline';
+
+  @override
+  String get searchBuySubscription => 'Buy subscription';
+
+  @override
+  String get searchBuySubscriptionSub => 'Subscribe to TopUp packages';
+
+  @override
+  String get searchRechargeFixed => 'Refill landline account';
+
+  @override
+  String get searchRechargeFixedSub => 'Transfer credit to landline';
+
+  @override
+  String get searchMyProfile => 'My profile';
+
+  @override
+  String get searchMyProfileSub => 'Manage your personal information';
+
+  @override
+  String get searchMainBalance => 'Main balance';
+
+  @override
+  String get searchMainBalanceSub => 'Check your mobile balance';
+
+  @override
+  String get searchBonusBalance => 'Bonus balance';
+
+  @override
+  String get searchBonusBalanceSub => 'Check your bonus balance';
+
+  @override
+  String get categoryActions => 'Actions';
+
+  @override
+  String get categoryConsultation => 'Consultation';
+
+  @override
+  String get categoryTopUp => 'TopUp';
+
+  @override
+  String get categoryAccount => 'Account';
+
+  @override
+  String get pleaseReenterPin => 'Please re-enter your PIN code';
+
+  @override
+  String expiredOn(String date) {
+    return 'Expired on $date';
+  }
+
+  @override
+  String get buySubscriptionBtn => 'Buy a\nsubscription';
+
+  @override
+  String get buyPackagesBtn => 'Buy\npackages';
+
+  @override
+  String get rechargeAccountBtn => 'Refill\naccount';
+
+  @override
+  String get fixedHistoryComingSoon => 'Landline History - Coming soon';
+
+  @override
+  String get selectContact => 'Select a contact';
+
+  @override
+  String get searchContact => 'Search for a contact...';
+
+  @override
+  String get noContactFound => 'No contacts found';
+
+  @override
+  String get noNumber => 'No number';
+
+  @override
+  String get contactNoPhone => 'This contact has no phone number';
+
+  @override
+  String get contactPermissionDenied => 'Contact access permission denied';
+
+  @override
+  String get contactRetrievalError => 'Error retrieving contacts';
+
+  @override
+  String get djiboutiMobileStart => 'Djibouti mobile numbers start with 77';
+
+  @override
+  String get choosePackageType => 'Choose a package type';
+
+  @override
+  String get dataForBrowsing => 'Data for your browsing';
+
+  @override
+  String get voicePackage => 'Voice Package';
+
+  @override
+  String get minutesForCalls => 'Minutes for your calls';
+
+  @override
+  String get internetPackages => 'Internet Packages';
+
+  @override
+  String get voicePackages => 'Voice Packages';
+
+  @override
+  String get packageSummary => 'Package summary';
+
+  @override
+  String get packageRow => 'Package:';
+
+  @override
+  String get rechargeYourAccount => 'Refill your account';
+
+  @override
+  String get amountToRecharge => 'Amount to refill (DJF)';
+
+  @override
+  String get paymentMethod => 'Payment method';
+
+  @override
+  String get dmoneyPaymentDesc => 'Payment via your D-Money account';
+
+  @override
+  String get mobileMainAccount => 'Mobile main account';
+
+  @override
+  String get mobileTransferDesc => 'Transfer from your mobile account';
+
+  @override
+  String get pleaseEnterRechargeAmount => 'Please enter an amount to refill';
+
+  @override
+  String get requestSent => 'Request sent';
+
+  @override
+  String rechargeRequestDmoney(String amount) {
+    return 'Your request to refill $amount DJF via D-Money has been sent. Please follow the instructions on your phone to finalize the transaction.';
+  }
+
+  @override
+  String rechargeRequestMobile(String amount) {
+    return 'Your request to transfer $amount DJF from your main mobile account has been processed successfully. The amount has been added to your landline balance.';
+  }
+
+  @override
+  String get payBill => 'Pay the bill';
+
+  @override
+  String get processingPayment => 'Processing payment...';
+
+  @override
+  String get pleaseWaitPayment => 'Please wait while we process your payment.';
+
+  @override
+  String get choosePaymentMethod => 'Choose a payment method:';
+
+  @override
+  String get mobileLinePayment => 'Payment via your mobile line credit';
+
+  @override
+  String get payNow => 'Pay now';
+
+  @override
+  String get invoiceLabel => 'Invoice:';
+
+  @override
+  String get dueDateLabel => 'Due date:';
+
+  @override
+  String get typeLabel => 'Type:';
+
+  @override
+  String balanceDisplay(String amount, String currency) {
+    return 'Balance: $amount $currency';
+  }
 }

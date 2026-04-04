@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
+import '../generated/l10n/app_localizations.dart';
 import '../models/topup_balance.dart';
 import '../services/topup_api_service.dart';
 import '../services/user_session.dart';
@@ -21,7 +22,7 @@ class TopUpContent extends StatefulWidget {
 class _TopUpContentState extends State<TopUpContent> {
   final TextEditingController _fixedNumberController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  
+
   TopUpBalanceResponse? _balanceResponse;
   bool _isLoading = false;
   String? _errorMessage;
@@ -44,20 +45,20 @@ class _TopUpContentState extends State<TopUpContent> {
   Future<void> _loadUserData() async {
     // Charger le numéro mobile de l'utilisateur
     final phoneNumber = await UserSession.getPhoneNumber();
-    
+
     // Vérifier s'il y a une session TopUp active
     final hasSession = await TopUpSession.hasActiveSession();
-    
+
     if (hasSession) {
       // Récupérer les données de session
       final sessionData = await TopUpSession.getSessionData();
-      
+
       setState(() {
         _userMobile = phoneNumber;
         _hasActiveSession = true;
         _currentFixedNumber = sessionData['fixed'];
       });
-      
+
       // Charger automatiquement les soldes
       if (_currentFixedNumber != null && _userMobile != null) {
         await _loadBalancesFromSession();
@@ -95,7 +96,7 @@ class _TopUpContentState extends State<TopUpContent> {
         if (e is TopUpException) {
           _errorMessage = e.userFriendlyMessage;
         } else {
-          _errorMessage = 'Une erreur inattendue est survenue';
+          _errorMessage = AppLocalizations.of(context)!.unexpectedError;
         }
       });
     }
@@ -136,40 +137,42 @@ class _TopUpContentState extends State<TopUpContent> {
         if (e is TopUpException) {
           _errorMessage = e.userFriendlyMessage;
         } else {
-          _errorMessage = 'Une erreur inattendue est survenue';
+          _errorMessage = AppLocalizations.of(context)!.unexpectedError;
         }
       });
     }
   }
 
   String? _validateFixedNumber(String? value) {
+    final l10n = AppLocalizations.of(context)!;
     if (value == null || value.trim().isEmpty) {
-      return 'Veuillez entrer un numéro de téléphone fixe';
+      return l10n.fixedNumberRequired;
     }
-    
+
     if (!TopUpValidator.isValidFixed(value.trim())) {
-      return 'Le numéro doit commencer par 21 ou 25321 et contenir 8 ou 11 chiffres';
+      return l10n.fixedNumberFormatError;
     }
-    
+
     return null;
   }
 
   Future<void> _disconnectTopUp() async {
+    final l10n = AppLocalizations.of(context)!;
     // Afficher confirmation
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Déconnexion TopUp'),
-        content: Text('Voulez-vous vous déconnecter de la ligne $_currentFixedNumber ?'),
+        title: Text(l10n.logoutTopUp),
+        content: Text(l10n.logoutConfirmMessage(_currentFixedNumber ?? '')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Déconnecter'),
+            child: Text(l10n.logoutAction),
           ),
         ],
       ),
@@ -178,7 +181,7 @@ class _TopUpContentState extends State<TopUpContent> {
     if (confirmed == true) {
       // Supprimer la session
       await TopUpSession.clearSession();
-      
+
       // Réinitialiser l'état
       setState(() {
         _hasActiveSession = false;
@@ -191,8 +194,8 @@ class _TopUpContentState extends State<TopUpContent> {
       // Afficher confirmation
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Déconnexion TopUp réussie'),
+          SnackBar(
+            content: Text(l10n.logoutTopUpSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -203,7 +206,8 @@ class _TopUpContentState extends State<TopUpContent> {
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       children: [
         // Header avec titre et actions
@@ -222,7 +226,7 @@ class _TopUpContentState extends State<TopUpContent> {
               children: [
                 Expanded(
                   child: Text(
-                    'TopUp - Soldes Fixes',
+                    l10n.topupFixedBalances,
                     style: TextStyle(
                       fontSize: ResponsiveSize.getFontSize(20),
                       fontWeight: FontWeight.bold,
@@ -234,7 +238,7 @@ class _TopUpContentState extends State<TopUpContent> {
                   IconButton(
                     icon: const Icon(Icons.logout, color: Colors.white),
                     onPressed: _disconnectTopUp,
-                    tooltip: 'Déconnecter',
+                    tooltip: l10n.logoutAction,
                   ),
                 ],
                 IconButton(
@@ -247,7 +251,7 @@ class _TopUpContentState extends State<TopUpContent> {
                       ),
                     );
                   },
-                  tooltip: 'Consultation détaillée',
+                  tooltip: l10n.detailedConsultation,
                 ),
                 IconButton(
                   icon: const Icon(Icons.bug_report, color: Colors.white),
@@ -265,7 +269,7 @@ class _TopUpContentState extends State<TopUpContent> {
             ),
           ),
         ),
-        
+
         // Contenu scrollable
         Expanded(
           child: SingleChildScrollView(
@@ -276,19 +280,19 @@ class _TopUpContentState extends State<TopUpContent> {
                 // Afficher les inputs seulement s'il n'y a pas de session active
                 if (!_hasActiveSession) ...[
                   SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                  _buildInputForm(),
+                  _buildInputForm(l10n),
                   SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
                 ],
-                
+
                 // États de chargement et d'erreur
-                if (_isLoading) _buildLoadingState(),
-                if (_errorMessage != null) _buildErrorState(),
-                
+                if (_isLoading) _buildLoadingState(l10n),
+                if (_errorMessage != null) _buildErrorState(l10n),
+
                 // Résultats (toujours affichés s'ils existent)
                 if (_balanceResponse != null) ...[
-                  _buildBalanceSummary(),
+                  _buildBalanceSummary(l10n),
                   SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                  _buildActionButtons(),
+                  _buildActionButtons(l10n),
                 ],
               ],
             ),
@@ -298,7 +302,7 @@ class _TopUpContentState extends State<TopUpContent> {
     );
   }
 
-  Widget _buildInputForm() {
+  Widget _buildInputForm(AppLocalizations l10n) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -312,7 +316,7 @@ class _TopUpContentState extends State<TopUpContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Consulter votre ligne fixe',
+                l10n.checkFixedLine,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(18),
                   fontWeight: FontWeight.bold,
@@ -321,7 +325,7 @@ class _TopUpContentState extends State<TopUpContent> {
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
               Text(
-                'Veuillez entrer votre numéro de ligne fixe pour consulter ses soldes TopUp',
+                l10n.enterFixedNumberInfo,
                 style: TextStyle(
                   fontSize: ResponsiveSize.getFontSize(14),
                   color: AppTheme.textSecondary,
@@ -333,8 +337,8 @@ class _TopUpContentState extends State<TopUpContent> {
                 keyboardType: TextInputType.phone,
                 validator: _validateFixedNumber,
                 decoration: InputDecoration(
-                  labelText: 'Numéro de ligne fixe',
-                  hintText: 'Ex: 21XXXXXX',
+                  labelText: l10n.fixedLineNumberKey,
+                  hintText: l10n.fixedLineNumberHint,
                   prefixIcon: Icon(Icons.phone, color: AppTheme.dtBlue),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
@@ -361,7 +365,7 @@ class _TopUpContentState extends State<TopUpContent> {
                     ),
                   ),
                   child: Text(
-                    _isLoading ? 'Consultation...' : 'Consulter',
+                    _isLoading ? l10n.consulting : l10n.consult,
                     style: TextStyle(
                       fontSize: ResponsiveSize.getFontSize(16),
                       fontWeight: FontWeight.bold,
@@ -376,7 +380,7 @@ class _TopUpContentState extends State<TopUpContent> {
     );
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(AppLocalizations l10n) {
     return Center(
       child: Column(
         children: [
@@ -385,7 +389,7 @@ class _TopUpContentState extends State<TopUpContent> {
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
           Text(
-            'Consultation des soldes en cours...',
+            l10n.consultingInProgress,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(14),
               color: AppTheme.textSecondary,
@@ -396,7 +400,7 @@ class _TopUpContentState extends State<TopUpContent> {
     );
   }
 
-  Widget _buildErrorState() {
+  Widget _buildErrorState(AppLocalizations l10n) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -413,7 +417,7 @@ class _TopUpContentState extends State<TopUpContent> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
             Text(
-              'Erreur',
+              l10n.error,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
                 fontWeight: FontWeight.bold,
@@ -433,7 +437,7 @@ class _TopUpContentState extends State<TopUpContent> {
             ElevatedButton.icon(
               onPressed: _consultBalances,
               icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
+              label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
                 foregroundColor: Colors.white,
@@ -445,9 +449,9 @@ class _TopUpContentState extends State<TopUpContent> {
     );
   }
 
-  Widget _buildBalanceSummary() {
+  Widget _buildBalanceSummary(AppLocalizations l10n) {
     final response = _balanceResponse!;
-    
+
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(
@@ -471,7 +475,7 @@ class _TopUpContentState extends State<TopUpContent> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Balances',
+                        l10n.fixedBalances,
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(18),
                           fontWeight: FontWeight.bold,
@@ -479,7 +483,7 @@ class _TopUpContentState extends State<TopUpContent> {
                         ),
                       ),
                       Text(
-                        'Ligne: $_currentFixedNumber',
+                        l10n.fixedLineNumberFormat(_currentFixedNumber ?? ''),
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(12),
                           color: AppTheme.textSecondary,
@@ -495,19 +499,19 @@ class _TopUpContentState extends State<TopUpContent> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildSummaryItem(
-                  'Argent',
+                  l10n.money,
                   response.summary.moneyTotalFormatted,
                   Icons.monetization_on,
                   Colors.green,
                 ),
                 _buildSummaryItem(
-                  'Données',
+                  l10n.dataType,
                   response.summary.dataTotalFormatted,
                   Icons.data_usage,
                   Colors.blue,
                 ),
                 _buildSummaryItem(
-                  'Voix',
+                  l10n.voiceType,
                   response.summary.voiceTotalFormatted,
                   Icons.phone,
                   Colors.orange,
@@ -516,7 +520,7 @@ class _TopUpContentState extends State<TopUpContent> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
             // Date d'expiration des données
-            _buildDataExpirationInfo(response),
+            _buildDataExpirationInfo(response, l10n),
           ],
         ),
       ),
@@ -558,7 +562,7 @@ class _TopUpContentState extends State<TopUpContent> {
     );
   }
 
-  Widget _buildDataExpirationInfo(TopUpBalanceResponse response) {
+  Widget _buildDataExpirationInfo(TopUpBalanceResponse response, AppLocalizations l10n) {
     // Trouver la balance de type 'data' pour récupérer sa date d'expiration
     final dataBalance = response.balances.firstWhere(
       (balance) => balance.type == 'data',
@@ -588,7 +592,7 @@ class _TopUpContentState extends State<TopUpContent> {
           ),
           SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingXS)),
           Text(
-            'Données expirent le ${dataBalance.expireDateFormatted}',
+            l10n.dataExpireOn(dataBalance.expireDateFormatted),
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(12),
               color: Colors.blue[700],
@@ -600,12 +604,12 @@ class _TopUpContentState extends State<TopUpContent> {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Actions TopUp',
+          l10n.topupActions,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(18),
             fontWeight: FontWeight.bold,
@@ -618,41 +622,37 @@ class _TopUpContentState extends State<TopUpContent> {
           children: [
             _buildActionButton(
               icon: Icons.add_box,
-              label: 'Recharge\nTopUp',
+              label: l10n.topupRecharge,
               onTap: () {
-                // TODO: Implémenter recharge TopUp
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Recharge TopUp - À implémenter')),
+                  SnackBar(content: Text(l10n.comingSoonMessage)),
                 );
               },
             ),
             _buildActionButton(
               icon: Icons.wifi,
-              label: 'Forfait\nFixe',
+              label: l10n.fixedPackage,
               onTap: () {
-                // TODO: Implémenter forfait fixe
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Forfait fixe - À implémenter')),
+                  SnackBar(content: Text(l10n.comingSoonMessage)),
                 );
               },
             ),
             _buildActionButton(
               icon: Icons.swap_horiz,
-              label: 'Transfert\nvers Fixe',
+              label: l10n.transferToFixed,
               onTap: () {
-                // TODO: Implémenter transfert vers fixe
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Transfert vers fixe - À implémenter')),
+                  SnackBar(content: Text(l10n.comingSoonMessage)),
                 );
               },
             ),
             _buildActionButton(
               icon: Icons.history,
-              label: 'Historique\nTopUp',
+              label: l10n.topupHistory,
               onTap: () {
-                // TODO: Implémenter historique TopUp
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Historique TopUp - À implémenter')),
+                  SnackBar(content: Text(l10n.comingSoonMessage)),
                 );
               },
             ),

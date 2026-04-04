@@ -1,6 +1,7 @@
 // lib/widgets/package_selector_dialog.dart
 import 'package:dtservices/widgets/package_payment_dialog.dart';
 import 'package:flutter/material.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class PackageSelectorDialog extends StatelessWidget {
   const PackageSelectorDialog({super.key});
@@ -8,10 +9,11 @@ class PackageSelectorDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color djiboutiBlue = const Color(0xFF002555);
+    final l10n = AppLocalizations.of(context)!;
 
     return SimpleDialog(
       title: Text(
-        'Choisir un type de forfait',
+        l10n.choosePackageType,
         style: TextStyle(
           color: djiboutiBlue,
           fontWeight: FontWeight.bold,
@@ -23,10 +25,10 @@ class PackageSelectorDialog extends StatelessWidget {
             Navigator.pop(context);
             _showBuyPackageDialog(context, 'internet');
           },
-          child: const ListTile(
-            leading: Icon(Icons.wifi, color: Color(0xFFF7C700)),
-            title: Text('Forfait Internet'),
-            subtitle: Text('Données pour votre navigation'),
+          child: ListTile(
+            leading: const Icon(Icons.wifi, color: Color(0xFFF7C700)),
+            title: Text(l10n.internetPackage),
+            subtitle: Text(l10n.dataForBrowsing),
           ),
         ),
         SimpleDialogOption(
@@ -34,10 +36,10 @@ class PackageSelectorDialog extends StatelessWidget {
             Navigator.pop(context);
             _showBuyPackageDialog(context, 'voice');
           },
-          child: const ListTile(
-            leading: Icon(Icons.call, color: Color(0xFFF7C700)),
-            title: Text('Forfait Appels'),
-            subtitle: Text('Minutes pour vos appels'),
+          child: ListTile(
+            leading: const Icon(Icons.call, color: Color(0xFFF7C700)),
+            title: Text(l10n.voicePackage),
+            subtitle: Text(l10n.minutesForCalls),
           ),
         ),
       ],
@@ -139,8 +141,8 @@ class _PackageDialogState extends State<PackageDialog> {
   Widget build(BuildContext context) {
     final Color djiboutiBlue = const Color(0xFF002555);
     final Color djiboutiYellow = const Color(0xFFF7C700);
-    
-    // Obtenir la taille de l'écran pour la responsivité
+    final l10n = AppLocalizations.of(context)!;
+
     final size = MediaQuery.of(context).size;
     final isSmallScreen = size.width < 360;
 
@@ -148,11 +150,10 @@ class _PackageDialogState extends State<PackageDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      // Définir une largeur maximale pour éviter que la boîte de dialogue ne prenne toute la largeur
       child: Container(
         width: size.width > 600 ? 500 : null,
         constraints: BoxConstraints(
-          maxHeight: size.height * 0.8, // Limite la hauteur à 80% de l'écran
+          maxHeight: size.height * 0.8,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -160,7 +161,7 @@ class _PackageDialogState extends State<PackageDialog> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                widget.packageType == 'internet' ? 'Forfaits Internet' : 'Forfaits Appels',
+                widget.packageType == 'internet' ? l10n.internetPackages : l10n.voicePackages,
                 style: TextStyle(
                   color: djiboutiBlue,
                   fontWeight: FontWeight.bold,
@@ -169,7 +170,6 @@ class _PackageDialogState extends State<PackageDialog> {
               ),
             ),
             const Divider(height: 1),
-            // Contenu scrollable
             Flexible(
               child: SingleChildScrollView(
                 child: Padding(
@@ -278,7 +278,7 @@ class _PackageDialogState extends State<PackageDialog> {
                                                 borderRadius: BorderRadius.circular(10),
                                               ),
                                               child: Text(
-                                                'Validité: ${package['validity']}',
+                                                '${l10n.validityRow} ${package['validity']}',
                                                 style: TextStyle(
                                                   color: Colors.green[700],
                                                   fontSize: isSmallScreen ? 11 : 12,
@@ -311,7 +311,7 @@ class _PackageDialogState extends State<PackageDialog> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Résumé du forfait',
+                              l10n.packageSummary,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: djiboutiBlue,
@@ -319,11 +319,11 @@ class _PackageDialogState extends State<PackageDialog> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            _buildInfoRow('Forfait:', selectedPackage, isSmallScreen),
+                            _buildInfoRow(l10n.packageRow, selectedPackage, isSmallScreen),
                             const SizedBox(height: 4),
-                            _buildInfoRow('Prix:', '${selectedPackageDetails['price']} DJF', isSmallScreen),
+                            _buildInfoRow(l10n.priceRow, '${selectedPackageDetails['price']} DJF', isSmallScreen),
                             const SizedBox(height: 4),
-                            _buildInfoRow('Validité:', selectedPackageDetails['validity'], isSmallScreen),
+                            _buildInfoRow(l10n.validityRow, selectedPackageDetails['validity'], isSmallScreen),
                           ],
                         ),
                       ),
@@ -341,7 +341,7 @@ class _PackageDialogState extends State<PackageDialog> {
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: Text(
-                      'Annuler',
+                      l10n.cancel,
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: isSmallScreen ? 13 : 14,
@@ -359,7 +359,6 @@ class _PackageDialogState extends State<PackageDialog> {
                       ),
                     ),
                     onPressed: () {
-                      // Continuer vers la sélection du mode de paiement
                       Navigator.pop(context);
                       showDialog(
                         context: context,
@@ -367,7 +366,7 @@ class _PackageDialogState extends State<PackageDialog> {
                       );
                     },
                     child: Text(
-                      'Continuer',
+                      l10n.continueAction,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: isSmallScreen ? 13 : 14,

@@ -53,8 +53,12 @@ class AuthProvider extends ChangeNotifier {
   /// Timestamp de création de session
   DateTime? _sessionCreatedAt;
 
-  /// Durée d'inactivité tolérée (10 minutes)
-  static const Duration _inactivityTimeout = Duration(minutes: 10);
+  /// Durée d'inactivité tolérée (5 minutes)
+  static const Duration _inactivityTimeout = Duration(minutes: 5);
+
+  /// Indique que la session a expiré pendant que l'app était en arrière-plan/fermée
+  /// Utilisé par main.dart pour déclencher la redirection vers LoginScreen
+  bool _sessionExpiredWhileAway = false;
 
   // ==================== Getters publics ====================
 
@@ -72,7 +76,14 @@ class AuthProvider extends ChangeNotifier {
 
   /// Dernière activité
   DateTime? get lastActivityTime => _lastActivityTime;
-  // ... (skip lines)
+
+  /// Indique que la session a expiré pendant l'absence (arrière-plan ou fermeture)
+  bool get sessionExpiredWhileAway => _sessionExpiredWhileAway;
+
+  /// Réinitialise le flag d'expiration (après avoir redirigé vers login)
+  void clearSessionExpiredFlag() {
+    _sessionExpiredWhileAway = false;
+  }
 
   /// Charge la session existante depuis SharedPreferences
   Future<void> _loadExistingSession() async {
@@ -655,11 +666,13 @@ class AuthProvider extends ChangeNotifier {
   Future<void> appResumed() async {
     await UserSession.appResumed();
 
-    // Vérifier si la session est toujours valide
-    final isValid = await checkSession();
+    // Vérifier si la session est toujours valide (basé sur le timestamp d'inactivité)
+    final isValid = await UserSession.isAuthenticated();
 
     if (!isValid && _isAuthenticated) {
+      // Session expirée pendant l'absence — signaler pour redirection
       debugPrint('AuthProvider: Session expirée après retour au premier plan');
+      _sessionExpiredWhileAway = true;
       await _clearSession();
     } else if (isValid) {
       _lastActivityTime = DateTime.now();
