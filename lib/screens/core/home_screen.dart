@@ -407,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisCount: 4,
         crossAxisSpacing: ResponsiveSize.getWidth(AppTheme.spacingS),
         mainAxisSpacing: ResponsiveSize.getHeight(AppTheme.spacingM),
-        childAspectRatio: 0.85,
+        childAspectRatio: (ResponsiveSize.screenWidth / 4) / ResponsiveSize.getWidth(110),
       ),
       itemCount: actions.length,
       itemBuilder: (context, index) {

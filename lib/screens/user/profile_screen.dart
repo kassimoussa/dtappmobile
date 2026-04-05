@@ -26,9 +26,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _phoneNumber;
   String? _currentName;
   String? _currentEmail;
-  DateTime? _lastLoginAt;
-  DateTime? _createdAt;
-  String? _deviceType;
 
   @override
   void initState() {
@@ -48,22 +45,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (profileData != null && mounted) {
         final userData = profileData['user'];
-        final sessionData = profileData['session'];
 
         setState(() {
           _phoneNumber = userData['phone_number'];
           _currentName = userData['name'];
           _currentEmail = userData['email'];
-          _lastLoginAt =
-              userData['last_login_at'] != null
-                  ? DateTime.tryParse(userData['last_login_at'])
-                  : null;
-          _createdAt =
-              userData['created_at'] != null
-                  ? DateTime.tryParse(userData['created_at'])
-                  : null;
-          _deviceType = sessionData['device_type'];
-
           _isLoading = false;
         });
       }
@@ -76,11 +62,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
     }
-  }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return AppLocalizations.of(context)!.notAvailable;
-    return '${date.day}/${date.month}/${date.year} à ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -116,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       height: ResponsiveSize.getHeight(AppTheme.spacingL),
                     ),
-                    _buildAccountInfoSection(),
+                    // _buildAccountInfoSection(),
                     if (_errorMessage != null) ...[
                       SizedBox(
                         height: ResponsiveSize.getHeight(AppTheme.spacingM),
@@ -232,19 +213,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ? _currentEmail!
               : l10n.notAvailable,
         ),
-      ],
-    );
-  }
-
-  Widget _buildAccountInfoSection() {
-    final l10n = AppLocalizations.of(context)!;
-    return _buildSection(
-      title: l10n.accountInfo,
-      children: [
-        _buildInfoRow(l10n.phoneNumber, _phoneNumber ?? l10n.notAvailable),
-        _buildInfoRow(l10n.lastLogin, _formatDate(_lastLoginAt)),
-        _buildInfoRow(l10n.accountCreated, _formatDate(_createdAt)),
-        _buildInfoRow(l10n.deviceType, _deviceType ?? l10n.notAvailable),
       ],
     );
   }

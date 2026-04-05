@@ -46,8 +46,25 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
   @override
   void initState() {
     super.initState();
-    _initSmsListener(); // AJOUT
+    _initSmsListener();
     _startTimer();
+    _setupKeyHandlers();
+  }
+
+  // Gère le backspace sur un champ vide pour revenir au champ précédent
+  void _setupKeyHandlers() {
+    for (int i = 1; i < 6; i++) {
+      final index = i;
+      _focusNodes[index].onKeyEvent = (node, event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.backspace &&
+            _controllers[index].text.isEmpty) {
+          _focusNodes[index - 1].requestFocus();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      };
+    }
   }
 
   // AJOUT - Initialiser l'écoute des SMS
@@ -465,7 +482,9 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                           _focusNodes[index - 1].requestFocus();
                         }
                         if (index == 5 && value.isNotEmpty) {
-                          _onOTPSubmit();
+                          Future.microtask(() {
+                            if (mounted) _onOTPSubmit();
+                          });
                         }
                       },
                     ),

@@ -13,15 +13,13 @@ class ResponsiveSize {
   static late double safeBlockVertical;
   
   static late double _designWidth;
-  static late double _designHeight;
-  
+
   // Initialiser avec la taille d'écran de référence (design de base)
-  static void init(BuildContext context, {double designWidth = 375, double designHeight = 812}) {
+  static void init(BuildContext context, {double designWidth = 375}) {
     _mediaQueryData = MediaQuery.of(context);
     screenWidth = _mediaQueryData.size.width;
     screenHeight = _mediaQueryData.size.height;
     _designWidth = designWidth;
-    _designHeight = designHeight;
     
     blockSizeHorizontal = screenWidth / 100;
     blockSizeVertical = screenHeight / 100;
@@ -37,14 +35,14 @@ class ResponsiveSize {
     return (designValue / _designWidth) * screenWidth;
   }
   
-  // Adapter la hauteur en fonction de l'écran
+  // Adapter la hauteur en fonction de l'écran (basé sur la largeur pour cohérence entre ratios)
   static double getHeight(double designValue) {
-    return (designValue / _designHeight) * screenHeight;
+    return (designValue / _designWidth) * screenWidth;
   }
   
   // Adapter la taille de police en fonction de l'écran
   static double getFontSize(double designValue) {
-    double scale = screenWidth < 360 ? 0.75 : screenWidth > 600 ? 1.25 : 1.0;
+    double scale = (screenWidth / _designWidth).clamp(0.75, 1.35);
     return designValue * scale;
   }
   
