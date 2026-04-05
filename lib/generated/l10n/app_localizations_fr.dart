@@ -764,6 +764,30 @@ class AppLocalizationsFr extends AppLocalizations {
   String get openingHours => 'Horaires d\'ouverture';
 
   @override
+  String get daySunday => 'Dimanche';
+
+  @override
+  String get dayMonday => 'Lundi';
+
+  @override
+  String get dayTuesday => 'Mardi';
+
+  @override
+  String get dayWednesday => 'Mercredi';
+
+  @override
+  String get dayThursday => 'Jeudi';
+
+  @override
+  String get dayFriday => 'Vendredi';
+
+  @override
+  String get daySaturday => 'Samedi';
+
+  @override
+  String get dayClosed => 'Fermé';
+
+  @override
   String get launchPhoneError =>
       'Impossible de lancer l\'application téléphone.';
 
@@ -1631,7 +1655,26 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les numéros mobiles djiboutiens commencent par 77';
 
   @override
-  String get choosePackageType => 'Choisir un type de forfait';
+  String get choosePackageType => 'Choisir le type de package';
+
+  @override
+  String get additionalDataPackage => 'Données\nadditionnelles';
+
+  @override
+  String get additionalVoicePackage => 'Voix\nadditionnelle';
+
+  @override
+  String get packageCardLabel => 'Package';
+
+  @override
+  String get buyPackagesTitle => 'Acheter des packages';
+
+  @override
+  String get unlimitedDataTitle => 'Données illimitées';
+
+  @override
+  String get unlimitedDataMessage =>
+      'Votre ligne bénéficie déjà de données illimitées. Vous n\'avez pas besoin d\'acheter des données supplémentaires.';
 
   @override
   String get dataForBrowsing => 'Données pour votre navigation';

@@ -19,7 +19,15 @@
       "Bash(flutter devices:*)",
       "Bash(flutter build:*)",
       "Bash(dart run:*)",
-      "Bash(flutter pub add:*)"
+      "Bash(flutter pub add:*)",
+      "Bash(curl -s -X POST http://10.39.230.106/api/topup/balances -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{\"isdn\": \"21366534\"}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s -X POST http://10.39.230.106/api/topup/balances -H 'Content-Type: application/json' -d '{\\\\\"isdn\\\\\": \\\\\"21366534\\\\\"}')",
+      "Bash(echo \"raw: $\\(curl -s -X POST http://10.39.230.106/api/topup/balances -H 'Content-Type: application/json' -d '{\\\\\"isdn\\\\\": \\\\\"21366534\\\\\"}'\\)\")",
+      "Bash(curl -s -X POST http://10.39.230.106/api/topup/balances -H 'Content-Type: application/json' -d '{\"msisdn\": \"77166677\", \"isdn\": \"21366534\"}')",
+      "Bash(curl -s -X POST http://10.39.230.106/api/topup/balances -H 'Content-Type: application/json' -d '{\"msisdn\": \"77166677\", \"isdn\": \"21363434\"}')",
+      "Bash(curl -s -X POST http://10.39.230.106/api/topup/packages -H 'Content-Type: application/json' -d '{\"msisdn\": \"77166677\", \"isdn\": \"21366534\", \"type\": 4}')",
+      "Bash(curl -s -X POST http://10.39.230.106/api/topup/packages -H 'Content-Type: application/json' -d '{\"msisdn\": \"77166677\", \"isdn\": \"21363434\", \"type\": 4}')"
     ],
     "deny": [],
     "ask": []

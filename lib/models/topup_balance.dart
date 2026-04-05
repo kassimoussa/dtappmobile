@@ -61,6 +61,7 @@ class TopUpBalance {
   final String expireDateFormatted;
   final TopUpExpirationStatus expirationStatus;
   final String rawType;
+  final bool isUnlimited;
 
   TopUpBalance({
     required this.name,
@@ -72,6 +73,7 @@ class TopUpBalance {
     required this.expireDateFormatted,
     required this.expirationStatus,
     required this.rawType,
+    this.isUnlimited = false,
   });
 
   factory TopUpBalance.fromJson(Map<String, dynamic> json) {
@@ -85,6 +87,7 @@ class TopUpBalance {
       expireDateFormatted: json['expire_date_formatted'] ?? '',
       expirationStatus: TopUpExpirationStatus.fromJson(json['expiration_status'] ?? {}),
       rawType: json['raw_type'] ?? '',
+      isUnlimited: json['is_unlimited'] ?? false,
     );
   }
 
@@ -99,6 +102,7 @@ class TopUpBalance {
       'expire_date_formatted': expireDateFormatted,
       'expiration_status': expirationStatus.toJson(),
       'raw_type': rawType,
+      'is_unlimited': isUnlimited,
     };
   }
 

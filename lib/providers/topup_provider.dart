@@ -241,6 +241,15 @@ class TopUpProvider extends ChangeNotifier {
     debugPrint('TopUpProvider: Cache invalidé');
   }
 
+  /// Vérifie si l'abonné fixe a des données illimitées actives
+  /// Dans ce cas, l'achat de packages données supplémentaires n'est pas proposé
+  bool get hasUnlimitedData {
+    if (_balanceResponse == null) return false;
+    return _balanceResponse!.balances.any(
+      (balance) => balance.isDataType && balance.isUnlimited,
+    );
+  }
+
   /// Getters utilitaires pour les balances
   double get fixedBalance => _balanceResponse?.summary.moneyTotal ?? 0.0;
   double get voiceBalance => (_balanceResponse?.summary.voiceTotalSeconds ?? 0) / 60.0; // Convertir secondes en minutes

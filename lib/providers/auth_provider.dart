@@ -142,13 +142,12 @@ class AuthProvider extends ChangeNotifier {
         // Créer la session
         await _createSession(phoneNumber, sessionToken, hasPin: hasPin);
 
-        // Envoyer le token FCM
-        try {
-          await FCMTokenService.updateTokenOnServer();
+        // Envoyer le token FCM en arrière-plan (non bloquant)
+        FCMTokenService.updateTokenOnServer().then((_) {
           debugPrint('AuthProvider: Token FCM envoyé au serveur');
-        } catch (fcmError) {
+        }).catchError((fcmError) {
           debugPrint('AuthProvider: Erreur FCM (non bloquant): $fcmError');
-        }
+        });
 
         debugPrint('AuthProvider: ✅ Authentification réussie (PIN: $hasPin)');
         _isLoading = false;
@@ -361,13 +360,12 @@ class AuthProvider extends ChangeNotifier {
         // Créer la session avec hasPin = true (puisque connexion via PIN)
         await _createSession(phoneNumber, sessionToken, hasPin: true);
 
-        // Envoyer le token FCM
-        try {
-          await FCMTokenService.updateTokenOnServer();
+        // Envoyer le token FCM en arrière-plan (non bloquant)
+        FCMTokenService.updateTokenOnServer().then((_) {
           debugPrint('AuthProvider: Token FCM envoyé au serveur');
-        } catch (fcmError) {
+        }).catchError((fcmError) {
           debugPrint('AuthProvider: Erreur FCM (non bloquant): $fcmError');
-        }
+        });
 
         debugPrint('AuthProvider: ✅ Connexion PIN réussie');
         _isLoading = false;

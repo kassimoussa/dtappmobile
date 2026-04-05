@@ -1406,6 +1406,54 @@ abstract class AppLocalizations {
   /// **'Horaires d\'ouverture'**
   String get openingHours;
 
+  /// No description provided for @daySunday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dimanche'**
+  String get daySunday;
+
+  /// No description provided for @dayMonday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lundi'**
+  String get dayMonday;
+
+  /// No description provided for @dayTuesday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mardi'**
+  String get dayTuesday;
+
+  /// No description provided for @dayWednesday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mercredi'**
+  String get dayWednesday;
+
+  /// No description provided for @dayThursday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jeudi'**
+  String get dayThursday;
+
+  /// No description provided for @dayFriday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vendredi'**
+  String get dayFriday;
+
+  /// No description provided for @daySaturday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Samedi'**
+  String get daySaturday;
+
+  /// No description provided for @dayClosed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermé'**
+  String get dayClosed;
+
   /// No description provided for @launchPhoneError.
   ///
   /// In fr, this message translates to:
@@ -2963,8 +3011,44 @@ abstract class AppLocalizations {
   /// No description provided for @choosePackageType.
   ///
   /// In fr, this message translates to:
-  /// **'Choisir un type de forfait'**
+  /// **'Choisir le type de package'**
   String get choosePackageType;
+
+  /// No description provided for @additionalDataPackage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données\nadditionnelles'**
+  String get additionalDataPackage;
+
+  /// No description provided for @additionalVoicePackage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voix\nadditionnelle'**
+  String get additionalVoicePackage;
+
+  /// No description provided for @packageCardLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Package'**
+  String get packageCardLabel;
+
+  /// No description provided for @buyPackagesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter des packages'**
+  String get buyPackagesTitle;
+
+  /// No description provided for @unlimitedDataTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données illimitées'**
+  String get unlimitedDataTitle;
+
+  /// No description provided for @unlimitedDataMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre ligne bénéficie déjà de données illimitées. Vous n\'avez pas besoin d\'acheter des données supplémentaires.'**
+  String get unlimitedDataMessage;
 
   /// No description provided for @dataForBrowsing.
   ///

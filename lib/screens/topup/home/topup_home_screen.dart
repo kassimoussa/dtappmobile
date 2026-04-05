@@ -404,6 +404,15 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     );
   }
 
+  String _getDataDisplay(TopUpProvider provider) {
+    final response = provider.balanceResponse!;
+    // Si données illimitées, afficher simplement "Illimité"
+    if (provider.hasUnlimitedData) {
+      return 'Illimité';
+    }
+    return response.summary.dataTotalFormatted;
+  }
+
   Widget _buildBalanceSummary(TopUpProvider provider) {
     final l10n = AppLocalizations.of(context)!;
     final response = provider.balanceResponse!;
@@ -464,7 +473,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 ),
                 _buildSummaryItem(
                   l10n.dataType,
-                  response.summary.dataTotalFormatted,
+                  _getDataDisplay(provider),
                   Icons.data_usage,
                   Colors.blue,
                 ),
@@ -602,6 +611,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     // Utiliser le BalanceProvider pour le solde mobile
     final balanceProvider = context.read<BalanceProvider>();
     final mobileSolde = balanceProvider.solde;
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -611,7 +621,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.topupActions,
+            l10n.topupActions,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(18),
               fontWeight: FontWeight.bold,
@@ -624,7 +634,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
             children: [
               _buildActionButton(
                 icon: Icons.subscriptions,
-                label: AppLocalizations.of(context)!.buySubscriptionBtn,
+                label: l10n.buySubscriptionBtn,
                 onTap: () {
                   if (topUpProvider.isNumberSuspended) {
                     _showSuspendedDialog(topUpProvider);
@@ -644,7 +654,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               ),
               _buildActionButton(
                 icon: Icons.shopping_cart,
-                label: AppLocalizations.of(context)!.buyPackagesBtn,
+                label: l10n.buyPackagesBtn,
                 onTap: () {
                   if (topUpProvider.isNumberSuspended) {
                     _showSuspendedDialog(topUpProvider);
@@ -656,6 +666,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                           fixedNumber: topUpProvider.fixedNumber!,
                           mobileNumber: topUpProvider.mobileNumber!,
                           soldeActuel: mobileSolde,
+                          hasUnlimitedData: topUpProvider.hasUnlimitedData,
                         ),
                       ),
                     );
@@ -664,7 +675,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               ),
               _buildActionButton(
                 icon: Icons.account_balance_wallet,
-                label: AppLocalizations.of(context)!.rechargeAccountBtn,
+                label: l10n.rechargeAccountBtn,
                 onTap: () {
                   if (topUpProvider.isNumberSuspended) {
                     _showSuspendedDialog(topUpProvider);
@@ -681,18 +692,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                     );
                   }
                 },
-              ),/* 
-              _buildActionButton(
-                icon: Icons.history,
-                label: AppLocalizations.of(context)!.fixedHistory,
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(AppLocalizations.of(context)!.comingSoonMessage),
-                    ),
-                  );
-                },
-              ), */
+              ),
             ],
           ),
         ],

@@ -436,14 +436,14 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              _capitalize(entry.key),
+                              _translateDay(entry.key, l10n),
                               style: TextStyle(
                                 fontSize: ResponsiveSize.getFontSize(13),
                                 color: AppTheme.textPrimary,
                               ),
                             ),
                             Text(
-                              entry.value,
+                              _translateHours(entry.value, l10n),
                               style: TextStyle(
                                 fontSize: ResponsiveSize.getFontSize(13),
                                 color: AppTheme.textSecondary,
@@ -614,14 +614,14 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            _capitalize(entry.key),
+                            _translateDay(entry.key, l10n),
                             style: TextStyle(
                               fontSize: ResponsiveSize.getFontSize(13),
                               color: AppTheme.textPrimary,
                             ),
                           ),
                           Text(
-                            entry.value,
+                            _translateHours(entry.value, l10n),
                             style: TextStyle(
                               fontSize: ResponsiveSize.getFontSize(13),
                               color: AppTheme.textSecondary,
@@ -663,6 +663,24 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
   String _capitalize(String text) {
     if (text.isEmpty) return text;
     return text[0].toUpperCase() + text.substring(1);
+  }
+
+  String _translateDay(String frenchDay, AppLocalizations l10n) {
+    switch (frenchDay.toLowerCase().trim()) {
+      case 'dimanche': return l10n.daySunday;
+      case 'lundi':    return l10n.dayMonday;
+      case 'mardi':    return l10n.dayTuesday;
+      case 'mercredi': return l10n.dayWednesday;
+      case 'jeudi':    return l10n.dayThursday;
+      case 'vendredi': return l10n.dayFriday;
+      case 'samedi':   return l10n.daySaturday;
+      default:         return _capitalize(frenchDay);
+    }
+  }
+
+  String _translateHours(String frenchHours, AppLocalizations l10n) {
+    if (frenchHours.toLowerCase() == 'fermé') return l10n.dayClosed;
+    return frenchHours;
   }
 
   void _launchPhoneCall(String phoneNumber) async {
