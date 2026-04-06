@@ -10,6 +10,7 @@ import 'package:dtservices/services/user_session.dart';
 import 'package:provider/provider.dart';
 import '../../providers/balance_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/topup_provider.dart';
 import '../user/profile_screen.dart';
 import 'search_screen.dart';
 import 'package:flutter/material.dart';
@@ -498,13 +499,15 @@ class _HomeScreenState extends State<HomeScreen> {
       // Récupérer les providers
       final authProvider = context.read<AuthProvider>();
       final balanceProvider = context.read<BalanceProvider>();
+      final topUpProvider = context.read<TopUpProvider>();
 
       // Effectuer la déconnexion complète (API + local)
       final success = await authProvider.logout();
 
-      // Réinitialiser le cache de balance
+      // Réinitialiser le cache de balance et la session TopUp
       if (success) {
         balanceProvider.reset();
+        topUpProvider.reset();
         debugPrint(
           'HomeScreen: Cache de balance réinitialisé après déconnexion',
         );

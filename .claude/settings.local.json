@@ -27,7 +27,13 @@
       "Bash(curl -s -X POST http://10.39.230.106/api/topup/balances -H 'Content-Type: application/json' -d '{\"msisdn\": \"77166677\", \"isdn\": \"21366534\"}')",
       "Bash(curl -s -X POST http://10.39.230.106/api/topup/balances -H 'Content-Type: application/json' -d '{\"msisdn\": \"77166677\", \"isdn\": \"21363434\"}')",
       "Bash(curl -s -X POST http://10.39.230.106/api/topup/packages -H 'Content-Type: application/json' -d '{\"msisdn\": \"77166677\", \"isdn\": \"21366534\", \"type\": 4}')",
-      "Bash(curl -s -X POST http://10.39.230.106/api/topup/packages -H 'Content-Type: application/json' -d '{\"msisdn\": \"77166677\", \"isdn\": \"21363434\", \"type\": 4}')"
+      "Bash(curl -s -X POST http://10.39.230.106/api/topup/packages -H 'Content-Type: application/json' -d '{\"msisdn\": \"77166677\", \"isdn\": \"21363434\", \"type\": 4}')",
+      "Bash(git -C /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3 branch -a)",
+      "Bash(git -C /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3 log --oneline main..feature/state-management-providers)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git push:*)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Premium Telecom Dashboard</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Outfit:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@400;500;600&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#0042a4",
+                    "tertiary-container": "#ab3a00",
+                    "on-primary-container": "#d0dbff",
+                    "inverse-surface": "#303033",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-highest": "#e4e1e6",
+                    "surface": "#fbf8fc",
+                    "surface-container": "#f0edf1",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffdbcf",
+                    "surface-tint": "#0056d1",
+                    "on-tertiary-fixed-variant": "#802900",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#f3f0f4",
+                    "tertiary": "#832b00",
+                    "outline-variant": "#c3c6d6",
+                    "secondary-fixed-dim": "#c6c5cf",
+                    "surface-variant": "#e4e1e6",
+                    "on-primary-fixed": "#001847",
+                    "on-primary-fixed-variant": "#0040a0",
+                    "on-secondary-container": "#63646c",
+                    "primary-container": "#0258d4",
+                    "primary-fixed": "#dae2ff",
+                    "outline": "#737785",
+                    "surface-container-low": "#f6f2f7",
+                    "on-surface": "#1b1b1e",
+                    "error": "#ba1a1a",
+                    "on-background": "#1b1b1e",
+                    "on-error-container": "#93000a",
+                    "background": "#fbf8fc",
+                    "on-tertiary-container": "#ffd1c2",
+                    "secondary-fixed": "#e3e1ec",
+                    "inverse-primary": "#b2c5ff",
+                    "secondary": "#5d5e66",
+                    "on-primary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#eae7eb",
+                    "on-surface-variant": "#424654",
+                    "surface-bright": "#fbf8fc",
+                    "on-tertiary-fixed": "#380d00",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#e3e1ec",
+                    "surface-dim": "#dcd9dd",
+                    "on-secondary-fixed": "#1a1b22",
+                    "tertiary-fixed-dim": "#ffb59a",
+                    "on-secondary-fixed-variant": "#46464e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans", "Outfit"],
+                    "body": ["Manrope"],
+                    "label": ["Space Grotesk", "JetBrains Mono"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .scale-98:active { transform: scale(0.98); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-[#fbf8fc] dark:bg-[#18181B] flex justify-between items-center w-full px-6 py-4 sticky top-0 z-40">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/10">
+<img alt="Kassim profile" class="w-full h-full object-cover" data-alt="portrait of a confident young west african man with a warm smile and professional demeanor in soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIY3xtnaW6lIPAtNaprc94srrqV8ulUwCozAVDzzU6HB5rxcXYjcV3qVTQNbLNoACkttkKc-ro5otiI2iNZ_lSbVe_ElLzzFgW5YQCs_cI2gFN6m2DdhLfvOkG1lkTYGKHlhjbRL042njc3NzJPEgjNaIFwSX7nsWRIXsiLekNqamSg6knce9fUkjur5WB0nAuCh0Hft7vqWzqBMkoZgVOiRJLP_ngnxq1q-ZrfXKAMcD9gCkPSY7SS_QHjvPMJhwt8AgvHv_sJM3o"/>
+</div>
+<h1 class="text-2xl font-semibold font-headline text-on-surface">Bonsoir, Kassim</h1>
+</div>
+<button class="text-[#0258D4] hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="max-w-md mx-auto px-6 pt-6 space-y-10">
+<!-- Hero Section: Asymmetric Metric Card -->
+<section>
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_4px_40px_rgba(0,86,209,0.04)] relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-110"></div>
+<div class="flex flex-col gap-8">
+<div class="space-y-1">
+<span class="text-sm font-medium text-secondary/60 font-headline uppercase tracking-wider">Solde Actuel</span>
+<div class="flex items-baseline gap-1">
+<span class="text-4xl font-bold font-label text-on-surface tracking-tight">2.450</span>
+<span class="text-xl font-medium font-label text-primary">FCFA</span>
+</div>
+</div>
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary py-4 rounded-lg font-bold font-headline shadow-lg shadow-primary/20 scale-98 transition-transform flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                        Recharger
+                    </button>
+</div>
+</div>
+</section>
+<!-- Quick Actions: 3-column Grid -->
+<section class="space-y-4">
+<h2 class="text-sm font-bold font-headline text-secondary tracking-widest uppercase ml-1">Actions Rapides</h2>
+<div class="grid grid-cols-3 gap-4">
+<button class="flex flex-col items-center gap-3 p-4 bg-surface-container-low rounded-xl scale-98 transition-transform hover:bg-surface-container-high group">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="package_2">package_2</span>
+</div>
+<span class="text-sm font-semibold font-headline text-secondary">Forfaits</span>
+</button>
+<button class="flex flex-col items-center gap-3 p-4 bg-surface-container-low rounded-xl scale-98 transition-transform hover:bg-surface-container-high group">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<span class="text-sm font-semibold font-headline text-secondary">Recharge</span>
+</button>
+<button class="flex flex-col items-center gap-3 p-4 bg-surface-container-low rounded-xl scale-98 transition-transform hover:bg-surface-container-high group">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+</div>
+<span class="text-sm font-semibold font-headline text-secondary">Transfert</span>
+</button>
+</div>
+</section>
+<!-- Recent Activity: The Telecom Ledger -->
+<section class="space-y-4">
+<div class="flex justify-between items-end ml-1">
+<h2 class="text-sm font-bold font-headline text-secondary tracking-widest uppercase">Activité Récente</h2>
+<button class="text-xs font-bold font-headline text-primary">VOIR TOUT</button>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm">
+<div class="divide-y divide-outline-variant/20">
+<!-- Activity Item 1 -->
+<div class="flex items-center justify-between p-5 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="signal_cellular_alt">signal_cellular_alt</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[15px] font-semibold text-on-surface">Forfait Internet</span>
+<span class="text-xs text-secondary/60 font-label">Aujourd'hui, 09:12</span>
+</div>
+</div>
+<span class="text-sm font-bold font-label text-tertiary">-200 FCFA</span>
+</div>
+<!-- Activity Item 2 -->
+<div class="flex items-center justify-between p-5 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed text-on-primary-fixed-variant flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[15px] font-semibold text-on-surface">Recharge Mobile</span>
+<span class="text-xs text-secondary/60 font-label">Hier, 18:30</span>
+</div>
+</div>
+<span class="text-sm font-bold font-label text-primary-container">+500 FCFA</span>
+</div>
+<!-- Activity Item 3 (Additional for context) -->
+<div class="flex items-center justify-between p-5 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[15px] font-semibold text-on-surface">Transfert à Fatou</span>
+<span class="text-xs text-secondary/60 font-label">24 Oct, 14:05</span>
+</div>
+</div>
+<span class="text-sm font-bold font-label text-secondary">-1.000 FCFA</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-xl border-t border-[#c3c6d6]/20 shadow-[0_-4px_40px_rgba(0,86,209,0.06)]">
+<!-- Active Item: Accueil -->
+<a class="flex flex-col items-center justify-center text-[#0258D4] bg-[#0258D4]/5 rounded-xl px-4 py-2 scale-98 active:scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home_max">home_max</span>
+<span class="text-[10px] font-medium font-headline">Accueil</span>
+</a>
+<!-- Inactive Item: Usage -->
+<a class="flex flex-col items-center justify-center text-[#18181B]/40 dark:text-[#fbf8fc]/40 px-4 py-2 hover:text-[#0258D4] transition-colors scale-98 active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="data_usage">data_usage</span>
+<span class="text-[10px] font-medium font-headline">Usage</span>
+</a>
+<!-- Inactive Item: Factures -->
+<a class="flex flex-col items-center justify-center text-[#18181B]/40 dark:text-[#fbf8fc]/40 px-4 py-2 hover:text-[#0258D4] transition-colors scale-98 active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="text-[10px] font-medium font-headline">Factures</span>
+</a>
+<!-- Inactive Item: Support -->
+<a class="flex flex-col items-center justify-center text-[#18181B]/40 dark:text-[#fbf8fc]/40 px-4 py-2 hover:text-[#0258D4] transition-colors scale-98 active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-[10px] font-medium font-headline">Support</span>
+</a>
+</nav>
+</body></html>

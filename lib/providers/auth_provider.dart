@@ -5,6 +5,7 @@ import '../services/otp_service.dart';
 import '../services/logout_service.dart';
 import '../services/fcm_token_service.dart';
 import '../services/pin_service.dart';
+import '../services/topup_session.dart';
 
 /// Provider pour gérer l'état d'authentification et la session utilisateur
 /// Centralise toute la logique d'auth (login, logout, session management)
@@ -584,6 +585,9 @@ class AuthProvider extends ChangeNotifier {
       final success = await LogoutService.logout();
 
       if (success) {
+        // Nettoyer la session TopUp
+        await TopUpSession.clearSession();
+
         // Nettoyer l'état local
         _phoneNumber = null;
         _sessionToken = null;
@@ -605,6 +609,7 @@ class AuthProvider extends ChangeNotifier {
       debugPrint('AuthProvider: Erreur déconnexion: $e');
 
       // Nettoyer quand même localement en cas d'erreur
+      await TopUpSession.clearSession();
       _phoneNumber = null;
       _sessionToken = null;
       _isAuthenticated = false;
