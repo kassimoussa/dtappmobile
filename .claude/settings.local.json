@@ -33,7 +33,9 @@
       "Bash(git checkout:*)",
       "Bash(git merge:*)",
       "Bash(git push:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(git -C /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3 checkout -b feature/design-overhaul)",
+      "Bash(git -C /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3 push -u origin feature/design-overhaul)"
     ],
     "deny": [],
     "ask": []

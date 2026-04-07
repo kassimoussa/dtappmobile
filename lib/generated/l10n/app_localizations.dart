@@ -2648,6 +2648,12 @@ abstract class AppLocalizations {
   /// **'Données expirent le {date}'**
   String dataExpireOn(String date);
 
+  /// No description provided for @quickActions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actions rapides'**
+  String get quickActions;
+
   /// No description provided for @topupActions.
   ///
   /// In fr, this message translates to:

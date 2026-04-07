@@ -574,6 +574,7 @@
         }
       }
     },
+    "quickActions": "Quick Actions",
     "topupActions": "TopUp Actions",
     "topupRecharge": "TopUp\nRefill",
     "fixedPackage": "Landline\nPackage",

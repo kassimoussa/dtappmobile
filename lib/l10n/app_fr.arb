@@ -592,6 +592,7 @@
         }
       }
     },
+    "quickActions": "Actions rapides",
     "topupActions": "Actions TopUp",
     "topupRecharge": "Recharge\nTopUp",
     "fixedPackage": "Forfait\nFixe",

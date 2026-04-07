@@ -531,7 +531,7 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Spacer(),
+                      SizedBox(height: ResponsiveSize.getHeight(20)),
 
                       // Logo
                       Center(

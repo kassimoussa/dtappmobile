@@ -1444,6 +1444,9 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get quickActions => 'Actions rapides';
+
+  @override
   String get topupActions => 'Actions TopUp';
 
   @override
