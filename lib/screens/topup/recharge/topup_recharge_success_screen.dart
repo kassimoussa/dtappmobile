@@ -1,6 +1,7 @@
 // lib/screens/topup/topup_recharge_success_screen.dart
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:ui';
+import 'package:flutter/material.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../extensions/color_extensions.dart';
@@ -97,14 +98,38 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
     ResponsiveSize.init(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildGlassAppBar(context),
+                Expanded(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Padding(
+                      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Animation d'icône de succès
                 ScaleTransition(
@@ -175,8 +200,44 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
 
                 // Compte à rebours
                 _buildCountdown(),
-              ],
-            ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.rechargeSuccessTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

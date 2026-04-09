@@ -1,6 +1,7 @@
 // lib/screens/topup/topup_subscription_success_screen.dart
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:ui';
+import 'package:flutter/material.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../extensions/color_extensions.dart';
@@ -109,24 +110,36 @@ class _TopUpSubscriptionSuccessScreenState
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: AppTheme.dtBlue,
-          title: Text(
-            AppLocalizations.of(context)!.subscriptionSuccessTitle,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: ResponsiveSize.getFontSize(18),
-              fontWeight: FontWeight.bold,
+        backgroundColor: AppTheme.backgroundGrey,
+        body: Stack(
+          children: [
+            Positioned(
+              top: -100,
+              left: -100,
+              right: -100,
+              child: Container(
+                height: 350,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      AppTheme.dtBlueDark.withOpacityValue(0.08),
+                      Colors.transparent,
+                    ],
+                    radius: 0.8,
+                  ),
+                ),
+              ),
             ),
-          ),
-          automaticallyImplyLeading: false,
-          elevation: 0,
-        ),
-        body: AnimatedBuilder(
-          animation: _animationController,
-          builder: (context, child) {
-            return SingleChildScrollView(
+            SafeArea(
+              child: Column(
+                children: [
+                  _buildGlassAppBar(context, AppLocalizations.of(context)!.subscriptionSuccessTitle),
+                  Expanded(
+                    child: AnimatedBuilder(
+                      animation: _animationController,
+                      builder: (context, child) {
+                        return SingleChildScrollView(
               padding: EdgeInsets.all(
                 ResponsiveSize.getWidth(AppTheme.spacingL),
               ),
@@ -437,6 +450,43 @@ class _TopUpSubscriptionSuccessScreenState
               ),
             );
           },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

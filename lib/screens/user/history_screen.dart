@@ -1,4 +1,5 @@
 // lib/screens/user/history_screen.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
@@ -25,8 +26,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-
-    // Charger l'historique via le provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TransactionProvider>().loadHistory();
     });
@@ -64,23 +63,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
       case 'offer_purchase':
       case 'offer_gift':
       case 'offer_received':
-        return Icons.local_mall;
+        return Icons.local_mall_rounded;
       case 'credit_add':
       case 'voucher_refill':
       case 'credit_received':
-        return Icons.add_circle;
+        return Icons.add_circle_rounded;
       case 'credit_deduct':
-        return Icons.remove_circle;
+        return Icons.remove_circle_rounded;
       case 'credit_transfer':
-        return Icons.send;
+        return Icons.send_rounded;
       case 'topup_subscribe_package':
-        return Icons.phone;
+        return Icons.phone_android_rounded;
       case 'topup_recharge_account':
-        return Icons.battery_charging_full;
+        return Icons.battery_charging_full_rounded;
       case 'profile_update':
-        return Icons.person;
+        return Icons.person_rounded;
       default:
-        return Icons.description;
+        return Icons.receipt_long_rounded;
+    }
+  }
+
+  String _getDateHeader(DateTime date, AppLocalizations l10n) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final dateToCheck = DateTime(date.year, date.month, date.day);
+
+    if (dateToCheck == today) {
+      return "Aujourd'hui"; 
+    } else if (dateToCheck == yesterday) {
+      return "Hier";
+    } else {
+      return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
     }
   }
 
@@ -91,118 +105,163 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final transactionProvider = context.watch<TransactionProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: AppTheme.dtBlue,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        title: Text(
-          l10n.historyTitle,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: ResponsiveSize.getFontSize(18),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.bar_chart, color: Colors.white),
-            onPressed:
-                () => Navigator.push(
-                  context,
-                  CustomRouteTransitions.slideRightRoute(
-                    page: const StatisticsScreen(),
-                  ),
-                ),
-            tooltip: l10n.statisticsTooltip,
-          ),
-        ],
-      ),
-      body: Column(
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
         children: [
-          _buildFiltersSection(transactionProvider),
-          Expanded(
-            child:
-                transactionProvider.isLoading && transactionProvider.activities.isEmpty
-                    ? _buildLoadingState()
-                    : transactionProvider.errorMessage != null && transactionProvider.activities.isEmpty
-                    ? _buildErrorState(transactionProvider)
-                    : transactionProvider.activities.isEmpty
-                    ? _buildEmptyState()
-                    : _buildHistoryList(transactionProvider),
+          // Radial Gradient Background (App-like feel)
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(l10n),
+                _buildFiltersSection(transactionProvider),
+                Expanded(
+                  child: _buildBodyContent(transactionProvider),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFiltersSection(TransactionProvider provider) {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.periodLabel,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(14),
-              fontWeight: FontWeight.w600,
-              color: AppTheme.dtBlue,
-            ),
+  Widget _buildGlassAppBar(AppLocalizations l10n) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
+            vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
           ),
-          SizedBox(height: ResponsiveSize.getHeight(8)),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children:
-                  _daysOptions.map((days) {
-                    final isSelected = days == provider.selectedDays;
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        right: ResponsiveSize.getWidth(8),
-                      ),
-                      child: FilterChip(
-                        label: Text(
-                          l10n.daysUnit(days),
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : AppTheme.dtBlue,
-                            fontSize: ResponsiveSize.getFontSize(12),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        selected: isSelected,
-                        onSelected: (_) => provider.changeDaysFilter(days),
-                        backgroundColor: Colors.white,
-                        selectedColor: AppTheme.dtBlue,
-                        checkmarkColor: Colors.white,
-                        side: BorderSide(
-                          color:
-                              isSelected ? AppTheme.dtBlue : Colors.grey[300]!,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-            ),
+          decoration: BoxDecoration(
+            color: Colors.transparent, // Background handles color
           ),
-          if (provider.pagination != null)
-            Padding(
-              padding: EdgeInsets.only(top: ResponsiveSize.getHeight(8)),
-              child: Text(
-                l10n.activitiesFound(provider.pagination!.total),
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(12),
-                  color: Colors.grey[600],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                l10n.historyTitle,
+                style: AppTheme.headingStyle.copyWith(
+                  fontSize: ResponsiveSize.getFontSize(24),
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-            ),
-        ],
+              InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  CustomRouteTransitions.slideRightRoute(
+                    page: const StatisticsScreen(),
+                  ),
+                ),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.bar_chart_rounded, color: AppTheme.dtBlueDark, size: 20),
+                      SizedBox(width: 6),
+                      Text("Stats", 
+                        style: AppTheme.bodyStyle.copyWith(
+                          color: AppTheme.dtBlueDark, 
+                          fontWeight: FontWeight.w600, 
+                          fontSize: 14
+                        )
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
+  }
+
+  Widget _buildFiltersSection(TransactionProvider provider) {
+    return Container(
+      width: double.infinity,
+      color: Colors.transparent,
+      padding: EdgeInsets.symmetric(
+        vertical: ResponsiveSize.getHeight(8),
+        horizontal: ResponsiveSize.getWidth(AppTheme.spacingM)
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: _daysOptions.map((days) {
+            final isSelected = days == provider.selectedDays;
+            return Padding(
+              padding: EdgeInsets.only(right: ResponsiveSize.getWidth(10)),
+              child: InkWell(
+                onTap: () => provider.changeDaysFilter(days),
+                borderRadius: BorderRadius.circular(20),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppTheme.dtBlueDark : Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected ? AppTheme.dtBlueDark : Colors.grey[300]!,
+                    ),
+                    boxShadow: isSelected ? [
+                      BoxShadow(color: AppTheme.dtBlueDark.withOpacityValue(0.3), blurRadius: 8, offset: Offset(0, 4))
+                    ] : [],
+                  ),
+                  child: Text(
+                    "$days jours", // Simplification to avoid complex translation mapping if not needed
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.grey[700],
+                      fontSize: ResponsiveSize.getFontSize(13),
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBodyContent(TransactionProvider provider) {
+    if (provider.isLoading && provider.activities.isEmpty) {
+      return _buildLoadingState();
+    } else if (provider.errorMessage != null && provider.activities.isEmpty) {
+      return _buildErrorState(provider);
+    } else if (provider.activities.isEmpty) {
+      return _buildEmptyState();
+    } else {
+      return _buildHistoryList(provider);
+    }
   }
 
   Widget _buildLoadingState() {
@@ -211,13 +270,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppTheme.dtBlue),
+          CircularProgressIndicator(color: AppTheme.dtBlueDark, strokeWidth: 3),
           SizedBox(height: ResponsiveSize.getHeight(16)),
           Text(
             l10n.historyLoading,
             style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(16),
+              fontSize: ResponsiveSize.getFontSize(14),
               color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -233,18 +293,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: ResponsiveSize.getFontSize(64),
-              color: Colors.red[300],
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline_rounded,
+                size: ResponsiveSize.getFontSize(48),
+                color: Colors.red[400],
+              ),
             ),
-            SizedBox(height: ResponsiveSize.getHeight(16)),
+            SizedBox(height: ResponsiveSize.getHeight(24)),
             Text(
               l10n.loadingErrorTitle,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[700],
+                color: Colors.black87,
               ),
             ),
             SizedBox(height: ResponsiveSize.getHeight(8)),
@@ -253,15 +320,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
-                color: Colors.grey[600],
+                color: Colors.grey[500],
               ),
             ),
-            SizedBox(height: ResponsiveSize.getHeight(24)),
+            SizedBox(height: ResponsiveSize.getHeight(32)),
             ElevatedButton(
               onPressed: () => provider.refresh(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.dtBlue,
-                foregroundColor: Colors.white,
+              style: AppTheme.primaryButtonStyle.copyWith(
+                padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 32, vertical: 12)),
               ),
               child: Text(l10n.retry),
             ),
@@ -279,18 +345,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.history,
-              size: ResponsiveSize.getFontSize(64),
-              color: Colors.grey[400],
+            Container(
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 20, spreadRadius: 5)
+                ]
+              ),
+              child: Icon(
+                Icons.receipt_long_rounded,
+                size: ResponsiveSize.getFontSize(48),
+                color: Colors.grey[300],
+              ),
             ),
-            SizedBox(height: ResponsiveSize.getHeight(16)),
+            SizedBox(height: ResponsiveSize.getHeight(24)),
             Text(
               l10n.emptyHistoryTitle,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
+                color: Colors.grey[800],
               ),
             ),
             SizedBox(height: ResponsiveSize.getHeight(8)),
@@ -309,145 +385,205 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildHistoryList(TransactionProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
+    final items = <Widget>[];
+    String? lastDate;
+
+    // Construction de la liste sémantique avec headers
+    for (int i = 0; i < provider.activities.length; i++) {
+      final activity = provider.activities[i];
+      final currentHeader = _getDateHeader(activity.createdAt, l10n);
+
+      if (currentHeader != lastDate) {
+        items.add(_buildDateHeader(currentHeader));
+        lastDate = currentHeader;
+      }
+      items.add(_buildActivityCard(activity));
+    }
+
+    if (provider.isLoadingMore) {
+      items.add(_buildLoadingMoreIndicator());
+    }
+
     return RefreshIndicator(
       onRefresh: () => provider.refresh(),
-      color: AppTheme.dtBlue,
+      color: AppTheme.dtBlueDark,
       child: ListView.builder(
         controller: _scrollController,
-        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-        itemCount: provider.activities.length + (provider.isLoadingMore ? 1 : 0),
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        padding: EdgeInsets.only(
+          left: ResponsiveSize.getWidth(AppTheme.spacingM),
+          right: ResponsiveSize.getWidth(AppTheme.spacingM),
+          top: ResponsiveSize.getHeight(8),
+          bottom: ResponsiveSize.getHeight(32),
+        ),
+        itemCount: items.length,
         itemBuilder: (context, index) {
-          if (index == provider.activities.length) {
-            return _buildLoadingMoreIndicator();
-          }
-
-          final activity = provider.activities[index];
-          return _buildActivityCard(activity);
+          return items[index];
         },
+      ),
+    );
+  }
+
+  Widget _buildDateHeader(String dateText) {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: ResponsiveSize.getHeight(24),
+        bottom: ResponsiveSize.getHeight(8),
+        left: ResponsiveSize.getWidth(4),
+      ),
+      child: Text(
+        dateText,
+        style: TextStyle(
+          fontSize: ResponsiveSize.getFontSize(18),
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+          letterSpacing: -0.5,
+        ),
       ),
     );
   }
 
   Widget _buildLoadingMoreIndicator() {
     return Container(
-      padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
+      padding: EdgeInsets.all(ResponsiveSize.getWidth(24)),
       alignment: Alignment.center,
       child: SizedBox(
         width: ResponsiveSize.getWidth(24),
         height: ResponsiveSize.getHeight(24),
         child: CircularProgressIndicator(
           strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlue),
+          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlueDark),
         ),
       ),
     );
   }
 
   Widget _buildActivityCard(Activity activity) {
-    return Card(
+    final statusColor = _getStatusColor(activity.status);
+    final isNegative = activity.actionType == 'credit_deduct' || activity.amount != null && activity.amount! < 0;
+    
+    // Determining amount text styling dynamically
+    Color amountColor = Colors.black87;
+    String amountPrefix = '';
+    if (activity.status.toLowerCase() == 'success') {
+      if (isNegative) {
+        amountColor = Colors.black87; 
+        amountPrefix = '- ';
+      } else {
+        amountColor = Colors.green[700]!;
+        amountPrefix = '+ ';
+      }
+    }
+
+    return Container(
       margin: EdgeInsets.only(bottom: ResponsiveSize.getHeight(12)),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(12)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(16)),
+        border: Border.all(color: Colors.grey[100]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.015),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
       ),
       child: Padding(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(ResponsiveSize.getWidth(8)),
-                  decoration: BoxDecoration(
-                    color: AppTheme.dtBlue.withOpacityValue(0.1),
-                    borderRadius: BorderRadius.circular(
-                      ResponsiveSize.getWidth(8),
+            // Circular Icon Container with dynamic color
+            Container(
+              padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
+              decoration: BoxDecoration(
+                color: statusColor.withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _getActionIcon(activity.actionType),
+                color: statusColor,
+                size: ResponsiveSize.getFontSize(22),
+              ),
+            ),
+            SizedBox(width: ResponsiveSize.getWidth(16)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    activity.actionLabel,
+                    style: TextStyle(
+                      fontSize: ResponsiveSize.getFontSize(16),
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                      letterSpacing: -0.3,
                     ),
                   ),
-                  child: Icon(
-                    _getActionIcon(activity.actionType),
-                    color: AppTheme.dtBlue,
-                    size: ResponsiveSize.getFontSize(20),
-                  ),
-                ),
-                SizedBox(width: ResponsiveSize.getWidth(12)),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  SizedBox(height: ResponsiveSize.getHeight(4)),
+                  // Time and Status Row
+                  Row(
                     children: [
                       Text(
-                        activity.actionLabel,
+                        "${activity.createdAt.hour}:${activity.createdAt.minute.toString().padLeft(2, '0')}",
                         style: TextStyle(
-                          fontSize: ResponsiveSize.getFontSize(16),
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          fontSize: ResponsiveSize.getFontSize(13),
+                          color: Colors.grey[500],
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: ResponsiveSize.getHeight(4)),
-                      Text(
-                        activity.formattedDate,
-                        style: TextStyle(
-                          fontSize: ResponsiveSize.getFontSize(12),
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: ResponsiveSize.getWidth(8),
-                        vertical: ResponsiveSize.getHeight(4),
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(
-                          activity.status,
-                        ).withOpacityValue(0.1),
-                        borderRadius: BorderRadius.circular(
-                          ResponsiveSize.getWidth(12),
-                        ),
-                      ),
-                      child: Text(
-                        activity.status.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: ResponsiveSize.getFontSize(10),
-                          fontWeight: FontWeight.bold,
-                          color: _getStatusColor(activity.status),
-                        ),
-                      ),
-                    ),
-                    if (activity.amount != null)
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: ResponsiveSize.getHeight(4),
-                        ),
-                        child: Text(
-                          activity.formattedAmount,
-                          style: TextStyle(
-                            fontSize: ResponsiveSize.getFontSize(14),
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.dtBlue,
+                      if (activity.status.toLowerCase() != 'success') ...[
+                        SizedBox(width: 8),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: statusColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            activity.status.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: ResponsiveSize.getFontSize(10),
+                              fontWeight: FontWeight.bold,
+                              color: statusColor,
+                            ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-            if (activity.detailsText != null)
-              Padding(
-                padding: EdgeInsets.only(top: ResponsiveSize.getHeight(8)),
-                child: Text(
-                  activity.detailsText!,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(12),
-                    color: Colors.grey[600],
+                      ]
+                    ],
                   ),
-                ),
+                  if (activity.detailsText != null) ...[
+                    SizedBox(height: ResponsiveSize.getHeight(8)),
+                    Text(
+                      activity.detailsText!,
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(13),
+                        color: Colors.grey[600],
+                        height: 1.3,
+                      ),
+                    ),
+                  ]
+                ],
+              ),
+            ),
+            SizedBox(width: ResponsiveSize.getWidth(12)),
+            // Amount Details
+            if (activity.amount != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "$amountPrefix${activity.amount!.toStringAsFixed(0)} DJF",
+                    style: TextStyle(
+                      fontSize: ResponsiveSize.getFontSize(16),
+                      fontWeight: FontWeight.bold,
+                      color: amountColor,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
               ),
           ],
         ),

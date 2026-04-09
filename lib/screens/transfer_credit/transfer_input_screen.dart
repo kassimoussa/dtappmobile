@@ -1,9 +1,10 @@
+import 'dart:ui';
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_confirmation_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/utils/phone_number_validator.dart';
-import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/widgets/phone_number_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -33,18 +34,38 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final balanceProvider = context.watch<BalanceProvider>();
+    ResponsiveSize.init(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: AppLocalizations.of(context)!.transferTitle,
-        showAction: true,
-        value: balanceProvider.solde,
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(AppTheme.spacingM),
-        child: SingleChildScrollView(
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(context, AppLocalizations.of(context)!.transferTitle),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(AppTheme.spacingM),
+                    child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -90,6 +111,56 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
               _buildConfirmButton(),
 
               const SizedBox(height: 24),
+            ],
+          ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

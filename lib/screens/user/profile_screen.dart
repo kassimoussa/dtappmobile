@@ -10,6 +10,12 @@ import '../settings/language_selection_screen.dart';
 import '../settings/connection_settings_screen.dart';
 import '../auth/pin/pin_management_screen.dart';
 import 'edit_profile_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/balance_provider.dart';
+import '../../providers/topup_provider.dart';
+import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -97,7 +103,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       height: ResponsiveSize.getHeight(AppTheme.spacingL),
                     ),
-                    // _buildAccountInfoSection(),
+                    _buildLogoutButton(l10n),
+                    SizedBox(
+                      height: ResponsiveSize.getHeight(AppTheme.spacingL),
+                    ),
                     if (_errorMessage != null) ...[
                       SizedBox(
                         height: ResponsiveSize.getHeight(AppTheme.spacingM),
@@ -445,5 +454,115 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildLogoutButton(AppLocalizations l10n) {
+    return Container(
+      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: InkWell(
+        onTap: () => _showLogoutDialog(l10n),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.logout_rounded,
+                color: Colors.red[600],
+                size: ResponsiveSize.getFontSize(24),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
+              Expanded(
+                child: Text(
+                  l10n.logoutAction,
+                  style: TextStyle(
+                    fontSize: ResponsiveSize.getFontSize(16),
+                    color: Colors.red[600],
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.red[300],
+                size: ResponsiveSize.getFontSize(16),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLogoutDialog(AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(l10n.logout, style: AppTheme.subheadingStyle),
+          content: Text(l10n.logoutConfirmation, style: AppTheme.bodyStyle),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(l10n.cancel, style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+            ),
+            ElevatedButton(
+              style: AppTheme.primaryButtonStyle.copyWith(
+                backgroundColor: WidgetStateProperty.all(Colors.red.shade600),
+                foregroundColor: WidgetStateProperty.all(Colors.white),
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _performLogout(l10n);
+              },
+              child: Text(l10n.logoutAction),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _performLogout(AppLocalizations l10n) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator(color: AppTheme.dtBlue)),
+    );
+
+    try {
+      final authProvider = context.read<AuthProvider>();
+      final balanceProvider = context.read<BalanceProvider>();
+      final topUpProvider = context.read<TopUpProvider>();
+
+      final success = await authProvider.logout();
+
+      if (success) {
+        balanceProvider.reset();
+        topUpProvider.reset();
+      }
+
+      if (mounted) Navigator.of(context, rootNavigator: true).pop();
+
+      if (mounted && success) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l10n.logoutError}: $e')),
+        );
+      }
+    }
   }
 }

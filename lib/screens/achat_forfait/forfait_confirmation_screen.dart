@@ -1,4 +1,5 @@
 // lib/screens/forfait_confirmation_screen.dart
+import 'dart:ui';
 import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/models/forfait.dart';
@@ -7,7 +8,6 @@ import 'package:dtservices/services/purchase_offer_service.dart';
 import 'package:dtservices/services/user_session.dart';
 import 'package:dtservices/services/biometric_auth_service.dart';
 import 'package:dtservices/utils/responsive_size.dart';
-import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:flutter/material.dart';
 import 'forfait_success_screen.dart';
@@ -239,14 +239,33 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
     ResponsiveSize.init(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: AppLocalizations.of(context)!.purchaseConfirmationTitle,
-        showAction: false,
-        value: widget.soldeActuel,
-        showCancelToHome: true,
-      ),
-      body: AnimatedBuilder(
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(context, AppLocalizations.of(context)!.purchaseConfirmationTitle),
+                Expanded(
+                  child: AnimatedBuilder(
         animation: _animationController,
         builder: (context, child) {
           return FadeTransition(
@@ -284,6 +303,12 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
             ],
           ),
         ),
+      ),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -653,6 +678,50 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

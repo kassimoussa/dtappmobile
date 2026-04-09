@@ -1,9 +1,10 @@
 // lib/screens/topup/topup_package_screen.dart
 import 'package:flutter/material.dart';
+import 'dart:ui';
 
 import '../../../constants/app_theme.dart';
+import '../../../extensions/color_extensions.dart';
 import '../../../utils/responsive_size.dart';
-import '../../../widgets/appbar_widget.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../generated/l10n/app_localizations.dart';
 import 'topup_package_list_screen.dart';
@@ -33,89 +34,155 @@ class _TopUpPackageScreenState extends State<TopUpPackageScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: l10n.buyPackagesTitle,
-        showAction: false,
-        showCancelToHome: true,
-      ),
-      body: Column(
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
         children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.choosePackageType,
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(20),
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-
-                  SizedBox(height: ResponsiveSize.getHeight(24)),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildOptionCard(
-                          context,
-                          l10n.additionalDataPackage,
-                          AppTheme.dtBlue2,
-                          Icons.data_usage,
-                          onTap: () {
-                            if (widget.hasUnlimitedData) {
-                              _showUnlimitedDataDialog();
-                            } else {
-                              Navigator.push(
-                                context,
-                                CustomRouteTransitions.slideRightRoute(
-                                  page: TopUpPackageListScreen(
-                                    fixedNumber: widget.fixedNumber,
-                                    mobileNumber: widget.mobileNumber,
-                                    packageType: 4,
-                                    typeLabel: l10n.dataPackageAddon,
-                                    soldeActuel: widget.soldeActuel,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                      SizedBox(width: ResponsiveSize.getWidth(16)),
-                      Expanded(
-                        child: _buildOptionCard(
-                          context,
-                          l10n.additionalVoicePackage,
-                          AppTheme.dtBlue2,
-                          Icons.phone_in_talk,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              CustomRouteTransitions.slideRightRoute(
-                                page: TopUpPackageListScreen(
-                                  fixedNumber: widget.fixedNumber,
-                                  mobileNumber: widget.mobileNumber,
-                                  packageType: 6,
-                                  typeLabel: l10n.voicePackageAddon,
-                                  soldeActuel: widget.soldeActuel,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
               ),
             ),
           ),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(context, l10n.buyPackagesTitle),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.choosePackageType,
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(20),
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: ResponsiveSize.getHeight(24)),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildOptionCard(
+                                context,
+                                l10n.additionalDataPackage,
+                                AppTheme.dtBlue2,
+                                Icons.data_usage,
+                                onTap: () {
+                                  if (widget.hasUnlimitedData) {
+                                    _showUnlimitedDataDialog();
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      CustomRouteTransitions.slideRightRoute(
+                                        page: TopUpPackageListScreen(
+                                          fixedNumber: widget.fixedNumber,
+                                          mobileNumber: widget.mobileNumber,
+                                          packageType: 4,
+                                          typeLabel: l10n.dataPackageAddon,
+                                          soldeActuel: widget.soldeActuel,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                            SizedBox(width: ResponsiveSize.getWidth(16)),
+                            Expanded(
+                              child: _buildOptionCard(
+                                context,
+                                l10n.additionalVoicePackage,
+                                AppTheme.dtBlue2,
+                                Icons.phone_in_talk,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    CustomRouteTransitions.slideRightRoute(
+                                      page: TopUpPackageListScreen(
+                                        fixedNumber: widget.fixedNumber,
+                                        mobileNumber: widget.mobileNumber,
+                                        packageType: 6,
+                                        typeLabel: l10n.voicePackageAddon,
+                                        soldeActuel: widget.soldeActuel,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: AppTheme.dtBlueDark,
+                    size: 20,
+                  ),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -1,10 +1,10 @@
 // lib/screens/topup/topup_recharge_screen.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
-import '../../../widgets/appbar_widget.dart';
 import '../../../services/topup_api_service.dart';
 import '../../../exceptions/topup_exception.dart';
 import '../../../routes/custom_route_transitions.dart';
@@ -204,34 +204,104 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
     ResponsiveSize.init(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: AppLocalizations.of(context)!.rechargeTitle,
-        showAction: false,
-        showCancelToHome: true,
-      ),
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildHeader(),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                _buildAccountInfo(),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                _buildPredefinedAmounts(),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                _buildAmountInput(),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                _buildPinInput(),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-                _buildActionButton(),
+                _buildGlassAppBar(context, AppLocalizations.of(context)!.rechargeTitle),
+                Expanded(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Form(
+                      key: _formKey,
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildHeader(),
+                            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                            _buildAccountInfo(),
+                            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                            _buildPredefinedAmounts(),
+                            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                            _buildAmountInput(),
+                            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                            _buildPinInput(),
+                            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
+                            _buildActionButton(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

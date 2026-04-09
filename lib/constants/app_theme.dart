@@ -1,16 +1,19 @@
 // lib/constants/app_theme.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Couleurs principales
-  static const Color dtBlue = Color(0xFF002464);
-  static const Color dtBlue2 = Color(0xFF003B7F);
-  static const Color dtYellow = Color(0xFFF8C02C);
+  // Nouvelles Couleurs : Plus claires et vibrantes basées sur le Logo (Bleu et Doré)
+  static const Color dtBlue = Color(0xFF0D47A1); // Bleu principal (désormais le bleu profond)
+  static const Color dtBlueLight = Color(0xFF1E88E5); // Ancien bleu conservé si besoin
+  static const Color dtBlue2 = Color(0xFF1565C0); // Bleu royal doux
+  static const Color dtBlueDark = Color(0xFF0D47A1); // Bleu profond mais chaleureux
+  static const Color dtYellow = Color(0xFFFFCA28); // Un doré vif, éclatant et clair
   
   // Couleurs secondaires
-  static const Color backgroundGrey = Color(0xFFF5F5F5);
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
+  static const Color backgroundGrey = Color(0xFFF8F9FE); // Slightly cooler/modern grey
+  static const Color textPrimary = Color(0xFF1E293B); // Slate-like modern text color
+  static const Color textSecondary = Color(0xFF64748B); 
   
   // Dimensions de base (adaptées dynamiquement selon l'écran)
   static const double spacingXS = 4.0;
@@ -27,28 +30,31 @@ class AppTheme {
   static const double radiusXL = 32.0;
   
   // Styles de texte (les tailles seront adaptées via ScreenUtil)
-  static TextStyle get headingStyle => const TextStyle(
+  static TextStyle get headingStyle => GoogleFonts.outfit(
     fontSize: 24,
-    fontWeight: FontWeight.bold,
-    color: dtBlue,
+    fontWeight: FontWeight.w700,
+    color: dtBlueDark,
+    letterSpacing: -0.5,
   );
   
-  static TextStyle get subheadingStyle => const TextStyle(
+  static TextStyle get subheadingStyle => GoogleFonts.outfit(
     fontSize: 18,
     fontWeight: FontWeight.w600,
-    color: dtBlue,
+    color: dtBlueDark,
+    letterSpacing: -0.3,
   );
   
-  static TextStyle get bodyStyle => const TextStyle(
+  static TextStyle get bodyStyle => GoogleFonts.inter(
     fontSize: 16,
     color: textPrimary,
   );
   
   // Styles de boutons
   static ButtonStyle get primaryButtonStyle => ElevatedButton.styleFrom(
-    backgroundColor: dtBlue,
+    backgroundColor: dtBlueDark,
     foregroundColor: dtYellow,
-    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+    elevation: 0, // Flat premium look
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(radiusM),
     ),
@@ -59,18 +65,19 @@ class AppTheme {
     color: Colors.white,
     borderRadius: BorderRadius.circular(radiusL),
     boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.05),
-        blurRadius: 10,
-        offset: const Offset(0, 2),
+      BoxShadow( // Ombre beaucoup plus douce et diffuse (premium)
+        color: Colors.black.withOpacity(0.04),
+        blurRadius: 30,
+        spreadRadius: 2,
+        offset: const Offset(0, 10),
       ),
     ],
   );
   
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [dtBlue, dtBlue2],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [dtBlueDark, dtBlue2],
   );
 }

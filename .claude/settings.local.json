@@ -35,7 +35,13 @@
       "Bash(git push:*)",
       "Bash(git stash:*)",
       "Bash(git -C /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3 checkout -b feature/design-overhaul)",
-      "Bash(git -C /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3 push -u origin feature/design-overhaul)"
+      "Bash(git -C /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3 push -u origin feature/design-overhaul)",
+      "Bash(awk 'NR>=183 && NR<=250' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/speedtest/speedtest_native_screen.dart)",
+      "Bash(awk 'NR>=183 && NR<=192' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/speedtest/speedtest_native_screen.dart)",
+      "Bash(awk -F: 'NR==6')",
+      "Bash(awk 'NR>=435 && NR<=450' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/subscription/topup_subscription_success_screen.dart)",
+      "Bash(awk 'NR>=175 && NR<=190' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/recharge/topup_recharge_success_screen.dart)",
+      "Bash(awk 'NR>=308 && NR<=325' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/subscription/topup_subscription_screen.dart)"
     ],
     "deny": [],
     "ask": []

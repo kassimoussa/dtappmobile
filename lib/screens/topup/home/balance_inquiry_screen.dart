@@ -1,7 +1,9 @@
 // lib/screens/topup/balance_inquiry_screen.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../../constants/app_theme.dart';
+import '../../../extensions/color_extensions.dart';
 import '../../../utils/responsive_size.dart';
 import '../../../models/topup_balance.dart';
 import '../../../services/topup_api_service.dart';
@@ -95,48 +97,108 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
     
     return Scaffold(
       backgroundColor: AppTheme.backgroundGrey,
-      appBar: AppBar(
-        title: const Text(
-          'Consultation des Soldes',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: AppTheme.dtBlue,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-                  ),
-              actions: [         
-                IconButton(
-                  icon: const Icon(Icons.bug_report, color: Colors.white),
-                  onPressed: () {             
-                    Navigator.push(               
-                      context,               
-                      MaterialPageRoute(
-                        builder: (context) => const TopUpDebugScreen(),
-                      ),            
-                    );            
-                  },            
-                  tooltip: 'Debug',          
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
                 ),
-              ]
-        ), 
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(context),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildUserInfoCard(),
+                        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                        _buildInputForm(),
+                        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                        if (_isLoading) _buildLoadingState(),
+                        if (_errorMessage != null) _buildErrorState(),
+                        if (_balanceResponse != null) _buildBalanceResults(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
             children: [
-              _buildUserInfoCard(),
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-              _buildInputForm(),
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-              if (_isLoading) _buildLoadingState(),
-              if (_errorMessage != null) _buildErrorState(),
-              if (_balanceResponse != null) _buildBalanceResults(),
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  'Consultation des Soldes',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TopUpDebugScreen()),
+                ),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.bug_report_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
             ],
           ),
         ),

@@ -1,10 +1,9 @@
-// lib/screens/forfaits_screen.dart
+import 'dart:ui';
 import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/models/forfait.dart';
 import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/utils/responsive_size.dart';
-import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:dtservices/widgets/cards/forfait_card.dart';
 import 'package:flutter/material.dart';
@@ -41,12 +40,10 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Initialiser le responsive size
     ResponsiveSize.init(context);
     final balanceProvider = context.watch<BalanceProvider>();
     final l10n = AppLocalizations.of(context)!;
 
-    // Liste des forfaits Internet
     final List<Forfait> forfaitsInternet = [
       Forfait(
         id: 13,
@@ -87,7 +84,6 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
       ),
     ];
 
-    // Liste des forfaits Combo
     final List<Forfait> forfaitsCombo = [
       Forfait(
         id: 10,
@@ -108,8 +104,8 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
         data: '200 Mo',
         prix: 1000,
         validite: l10n.validityDays(30),
-        type: 'combo',
         isPopulaire: true,
+        type: 'combo',
         code: '*164*1*2*1#',
       ),
       Forfait(
@@ -125,13 +121,12 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
       ),
     ];
 
-    // Liste des forfaits Tempo
     final List<Forfait> forfaitsTempo = [
       Forfait(
         id: 29,
         nom: 'Forfait Sensation',
         minutes: '60',
-        data: null, // Pas de data pour les forfaits Tempo
+        data: null,
         prix: 500,
         validite: l10n.validityWeekendLong,
         type: 'tempo',
@@ -140,115 +135,170 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
       ),
     ];
 
-    // Liste des forfaits à afficher
-    final forfaitsToDisplay =
-        _selectedType == 'internet'
-            ? forfaitsInternet
-            : _selectedType == 'combo'
-            ? forfaitsCombo
-            : forfaitsTempo;
+    List<Forfait> forfaitsToDisplay;
+    switch (_selectedType) {
+      case 'internet':
+        forfaitsToDisplay = forfaitsInternet;
+        break;
+      case 'combo':
+        forfaitsToDisplay = forfaitsCombo;
+        break;
+      case 'tempo':
+        forfaitsToDisplay = forfaitsTempo;
+        break;
+      default:
+        forfaitsToDisplay = forfaitsInternet;
+    }
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: widget.forfaitTitle,
-        value: balanceProvider.solde,
-        showAction: false,
-        showCancelToHome: true, // Affiche le bouton Annuler
-      ),
-      body: Column(
+      body: Stack(
         children: [
-          // En-tête explicatif
           Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
             decoration: BoxDecoration(
-              color: AppTheme.dtBlue.withOpacityValue(0.05),
-              border: Border(
-                bottom: BorderSide(
-                  color: AppTheme.dtBlue.withOpacityValue(0.1),
-                  width: 1,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppTheme.dtBlueDark.withOpacityValue(0.05),
+                  Colors.white,
+                  AppTheme.dtBlueLight.withOpacityValue(0.05),
+                ],
+              ),
+            ),
+          ),
+          PositionNotifier(
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
                 ),
               ),
             ),
+          ),
+          SafeArea(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  AppLocalizations.of(context)!.choosePackageHeader,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(18),
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.dtBlue,
-                  ),
-                ),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
-                Text(
-                  _getDescriptionText(),
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(14),
-                    color: Colors.grey[700],
+                _buildGlassAppBar(context, widget.forfaitTitle),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.choosePackageHeader,
+                              style: TextStyle(
+                                fontSize: ResponsiveSize.getFontSize(18),
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.dtBlueDark,
+                              ),
+                            ),
+                            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
+                            Text(
+                              _getDescriptionText(),
+                              style: TextStyle(
+                                fontSize: ResponsiveSize.getFontSize(14),
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: RefreshIndicator(
+                          onRefresh: () async {
+                            setState(() => _isLoading = true);
+                            await context.read<BalanceProvider>().refreshBalance();
+                            setState(() => _isLoading = false);
+                          },
+                          child: _isLoading
+                              ? Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlueDark),
+                                  ),
+                                )
+                              : _selectedType == 'tempo' && forfaitsTempo.isEmpty
+                                  ? _buildEmptyTempoState()
+                                  : Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(AppTheme.spacingM)),
+                                      child: ListView.separated(
+                                        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                                        itemCount: forfaitsToDisplay.length,
+                                        separatorBuilder: (context, index) => SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                                        itemBuilder: (context, index) {
+                                          final forfait = forfaitsToDisplay[index];
+                                          return ForfaitCard(
+                                            forfait: forfait,
+                                            soldeActuel: balanceProvider.solde,
+                                            phoneNumber: widget.phoneNumber,
+                                            purchaseMode: widget.purchaseMode,
+                                            onAchatReussi: () {
+                                              context.read<BalanceProvider>().refreshBalance();
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-
-          // Liste des forfaits
-          Expanded(
-            child: RefreshIndicator(
-              // Rafraîchir le solde avec BalanceProvider
-              onRefresh: () async {
-                setState(() => _isLoading = true);
-                await context.read<BalanceProvider>().refreshBalance();
-                setState(() => _isLoading = false);
-              },
-              child:
-                  _isLoading
-                      ? Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            AppTheme.dtBlue,
-                          ),
-                        ),
-                      )
-                      : _selectedType == 'tempo' && forfaitsTempo.isEmpty
-                      ? _buildEmptyTempoState()
-                      : Padding(
-                        padding: EdgeInsets.all(
-                          ResponsiveSize.getWidth(AppTheme.spacingM),
-                        ),
-                        child: ListView.separated(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          itemCount: forfaitsToDisplay.length,
-                          separatorBuilder:
-                              (context, index) => SizedBox(
-                                height: ResponsiveSize.getHeight(
-                                  AppTheme.spacingM,
-                                ),
-                              ),
-                          itemBuilder: (context, index) {
-                            final forfait = forfaitsToDisplay[index];
-                            return ForfaitCard(
-                              forfait: forfait,
-                              soldeActuel: balanceProvider.solde,
-                              phoneNumber: widget.phoneNumber,
-                              purchaseMode:
-                                  widget
-                                      .purchaseMode, // Transmettre le mode d'achat
-                              onAchatReussi: () {
-                                // Rafraîchir le solde après achat réussi
-                                context
-                                    .read<BalanceProvider>()
-                                    .refreshBalance();
-                              },
-                            );
-                          },
-                        ),
-                      ),
-            ),
-          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -274,9 +324,9 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.weekend,
+              Icons.weekend_rounded,
               size: ResponsiveSize.getFontSize(80),
-              color: AppTheme.dtBlue.withOpacityValue(0.6),
+              color: AppTheme.dtBlueDark.withOpacityValue(0.6),
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
             Text(
@@ -299,6 +349,22 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class PositionNotifier extends StatelessWidget {
+  final Widget child;
+  const PositionNotifier({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: -100,
+      right: -100,
+      width: 400,
+      height: 400,
+      child: child,
     );
   }
 }

@@ -1,9 +1,10 @@
 // lib/screens/forfait_recipient_screen.dart
+import 'dart:ui';
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
 import 'package:dtservices/screens/achat_forfait/forfait_categories_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
-import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/widgets/phone_number_selector.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:flutter/material.dart';
@@ -96,14 +97,34 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
     ResponsiveSize.init(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: AppLocalizations.of(context)!.buyPackageTitle,
-        showAction: false,
-        showCancelToHome: true, // Affiche le bouton Annuler
-      ),
-      body: SingleChildScrollView(
-        child: ConstrainedBox(
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(context, AppLocalizations.of(context)!.buyPackageTitle),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: ConstrainedBox(
           constraints: BoxConstraints(
             minHeight:
                 MediaQuery.of(context).size.height -
@@ -130,37 +151,40 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
                     SizedBox(height: ResponsiveSize.getHeight(24)),
 
                     // Options de destinataire
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildOptionCard(
-                            context,
-                            AppLocalizations.of(context)!.myNumber,
-                            AppTheme.dtBlue2,
-                            Icons.arrow_upward,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                CustomRouteTransitions.slideRightRoute(
-                                  page: ForfaitCategoriesScreen(
-                                    phoneNumber: widget.phoneNumber,
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: _buildOptionCard(
+                              context,
+                              AppLocalizations.of(context)!.myNumber,
+                              AppTheme.dtBlue2,
+                              Icons.arrow_upward,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  CustomRouteTransitions.slideRightRoute(
+                                    page: ForfaitCategoriesScreen(
+                                      phoneNumber: widget.phoneNumber,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                        SizedBox(width: ResponsiveSize.getWidth(16)),
-                        Expanded(
-                          child: _buildOptionCard(
-                            context,
-                            AppLocalizations.of(context)!.otherNumber,
-                            AppTheme.dtBlue2,
-                            Icons.arrow_outward,
-                            onTap: _showPhoneInputSection,
+                          SizedBox(width: ResponsiveSize.getWidth(16)),
+                          Expanded(
+                            child: _buildOptionCard(
+                              context,
+                              AppLocalizations.of(context)!.otherNumber,
+                              AppTheme.dtBlue2,
+                              Icons.arrow_outward,
+                              onTap: _showPhoneInputSection,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -412,6 +436,12 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
           ),
         ),
       ),
+    ),
+          ],
+        ),
+      ),
+        ],
+      ),
     );
   }
 
@@ -474,6 +504,7 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
             SizedBox(height: ResponsiveSize.getHeight(16)),
             Text(
               AppLocalizations.of(context)!.buyFor,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
                 color: Colors.grey[600],
@@ -482,12 +513,57 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
             SizedBox(height: ResponsiveSize.getHeight(4)),
             Text(
               title,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(16),
                 fontWeight: FontWeight.bold,
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

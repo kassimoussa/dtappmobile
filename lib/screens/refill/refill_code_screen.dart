@@ -1,7 +1,8 @@
+import 'dart:ui';
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/screens/core/home_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
-import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/services/refill_service.dart';
 import 'package:dtservices/models/refill_models.dart';
 import 'package:flutter/material.dart';
@@ -38,80 +39,107 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ResponsiveSize.init(context);
-
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: AppLocalizations.of(context)!.refillTitle,
-        showAction: true,
-        showCancelToHome: true,
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(AppTheme.spacingM),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 24),
+                _buildGlassAppBar(
+                  context,
+                  AppLocalizations.of(context)!.refillTitle,
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.all(AppTheme.spacingM),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 16),
 
-                // Titre principal
-                Text(
-                  widget.isGift
-                      ? AppLocalizations.of(context)!.refillGiftTitle
-                      : AppLocalizations.of(context)!.refillMyCredit,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(20),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                            // Titre principal
+                            Text(
+                              widget.isGift
+                                  ? AppLocalizations.of(context)!.refillGiftTitle
+                                  : AppLocalizations.of(context)!.refillMyCredit,
+                              style: TextStyle(
+                                fontSize: ResponsiveSize.getFontSize(20),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            // Sous-titre avec numéro
+                            Text(
+                              widget.isGift
+                                  ? AppLocalizations.of(
+                                    context,
+                                  )!.refillRecipient(widget.phoneNumber)
+                                  : AppLocalizations.of(
+                                    context,
+                                  )!.refillMyNumber(widget.phoneNumber),
+                              style: TextStyle(
+                                fontSize: ResponsiveSize.getFontSize(16),
+                                color: Colors.grey[600],
+                              ),
+                            ),
+
+                            const SizedBox(height: 32),
+
+                            // Champ code de recharge
+                            _buildRefillCodeField(),
+
+                            // Erreur code
+                            if (_codeError != null) ...[
+                              const SizedBox(height: 8),
+                              _buildErrorMessage(_codeError!),
+                            ],
+
+                            const SizedBox(height: 24),
+
+                            // Information importante
+                            _buildInfoBox(),
+
+                            const SizedBox(height: 32),
+
+                            // Bouton de confirmation
+                            _buildConfirmButton(),
+
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-
-                const SizedBox(height: 8),
-
-                // Sous-titre avec numéro
-                Text(
-                  widget.isGift
-                      ? AppLocalizations.of(
-                        context,
-                      )!.refillRecipient(widget.phoneNumber)
-                      : AppLocalizations.of(
-                        context,
-                      )!.refillMyNumber(widget.phoneNumber),
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(16),
-                    color: Colors.grey[600],
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Champ code de recharge
-                _buildRefillCodeField(),
-
-                // Erreur code
-                if (_codeError != null) ...[
-                  const SizedBox(height: 8),
-                  _buildErrorMessage(_codeError!),
-                ],
-
-                const SizedBox(height: 24),
-
-                // Information importante
-                _buildInfoBox(),
-
-                const SizedBox(height: 32),
-
-                // Bouton de confirmation
-                _buildConfirmButton(),
-
-                const SizedBox(height: 24),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -488,6 +516,54 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: AppTheme.dtBlueDark,
+                    size: 20,
+                  ),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 // lib/screens/topup/topup_success_screen.dart
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:ui';
 
 import '../../../constants/app_theme.dart';
 import '../../../extensions/color_extensions.dart';
@@ -115,320 +116,322 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: AppTheme.dtBlue,
-          title: Text(
-            AppLocalizations.of(context)!.purchaseSuccessTitle,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: ResponsiveSize.getFontSize(18),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          automaticallyImplyLeading: false,
-          elevation: 0,
-        ),
-        body: AnimatedBuilder(
-          animation: _animationController,
-          builder: (context, child) {
-            return SingleChildScrollView(
-              padding: EdgeInsets.all(
-                ResponsiveSize.getWidth(AppTheme.spacingL),
+        backgroundColor: AppTheme.backgroundGrey,
+        body: Stack(
+          children: [
+            Positioned(
+              top: -100,
+              left: -100,
+              right: -100,
+              child: Container(
+                height: 350,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      AppTheme.dtBlueDark.withOpacityValue(0.08),
+                      Colors.transparent,
+                    ],
+                    radius: 0.8,
+                  ),
+                ),
               ),
+            ),
+            SafeArea(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: ResponsiveSize.getHeight(20)),
-
-                  // Icône de succès avec animation
-                  ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: Container(
-                      padding: EdgeInsets.all(
-                        ResponsiveSize.getWidth(AppTheme.spacingL),
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.dtBlue.withOpacityValue(0.1),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppTheme.dtBlue.withOpacityValue(0.3),
-                          width: 2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.dtBlue.withOpacityValue(0.2),
-                            blurRadius: 20,
-                            spreadRadius: 5,
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.check_circle,
-                        color: AppTheme.dtBlue,
-                        size: ResponsiveSize.getFontSize(60),
-                      ),
-                    ),
+                  _buildGlassAppBar(
+                    context,
+                    AppLocalizations.of(context)!.purchaseSuccessTitle,
                   ),
-
-                  // Container fixe pour les textes
-                  Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.symmetric(
-                      vertical: ResponsiveSize.getHeight(32),
-                      horizontal: ResponsiveSize.getWidth(16),
-                    ),
-                    child: Column(
-                      children: [
-                        // Titre
-                        Text(
-                          AppLocalizations.of(context)!.topupPurchaseSuccess,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: ResponsiveSize.getFontSize(24),
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.dtBlue,
-                          ),
-                        ),
-
-                        SizedBox(height: ResponsiveSize.getHeight(16)),
-
-                        // Message de confirmation
-                        Text(
-                          AppLocalizations.of(context)!.packageActivatedMessage(
-                            widget.package.displayName,
-                          ),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: ResponsiveSize.getFontSize(14),
-                            color: Colors.grey[700],
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Détails du package avec fade
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(
-                        ResponsiveSize.getWidth(AppTheme.spacingM),
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(
-                          ResponsiveSize.getWidth(AppTheme.radiusM),
-                        ),
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildDetailRow(
-                            AppLocalizations.of(context)!.packageLabel,
-                            widget.package.displayName,
-                          ),
-                          _buildDivider(),
-                          _buildDetailRow(
-                            AppLocalizations.of(context)!.transactionId,
-                            widget.transactionId,
-                          ),
-                          _buildDivider(),
-                          _buildDetailRow(
-                            AppLocalizations.of(context)!.fixedLineLabel,
-                            widget.fixedNumber,
-                          ),
-                          _buildDivider(),
-                          _buildDetailRow(
-                            AppLocalizations.of(context)!.mobileLineLabel,
-                            widget.mobileNumber,
-                          ),
-                          _buildDivider(),
-                          _buildDetailRow(
-                            AppLocalizations.of(context)!.price,
-                            widget.package.formattedPrice,
-                          ),
-                          _buildDivider(),
-                          _buildDetailRow(
-                            AppLocalizations.of(context)!.newMobileBalance,
-                            '${nouveauSolde.toStringAsFixed(0)} DJF',
-                          ),
-
-                          if (widget.package.isDataPackage) ...[
-                            _buildDivider(),
-                            _buildDetailRow(
-                              AppLocalizations.of(context)!.internetLabel,
-                              widget.package.formattedData,
-                            ),
-                          ],
-
-                          if (widget.package.isVoicePackage) ...[
-                            _buildDivider(),
-                            _buildDetailRow(
-                              AppLocalizations.of(context)!.minutesLabel,
-                              widget.package.formattedVoice,
-                            ),
-                          ],
-
-                          _buildDivider(),
-                          _buildDetailRow(
-                            AppLocalizations.of(context)!.validityLabel,
-                            widget.package.formattedValidity,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: ResponsiveSize.getHeight(20)),
-
-                  // Bouton pour retourner immédiatement à l'accueil avec fade
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _redirectToHome,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.dtBlue,
-                              foregroundColor: AppTheme.dtYellow,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: ResponsiveSize.getWidth(
-                                  AppTheme.spacingL,
-                                ),
-                                vertical: ResponsiveSize.getHeight(16),
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  ResponsiveSize.getWidth(AppTheme.radiusM),
-                                ),
-                              ),
-                              elevation: 2,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.home,
-                                  size: ResponsiveSize.getFontSize(18),
-                                ),
-                                SizedBox(width: ResponsiveSize.getWidth(8)),
-                                Text(
-                                  AppLocalizations.of(context)!.returnHome,
-                                  style: TextStyle(
-                                    fontSize: ResponsiveSize.getFontSize(16),
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: ResponsiveSize.getHeight(16)),
-
-                        // Compte à rebours
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: ResponsiveSize.getWidth(
-                              AppTheme.spacingM,
-                            ),
-                            vertical: ResponsiveSize.getHeight(8),
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.dtBlue.withOpacityValue(0.1),
-                            borderRadius: BorderRadius.circular(
-                              ResponsiveSize.getWidth(20),
-                            ),
-                            border: Border.all(
-                              color: AppTheme.dtBlue.withOpacityValue(0.3),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.timer,
-                                color: AppTheme.dtBlue,
-                                size: ResponsiveSize.getFontSize(16),
-                              ),
-                              SizedBox(width: ResponsiveSize.getWidth(6)),
-                              Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.autoRedirect(_remainingSeconds),
-                                style: TextStyle(
-                                  fontSize: ResponsiveSize.getFontSize(12),
-                                  color: AppTheme.dtBlue,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        SizedBox(height: ResponsiveSize.getHeight(24)),
-
-                        // Message de confirmation TopUp
-                        Container(
+                  Expanded(
+                    child: AnimatedBuilder(
+                      animation: _animationController,
+                      builder: (context, child) {
+                        return SingleChildScrollView(
                           padding: EdgeInsets.all(
-                            ResponsiveSize.getWidth(AppTheme.spacingM),
+                            ResponsiveSize.getWidth(AppTheme.spacingL),
                           ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.dtYellow.withOpacityValue(0.1),
-                            borderRadius: BorderRadius.circular(
-                              ResponsiveSize.getWidth(AppTheme.radiusM),
-                            ),
-                            border: Border.all(
-                              color: AppTheme.dtYellow.withOpacityValue(0.3),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.phone,
-                                color: AppTheme.dtBlue,
-                                size: ResponsiveSize.getFontSize(18),
-                              ),
-                              SizedBox(width: ResponsiveSize.getWidth(8)),
-                              Expanded(
-                                child: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.packageActivatedFixed(widget.fixedNumber),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: ResponsiveSize.getFontSize(12),
-                                    color: AppTheme.dtBlue,
-                                    fontWeight: FontWeight.w500,
-                                    height: 1.3,
+                              SizedBox(height: ResponsiveSize.getHeight(20)),
+
+                              // Icône de succès avec animation
+                              ScaleTransition(
+                                scale: _scaleAnimation,
+                                child: Container(
+                                  padding: EdgeInsets.all(
+                                    ResponsiveSize.getWidth(AppTheme.spacingL),
                                   ),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.dtBlue.withOpacityValue(0.1),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppTheme.dtBlue.withOpacityValue(0.3),
+                                      width: 2,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppTheme.dtBlue.withOpacityValue(0.2),
+                                        blurRadius: 20,
+                                        spreadRadius: 5,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.check_circle,
+                                    color: AppTheme.dtBlue,
+                                    size: ResponsiveSize.getFontSize(60),
+                                  ),
+                                ),
+                              ),
+                              // Container fixe pour les textes
+                              Container(
+                                width: double.infinity,
+                                margin: EdgeInsets.symmetric(
+                                  vertical: ResponsiveSize.getHeight(32),
+                                  horizontal: ResponsiveSize.getWidth(16),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(context)!.topupPurchaseSuccess,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: ResponsiveSize.getFontSize(24),
+                                        fontWeight: FontWeight.bold,
+                                        color: AppTheme.dtBlue,
+                                      ),
+                                    ),
+                                    SizedBox(height: ResponsiveSize.getHeight(16)),
+                                    Text(
+                                      AppLocalizations.of(context)!.packageActivatedMessage(
+                                        widget.package.displayName,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: ResponsiveSize.getFontSize(14),
+                                        color: Colors.grey[700],
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Détails du package avec fade
+                              FadeTransition(
+                                opacity: _fadeAnimation,
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(
+                                    ResponsiveSize.getWidth(AppTheme.spacingM),
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[50],
+                                    borderRadius: BorderRadius.circular(
+                                      ResponsiveSize.getWidth(AppTheme.radiusM),
+                                    ),
+                                    border: Border.all(color: Colors.grey[200]!),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      _buildDetailRow(
+                                        AppLocalizations.of(context)!.packageLabel,
+                                        widget.package.displayName,
+                                      ),
+                                      _buildDivider(),
+                                      _buildDetailRow(
+                                        AppLocalizations.of(context)!.transactionId,
+                                        widget.transactionId,
+                                      ),
+                                      _buildDivider(),
+                                      _buildDetailRow(
+                                        AppLocalizations.of(context)!.fixedLineLabel,
+                                        widget.fixedNumber,
+                                      ),
+                                      _buildDivider(),
+                                      _buildDetailRow(
+                                        AppLocalizations.of(context)!.mobileLineLabel,
+                                        widget.mobileNumber,
+                                      ),
+                                      _buildDivider(),
+                                      _buildDetailRow(
+                                        AppLocalizations.of(context)!.price,
+                                        widget.package.formattedPrice,
+                                      ),
+                                      _buildDivider(),
+                                      _buildDetailRow(
+                                        AppLocalizations.of(context)!.newMobileBalance,
+                                        '${nouveauSolde.toStringAsFixed(0)} DJF',
+                                      ),
+                                      if (widget.package.isDataPackage) ...[
+                                        _buildDivider(),
+                                        _buildDetailRow(
+                                          AppLocalizations.of(context)!.internetLabel,
+                                          widget.package.formattedData,
+                                        ),
+                                      ],
+                                      if (widget.package.isVoicePackage) ...[
+                                        _buildDivider(),
+                                        _buildDetailRow(
+                                          AppLocalizations.of(context)!.minutesLabel,
+                                          widget.package.formattedVoice,
+                                        ),
+                                      ],
+                                      _buildDivider(),
+                                      _buildDetailRow(
+                                        AppLocalizations.of(context)!.validityLabel,
+                                        widget.package.formattedValidity,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: ResponsiveSize.getHeight(20)),
+                              // Bouton retour accueil avec fade
+                              FadeTransition(
+                                opacity: _fadeAnimation,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: _redirectToHome,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppTheme.dtBlue,
+                                          foregroundColor: AppTheme.dtYellow,
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
+                                            vertical: ResponsiveSize.getHeight(16),
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              ResponsiveSize.getWidth(AppTheme.radiusM),
+                                            ),
+                                          ),
+                                          elevation: 2,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.home, size: ResponsiveSize.getFontSize(18)),
+                                            SizedBox(width: ResponsiveSize.getWidth(8)),
+                                            Text(
+                                              AppLocalizations.of(context)!.returnHome,
+                                              style: TextStyle(
+                                                fontSize: ResponsiveSize.getFontSize(16),
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: ResponsiveSize.getHeight(16)),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
+                                        vertical: ResponsiveSize.getHeight(8),
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.dtBlue.withOpacityValue(0.1),
+                                        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(20)),
+                                        border: Border.all(color: AppTheme.dtBlue.withOpacityValue(0.3)),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.timer, color: AppTheme.dtBlue, size: ResponsiveSize.getFontSize(16)),
+                                          SizedBox(width: ResponsiveSize.getWidth(6)),
+                                          Text(
+                                            AppLocalizations.of(context)!.autoRedirect(_remainingSeconds),
+                                            style: TextStyle(
+                                              fontSize: ResponsiveSize.getFontSize(12),
+                                              color: AppTheme.dtBlue,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: ResponsiveSize.getHeight(24)),
+                                    Container(
+                                      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.dtYellow.withOpacityValue(0.1),
+                                        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+                                        border: Border.all(color: AppTheme.dtYellow.withOpacityValue(0.3)),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.phone, color: AppTheme.dtBlue, size: ResponsiveSize.getFontSize(18)),
+                                          SizedBox(width: ResponsiveSize.getWidth(8)),
+                                          Expanded(
+                                            child: Text(
+                                              AppLocalizations.of(context)!.packageActivatedFixed(widget.fixedNumber),
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: ResponsiveSize.getFontSize(12),
+                                                color: AppTheme.dtBlue,
+                                                fontWeight: FontWeight.w500,
+                                                height: 1.3,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                        ),
-
-                        // Espace pour le safe area
-                        SizedBox(
-                          height: MediaQuery.of(context).padding.bottom + 16,
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
-            );
-          },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

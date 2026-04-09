@@ -1,8 +1,9 @@
+import 'dart:ui';
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
 import 'package:dtservices/screens/refill/refill_code_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
-import 'package:dtservices/widgets/appbar_widget.dart';
 import 'package:dtservices/widgets/phone_number_selector.dart';
 import 'package:flutter/material.dart';
 import '../../generated/l10n/app_localizations.dart';
@@ -93,21 +94,10 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
         ),
       );
 
-      // Temporaire - afficher un message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.refillFor(cleanPhoneNumber),
-          ),
-          backgroundColor: AppTheme.dtBlue2,
-        ),
-      );
     }
   }
 
   void _navigateToMyNumber() {
-    // Navigation vers l'écran de recharge pour mon numéro
-    // Pour "Mon numéro"
     Navigator.push(
       context,
       CustomRouteTransitions.slideRightRoute(
@@ -118,331 +108,349 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
         ),
       ),
     );
-
-    // Temporaire - afficher un message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          AppLocalizations.of(
-            context,
-          )!.refillForMyNumberMessage(widget.phoneNumber!),
-        ),
-        backgroundColor: AppTheme.dtBlue2,
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    ResponsiveSize.init(context);
-
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: AppLocalizations.of(context)!.refillTitle,
-        showAction: false,
-        showCancelToHome: true, // Affiche le bouton Annuler
-      ),
-      body: SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight:
-                MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top -
-                kToolbarHeight,
-          ),
-          child: Column(
-            children: [
-              // Contenu principal
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Titre principal
-                    Text(
-                      AppLocalizations.of(context)!.recipientSelectionTitle,
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(20),
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    SizedBox(height: ResponsiveSize.getHeight(24)),
-
-                    // Options de destinataire
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildOptionCard(
-                            context,
-                            AppLocalizations.of(context)!.myNumber,
-                            AppTheme.dtBlue2,
-                            Icons.arrow_upward,
-                            onTap: _navigateToMyNumber,
-                          ),
-                        ),
-                        SizedBox(width: ResponsiveSize.getWidth(16)),
-                        Expanded(
-                          child: _buildOptionCard(
-                            context,
-                            AppLocalizations.of(context)!.otherNumber,
-                            AppTheme.dtBlue2,
-                            Icons.arrow_outward,
-                            onTap: _showPhoneInputSection,
-                          ),
-                        ),
-                      ],
-                    ),
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
                   ],
+                  radius: 0.8,
                 ),
               ),
-
-              // Section de saisie du numéro en bas (animée)
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                height: _showPhoneInput ? null : 0,
-                child:
-                    _showPhoneInput
-                        ? AnimatedBuilder(
-                          animation: _animationController,
-                          builder: (context, child) {
-                            return SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(0, 1.0),
-                                end: Offset.zero,
-                              ).animate(_slideAnimation),
-                              child: FadeTransition(
-                                opacity: _fadeAnimation,
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, -2),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(
+                  context, 
+                  AppLocalizations.of(context)!.refillTitle
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight:
+                            MediaQuery.of(context).size.height -
+                            MediaQuery.of(context).padding.top -
+                            kToolbarHeight,
+                      ),
+                      child: Column(
+                        children: [
+                          // Contenu principal
+                          Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Titre principal
+                                Text(
+                                  AppLocalizations.of(context)!.recipientSelectionTitle,
+                                  style: TextStyle(
+                                    fontSize: ResponsiveSize.getFontSize(20),
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                SizedBox(height: ResponsiveSize.getHeight(24)),
+            
+                                // Options de destinataire
+                                IntrinsicHeight(
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      Expanded(
+                                        child: _buildOptionCard(
+                                          context,
+                                          AppLocalizations.of(context)!.myNumber,
+                                          AppTheme.dtBlue2,
+                                          Icons.arrow_upward,
+                                          onTap: _navigateToMyNumber,
+                                        ),
+                                      ),
+                                      SizedBox(width: ResponsiveSize.getWidth(16)),
+                                      Expanded(
+                                        child: _buildOptionCard(
+                                          context,
+                                          AppLocalizations.of(context)!.otherNumber,
+                                          AppTheme.dtBlue2,
+                                          Icons.arrow_outward,
+                                          onTap: _showPhoneInputSection,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(
-                                  ResponsiveSize.getWidth(20),
-                                ),
-                                topRight: Radius.circular(
-                                  ResponsiveSize.getWidth(20),
-                                ),
-                              ),
-                            ),
-                            child: Form(
-                              key: _formKey,
-                              child: Padding(
-                                padding: EdgeInsets.all(
-                                  ResponsiveSize.getWidth(24),
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Handle bar pour indiquer que c'est draggable
-                                    Center(
-                                      child: Container(
-                                        width: ResponsiveSize.getWidth(40),
-                                        height: ResponsiveSize.getHeight(4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[300],
-                                          borderRadius: BorderRadius.circular(
-                                            ResponsiveSize.getWidth(2),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: ResponsiveSize.getHeight(16),
-                                    ),
-
-                                    // Titre avec bouton fermer
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.enterNumberTitle,
-                                          style: TextStyle(
-                                            fontSize:
-                                                ResponsiveSize.getFontSize(18),
-                                            fontWeight: FontWeight.bold,
-                                            color: AppTheme.dtBlue,
-                                          ),
-                                        ),
-                                        IconButton(
-                                          onPressed: _hidePhoneInputSection,
-                                          icon: Icon(
-                                            Icons.close,
-                                            color: Colors.grey[600],
-                                            size: ResponsiveSize.getFontSize(
-                                              24,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: ResponsiveSize.getHeight(8),
-                                    ),
-
-                                    // Widget sélecteur de numéro
-                                    PhoneNumberSelector(
-                                      controller: _phoneController,
-                                      labelText:
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.enterNumberLabel,
-                                      hintText: '77 XX XX XX',
-                                      validator:
-                                          DjiboutiPhoneValidator
-                                              .validatePhoneNumber,
-                                      onChanged: (value) {
-                                        setState(() {});
-                                      },
-                                    ),
-
-                                    SizedBox(
-                                      height: ResponsiveSize.getHeight(12),
-                                    ),
-
-                                    // Note d'information
-                                    Container(
-                                      padding: EdgeInsets.all(
-                                        ResponsiveSize.getWidth(12),
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.dtBlue.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(
-                                          ResponsiveSize.getWidth(8),
-                                        ),
-                                        border: Border.all(
-                                          color: AppTheme.dtBlue.withOpacity(
-                                            0.3,
-                                          ),
-                                        ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.info_outline,
-                                            color: AppTheme.dtBlue,
-                                            size: ResponsiveSize.getFontSize(
-                                              16,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: ResponsiveSize.getWidth(8),
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.djiboutiNumberRequired,
-                                              style: TextStyle(
-                                                fontSize:
-                                                    ResponsiveSize.getFontSize(
-                                                      12,
-                                                    ),
-                                                color: AppTheme.dtBlue,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                    SizedBox(
-                                      height: ResponsiveSize.getHeight(24),
-                                    ),
-
-                                    // Bouton de continuation
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton(
-                                        onPressed:
-                                            _phoneController.text.isNotEmpty
-                                                ? _validateAndContinue
-                                                : null,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppTheme.dtBlue2,
-                                          foregroundColor: Colors.white,
-                                          disabledBackgroundColor:
-                                              Colors.grey[300],
-                                          disabledForegroundColor:
-                                              Colors.grey[600],
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: ResponsiveSize.getHeight(
-                                              16,
-                                            ),
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              ResponsiveSize.getWidth(12),
-                                            ),
-                                          ),
-                                          elevation: 0,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.continueAction,
-                                              style: TextStyle(
-                                                fontSize:
-                                                    ResponsiveSize.getFontSize(
-                                                      16,
-                                                    ),
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: ResponsiveSize.getWidth(8),
-                                            ),
-                                            Icon(
-                                              Icons.arrow_forward,
-                                              size: ResponsiveSize.getFontSize(
-                                                18,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-
-                                    // Espace pour le safe area
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(
-                                            context,
-                                          ).padding.bottom +
-                                          8,
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ),
                           ),
-                        )
-                        : const SizedBox.shrink(),
-              ),
-            ],
+            
+                          // Section de saisie du numéro en bas (animée)
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            height: _showPhoneInput ? null : 0,
+                            child:
+                                _showPhoneInput
+                                    ? AnimatedBuilder(
+                                      animation: _animationController,
+                                      builder: (context, child) {
+                                        return SlideTransition(
+                                          position: Tween<Offset>(
+                                            begin: const Offset(0, 1.0),
+                                            end: Offset.zero,
+                                          ).animate(_slideAnimation),
+                                          child: FadeTransition(
+                                            opacity: _fadeAnimation,
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.1),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, -2),
+                                            ),
+                                          ],
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(
+                                              ResponsiveSize.getWidth(20),
+                                            ),
+                                            topRight: Radius.circular(
+                                              ResponsiveSize.getWidth(20),
+                                            ),
+                                          ),
+                                        ),
+                                        child: Form(
+                                          key: _formKey,
+                                          child: Padding(
+                                            padding: EdgeInsets.all(
+                                              ResponsiveSize.getWidth(24),
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                // Handle bar pour indiquer que c'est draggable
+                                                Center(
+                                                  child: Container(
+                                                    width: ResponsiveSize.getWidth(40),
+                                                    height: ResponsiveSize.getHeight(4),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[300],
+                                                      borderRadius: BorderRadius.circular(
+                                                        ResponsiveSize.getWidth(2),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: ResponsiveSize.getHeight(16),
+                                                ),
+            
+                                                // Titre avec bouton fermer
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.enterNumberTitle,
+                                                      style: TextStyle(
+                                                        fontSize:
+                                                            ResponsiveSize.getFontSize(18),
+                                                        fontWeight: FontWeight.bold,
+                                                        color: AppTheme.dtBlue,
+                                                      ),
+                                                    ),
+                                                    IconButton(
+                                                      onPressed: _hidePhoneInputSection,
+                                                      icon: Icon(
+                                                        Icons.close,
+                                                        color: Colors.grey[600],
+                                                        size: ResponsiveSize.getFontSize(
+                                                          24,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: ResponsiveSize.getHeight(8),
+                                                ),
+            
+                                                // Widget sélecteur de numéro
+                                                PhoneNumberSelector(
+                                                  controller: _phoneController,
+                                                  labelText:
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.enterNumberLabel,
+                                                  hintText: '77 XX XX XX',
+                                                  validator:
+                                                      DjiboutiPhoneValidator
+                                                          .validatePhoneNumber,
+                                                  onChanged: (value) {
+                                                    setState(() {});
+                                                  },
+                                                ),
+            
+                                                SizedBox(
+                                                  height: ResponsiveSize.getHeight(12),
+                                                ),
+            
+                                                // Note d'information
+                                                Container(
+                                                  padding: EdgeInsets.all(
+                                                    ResponsiveSize.getWidth(12),
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: AppTheme.dtBlue.withOpacity(0.1),
+                                                    borderRadius: BorderRadius.circular(
+                                                      ResponsiveSize.getWidth(8),
+                                                    ),
+                                                    border: Border.all(
+                                                      color: AppTheme.dtBlue.withOpacity(
+                                                        0.3,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.info_outline,
+                                                        color: AppTheme.dtBlue,
+                                                        size: ResponsiveSize.getFontSize(
+                                                          16,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: ResponsiveSize.getWidth(8),
+                                                      ),
+                                                      Expanded(
+                                                        child: Text(
+                                                          AppLocalizations.of(
+                                                            context,
+                                                          )!.djiboutiNumberRequired,
+                                                          style: TextStyle(
+                                                            fontSize:
+                                                                ResponsiveSize.getFontSize(
+                                                                  12,
+                                                                ),
+                                                            color: AppTheme.dtBlue,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+            
+                                                SizedBox(
+                                                  height: ResponsiveSize.getHeight(24),
+                                                ),
+            
+                                                // Bouton de continuation
+                                                SizedBox(
+                                                  width: double.infinity,
+                                                  child: ElevatedButton(
+                                                    onPressed:
+                                                        _phoneController.text.isNotEmpty
+                                                            ? _validateAndContinue
+                                                            : null,
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: AppTheme.dtBlue2,
+                                                      foregroundColor: Colors.white,
+                                                      disabledBackgroundColor:
+                                                          Colors.grey[300],
+                                                      disabledForegroundColor:
+                                                          Colors.grey[600],
+                                                      padding: EdgeInsets.symmetric(
+                                                        vertical: ResponsiveSize.getHeight(
+                                                          16,
+                                                        ),
+                                                      ),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(
+                                                          ResponsiveSize.getWidth(12),
+                                                        ),
+                                                      ),
+                                                      elevation: 0,
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.center,
+                                                      children: [
+                                                        Text(
+                                                          AppLocalizations.of(
+                                                            context,
+                                                          )!.continueAction,
+                                                          style: TextStyle(
+                                                            fontSize:
+                                                                ResponsiveSize.getFontSize(
+                                                                  16,
+                                                                ),
+                                                            fontWeight: FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width: ResponsiveSize.getWidth(8),
+                                                        ),
+                                                        Icon(
+                                                          Icons.arrow_forward,
+                                                          size: ResponsiveSize.getFontSize(
+                                                            18,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+            
+                                                // Espace pour le safe area
+                                                SizedBox(
+                                                  height:
+                                                      MediaQuery.of(
+                                                        context,
+                                                      ).padding.bottom +
+                                                      8,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -506,6 +514,7 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
             SizedBox(height: ResponsiveSize.getHeight(16)),
             Text(
               AppLocalizations.of(context)!.buyFor,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
                 color: Colors.grey[600],
@@ -514,12 +523,57 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
             SizedBox(height: ResponsiveSize.getHeight(4)),
             Text(
               title,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(16),
                 fontWeight: FontWeight.bold,
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

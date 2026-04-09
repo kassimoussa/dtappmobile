@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
-import '../../../widgets/appbar_widget.dart';
+import 'dart:ui';
 import '../../../models/topup_balance.dart';
 import '../../../services/user_session.dart';
 import '../../../services/topup_api_service.dart';
@@ -252,52 +252,113 @@ class _TopUpPackageConfirmationScreenState
     ResponsiveSize.init(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: AppLocalizations.of(context)!.confirmPurchaseTitle,
-        showAction: false,
-        showCancelToHome: true,
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(
+                  context,
+                  AppLocalizations.of(context)!.confirmPurchaseTitle,
+                ),
+                Expanded(
+                  child: AnimatedBuilder(
+                    animation: _animationController,
+                    builder: (context, child) {
+                      return FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: ScaleTransition(scale: _scaleAnimation, child: child),
+                      );
+                    },
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildPurchaseTypeBadge(),
+                          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                          _buildHeader(),
+                          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                          _buildPackageDetails(),
+                          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                          _buildSoldeInfo(),
+                          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                          _buildLineInfo(),
+                          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                          _buildActionButtons(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      body: AnimatedBuilder(
-        animation: _animationController,
-        builder: (context, child) {
-          return FadeTransition(
-            opacity: _fadeAnimation,
-            child: ScaleTransition(scale: _scaleAnimation, child: child),
-          );
-        },
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
             children: [
-              // Type d'achat avec badge
-              _buildPurchaseTypeBadge(),
-
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-
-              // Entête avec icône animée
-              _buildHeader(),
-
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-
-              // Détails du package
-              _buildPackageDetails(),
-
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-
-              // Information sur le solde
-              _buildSoldeInfo(),
-
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-
-              // Information sur la ligne
-              _buildLineInfo(),
-
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-
-              // Boutons d'action
-              _buildActionButtons(),
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: AppTheme.dtBlueDark,
+                    size: 20,
+                  ),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

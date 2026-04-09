@@ -1,12 +1,11 @@
 // lib/screens/statistics/statistics_screen.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../models/activity.dart';
 import '../../services/activity_service.dart';
 import '../../extensions/color_extensions.dart';
-import '../../widgets/appbar_widget.dart';
-
 import '../../generated/l10n/app_localizations.dart';
 
 class StatisticsScreen extends StatefulWidget {
@@ -73,22 +72,22 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     switch (actionType) {
       case 'offer_purchase':
       case 'offer_gift':
-        return Icons.local_mall;
+        return Icons.local_mall_rounded;
       case 'credit_add':
       case 'voucher_refill':
-        return Icons.add_circle;
+        return Icons.add_circle_rounded;
       case 'credit_deduct':
-        return Icons.remove_circle;
+        return Icons.remove_circle_rounded;
       case 'credit_transfer':
-        return Icons.send;
+        return Icons.send_rounded;
       case 'topup_subscribe_package':
-        return Icons.phone;
+        return Icons.phone_android_rounded;
       case 'topup_recharge_account':
-        return Icons.battery_charging_full;
+        return Icons.battery_charging_full_rounded;
       case 'profile_update':
-        return Icons.person;
+        return Icons.person_rounded;
       default:
-        return Icons.description;
+        return Icons.description_rounded;
     }
   }
 
@@ -101,22 +100,97 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: AppLocalizations.of(context)!.statsTitle,
-        showAction: false,
-        showCancelToHome: true,
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          // Background Radial Gradient for Premium Feel
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(l10n),
+                Expanded(
+                  child: _isLoading
+                      ? _buildLoadingState()
+                      : _errorMessage != null
+                      ? _buildErrorState()
+                      : _statsResponse == null || _statsResponse!.data.isEmpty
+                      ? _buildEmptyState()
+                      : _buildStatsContent(),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      body:
-          _isLoading
-              ? _buildLoadingState()
-              : _errorMessage != null
-              ? _buildErrorState()
-              : _statsResponse == null || _statsResponse!.data.isEmpty
-              ? _buildEmptyState()
-              : _buildStatsContent(),
+    );
+  }
+
+  Widget _buildGlassAppBar(AppLocalizations l10n) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: BoxDecoration(
+            color: Colors.transparent, // Handled implicitly via Stack
+          ),
+          child: Row(
+            children: [
+              // Bouton retour
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: AppTheme.dtBlueDark,
+                    size: 20,
+                  ),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Text(
+                l10n.statsTitle,
+                style: AppTheme.headingStyle.copyWith(
+                  fontSize: ResponsiveSize.getFontSize(24),
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -125,13 +199,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppTheme.dtBlue),
+          CircularProgressIndicator(color: AppTheme.dtBlueDark, strokeWidth: 3),
           SizedBox(height: ResponsiveSize.getHeight(16)),
           Text(
             AppLocalizations.of(context)!.historyLoading,
             style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(16),
+              fontSize: ResponsiveSize.getFontSize(14),
               color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -146,18 +221,25 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: ResponsiveSize.getFontSize(64),
-              color: Colors.red[300],
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline_rounded,
+                size: ResponsiveSize.getFontSize(48),
+                color: Colors.red[400],
+              ),
             ),
-            SizedBox(height: ResponsiveSize.getHeight(16)),
+            SizedBox(height: ResponsiveSize.getHeight(24)),
             Text(
               AppLocalizations.of(context)!.loadingErrorTitle,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[700],
+                color: Colors.black87,
               ),
             ),
             SizedBox(height: ResponsiveSize.getHeight(8)),
@@ -166,15 +248,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(14),
-                color: Colors.grey[600],
+                color: Colors.grey[500],
               ),
             ),
-            SizedBox(height: ResponsiveSize.getHeight(24)),
+            SizedBox(height: ResponsiveSize.getHeight(32)),
             ElevatedButton(
               onPressed: _loadStats,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.dtBlue,
-                foregroundColor: Colors.white,
+              style: AppTheme.primaryButtonStyle.copyWith(
+                padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 32, vertical: 12)),
               ),
               child: Text(AppLocalizations.of(context)!.retry),
             ),
@@ -191,18 +272,28 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.bar_chart,
-              size: ResponsiveSize.getFontSize(64),
-              color: Colors.grey[400],
+            Container(
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 20, spreadRadius: 5)
+                ]
+              ),
+              child: Icon(
+                Icons.bar_chart_rounded,
+                size: ResponsiveSize.getFontSize(48),
+                color: Colors.grey[300],
+              ),
             ),
-            SizedBox(height: ResponsiveSize.getHeight(16)),
+            SizedBox(height: ResponsiveSize.getHeight(24)),
             Text(
               AppLocalizations.of(context)!.emptyHistoryTitle,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
+                color: Colors.grey[800],
               ),
             ),
             SizedBox(height: ResponsiveSize.getHeight(8)),
@@ -222,6 +313,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Widget _buildStatsContent() {
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,6 +323,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           _buildOverviewCards(),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
           _buildStatsDetails(),
+          SizedBox(height: ResponsiveSize.getHeight(32)),
         ],
       ),
     );
@@ -238,55 +331,58 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Widget _buildFiltersSection() {
     return Container(
-      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(12)),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
+      width: double.infinity,
+      color: Colors.transparent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            AppLocalizations.of(context)!.analysisPeriod,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(16),
-              fontWeight: FontWeight.bold,
-              color: AppTheme.dtBlue,
+          Padding(
+            padding: EdgeInsets.only(left: ResponsiveSize.getWidth(4), bottom: ResponsiveSize.getHeight(12)),
+            child: Text(
+              AppLocalizations.of(context)!.analysisPeriod,
+              style: TextStyle(
+                fontSize: ResponsiveSize.getFontSize(16),
+                fontWeight: FontWeight.bold,
+                color: AppTheme.dtBlueDark,
+              ),
             ),
           ),
-          SizedBox(height: ResponsiveSize.getHeight(12)),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
             child: Row(
-              children:
-                  _daysOptions.map((days) {
-                    final isSelected = days == _selectedDays;
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        right: ResponsiveSize.getWidth(8),
-                      ),
-                      child: FilterChip(
-                        label: Text(
-                          AppLocalizations.of(context)!.daysUnit(days),
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : AppTheme.dtBlue,
-                            fontSize: ResponsiveSize.getFontSize(12),
-                            fontWeight: FontWeight.w500,
-                          ),
+              children: _daysOptions.map((days) {
+                final isSelected = days == _selectedDays;
+                return Padding(
+                  padding: EdgeInsets.only(right: ResponsiveSize.getWidth(10)),
+                  child: InkWell(
+                    onTap: () => _onDaysFilterChanged(days),
+                    borderRadius: BorderRadius.circular(20),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppTheme.dtBlueDark : Colors.white.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isSelected ? AppTheme.dtBlueDark : Colors.grey[300]!,
                         ),
-                        selected: isSelected,
-                        onSelected: (_) => _onDaysFilterChanged(days),
-                        backgroundColor: Colors.white,
-                        selectedColor: AppTheme.dtBlue,
-                        checkmarkColor: Colors.white,
-                        side: BorderSide(
-                          color:
-                              isSelected ? AppTheme.dtBlue : Colors.grey[300]!,
+                        boxShadow: isSelected ? [
+                          BoxShadow(color: AppTheme.dtBlueDark.withOpacityValue(0.3), blurRadius: 8, offset: Offset(0, 4))
+                        ] : [],
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.daysUnit(days),
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.grey[700],
+                          fontSize: ResponsiveSize.getFontSize(13),
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                         ),
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ),
         ],
@@ -300,22 +396,25 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppLocalizations.of(context)!.statsOverview,
-          style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(18),
-            fontWeight: FontWeight.bold,
-            color: AppTheme.dtBlue,
+        Padding(
+          padding: EdgeInsets.only(left: ResponsiveSize.getWidth(4), bottom: ResponsiveSize.getHeight(12)),
+          child: Text(
+            AppLocalizations.of(context)!.statsOverview,
+            style: TextStyle(
+              fontSize: ResponsiveSize.getFontSize(18),
+              fontWeight: FontWeight.bold,
+              color: AppTheme.dtBlueDark,
+              letterSpacing: -0.5,
+            ),
           ),
         ),
-        SizedBox(height: ResponsiveSize.getHeight(12)),
         Row(
           children: [
             Expanded(
               child: _buildOverviewCard(
                 title: AppLocalizations.of(context)!.totalSpent,
                 value: '${stats.totalAmount.toStringAsFixed(0)} DJF',
-                icon: Icons.account_balance_wallet,
+                icon: Icons.account_balance_wallet_rounded,
                 color: Colors.green,
               ),
             ),
@@ -325,7 +424,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 title: AppLocalizations.of(context)!.totalActions,
                 value: '${stats.totalActions}',
                 icon: Icons.trending_up,
-                color: AppTheme.dtBlue,
+                color: AppTheme.dtBlueDark,
               ),
             ),
           ],
@@ -334,7 +433,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         _buildOverviewCard(
           title: AppLocalizations.of(context)!.globalSuccessRate,
           value: '${stats.overallSuccessRate.toStringAsFixed(1)}%',
-          icon: Icons.check_circle,
+          icon: Icons.check_circle_rounded,
           color: _getSuccessRateColor(stats.overallSuccessRate),
           fullWidth: true,
         ),
@@ -353,36 +452,51 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       width: fullWidth ? double.infinity : null,
       padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(12)),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(16)),
+        border: Border.all(color: Colors.grey[100]!),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.04), // Lighter colored shadow
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          )
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: color, size: ResponsiveSize.getFontSize(20)),
+              Container(
+                padding: EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: ResponsiveSize.getFontSize(16)),
+              ),
               SizedBox(width: ResponsiveSize.getWidth(8)),
               Expanded(
                 child: Text(
                   title,
                   style: TextStyle(
                     fontSize: ResponsiveSize.getFontSize(12),
-                    color: Colors.grey[700],
-                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: ResponsiveSize.getHeight(8)),
+          SizedBox(height: ResponsiveSize.getHeight(12)),
           Text(
             value,
             style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(18),
-              fontWeight: FontWeight.bold,
+              fontSize: ResponsiveSize.getFontSize(20),
+              fontWeight: FontWeight.w800,
               color: color,
+              letterSpacing: -0.5,
             ),
           ),
         ],
@@ -396,26 +510,37 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppLocalizations.of(context)!.actionDetails,
-          style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(18),
-            fontWeight: FontWeight.bold,
-            color: AppTheme.dtBlue,
+        Padding(
+          padding: EdgeInsets.only(left: ResponsiveSize.getWidth(4), bottom: ResponsiveSize.getHeight(12)),
+          child: Text(
+            AppLocalizations.of(context)!.actionDetails,
+            style: TextStyle(
+              fontSize: ResponsiveSize.getFontSize(18),
+              fontWeight: FontWeight.bold,
+              color: AppTheme.dtBlueDark,
+              letterSpacing: -0.5,
+            ),
           ),
         ),
-        SizedBox(height: ResponsiveSize.getHeight(12)),
         ...stats.map((stat) => _buildStatCard(stat)),
       ],
     );
   }
 
   Widget _buildStatCard(ActivityStats stat) {
-    return Card(
+    return Container(
       margin: EdgeInsets.only(bottom: ResponsiveSize.getHeight(12)),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(12)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(16)),
+        border: Border.all(color: Colors.grey[100]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.015),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
       ),
       child: Padding(
         padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
@@ -427,14 +552,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Container(
                   padding: EdgeInsets.all(ResponsiveSize.getWidth(8)),
                   decoration: BoxDecoration(
-                    color: AppTheme.dtBlue.withOpacityValue(0.1),
-                    borderRadius: BorderRadius.circular(
-                      ResponsiveSize.getWidth(8),
-                    ),
+                    color: AppTheme.dtBlueDark.withOpacityValue(0.1),
+                    shape: BoxShape.circle,
                   ),
                   child: Icon(
                     _getActionIcon(stat.actionType),
-                    color: AppTheme.dtBlue,
+                    color: AppTheme.dtBlueDark,
                     size: ResponsiveSize.getFontSize(20),
                   ),
                 ),
@@ -446,6 +569,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       fontSize: ResponsiveSize.getFontSize(16),
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
+                      letterSpacing: -0.3,
                     ),
                   ),
                 ),
@@ -455,12 +579,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     vertical: ResponsiveSize.getHeight(4),
                   ),
                   decoration: BoxDecoration(
-                    color: _getSuccessRateColor(
-                      stat.successRate,
-                    ).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(
-                      ResponsiveSize.getWidth(12),
-                    ),
+                    color: _getSuccessRateColor(stat.successRate).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     stat.formattedSuccessRate,
@@ -473,28 +593,28 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ),
               ],
             ),
-            SizedBox(height: ResponsiveSize.getHeight(12)),
+            SizedBox(height: ResponsiveSize.getHeight(16)),
             Row(
               children: [
                 Expanded(
                   child: _buildStatItem(
                     label: AppLocalizations.of(context)!.total,
                     value: '${stat.totalCount}',
-                    color: Colors.grey[600]!,
+                    color: Colors.grey[700]!,
                   ),
                 ),
                 Expanded(
                   child: _buildStatItem(
                     label: AppLocalizations.of(context)!.successful,
                     value: '${stat.successCount}',
-                    color: Colors.green,
+                    color: Colors.green[700]!,
                   ),
                 ),
                 Expanded(
                   child: _buildStatItem(
                     label: AppLocalizations.of(context)!.amount,
                     value: stat.formattedTotalAmount,
-                    color: AppTheme.dtBlue,
+                    color: AppTheme.dtBlueDark,
                   ),
                 ),
               ],
@@ -514,11 +634,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          label.toUpperCase(),
           style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(11),
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
+            fontSize: ResponsiveSize.getFontSize(10),
+            color: Colors.grey[500],
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
           ),
         ),
         SizedBox(height: ResponsiveSize.getHeight(4)),
@@ -526,7 +647,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           value,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(14),
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
             color: color,
           ),
         ),
