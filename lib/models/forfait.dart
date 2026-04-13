@@ -23,4 +23,19 @@ class Forfait {
     required this.type,
     required this.code,
   });
+
+  factory Forfait.fromJson(Map<String, dynamic> json) {
+    return Forfait(
+      id: json['id'] as int,
+      nom: json['name'] as String,
+      data: json['data_label'] as String?,
+      minutes: (json['voice_minutes'] as int?)?.toString(),
+      sms: (json['sms_count'] as int?)?.toString(),
+      prix: json['price'] as int,
+      validite: json['validity_label'] as String,
+      isPopulaire: json['is_popular'] as bool? ?? false,
+      type: json['category'] as String,
+      code: json['ussd_code'] as String,
+    );
+  }
 }

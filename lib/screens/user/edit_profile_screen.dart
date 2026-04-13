@@ -1,8 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../constants/app_theme.dart';
+import '../../extensions/color_extensions.dart';
 import '../../utils/responsive_size.dart';
 import '../../services/profile_service.dart';
-import '../../widgets/appbar_widget.dart';
 import '../../generated/l10n/app_localizations.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -113,19 +114,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: l10n.personalInfo, // Or "Edit Profile" if a key exists
-        showAction: false,
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(context, l10n.personalInfo),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
                   labelText: l10n.nameLabel,
@@ -175,8 +197,58 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 keyboardType: TextInputType.emailAddress,
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-              if (_errorMessage != null) _buildErrorMessage(),
-              _buildSaveButton(),
+                          if (_errorMessage != null) _buildErrorMessage(),
+                          _buildSaveButton(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

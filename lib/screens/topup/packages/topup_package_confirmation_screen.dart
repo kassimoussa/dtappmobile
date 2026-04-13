@@ -359,6 +359,30 @@ class _TopUpPackageConfirmationScreenState
                   ),
                 ),
               ),
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              InkWell(
+                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveSize.getWidth(12),
+                    vertical: ResponsiveSize.getHeight(8),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.cancel,
+                    style: TextStyle(
+                      color: AppTheme.dtBlueDark,
+                      fontSize: ResponsiveSize.getFontSize(13),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

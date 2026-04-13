@@ -1,8 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import '../../constants/app_theme.dart';
+import '../../extensions/color_extensions.dart';
 import '../../utils/responsive_size.dart';
-import '../../widgets/appbar_widget.dart';
 import '../../services/user_session.dart';
 import '../../generated/l10n/app_localizations.dart';
 
@@ -74,46 +75,116 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: l10n.connectionSettings,
-        showAction: false,
-      ),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Padding(
-                padding: EdgeInsets.all(
-                  ResponsiveSize.getWidth(AppTheme.spacingL),
-                ),
-                child: Column(
-                  children: [
-                    if (_isBiometricSupported) ...[
-                      _buildSwitchOption(
-                        title: l10n.biometricLogin,
-                        value: _isBiometricEnabled,
-                        onChanged: _toggleBiometric,
-                      ),
-                      SizedBox(
-                        height: ResponsiveSize.getHeight(AppTheme.spacingM),
-                      ),
-                    ],
-                    _buildSwitchOption(
-                      title: l10n.pinLogin,
-                      value: _isPinEnabled,
-                      onChanged: _togglePin,
-                    ),
-                    SizedBox(
-                      height: ResponsiveSize.getHeight(AppTheme.spacingM),
-                    ),
-                    _buildSwitchOption(
-                      title: l10n.otpLogin,
-                      value: _isOtpEnabled,
-                      onChanged: _toggleOtp,
-                    ),
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
                   ],
+                  radius: 0.8,
                 ),
               ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(context, l10n.connectionSettings),
+                Expanded(
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : Padding(
+                          padding: EdgeInsets.all(
+                            ResponsiveSize.getWidth(AppTheme.spacingL),
+                          ),
+                          child: Column(
+                            children: [
+                              if (_isBiometricSupported) ...[
+                                _buildSwitchOption(
+                                  title: l10n.biometricLogin,
+                                  value: _isBiometricEnabled,
+                                  onChanged: _toggleBiometric,
+                                ),
+                                SizedBox(
+                                  height: ResponsiveSize.getHeight(AppTheme.spacingM),
+                                ),
+                              ],
+                              _buildSwitchOption(
+                                title: l10n.pinLogin,
+                                value: _isPinEnabled,
+                                onChanged: _togglePin,
+                              ),
+                              SizedBox(
+                                height: ResponsiveSize.getHeight(AppTheme.spacingM),
+                              ),
+                              _buildSwitchOption(
+                                title: l10n.otpLogin,
+                                value: _isOtpEnabled,
+                                onChanged: _toggleOtp,
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

@@ -1,8 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../constants/app_theme.dart';
+import '../../../extensions/color_extensions.dart';
 import '../../../utils/responsive_size.dart';
-import '../../../widgets/appbar_widget.dart';
 import '../../../providers/auth_provider.dart';
 import '../otp_screen.dart';
 import '../../../routes/custom_route_transitions.dart';
@@ -24,42 +25,113 @@ class _PinManagementScreenState extends State<PinManagementScreen> {
     ResponsiveSize.init(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: AppLocalizations.of(context)!.pinManagementTitle,
-        showAction: false,
-      ),
+      backgroundColor: AppTheme.backgroundGrey,
       body: Stack(
         children: [
-          Padding(
-            padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
             child: Column(
               children: [
-                _buildMenuOption(
-                  context,
-                  title: AppLocalizations.of(context)!.changePinTitle,
-                  onTap: () {
-                    if (_isSendingOtp) return;
-                    Navigator.of(context).push(
-                      CustomRouteTransitions.slideRightRoute(
-                        page: const ChangePinScreen(),
+                _buildGlassAppBar(context, AppLocalizations.of(context)!.pinManagementTitle),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                        child: Column(
+                          children: [
+                            _buildMenuOption(
+                              context,
+                              title: AppLocalizations.of(context)!.changePinTitle,
+                              onTap: () {
+                                if (_isSendingOtp) return;
+                                Navigator.of(context).push(
+                                  CustomRouteTransitions.slideRightRoute(
+                                    page: const ChangePinScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                            Divider(height: 1, color: Colors.grey[200]),
+                            _buildMenuOption(
+                              context,
+                              title: AppLocalizations.of(context)!.forgotPinOption,
+                              onTap: _handleForgotPin,
+                              showLoading: _isSendingOtp,
+                            ),
+                          ],
+                        ),
                       ),
-                    );
-                  },
-                ),
-                Divider(height: 1, color: Colors.grey[200]),
-                _buildMenuOption(
-                  context,
-                  title: AppLocalizations.of(context)!.forgotPinOption,
-                  onTap: _handleForgotPin,
-                  showLoading: _isSendingOtp,
+                      if (_isSendingOtp)
+                        const ModalBarrier(dismissible: false, color: Colors.black12),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-          if (_isSendingOtp)
-            const ModalBarrier(dismissible: false, color: Colors.black12),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

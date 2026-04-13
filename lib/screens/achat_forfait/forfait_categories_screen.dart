@@ -50,38 +50,49 @@ class ForfaitCategoriesScreen extends StatelessWidget {
               children: [
                 _buildGlassAppBar(context, l10n.buyPackageTitle),
                 Expanded(
-                  child: ListView(
-                    physics: const BouncingScrollPhysics(),
+                  child: Padding(
                     padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-                    children: [
-                      _buildCategoryCard(
-                        context,
-                        title: l10n.internetClassique,
-                        description: l10n.internetClassiqueDesc,
-                        icon: Icons.wifi_rounded,
-                        iconColor: AppTheme.dtBlueDark,
-                        type: 'internet',
-                      ),
-                      SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                      _buildCategoryCard(
-                        context,
-                        title: l10n.comboPackages,
-                        description: l10n.comboPackagesDesc,
-                        icon: Icons.phone_android_rounded,
-                        iconColor: AppTheme.dtBlueDark,
-                        type: 'combo',
-                      ),
-                      SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                      _buildCategoryCard(
-                        context,
-                        title: l10n.tempoPackages,
-                        description: l10n.tempoPackagesDesc,
-                        icon: Icons.timer_rounded,
-                        iconColor: AppTheme.dtBlueDark,
-                        type: 'tempo',
-                        isNew: false,
-                      ),
-                    ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: ResponsiveSize.getHeight(8)),
+                        Text(
+                          l10n.choosePackageHeader,
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(14),
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                        _buildCategoryCard(
+                          context,
+                          title: l10n.internetClassique,
+                          description: l10n.internetClassiqueDesc,
+                          icon: Icons.wifi_rounded,
+                          accentColor: AppTheme.dtBlueDark,
+                          type: 'internet',
+                        ),
+                        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                        _buildCategoryCard(
+                          context,
+                          title: l10n.comboPackages,
+                          description: l10n.comboPackagesDesc,
+                          icon: Icons.phone_android_rounded,
+                          accentColor: AppTheme.dtBlue2,
+                          type: 'combo',
+                        ),
+                        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                        _buildCategoryCard(
+                          context,
+                          title: l10n.tempoPackages,
+                          description: l10n.tempoPackagesDesc,
+                          icon: Icons.timer_rounded,
+                          accentColor: AppTheme.dtYellow,
+                          type: 'tempo',
+                          badge: 'Weekend',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -110,7 +121,7 @@ class ForfaitCategoriesScreen extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white),
                   ),
@@ -129,8 +140,46 @@ class ForfaitCategoriesScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              InkWell(
+                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveSize.getWidth(12),
+                    vertical: ResponsiveSize.getHeight(8),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.cancel,
+                    style: TextStyle(
+                      color: AppTheme.dtBlueDark,
+                      fontSize: ResponsiveSize.getFontSize(13),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _navigate(BuildContext context, String type, String title) {
+    Navigator.push(
+      context,
+      CustomRouteTransitions.slideRightRoute(
+        page: ForfaitsScreen(
+          phoneNumber: phoneNumber,
+          initialType: type,
+          forfaitTitle: title,
+          purchaseMode: purchaseMode,
         ),
       ),
     );
@@ -141,45 +190,42 @@ class ForfaitCategoriesScreen extends StatelessWidget {
     required String title,
     required String description,
     required IconData icon,
-    required Color iconColor,
+    required Color accentColor,
     required String type,
-    bool isNew = false,
+    String? badge,
   }) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          CustomRouteTransitions.slideRightRoute(
-            page: ForfaitsScreen(
-              phoneNumber: phoneNumber,
-              initialType: type,
-              forfaitTitle: title,
-              purchaseMode: purchaseMode,
-            ),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(20),
+    final bool isYellow = accentColor == AppTheme.dtYellow;
+    final Color iconColor = isYellow ? AppTheme.dtBlueDark : accentColor;
+
+    return GestureDetector(
+      onTap: () => _navigate(context, type, title),
       child: Container(
-        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: accentColor.withOpacityValue(isYellow ? 1.0 : 0.25),
+            width: 1.5,
+          ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.dtBlueDark.withOpacityValue(0.05),
+              color: AppTheme.dtBlueDark.withOpacityValue(0.06),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
+          vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
+        ),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
+              padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
               decoration: BoxDecoration(
-                color: iconColor.withOpacityValue(0.1),
-                borderRadius: BorderRadius.circular(16),
+                color: accentColor.withOpacityValue(isYellow ? 0.15 : 0.1),
+                borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(icon, color: iconColor, size: ResponsiveSize.getFontSize(28)),
             ),
@@ -198,19 +244,19 @@ class ForfaitCategoriesScreen extends StatelessWidget {
                           color: AppTheme.dtBlueDark,
                         ),
                       ),
-                      if (isNew) ...[
+                      if (badge != null) ...[
                         SizedBox(width: ResponsiveSize.getWidth(8)),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.orange,
+                            color: AppTheme.dtYellow,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Text(
-                            'NEW',
+                          child: Text(
+                            badge,
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
+                              color: AppTheme.dtBlueDark,
+                              fontSize: ResponsiveSize.getFontSize(10),
                               fontWeight: FontWeight.bold,
                             ),
                           ),

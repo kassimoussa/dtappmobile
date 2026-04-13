@@ -41,7 +41,13 @@
       "Bash(awk -F: 'NR==6')",
       "Bash(awk 'NR>=435 && NR<=450' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/subscription/topup_subscription_success_screen.dart)",
       "Bash(awk 'NR>=175 && NR<=190' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/recharge/topup_recharge_success_screen.dart)",
-      "Bash(awk 'NR>=308 && NR<=325' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/subscription/topup_subscription_screen.dart)"
+      "Bash(awk 'NR>=308 && NR<=325' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/subscription/topup_subscription_screen.dart)",
+      "Bash(curl -s http://10.39.230.106/api/offers)",
+      "Bash(sed -n '140,175p' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/packages/topup_package_screen.dart)",
+      "Bash(sed -n '121,165p' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/packages/topup_package_list_screen.dart)",
+      "Bash(sed -n '321,365p' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/packages/topup_package_confirmation_screen.dart)",
+      "Bash(sed -n '267,310p' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/recharge/topup_recharge_screen.dart)",
+      "Bash(sed -n '340,385p' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/subscription/topup_subscription_screen.dart)"
     ],
     "deny": [],
     "ask": []

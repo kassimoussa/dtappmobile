@@ -537,7 +537,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white),
                   ),
@@ -557,6 +557,30 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
                   style: AppTheme.headingStyle.copyWith(
                     fontSize: ResponsiveSize.getFontSize(22),
                     fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              InkWell(
+                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveSize.getWidth(12),
+                    vertical: ResponsiveSize.getHeight(8),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.cancel,
+                    style: TextStyle(
+                      color: AppTheme.dtBlueDark,
+                      fontSize: ResponsiveSize.getFontSize(13),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),

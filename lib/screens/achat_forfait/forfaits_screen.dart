@@ -3,6 +3,7 @@ import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/models/forfait.dart';
 import 'package:dtservices/providers/balance_provider.dart';
+import 'package:dtservices/services/offers_service.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:dtservices/widgets/cards/forfait_card.dart';
@@ -31,11 +32,27 @@ class ForfaitsScreen extends StatefulWidget {
 class _ForfaitsScreenState extends State<ForfaitsScreen> {
   late String _selectedType;
   bool _isLoading = false;
+  Map<String, List<Forfait>>? _offers;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
     _selectedType = widget.initialType;
+    _loadOffers();
+  }
+
+  Future<void> _loadOffers({bool forceRefresh = false}) async {
+    // Si le cache est valide, OffersService résout instantanément → pas de spinner
+    if (!forceRefresh && _offers == null) {
+      setState(() => _isLoading = true);
+    }
+    try {
+      final offers = await OffersService.getOffers(forceRefresh: forceRefresh);
+      if (mounted) setState(() { _offers = offers; _isLoading = false; _errorMessage = null; });
+    } catch (e) {
+      if (mounted) setState(() { _isLoading = false; _errorMessage = e.toString(); });
+    }
   }
 
   @override
@@ -44,111 +61,8 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
     final balanceProvider = context.watch<BalanceProvider>();
     final l10n = AppLocalizations.of(context)!;
 
-    final List<Forfait> forfaitsInternet = [
-      Forfait(
-        id: 13,
-        nom: 'Forfait Express',
-        data: '1 Go',
-        prix: 200,
-        validite: l10n.validityHours(24),
-        type: 'internet',
-        code: '*164*2*1*1#',
-      ),
-      Forfait(
-        id: 15,
-        nom: 'Forfait Découverte',
-        data: '5 Go',
-        prix: 500,
-        validite: l10n.validityDays(3),
-        type: 'internet',
-        code: '*164*2*2*1#',
-      ),
-      Forfait(
-        id: 16,
-        nom: 'Forfait Evasion',
-        data: '12 Go',
-        prix: 1000,
-        validite: l10n.validityDays(7),
-        type: 'internet',
-        code: '*164*2*3*1#',
-      ),
-      Forfait(
-        id: 17,
-        nom: 'Forfait Comfort',
-        data: '20 Go',
-        prix: 3000,
-        validite: l10n.validityDays(30),
-        isPopulaire: true,
-        type: 'internet',
-        code: '*164*2*4*1#',
-      ),
-    ];
-
-    final List<Forfait> forfaitsCombo = [
-      Forfait(
-        id: 10,
-        nom: 'Forfait Classic',
-        minutes: '35',
-        sms: '50',
-        data: '100 Mo',
-        prix: 500,
-        validite: l10n.validityDays(30),
-        type: 'combo',
-        code: '*164*1*1*1#',
-      ),
-      Forfait(
-        id: 11,
-        nom: 'Forfait Median',
-        minutes: '75',
-        sms: '100',
-        data: '200 Mo',
-        prix: 1000,
-        validite: l10n.validityDays(30),
-        isPopulaire: true,
-        type: 'combo',
-        code: '*164*1*2*1#',
-      ),
-      Forfait(
-        id: 12,
-        nom: 'Forfait Premium',
-        minutes: '155',
-        sms: '250',
-        data: '400 Mo',
-        prix: 2000,
-        validite: l10n.validityDays(30),
-        type: 'combo',
-        code: '*164*1*3*1#',
-      ),
-    ];
-
-    final List<Forfait> forfaitsTempo = [
-      Forfait(
-        id: 29,
-        nom: 'Forfait Sensation',
-        minutes: '60',
-        data: null,
-        prix: 500,
-        validite: l10n.validityWeekendLong,
-        type: 'tempo',
-        code: '*164*3*1*1#',
-        isPopulaire: true,
-      ),
-    ];
-
-    List<Forfait> forfaitsToDisplay;
-    switch (_selectedType) {
-      case 'internet':
-        forfaitsToDisplay = forfaitsInternet;
-        break;
-      case 'combo':
-        forfaitsToDisplay = forfaitsCombo;
-        break;
-      case 'tempo':
-        forfaitsToDisplay = forfaitsTempo;
-        break;
-      default:
-        forfaitsToDisplay = forfaitsInternet;
-    }
+    final forfaitsToDisplay = _offers?[_selectedType] ?? [];
+    final forfaitsTempo = _offers?['tempo'] ?? [];
 
     return Scaffold(
       body: Stack(
@@ -214,9 +128,10 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
                       Expanded(
                         child: RefreshIndicator(
                           onRefresh: () async {
-                            setState(() => _isLoading = true);
-                            await context.read<BalanceProvider>().refreshBalance();
-                            setState(() => _isLoading = false);
+                            await Future.wait([
+                              _loadOffers(forceRefresh: true),
+                              context.read<BalanceProvider>().refreshBalance(),
+                            ]);
                           },
                           child: _isLoading
                               ? Center(
@@ -224,9 +139,37 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
                                     valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlueDark),
                                   ),
                                 )
-                              : _selectedType == 'tempo' && forfaitsTempo.isEmpty
-                                  ? _buildEmptyTempoState()
-                                  : Padding(
+                              : _errorMessage != null
+                                  ? Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.wifi_off_rounded, size: 48, color: Colors.grey[400]),
+                                            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                                            Text(
+                                              l10n.genericRetryError,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(fontSize: ResponsiveSize.getFontSize(14), color: Colors.grey[600]),
+                                            ),
+                                            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                                            ElevatedButton.icon(
+                                              onPressed: () => _loadOffers(forceRefresh: true),
+                                              icon: const Icon(Icons.refresh),
+                                              label: Text(l10n.retry),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: AppTheme.dtBlueDark,
+                                                foregroundColor: AppTheme.dtYellow,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  : _selectedType == 'tempo' && forfaitsTempo.isEmpty
+                                      ? _buildEmptyTempoState()
+                                      : Padding(
                                       padding: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(AppTheme.spacingM)),
                                       child: ListView.separated(
                                         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
@@ -293,6 +236,30 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
                   style: AppTheme.headingStyle.copyWith(
                     fontSize: ResponsiveSize.getFontSize(22),
                     fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(8)),
+              InkWell(
+                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveSize.getWidth(12),
+                    vertical: ResponsiveSize.getHeight(8),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.cancel,
+                    style: TextStyle(
+                      color: AppTheme.dtBlueDark,
+                      fontSize: ResponsiveSize.getFontSize(13),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),

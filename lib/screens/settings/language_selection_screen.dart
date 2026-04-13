@@ -1,9 +1,10 @@
 // lib/screens/settings/language_selection_screen.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
+import '../../extensions/color_extensions.dart';
 import '../../providers/language_provider.dart';
-import '../../widgets/appbar_widget.dart';
 import '../../utils/responsive_size.dart';
 import '../../generated/l10n/app_localizations.dart';
 
@@ -42,27 +43,35 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: l10n.changeLanguage,
-        showAction: false,
-        customActions: [
-          TextButton(
-            onPressed: _onSave,
-            child: Text(
-              l10n.save,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: ResponsiveSize.getFontSize(16),
-                fontWeight: FontWeight.bold,
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
               ),
             ),
           ),
-        ],
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-        child: Container(
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(context, l10n.changeLanguage, l10n.save),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+                    child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(
@@ -103,6 +112,75 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                     });
                   }
                 },
+              ),
+            ],
+          ),
+        ),
+      ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title, String saveLabel) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: _onSave,
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppTheme.dtBlueDark,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    saveLabel,
+                    style: TextStyle(
+                      color: AppTheme.dtYellow,
+                      fontSize: ResponsiveSize.getFontSize(14),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

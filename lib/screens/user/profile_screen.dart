@@ -1,9 +1,9 @@
 // lib/screens/user/profile_screen.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../services/profile_service.dart';
-import '../../widgets/appbar_widget.dart';
 import '../../extensions/color_extensions.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../settings/language_selection_screen.dart';
@@ -76,46 +76,106 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarWidget(
-        title: l10n.myProfile,
-        showAction: false,
-      ),
-      body:
-          _isLoading
-              ? _buildLoadingState()
-              : SingleChildScrollView(
-                padding: EdgeInsets.all(
-                  ResponsiveSize.getWidth(AppTheme.spacingL),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildProfileHeader(),
-                    SizedBox(
-                      height: ResponsiveSize.getHeight(AppTheme.spacingL),
-                    ),
-                    _buildPersonalInfoSection(),
-                    SizedBox(
-                      height: ResponsiveSize.getHeight(AppTheme.spacingL),
-                    ),
-                    _buildPreferencesSection(l10n),
-                    SizedBox(
-                      height: ResponsiveSize.getHeight(AppTheme.spacingL),
-                    ),
-                    _buildLogoutButton(l10n),
-                    SizedBox(
-                      height: ResponsiveSize.getHeight(AppTheme.spacingL),
-                    ),
-                    if (_errorMessage != null) ...[
-                      SizedBox(
-                        height: ResponsiveSize.getHeight(AppTheme.spacingM),
-                      ),
-                      _buildErrorMessage(),
-                    ],
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
                   ],
+                  radius: 0.8,
                 ),
               ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(context, l10n.myProfile),
+                Expanded(
+                  child: _isLoading
+                      ? _buildLoadingState()
+                      : SingleChildScrollView(
+                          padding: EdgeInsets.all(
+                            ResponsiveSize.getWidth(AppTheme.spacingL),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildProfileHeader(),
+                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                              _buildPersonalInfoSection(),
+                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                              _buildPreferencesSection(l10n),
+                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                              _buildLogoutButton(l10n),
+                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                              if (_errorMessage != null) ...[
+                                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                                _buildErrorMessage(),
+                              ],
+                            ],
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context, String title) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

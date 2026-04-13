@@ -14,8 +14,8 @@ import 'package:dtservices/screens/speedtest/speedtest_native_screen.dart';
 import 'package:dtservices/services/user_session.dart';
 
 import '../../providers/balance_provider.dart';
+import '../../services/offers_service.dart';
 import '../user/profile_screen.dart';
-import 'search_screen.dart';
 
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
@@ -54,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<BalanceProvider>().loadBalance();
+        OffersService.prefetch();
       });
     }
   }
@@ -218,10 +219,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const Spacer(),
-                IconButton(
-                  icon: Icon(Icons.search_rounded, color: Colors.white, size: ResponsiveSize.getFontSize(24)),
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),
-                ),
                 SizedBox(width: ResponsiveSize.getWidth(8)),
                 GestureDetector(
                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
