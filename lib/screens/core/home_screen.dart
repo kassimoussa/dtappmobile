@@ -22,6 +22,8 @@ import '../../utils/responsive_size.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../widgets/banner_slider.dart';
+import '../../services/banner_service.dart';
+import '../../providers/topup_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _normalPhoneNumber = '';
   final PageController _balancePageController = PageController(viewportFraction: 0.92);
   int _currentBalancePage = 0;
+  Key _bannerSliderKey = UniqueKey();
 
   @override
   void initState() {
@@ -76,6 +79,31 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _handleRefresh() async {
+    // Invalider le cache pour forcer le rechargement des bannières
+    BannerService.clearCache();
+
+    // Lancer les rafraîchissements en parallèle
+    final futures = <Future>[
+      context.read<BalanceProvider>().refreshBalance(),
+    ];
+
+    // Rafraîchir TopUp si une session est active
+    final topUpProvider = context.read<TopUpProvider>();
+    if (topUpProvider.hasActiveSession) {
+      futures.add(topUpProvider.refreshBalances());
+    }
+
+    await Future.wait(futures);
+
+    // Mettre à jour la clé pour forcer le BannerSlider à se reconstruire
+    if (mounted) {
+      setState(() {
+        _bannerSliderKey = UniqueKey();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
@@ -84,8 +112,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundGrey,
-      body: SingleChildScrollView(
-        child: Column(
+      body: RefreshIndicator(
+        onRefresh: _handleRefresh,
+        color: AppTheme.dtBlue,
+        backgroundColor: Colors.white,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Premium Header with Swipable Cards
@@ -120,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20),
-                      child: const BannerSlider(),
+                      child: BannerSlider(key: _bannerSliderKey),
                     ),
                   ),
 
@@ -131,8 +166,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildHeroCard(BalanceProvider balanceProvider, AppLocalizations l10n) {
     return Stack(

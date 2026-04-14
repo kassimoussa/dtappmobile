@@ -208,7 +208,9 @@ class _ForfaitCardState extends State<ForfaitCard> {
                         color: AppTheme.dtBlue,
                       ),
                     ),
-                    ElevatedButton(
+                    SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+                    Flexible(
+                    child: ElevatedButton(
                       onPressed:
                           widget.forfait.prix > widget.soldeActuel
                               ? null
@@ -242,30 +244,6 @@ class _ForfaitCardState extends State<ForfaitCard> {
                                   ),
                                 ),
                               )
-                              : widget.forfait.prix > widget.soldeActuel
-                              ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.warning_amber_rounded,
-                                    size: ResponsiveSize.getFontSize(16),
-                                  ),
-                                  SizedBox(
-                                    width: ResponsiveSize.getWidth(
-                                      AppTheme.spacingXS,
-                                    ),
-                                  ),
-                                  Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.insufficientBalanceSimple,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: ResponsiveSize.getFontSize(14),
-                                    ),
-                                  ),
-                                ],
-                              )
                               : Text(
                                 AppLocalizations.of(context)!.buyAction,
                                 style: TextStyle(
@@ -273,6 +251,7 @@ class _ForfaitCardState extends State<ForfaitCard> {
                                   fontSize: ResponsiveSize.getFontSize(16),
                                 ),
                               ),
+                    ),
                     ),
                   ],
                 ),

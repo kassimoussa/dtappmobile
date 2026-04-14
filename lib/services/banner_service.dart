@@ -8,6 +8,11 @@ class BannerService {
   /// Cache statique des bannières
   static List<PromoBanner>? _cachedBanners;
 
+  /// Vide le cache pour forcer le rechargement
+  static void clearCache() {
+    _cachedBanners = null;
+  }
+
   static Future<List<PromoBanner>> getBanners() async {
     if (_cachedBanners != null) return _cachedBanners!;
 

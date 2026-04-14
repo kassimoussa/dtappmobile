@@ -9,6 +9,7 @@ import '../../generated/l10n/app_localizations.dart';
 import '../settings/language_selection_screen.dart';
 import '../settings/connection_settings_screen.dart';
 import '../auth/pin/pin_management_screen.dart';
+import '../auth/pin/pin_setup_screen.dart';
 import 'edit_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -74,6 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
     final l10n = AppLocalizations.of(context)!;
+    final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundGrey,
@@ -115,7 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
                               _buildPersonalInfoSection(),
                               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                              _buildPreferencesSection(l10n),
+                              _buildPreferencesSection(l10n, authProvider),
                               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
                               _buildLogoutButton(l10n),
                               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
@@ -286,7 +288,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildPreferencesSection(AppLocalizations l10n) {
+  Widget _buildPreferencesSection(AppLocalizations l10n, AuthProvider authProvider) {
     return _buildSection(
       title: l10n.preferences,
       children: [
@@ -332,12 +334,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Divider(height: 1, color: Colors.grey[200]),
         InkWell(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PinManagementScreen(),
-              ),
-            );
+            if (authProvider.hasPin) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PinManagementScreen(),
+                ),
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PinSetupScreen(
+                    onPinSet: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(l10n.pinSetupSuccess),
+                          backgroundColor: Colors.green[700],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            }
           },
           child: Padding(
             padding: EdgeInsets.symmetric(
@@ -346,17 +367,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Row(
               children: [
                 Icon(
-                  Icons.lock_outline,
-                  color: Colors.grey[600],
+                  authProvider.hasPin ? Icons.lock_outline : Icons.lock_open_rounded,
+                  color: authProvider.hasPin ? Colors.grey[600] : AppTheme.dtBlue,
                   size: ResponsiveSize.getFontSize(24),
                 ),
                 SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
                 Expanded(
                   child: Text(
-                    l10n.managePin,
+                    authProvider.hasPin ? l10n.managePin : l10n.setupPinTitle,
                     style: TextStyle(
                       fontSize: ResponsiveSize.getFontSize(16),
-                      color: Colors.black87,
+                      color: authProvider.hasPin ? Colors.black87 : AppTheme.dtBlue,
+                      fontWeight: authProvider.hasPin ? FontWeight.normal : FontWeight.w600,
                     ),
                   ),
                 ),

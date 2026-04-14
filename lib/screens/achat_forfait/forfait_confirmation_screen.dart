@@ -10,8 +10,11 @@ import 'package:dtservices/services/biometric_auth_service.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'forfait_success_screen.dart';
 import '../../generated/l10n/app_localizations.dart';
+import '../../providers/auth_provider.dart';
+import '../../widgets/pin_verification_bottom_sheet.dart';
 
 class ForfaitConfirmationScreen extends StatefulWidget {
   final Forfait forfait;
@@ -135,13 +138,34 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
     );
 
     if (!authResult.success) {
-      // Authentification échouée
-      if (authResult.errorType != BiometricAuthErrorType.userCancel) {
-        _showErrorMessage(
-          authResult.errorMessage ?? AppLocalizations.of(context)!.authFailed,
-        );
+      if (!mounted) return;
+      // Authentification biométrique échouée ou annulée
+      final authProvider = context.read<AuthProvider>();
+      
+      // Si on n'a pas de PIN configuré, on bloque l'achat si l'erreur n'est pas "userCancel"
+      if (!authProvider.hasPin) {
+        if (authResult.errorType != BiometricAuthErrorType.userCancel) {
+          _showErrorMessage(
+            authResult.errorMessage ?? AppLocalizations.of(context)!.authFailed,
+          );
+        }
+        return;
       }
-      return;
+      
+      // Fallback: Demander le code PIN
+      final phoneNumber = authProvider.phoneNumber;
+      if (phoneNumber == null) return;
+
+      final pinVerified = await PinVerificationBottomSheet.show(
+        context,
+        phoneNumber: phoneNumber,
+        title: 'Entrez votre code PIN pour valider l\'achat',
+      );
+
+      // Si le code PIN n'a pas été validé (BottomSheet fermé ou erreur), on annule l'achat
+      if (!pinVerified) {
+        return;
+      }
     }
 
     setState(() {
@@ -597,37 +621,10 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
   }
 
   Widget _buildActionButtons() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: _isLoading ? null : () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppTheme.dtBlue),
-              padding: EdgeInsets.symmetric(
-                vertical: ResponsiveSize.getHeight(16),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  ResponsiveSize.getWidth(AppTheme.radiusM),
-                ),
-              ),
-            ),
-            child: Text(
-              AppLocalizations.of(context)!.cancelAction,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(16),
-                fontWeight: FontWeight.bold,
-                color: AppTheme.dtBlue,
-              ),
-            ),
-          ),
-        ),
-
-        SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-
-        Expanded(
-          child: ElevatedButton(
+        ElevatedButton(
             onPressed: _isLoading ? null : _confirmerAchat,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.dtBlue,
@@ -663,18 +660,39 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
                           size: ResponsiveSize.getFontSize(18),
                         ),
                         SizedBox(width: ResponsiveSize.getWidth(6)),
-                        Flexible(
-                          child: Text(
+                        Text(
                             AppLocalizations.of(context)!.confirmPurchase,
-                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: ResponsiveSize.getFontSize(15),
+                              fontSize: ResponsiveSize.getFontSize(16),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
                       ],
                     ),
+          ),
+
+        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
+
+        OutlinedButton(
+          onPressed: _isLoading ? null : () => Navigator.pop(context),
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(color: AppTheme.dtBlue),
+            padding: EdgeInsets.symmetric(
+              vertical: ResponsiveSize.getHeight(14),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
+              ),
+            ),
+          ),
+          child: Text(
+            AppLocalizations.of(context)!.cancelAction,
+            style: TextStyle(
+              fontSize: ResponsiveSize.getFontSize(16),
+              fontWeight: FontWeight.bold,
+              color: AppTheme.dtBlue,
+            ),
           ),
         ),
       ],
