@@ -1,91 +1,98 @@
+import 'package:dtservices/screens/achat_forfait/forfait_recipient_screen.dart';
+import 'package:dtservices/screens/forfaits_actifs/forfaits_actifs_screen.dart';
+import 'package:dtservices/screens/refill/refill_recipient_screen.dart';
+import 'package:dtservices/screens/transfer_credit/transfer_input_screen.dart';
+import 'package:dtservices/services/user_session.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:convert';
 
-// Handler pour les notifications en arrière-plan
+import '../screens/core/main_screen.dart';
+
+// Handler pour les notifications en arrière-plan (top-level, obligatoire)
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint('📩 Message reçu en arrière-plan : ${message.notification?.title}');
 }
 
 class NotificationService {
+  static final NotificationService _instance = NotificationService._internal();
+  factory NotificationService() => _instance;
+  NotificationService._internal();
+
   final _firebaseMessaging = FirebaseMessaging.instance;
   final _localNotifications = FlutterLocalNotificationsPlugin();
 
-  // GlobalKey pour la navigation
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  /// GlobalKey branché sur MaterialApp.navigatorKey
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   Future<void> initNotifications() async {
-    // 1. Demander la permission (surtout crucial pour iOS)
-    NotificationSettings settings = await _firebaseMessaging.requestPermission(
+    // 1. Demander la permission
+    final settings = await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
+    debugPrint('🔔 Permission: ${settings.authorizationStatus}');
 
-    debugPrint('🔔 User granted permission: ${settings.authorizationStatus}');
-
-    // 2. Obtenir le Token FCM
-    String? token = await _firebaseMessaging.getToken();
-    debugPrint("🔑 FCM Token: $token");
+    // 2. Log du token FCM
+    final token = await _firebaseMessaging.getToken();
     if (kDebugMode) {
-      print("========================================");
-      print("FCM TOKEN:");
-      print(token);
-      print("========================================");
+      debugPrint('========================================');
+      debugPrint('FCM TOKEN: $token');
+      debugPrint('========================================');
     }
-
-    // TRÈS IMPORTANT : Stockez ce token dans votre base de données (Firestore, Realtime DB, ou votre serveur backend)
-    // pour pouvoir envoyer des notifications ciblées à cet utilisateur.
 
     // 3. Initialiser les notifications locales
     await _initLocalNotifications();
 
-    // 4. Configurer le handler pour les messages en arrière-plan
+    // 4. Handler arrière-plan
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // 5. Gérer les messages au premier plan (Foreground)
+    // 5. Notification reçue quand l'app est au premier plan → afficher une notif locale
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      debugPrint('📩 Message reçu au premier plan : ${message.notification?.title}');
-      debugPrint('📦 Données: ${message.data}');
-
-      // Afficher la notification locale avec les données
+      debugPrint('📩 Foreground: ${message.notification?.title}');
       if (message.notification != null) {
         _showLocalNotification(message.notification!, message.data);
       }
     });
 
-    // 6. Gérer l'ouverture de l'application depuis la notification
+    // 6. App en arrière-plan → utilisateur tape la notification
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      debugPrint('🔔 Notification cliquée!');
-      debugPrint('📦 Données: ${message.data}');
-      _handleNotificationNavigation(message.data);
+      debugPrint('🔔 Tap depuis arrière-plan: ${message.data}');
+      _handleNavigation(message.data);
     });
+
+    // 7. App fermée (terminated) → utilisateur tape la notification
+    final initialMessage = await _firebaseMessaging.getInitialMessage();
+    if (initialMessage != null) {
+      debugPrint('🚀 Tap depuis app fermée: ${initialMessage.data}');
+      // Attendre que le navigator soit prêt
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _handleNavigation(initialMessage.data);
+      });
+    }
   }
 
   Future<void> _initLocalNotifications() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
 
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
-
     await _localNotifications.initialize(
-      initSettings,
+      const InitializationSettings(android: androidSettings, iOS: iosSettings),
       onDidReceiveNotificationResponse: (details) {
-        debugPrint('🔔 Notification locale cliquée');
         if (details.payload != null) {
           try {
-            final data = json.decode(details.payload!);
-            _handleNotificationNavigation(data);
+            final data = json.decode(details.payload!) as Map<String, dynamic>;
+            _handleNavigation(data);
           } catch (e) {
             debugPrint('❌ Erreur décodage payload: $e');
           }
@@ -99,85 +106,109 @@ class NotificationService {
     Map<String, dynamic> data,
   ) async {
     const androidDetails = AndroidNotificationDetails(
-      'default_channel',
-      'Notifications',
-      channelDescription: 'Canal de notifications par défaut',
+      'dtservices_channel',
+      'DTServices Notifications',
+      channelDescription: 'Notifications DTServices',
       importance: Importance.high,
       priority: Priority.high,
       showWhen: true,
     );
 
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
-
     const notificationDetails = NotificationDetails(
       android: androidDetails,
-      iOS: iosDetails,
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      ),
     );
-
-    // Convertir les données en JSON pour le payload
-    final payload = json.encode(data);
 
     await _localNotifications.show(
       notification.hashCode,
       notification.title,
       notification.body,
       notificationDetails,
-      payload: payload,
+      payload: json.encode(data),
     );
   }
 
-  /// Gère la navigation contextuelle selon le type de notification
-  void _handleNotificationNavigation(Map<String, dynamic> data) {
-    final context = navigatorKey.currentContext;
-    if (context == null) {
-      debugPrint('❌ Context de navigation non disponible');
-      return;
-    }
+  // ─────────────────────────────────────────────
+  // Deep linking
+  // ─────────────────────────────────────────────
 
-    final type = data['type'];
-    debugPrint('🎯 Navigation vers type: $type');
+  /// Point d'entrée unique pour toute navigation depuis une notification.
+  void _handleNavigation(Map<String, dynamic> data) {
+    final type = data['type'] as String?;
+    debugPrint('🎯 Deep link type: $type');
 
     switch (type) {
       case 'offer_purchase':
-        _navigateToOffers(context, data);
+      case 'offer_gift':
+        _goTo(_buildForfaitsActifsRoute);
+        break;
+      case 'buy_offer':
+        _goTo(_buildBuyOfferRoute);
         break;
       case 'credit_transfer':
-        _navigateToBalance(context, data);
+        _goTo(_buildTransferRoute);
         break;
       case 'voucher_refill':
-        _navigateToBalance(context, data);
-        break;
-      case 'offer_gift':
-        _navigateToOffers(context, data);
+        _goTo(_buildRefillRoute);
         break;
       default:
-        debugPrint('⚠️ Type de notification inconnu: $type');
-        _navigateToHome(context);
+        debugPrint('⚠️ Type inconnu ($type) → accueil');
+        _goToHome();
     }
   }
 
-  /// Navigation vers l'écran des offres/forfaits
-  void _navigateToOffers(BuildContext context, Map<String, dynamic> data) {
-    debugPrint('📱 Navigation vers écran des forfaits');
-    // L'utilisateur peut voir ses forfaits actifs
-    Navigator.of(context).pushNamed('/forfaits_actifs');
+  /// Navigue vers MainScreen puis empile l'écran cible par-dessus.
+  void _goTo(Future<Widget?> Function() screenBuilder) async {
+    final nav = navigatorKey.currentState;
+    if (nav == null) {
+      debugPrint('❌ Navigator non disponible');
+      return;
+    }
+
+    // 1. Aller sur MainScreen en vidant la pile
+    nav.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const MainScreen()),
+      (route) => false,
+    );
+
+    // 2. Construire l'écran cible (peut nécessiter des données async)
+    final screen = await screenBuilder();
+    if (screen == null) return;
+
+    // 3. Empiler l'écran cible
+    nav.push(MaterialPageRoute(builder: (_) => screen));
   }
 
-  /// Navigation vers l'écran de solde/accueil
-  void _navigateToBalance(BuildContext context, Map<String, dynamic> data) {
-    debugPrint('💰 Navigation vers écran d\'accueil (solde)');
-    // L'écran d'accueil affiche le solde
-    Navigator.of(context).pushNamed('/home');
+  void _goToHome() {
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const MainScreen()),
+      (route) => false,
+    );
   }
 
-  /// Navigation vers l'écran d'accueil par défaut
-  void _navigateToHome(BuildContext context) {
-    debugPrint('🏠 Navigation vers écran d\'accueil');
-    Navigator.of(context).pushNamed('/home');
+  // ─── Constructeurs d'écrans ───────────────────
+
+  Future<Widget?> _buildForfaitsActifsRoute() async {
+    return const ForfaitsActifsScreen();
+  }
+
+  Future<Widget?> _buildBuyOfferRoute() async {
+    final phone = await UserSession.getPhoneNumber();
+    return ForfaitRecipientScreen(phoneNumber: phone);
+  }
+
+  Future<Widget?> _buildTransferRoute() async {
+    final phone = await UserSession.getPhoneNumber();
+    if (phone == null || phone.isEmpty) return null;
+    return TransferInputScreen(phoneNumber: phone);
+  }
+
+  Future<Widget?> _buildRefillRoute() async {
+    final phone = await UserSession.getPhoneNumber();
+    return RefillRecipientScreen(phoneNumber: phone);
   }
 }
-
