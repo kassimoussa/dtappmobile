@@ -1,81 +1,142 @@
+import 'dart:convert';
+import 'package:dtservices/models/app_notification.dart';
 import 'package:dtservices/screens/achat_forfait/forfait_recipient_screen.dart';
 import 'package:dtservices/screens/forfaits_actifs/forfaits_actifs_screen.dart';
 import 'package:dtservices/screens/refill/refill_recipient_screen.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_input_screen.dart';
+import 'package:dtservices/services/notification_store.dart';
 import 'package:dtservices/services/user_session.dart';
+import 'package:dtservices/widgets/in_app_notification_banner.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'dart:convert';
-
 import '../screens/core/main_screen.dart';
 
-// Handler pour les notifications en arrière-plan (top-level, obligatoire)
+// ─── Canaux Android ──────────────────────────────────────────────────────────
+
+const _chTransactionsId = 'dtservices_transactions';
+const _chPromotionsId = 'dtservices_promotions';
+const _chSecurityId = 'dtservices_security';
+
+const _chTransactions = AndroidNotificationChannel(
+  _chTransactionsId,
+  'Transactions',
+  description: 'Transferts, recharges et achats',
+  importance: Importance.high,
+  playSound: true,
+  enableVibration: true,
+);
+
+const _chPromotions = AndroidNotificationChannel(
+  _chPromotionsId,
+  'Promotions',
+  description: 'Offres et forfaits',
+  importance: Importance.defaultImportance,
+  playSound: false,
+  enableVibration: false,
+);
+
+const _chSecurity = AndroidNotificationChannel(
+  _chSecurityId,
+  'Sécurité',
+  description: 'OTP et alertes de sécurité',
+  importance: Importance.max,
+  playSound: true,
+  enableVibration: true,
+);
+
+// ─── Background handler (top-level, obligatoire) ─────────────────────────────
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint('📩 Message reçu en arrière-plan : ${message.notification?.title}');
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final _firebaseMessaging = FirebaseMessaging.instance;
+  final _fcm = FirebaseMessaging.instance;
   final _localNotifications = FlutterLocalNotificationsPlugin();
 
-  /// GlobalKey branché sur MaterialApp.navigatorKey
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
-  Future<void> initNotifications() async {
-    // 1. Demander la permission
-    final settings = await _firebaseMessaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-    debugPrint('🔔 Permission: ${settings.authorizationStatus}');
+  // ─── Init ─────────────────────────────────────────────────────────────────
 
-    // 2. Log du token FCM
-    final token = await _firebaseMessaging.getToken();
-    if (kDebugMode) {
-      debugPrint('========================================');
-      debugPrint('FCM TOKEN: $token');
-      debugPrint('========================================');
+  Future<void> initNotifications() async {
+    final supported = await _fcm.isSupported();
+    if (!supported) {
+      debugPrint('⚠️ FCM non supporté sur cet appareil');
+      return;
     }
 
-    // 3. Initialiser les notifications locales
-    await _initLocalNotifications();
+    NotificationSettings settings;
+    try {
+      settings = await _fcm.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      debugPrint('🔔 Permission: ${settings.authorizationStatus}');
+    } catch (e) {
+      debugPrint('⚠️ Impossible de demander la permission FCM: $e');
+      return;
+    }
 
-    // 4. Handler arrière-plan
+    try {
+      final token = await _fcm.getToken().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => null,
+      );
+      if (kDebugMode) {
+        debugPrint('========================================');
+        debugPrint('FCM TOKEN: $token');
+        debugPrint('========================================');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Token FCM indisponible: $e');
+    }
+
+    await _initLocalNotifications();
+    await NotificationStore().load();
+
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // 5. Notification reçue quand l'app est au premier plan → afficher une notif locale
+    // Foreground → bannière in-app + stockage
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint('📩 Foreground: ${message.notification?.title}');
       if (message.notification != null) {
-        _showLocalNotification(message.notification!, message.data);
+        _handleIncoming(
+          title: message.notification!.title ?? '',
+          body: message.notification!.body ?? '',
+          data: message.data,
+          foreground: true,
+        );
       }
     });
 
-    // 6. App en arrière-plan → utilisateur tape la notification
+    // Background → tap sur la notif
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint('🔔 Tap depuis arrière-plan: ${message.data}');
       _handleNavigation(message.data);
     });
 
-    // 7. App fermée (terminated) → utilisateur tape la notification
-    final initialMessage = await _firebaseMessaging.getInitialMessage();
+    // App fermée → tap sur la notif
+    final initialMessage = await _fcm.getInitialMessage();
     if (initialMessage != null) {
       debugPrint('🚀 Tap depuis app fermée: ${initialMessage.data}');
-      // Attendre que le navigator soit prêt
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _handleNavigation(initialMessage.data);
       });
     }
   }
+
+  // ─── Canaux locaux ────────────────────────────────────────────────────────
 
   Future<void> _initLocalNotifications() async {
     const androidSettings =
@@ -91,7 +152,8 @@ class NotificationService {
       onDidReceiveNotificationResponse: (details) {
         if (details.payload != null) {
           try {
-            final data = json.decode(details.payload!) as Map<String, dynamic>;
+            final data =
+                jsonDecode(details.payload!) as Map<String, dynamic>;
             _handleNavigation(data);
           } catch (e) {
             debugPrint('❌ Erreur décodage payload: $e');
@@ -99,44 +161,135 @@ class NotificationService {
         }
       },
     );
+
+    // Créer les canaux Android
+    final androidPlugin = _localNotifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    await androidPlugin?.createNotificationChannel(_chTransactions);
+    await androidPlugin?.createNotificationChannel(_chPromotions);
+    await androidPlugin?.createNotificationChannel(_chSecurity);
   }
 
-  Future<void> _showLocalNotification(
-    RemoteNotification notification,
-    Map<String, dynamic> data,
-  ) async {
-    const androidDetails = AndroidNotificationDetails(
-      'dtservices_channel',
-      'DTServices Notifications',
-      channelDescription: 'Notifications DTServices',
-      importance: Importance.high,
-      priority: Priority.high,
+  // ─── Réception unifiée ────────────────────────────────────────────────────
+
+  Future<void> _handleIncoming({
+    required String title,
+    required String body,
+    required Map<String, dynamic> data,
+    bool foreground = false,
+  }) async {
+    final type = data['type'] as String?;
+    final channel = AppNotification.channelFromType(type);
+    final ctx = navigatorKey.currentContext;
+
+    // Bannière in-app affichée AVANT tout await (pas de gap async)
+    if (foreground && ctx != null) {
+      InAppNotificationBanner.show(
+        context: ctx,
+        title: title,
+        body: body,
+        channel: channel,
+        onTap: () => _handleNavigation(data),
+      );
+    }
+
+    // Persistance et notif système en async
+    final notif = AppNotification(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      body: body,
+      channel: channel,
+      receivedAt: DateTime.now(),
+      data: data,
+    );
+    await NotificationStore().add(notif);
+
+    if (!foreground) {
+      await _showSystemNotification(
+        title: title,
+        body: body,
+        channel: channel,
+        data: data,
+      );
+    }
+  }
+
+  Future<void> _showSystemNotification({
+    required String title,
+    required String body,
+    required NotificationChannel channel,
+    required Map<String, dynamic> data,
+  }) async {
+    final badgeCount = NotificationStore().badgeCount;
+
+    final (channelId, importance, priority) = switch (channel) {
+      NotificationChannel.transactions => (
+          _chTransactionsId,
+          Importance.high,
+          Priority.high
+        ),
+      NotificationChannel.security => (
+          _chSecurityId,
+          Importance.max,
+          Priority.max
+        ),
+      NotificationChannel.promotions => (
+          _chPromotionsId,
+          Importance.defaultImportance,
+          Priority.defaultPriority
+        ),
+    };
+
+    final androidDetails = AndroidNotificationDetails(
+      channelId,
+      channel.name,
+      importance: importance,
+      priority: priority,
       showWhen: true,
+      number: badgeCount,
     );
 
-    const notificationDetails = NotificationDetails(
+    final notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
-        presentSound: true,
+        presentSound: channel != NotificationChannel.promotions,
+        badgeNumber: badgeCount,
       ),
     );
 
     await _localNotifications.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title,
+      body,
       notificationDetails,
-      payload: json.encode(data),
+      payload: jsonEncode(data),
     );
   }
 
-  // ─────────────────────────────────────────────
-  // Deep linking
-  // ─────────────────────────────────────────────
+  // ─── Notification solde bas (locale, sans serveur) ────────────────────────
 
-  /// Point d'entrée unique pour toute navigation depuis une notification.
+  Future<void> checkAndNotifyLowBalance(double balance,
+      {double threshold = 500}) async {
+    if (balance >= threshold) return;
+
+    const title = 'Solde faible';
+    final body =
+        'Votre solde est de ${balance.toStringAsFixed(0)} DJF. Pensez à recharger.';
+    const data = <String, dynamic>{'type': 'low_balance'};
+
+    await _handleIncoming(
+      title: title,
+      body: body,
+      data: data,
+      foreground: navigatorKey.currentContext != null,
+    );
+  }
+
+  // ─── Deep linking ─────────────────────────────────────────────────────────
+
   void _handleNavigation(Map<String, dynamic> data) {
     final type = data['type'] as String?;
     debugPrint('🎯 Deep link type: $type');
@@ -145,41 +298,30 @@ class NotificationService {
       case 'offer_purchase':
       case 'offer_gift':
         _goTo(_buildForfaitsActifsRoute);
-        break;
       case 'buy_offer':
         _goTo(_buildBuyOfferRoute);
-        break;
       case 'credit_transfer':
         _goTo(_buildTransferRoute);
-        break;
       case 'voucher_refill':
         _goTo(_buildRefillRoute);
-        break;
       default:
         debugPrint('⚠️ Type inconnu ($type) → accueil');
         _goToHome();
     }
   }
 
-  /// Navigue vers MainScreen puis empile l'écran cible par-dessus.
   void _goTo(Future<Widget?> Function() screenBuilder) async {
     final nav = navigatorKey.currentState;
     if (nav == null) {
       debugPrint('❌ Navigator non disponible');
       return;
     }
-
-    // 1. Aller sur MainScreen en vidant la pile
     nav.pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const MainScreen()),
       (route) => false,
     );
-
-    // 2. Construire l'écran cible (peut nécessiter des données async)
     final screen = await screenBuilder();
     if (screen == null) return;
-
-    // 3. Empiler l'écran cible
     nav.push(MaterialPageRoute(builder: (_) => screen));
   }
 
@@ -190,11 +332,10 @@ class NotificationService {
     );
   }
 
-  // ─── Constructeurs d'écrans ───────────────────
+  // ─── Constructeurs d'écrans ───────────────────────────────────────────────
 
-  Future<Widget?> _buildForfaitsActifsRoute() async {
-    return const ForfaitsActifsScreen();
-  }
+  Future<Widget?> _buildForfaitsActifsRoute() async =>
+      const ForfaitsActifsScreen();
 
   Future<Widget?> _buildBuyOfferRoute() async {
     final phone = await UserSession.getPhoneNumber();

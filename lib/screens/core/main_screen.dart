@@ -2,9 +2,11 @@
 import 'package:flutter/material.dart';
 
 import '../../constants/app_theme.dart';
+import '../../services/notification_store.dart';
 import '../../utils/responsive_size.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../widgets/promo_popup_dialog.dart';
+import '../notifications/notifications_screen.dart';
 import 'home_screen.dart';
 import '../topup/home/topup_home_screen.dart';
 import '../user/history_screen.dart';
@@ -20,6 +22,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   int _currentNavIndex = 0;
   late PageController _pageController;
   late AnimationController _animationController;
+  final _store = NotificationStore();
 
   @override
   void initState() {
@@ -29,8 +32,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+    _store.addListener(_onStoreChanged);
 
-    // Afficher le popup promotionnel une seule fois à l'arrivée sur MainScreen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       PromoPopupDialog.showIfAvailable(context);
     });
@@ -38,59 +41,60 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _store.removeListener(_onStoreChanged);
     _pageController.dispose();
     _animationController.dispose();
     super.dispose();
   }
 
+  void _onStoreChanged() {
+    if (mounted) setState(() {});
+  }
+
   void _onTabTapped(int index) {
     if (index == _currentNavIndex) return;
-
-    setState(() {
-      _currentNavIndex = index;
-    });
-
-    // Animation fluide vers la page
+    setState(() => _currentNavIndex = index);
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
-
-    // Animation de l'indicateur
     _animationController.reset();
     _animationController.forward();
   }
 
+  void _openNotifications() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
+    final badgeCount = _store.badgeCount;
 
     return Scaffold(
       backgroundColor: Colors.white,
+      // Cloche avec badge flottant en haut à droite
+      floatingActionButton: _BadgeBell(
+        count: badgeCount,
+        onTap: _openNotifications,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
       body: PageView(
         controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _currentNavIndex = index;
-          });
-        },
-        children: [
-          // Écran 0: Accueil
-          const HomeScreen(),
-          
-          // Écran 1: Historique
-          const HistoryScreen(),
-          
-          // Écran 2: TopUp
-          const TopUpHomeScreen(),
+        onPageChanged: (index) => setState(() => _currentNavIndex = index),
+        children: const [
+          HomeScreen(),
+          HistoryScreen(),
+          TopUpHomeScreen(),
         ],
       ),
       bottomNavigationBar: _buildAnimatedBottomNavigationBar(),
     );
   }
-
 
   Widget _buildAnimatedBottomNavigationBar() {
     return AnimatedBuilder(
@@ -100,7 +104,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, -2),
               ),
@@ -153,17 +157,86 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
       padding: EdgeInsets.all(ResponsiveSize.getWidth(isSelected ? 8 : 4)),
       decoration: BoxDecoration(
-        color: isSelected ? AppTheme.dtBlue.withOpacity(0.1) : Colors.transparent,
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
+        color: isSelected
+            ? AppTheme.dtBlue.withValues(alpha: 0.1)
+            : Colors.transparent,
+        borderRadius:
+            BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
       ),
       child: ScaleTransition(
-        scale: isSelected 
+        scale: isSelected
             ? animation.drive(Tween<double>(begin: 1.0, end: 1.2))
             : const AlwaysStoppedAnimation(1.0),
         child: Icon(
           icon,
           size: ResponsiveSize.getFontSize(isSelected ? 26 : 24),
           color: isSelected ? AppTheme.dtBlue : Colors.grey[600],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Cloche avec badge ────────────────────────────────────────────────────────
+
+class _BadgeBell extends StatelessWidget {
+  final int count;
+  final VoidCallback onTap;
+
+  const _BadgeBell({required this.count, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.notifications_rounded,
+                color: AppTheme.dtBlue,
+                size: 22,
+              ),
+            ),
+            if (count > 0)
+              Positioned(
+                top: -4,
+                right: -4,
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFD32F2F),
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                  child: Text(
+                    count > 99 ? '99+' : '$count',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

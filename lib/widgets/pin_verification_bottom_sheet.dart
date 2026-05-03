@@ -6,7 +6,6 @@ import '../providers/auth_provider.dart';
 import '../generated/l10n/app_localizations.dart';
 import 'pin_dots.dart';
 import 'pin_keyboard.dart';
-import '../services/pin_service.dart';
 
 class PinVerificationBottomSheet extends StatefulWidget {
   final Future<void> Function(String pin)? onPinVerified;

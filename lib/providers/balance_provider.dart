@@ -1,5 +1,6 @@
 // lib/providers/balance_provider.dart
 import 'package:flutter/material.dart';
+import '../firebase/notification_service.dart';
 import '../services/balance_service.dart';
 import '../services/user_session.dart';
 
@@ -124,6 +125,9 @@ class BalanceProvider extends ChangeNotifier {
       _lastLoadTime = DateTime.now();
 
       debugPrint('BalanceProvider: Solde chargé avec succès - Principal: $_solde DJF, Bonus: $_bonus DJF');
+
+      // Notifier si le solde est faible (fire-and-forget)
+      NotificationService().checkAndNotifyLowBalance(_solde);
 
       _isLoading = false;
       notifyListeners();

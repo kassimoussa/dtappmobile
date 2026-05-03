@@ -1,7 +1,6 @@
 // lib/screens/core/home_screen.dart
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:dtservices/screens/achat_forfait/forfait_recipient_screen.dart';
@@ -246,7 +245,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(8)),
                   child: Text(
                     l10n.welcomeMessage(_normalPhoneNumber),
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'Outfit',
                       color: Colors.white,
                       fontSize: ResponsiveSize.getFontSize(14),
                       fontWeight: FontWeight.w500,
@@ -389,7 +389,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Text(
                           title,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
+                            fontFamily: 'Inter',
                             color: textColor.withOpacity(0.9),
                             fontSize: ResponsiveSize.getFontSize(14),
                             fontWeight: FontWeight.w600,
@@ -426,7 +427,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           else
                             Text(
                               isVisible ? amount : '••••••••',
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
                                 color: textColor,
                                 fontSize: ResponsiveSize.getFontSize(28),
                                 fontWeight: FontWeight.bold,
@@ -441,7 +443,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 SizedBox(width: ResponsiveSize.getWidth(6)),
                                 Text(
                                   l10n.expiresOn(dateExp),
-                                  style: GoogleFonts.inter(
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
                                     color: textColor.withOpacity(0.8),
                                     fontSize: ResponsiveSize.getFontSize(12),
                                   ),
@@ -549,7 +552,8 @@ class _HomeScreenState extends State<HomeScreen> {
             label,
             textAlign: TextAlign.center,
             maxLines: 2,
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Inter',
               fontSize: ResponsiveSize.getFontSize(12),
               fontWeight: FontWeight.w600,
               color: AppTheme.textPrimary,

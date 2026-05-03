@@ -1,6 +1,5 @@
 // lib/constants/app_theme.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Nouvelles Couleurs : Plus claires et vibrantes basées sur le Logo (Bleu et Doré)
@@ -30,21 +29,24 @@ class AppTheme {
   static const double radiusXL = 32.0;
   
   // Styles de texte (les tailles seront adaptées via ScreenUtil)
-  static TextStyle get headingStyle => GoogleFonts.outfit(
+  static const TextStyle headingStyle = TextStyle(
+    fontFamily: 'Outfit',
     fontSize: 24,
     fontWeight: FontWeight.w700,
     color: dtBlueDark,
     letterSpacing: -0.5,
   );
-  
-  static TextStyle get subheadingStyle => GoogleFonts.outfit(
+
+  static const TextStyle subheadingStyle = TextStyle(
+    fontFamily: 'Outfit',
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: dtBlueDark,
     letterSpacing: -0.3,
   );
-  
-  static TextStyle get bodyStyle => GoogleFonts.inter(
+
+  static const TextStyle bodyStyle = TextStyle(
+    fontFamily: 'Inter',
     fontSize: 16,
     color: textPrimary,
   );

@@ -18,6 +18,11 @@ class FCMTokenService {
   /// Permet de recevoir des notifications même sans être connecté
   static Future<bool> registerTokenWithPhone(String phoneNumber) async {
     try {
+      if (!await FirebaseMessaging.instance.isSupported()) {
+        debugPrint('⚠️ FCM: non supporté sur cet appareil');
+        return false;
+      }
+
       // Formater le numéro de téléphone
       String formattedPhone = phoneNumber.replaceAll(RegExp(r'\s+'), '');
       if (!formattedPhone.startsWith('253')) {
@@ -25,9 +30,12 @@ class FCMTokenService {
       }
 
       // Récupérer le token FCM
-      final fcmToken = await FirebaseMessaging.instance.getToken();
+      final fcmToken = await FirebaseMessaging.instance.getToken().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => null,
+      );
       if (fcmToken == null || fcmToken.isEmpty) {
-        debugPrint('❌ FCM: Impossible de récupérer le token FCM');
+        debugPrint('⚠️ FCM: Token indisponible (service non accessible)');
         return false;
       }
 
@@ -81,10 +89,18 @@ class FCMTokenService {
         return false;
       }
 
+      if (!await FirebaseMessaging.instance.isSupported()) {
+        debugPrint('⚠️ FCM: non supporté sur cet appareil');
+        return false;
+      }
+
       // Récupérer le token FCM
-      final fcmToken = await FirebaseMessaging.instance.getToken();
+      final fcmToken = await FirebaseMessaging.instance.getToken().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => null,
+      );
       if (fcmToken == null || fcmToken.isEmpty) {
-        debugPrint('❌ FCM: Impossible de récupérer le token FCM');
+        debugPrint('⚠️ FCM: Token indisponible (service non accessible)');
         return false;
       }
 

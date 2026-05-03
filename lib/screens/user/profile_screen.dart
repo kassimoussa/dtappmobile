@@ -12,7 +12,6 @@ import '../auth/pin/pin_management_screen.dart';
 import '../auth/pin/pin_setup_screen.dart';
 import 'edit_profile_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/balance_provider.dart';
 import '../../providers/topup_provider.dart';
@@ -592,7 +591,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(l10n.cancel, style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+              child: Text(l10n.cancel, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
             ),
             ElevatedButton(
               style: AppTheme.primaryButtonStyle.copyWith(

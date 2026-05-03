@@ -47,7 +47,15 @@
       "Bash(sed -n '121,165p' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/packages/topup_package_list_screen.dart)",
       "Bash(sed -n '321,365p' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/packages/topup_package_confirmation_screen.dart)",
       "Bash(sed -n '267,310p' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/recharge/topup_recharge_screen.dart)",
-      "Bash(sed -n '340,385p' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/subscription/topup_subscription_screen.dart)"
+      "Bash(sed -n '340,385p' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3/lib/screens/topup/subscription/topup_subscription_screen.dart)",
+      "Bash(curl -sL \"https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap\")",
+      "Bash(curl -sL \"https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap\")",
+      "Bash(curl -sL \"https://fonts.gstatic.com/s/outfit/v15/QGYyz_MVcBeNP4NjuGObqx1XmO1I4TC1C4E.ttf\" -o \"Outfit-Regular.ttf\")",
+      "Bash(curl -sL \"https://fonts.gstatic.com/s/outfit/v15/QGYyz_MVcBeNP4NjuGObqx1XmO1I4QK1C4E.ttf\" -o \"Outfit-Medium.ttf\")",
+      "Bash(curl -sL \"https://fonts.gstatic.com/s/outfit/v15/QGYyz_MVcBeNP4NjuGObqx1XmO1I4e6yC4E.ttf\" -o \"Outfit-SemiBold.ttf\")",
+      "Bash(curl -sL \"https://fonts.gstatic.com/s/outfit/v15/QGYyz_MVcBeNP4NjuGObqx1XmO1I4deyC4E.ttf\" -o \"Outfit-Bold.ttf\")",
+      "Bash(curl -sL \"https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZg.ttf\" -o \"Inter-Regular.ttf\")",
+      "Bash(adb shell *)"
     ],
     "deny": [],
     "ask": []
