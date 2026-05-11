@@ -181,17 +181,18 @@ class NotificationService {
   }) async {
     final type = data['type'] as String?;
     final channel = AppNotification.channelFromType(type);
-    final ctx = navigatorKey.currentContext;
-
     // Bannière in-app affichée AVANT tout await (pas de gap async)
-    if (foreground && ctx != null) {
-      InAppNotificationBanner.show(
-        context: ctx,
-        title: title,
-        body: body,
-        channel: channel,
-        onTap: () => _handleNavigation(data),
-      );
+    if (foreground) {
+      final overlay = navigatorKey.currentState?.overlay;
+      if (overlay != null) {
+        InAppNotificationBanner.show(
+          overlay: overlay,
+          title: title,
+          body: body,
+          channel: channel,
+          onTap: () => _handleNavigation(data),
+        );
+      }
     }
 
     // Persistance et notif système en async
@@ -284,7 +285,7 @@ class NotificationService {
       title: title,
       body: body,
       data: data,
-      foreground: navigatorKey.currentContext != null,
+      foreground: navigatorKey.currentState?.overlay != null,
     );
   }
 

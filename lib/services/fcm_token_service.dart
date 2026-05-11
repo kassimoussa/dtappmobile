@@ -2,50 +2,74 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'user_session.dart';
 
-/// Service pour gérer les tokens FCM avec le serveur
-///
-/// IMPORTANT: Les tokens FCM sont associés au numéro de téléphone (pas à la session)
-/// Cela permet aux utilisateurs de recevoir des notifications même déconnectés
 class FCMTokenService {
-  static const String baseUrl = 'http://10.39.230.106/api';
-  static const String registerTokenEndpoint = '/mobile/fcm/register-token';
-  static const String updateTokenEndpoint = '/mobile/fcm/update-token';
+  static const String _baseUrl = 'http://10.39.230.106/api';
+  static const String _registerEndpoint = '/mobile/fcm/register-token';
+  static const String _updateEndpoint = '/mobile/fcm/update-token';
+  static const String _clearEndpoint = '/mobile/fcm/clear-token';
 
-  /// Enregistre le token FCM avec un numéro de téléphone
-  /// Appelé dès que l'utilisateur entre son numéro (avant même la vérification OTP)
-  /// Permet de recevoir des notifications même sans être connecté
-  static Future<bool> registerTokenWithPhone(String phoneNumber) async {
+  // Clé pour ne pas ré-enregistrer un token déjà connu du serveur
+  static const String _registeredTokenKey = 'fcm_last_registered_token';
+
+  // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+  static String _formatPhone(String phone) {
+    final cleaned = phone.replaceAll(RegExp(r'\s+'), '');
+    return cleaned.startsWith('253') ? cleaned : '253$cleaned';
+  }
+
+  static Future<String?> _getFcmToken() async {
+    if (!await FirebaseMessaging.instance.isSupported()) {
+      debugPrint('⚠️ FCM: non supporté sur cet appareil');
+      return null;
+    }
+    final token = await FirebaseMessaging.instance.getToken().timeout(
+      const Duration(seconds: 10),
+      onTimeout: () => null,
+    );
+    if (token == null || token.isEmpty) {
+      debugPrint('⚠️ FCM: token Firebase indisponible');
+      return null;
+    }
+    return token;
+  }
+
+  static Future<String?> _getPhoneForRegistration() async {
+    final sessionPhone = await UserSession.getPhoneNumber();
+    if (sessionPhone != null && sessionPhone.isNotEmpty) {
+      return _formatPhone(sessionPhone);
+    }
+    return await UserSession.getLastUsedPhoneForFCM();
+  }
+
+  /// Retourne true si ce token FCM est déjà enregistré sur le serveur
+  static Future<bool> _isAlreadyRegistered(String fcmToken) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_registeredTokenKey) == fcmToken;
+  }
+
+  static Future<void> _markTokenRegistered(String fcmToken) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_registeredTokenKey, fcmToken);
+  }
+
+  static Future<void> _clearRegisteredToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_registeredTokenKey);
+  }
+
+  // ─── Appels API ──────────────────────────────────────────────────────────────
+
+  static Future<bool> _callRegisterToken(
+      String formattedPhone, String fcmToken) async {
     try {
-      if (!await FirebaseMessaging.instance.isSupported()) {
-        debugPrint('⚠️ FCM: non supporté sur cet appareil');
-        return false;
-      }
-
-      // Formater le numéro de téléphone
-      String formattedPhone = phoneNumber.replaceAll(RegExp(r'\s+'), '');
-      if (!formattedPhone.startsWith('253')) {
-        formattedPhone = '253$formattedPhone';
-      }
-
-      // Récupérer le token FCM
-      final fcmToken = await FirebaseMessaging.instance.getToken().timeout(
-        const Duration(seconds: 10),
-        onTimeout: () => null,
-      );
-      if (fcmToken == null || fcmToken.isEmpty) {
-        debugPrint('⚠️ FCM: Token indisponible (service non accessible)');
-        return false;
-      }
-
-      debugPrint('📱 FCM: Enregistrement pour $formattedPhone');
-      debugPrint('🔑 FCM Token: ${fcmToken.substring(0, 20)}...');
-
-      final url = Uri.parse('$baseUrl$registerTokenEndpoint');
+      debugPrint('📱 FCM: register-token pour $formattedPhone');
 
       final response = await http.post(
-        url,
+        Uri.parse('$_baseUrl$_registerEndpoint'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -57,71 +81,27 @@ class FCMTokenService {
       );
 
       if (response.statusCode == 200) {
-        debugPrint('✅ Token FCM enregistré pour $formattedPhone');
-        // Sauvegarder le numéro localement pour les mises à jour futures
+        debugPrint('✅ FCM: register-token OK pour $formattedPhone');
         await UserSession.setLastUsedPhoneForFCM(formattedPhone);
+        await _markTokenRegistered(fcmToken);
         return true;
-      } else {
-        debugPrint('❌ Erreur enregistrement FCM: ${response.statusCode}');
-        debugPrint('Response: ${response.body}');
-        return false;
       }
+      debugPrint(
+          '❌ FCM: register-token ${response.statusCode} — ${response.body}');
+      return false;
     } catch (e) {
-      debugPrint('❌ Erreur lors de l\'enregistrement FCM: $e');
+      debugPrint('❌ FCM: register-token erreur réseau — $e');
       return false;
     }
   }
 
-  /// Met à jour le token FCM sur le serveur (utilisateur connecté)
-  /// Utilise le session_token pour l'authentification
-  static Future<bool> updateTokenOnServer() async {
-    try {
-      // Récupérer le session token
-      final sessionToken = await UserSession.getSessionToken();
-      if (sessionToken == null || sessionToken.isEmpty) {
-        // Si pas de session, essayer avec le dernier numéro utilisé
-        final lastPhone = await UserSession.getLastUsedPhoneForFCM();
-        if (lastPhone != null && lastPhone.isNotEmpty) {
-          debugPrint('ℹ️ FCM: Pas de session, utilisation du numéro enregistré');
-          return await registerTokenWithPhone(lastPhone);
-        }
-        debugPrint('❌ FCM: Pas de session ni de numéro enregistré');
-        return false;
-      }
-
-      if (!await FirebaseMessaging.instance.isSupported()) {
-        debugPrint('⚠️ FCM: non supporté sur cet appareil');
-        return false;
-      }
-
-      // Récupérer le token FCM
-      final fcmToken = await FirebaseMessaging.instance.getToken().timeout(
-        const Duration(seconds: 10),
-        onTimeout: () => null,
-      );
-      if (fcmToken == null || fcmToken.isEmpty) {
-        debugPrint('⚠️ FCM: Token indisponible (service non accessible)');
-        return false;
-      }
-
-      debugPrint('✅ FCM Token récupéré: ${fcmToken.substring(0, 20)}...');
-
-      // Envoyer au serveur avec session token
-      return await _sendTokenToServer(sessionToken, fcmToken);
-    } catch (e) {
-      debugPrint('❌ Erreur lors de la mise à jour du token FCM: $e');
-      return false;
-    }
-  }
-
-  /// Envoie le token FCM au serveur (avec session)
-  static Future<bool> _sendTokenToServer(
+  static Future<bool> _callUpdateToken(
       String sessionToken, String fcmToken) async {
     try {
-      final url = Uri.parse('$baseUrl$updateTokenEndpoint');
+      debugPrint('🔄 FCM: update-token');
 
       final response = await http.post(
-        url,
+        Uri.parse('$_baseUrl$_updateEndpoint'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -133,37 +113,122 @@ class FCMTokenService {
       );
 
       if (response.statusCode == 200) {
-        debugPrint('✅ Token FCM mis à jour avec succès');
+        debugPrint('✅ FCM: update-token OK');
+        await _markTokenRegistered(fcmToken);
         return true;
-      } else {
-        debugPrint(
-            '❌ Erreur serveur lors de la mise à jour FCM: ${response.statusCode}');
-        debugPrint('Response: ${response.body}');
-        return false;
       }
+      debugPrint(
+          '⚠️ FCM: update-token ${response.statusCode} — ${response.body}');
+      return false;
     } catch (e) {
-      debugPrint('❌ Erreur réseau lors de la mise à jour FCM: $e');
+      debugPrint('⚠️ FCM: update-token erreur réseau — $e');
       return false;
     }
   }
 
-  /// Écoute les changements de token FCM et met à jour le serveur
-  /// Fonctionne même si l'utilisateur n'est pas connecté
-  static void listenToTokenRefresh() {
-    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
-      debugPrint('🔄 Nouveau token FCM reçu: ${newToken.substring(0, 20)}...');
+  // ─── API publique ─────────────────────────────────────────────────────────────
 
-      // Essayer d'abord avec la session
-      final sessionToken = await UserSession.getSessionToken();
-      if (sessionToken != null && sessionToken.isNotEmpty) {
-        await _sendTokenToServer(sessionToken, newToken);
-        return;
+  /// Enregistre le token FCM avec un numéro de téléphone (avant connexion)
+  static Future<bool> registerTokenWithPhone(String phoneNumber) async {
+    final fcmToken = await _getFcmToken();
+    if (fcmToken == null) return false;
+
+    final formatted = _formatPhone(phoneNumber);
+
+    // Éviter un double enregistrement si le token est déjà connu
+    if (await _isAlreadyRegistered(fcmToken)) {
+      debugPrint('✅ FCM: token déjà enregistré, skip register-token');
+      return true;
+    }
+
+    return await _callRegisterToken(formatted, fcmToken);
+  }
+
+  /// Met à jour le token FCM après connexion.
+  ///
+  /// Stratégie :
+  /// 1. Tente update-token (avec session_token)
+  /// 2. Si échec ET token non encore enregistré → fallback register-token
+  /// 3. Si le token est déjà connu du serveur, on considère que c'est OK
+  static Future<bool> updateTokenOnServer() async {
+    final fcmToken = await _getFcmToken();
+    if (fcmToken == null) return false;
+
+    final sessionToken = await UserSession.getSessionToken();
+    if (sessionToken != null && sessionToken.isNotEmpty) {
+      final ok = await _callUpdateToken(sessionToken, fcmToken);
+      if (ok) return true;
+    }
+
+    // update-token a échoué (ou pas de session)
+    // Si le token est déjà enregistré via register-token, on est OK
+    if (await _isAlreadyRegistered(fcmToken)) {
+      debugPrint(
+          '✅ FCM: token déjà enregistré via register-token, notifications actives');
+      return true;
+    }
+
+    // Fallback : register-token avec le numéro du compte
+    debugPrint('⚠️ FCM: fallback vers register-token');
+    final phone = await _getPhoneForRegistration();
+    if (phone != null && phone.isNotEmpty) {
+      return await _callRegisterToken(phone, fcmToken);
+    }
+
+    debugPrint('❌ FCM: aucun numéro disponible pour l\'enregistrement');
+    return false;
+  }
+
+  /// Supprime le token FCM lors du logout (ciblant uniquement cet appareil)
+  static Future<bool> clearToken({
+    required String sessionToken,
+    String? fcmToken,
+  }) async {
+    try {
+      final body = <String, String>{'session_token': sessionToken};
+      if (fcmToken != null && fcmToken.isNotEmpty) {
+        body['fcm_token'] = fcmToken;
       }
 
-      // Sinon utiliser le dernier numéro enregistré
-      final lastPhone = await UserSession.getLastUsedPhoneForFCM();
-      if (lastPhone != null && lastPhone.isNotEmpty) {
-        await registerTokenWithPhone(lastPhone);
+      final response = await http.post(
+        Uri.parse('$_baseUrl$_clearEndpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint('✅ FCM: token supprimé');
+        // Le token n'est plus enregistré sur le serveur
+        if (fcmToken != null) await _clearRegisteredToken();
+        return true;
+      }
+      debugPrint('⚠️ FCM: clear-token ${response.statusCode}');
+      return false;
+    } catch (e) {
+      debugPrint('⚠️ FCM: clear-token erreur réseau — $e');
+      return false;
+    }
+  }
+
+  /// Écoute les renouvellements de token Firebase et synchronise avec le serveur
+  static void listenToTokenRefresh() {
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+      debugPrint('🔄 FCM: nouveau token — ${newToken.substring(0, 20)}...');
+      // Nouveau token Firebase → jamais enregistré, on force la mise à jour
+      await _clearRegisteredToken();
+
+      final sessionToken = await UserSession.getSessionToken();
+      if (sessionToken != null && sessionToken.isNotEmpty) {
+        final ok = await _callUpdateToken(sessionToken, newToken);
+        if (ok) return;
+      }
+
+      final phone = await _getPhoneForRegistration();
+      if (phone != null && phone.isNotEmpty) {
+        await _callRegisterToken(phone, newToken);
       }
     });
   }

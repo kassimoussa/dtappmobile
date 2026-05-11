@@ -2,6 +2,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'fcm_token_service.dart';
 import 'user_session.dart';
 
 class LogoutService {
@@ -24,9 +26,12 @@ class LogoutService {
 
       debugPrint('Logout: Appel API avec token: ${sessionToken.substring(0, 10)}...');
 
-      // NOTE: On ne supprime PAS le token FCM du serveur
-      // L'utilisateur continuera à recevoir des notifications même déconnecté
-      debugPrint('ℹ️ Token FCM conservé pour notifications hors connexion');
+      // Supprimer le token FCM de cet appareil uniquement
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      await FCMTokenService.clearToken(
+        sessionToken: sessionToken,
+        fcmToken: fcmToken,
+      );
 
       // Appeler l'API logout
       final response = await http.post(

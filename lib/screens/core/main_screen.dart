@@ -2,11 +2,9 @@
 import 'package:flutter/material.dart';
 
 import '../../constants/app_theme.dart';
-import '../../services/notification_store.dart';
 import '../../utils/responsive_size.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../widgets/promo_popup_dialog.dart';
-import '../notifications/notifications_screen.dart';
 import 'home_screen.dart';
 import '../topup/home/topup_home_screen.dart';
 import '../user/history_screen.dart';
@@ -22,8 +20,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   int _currentNavIndex = 0;
   late PageController _pageController;
   late AnimationController _animationController;
-  final _store = NotificationStore();
-
   @override
   void initState() {
     super.initState();
@@ -32,7 +28,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _store.addListener(_onStoreChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       PromoPopupDialog.showIfAvailable(context);
@@ -41,14 +36,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _store.removeListener(_onStoreChanged);
     _pageController.dispose();
     _animationController.dispose();
     super.dispose();
-  }
-
-  void _onStoreChanged() {
-    if (mounted) setState(() {});
   }
 
   void _onTabTapped(int index) {
@@ -63,26 +53,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _animationController.forward();
   }
 
-  void _openNotifications() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    final badgeCount = _store.badgeCount;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      // Cloche avec badge flottant en haut à droite
-      floatingActionButton: _BadgeBell(
-        count: badgeCount,
-        onTap: _openNotifications,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) => setState(() => _currentNavIndex = index),

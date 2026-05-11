@@ -13,7 +13,9 @@ import 'package:dtservices/screens/speedtest/speedtest_native_screen.dart';
 import 'package:dtservices/services/user_session.dart';
 
 import '../../providers/balance_provider.dart';
+import '../../services/notification_store.dart';
 import '../../services/offers_service.dart';
+import '../notifications/notifications_screen.dart';
 import '../user/profile_screen.dart';
 
 import '../../constants/app_theme.dart';
@@ -38,15 +40,22 @@ class _HomeScreenState extends State<HomeScreen> {
   final PageController _balancePageController = PageController(viewportFraction: 0.92);
   int _currentBalancePage = 0;
   Key _bannerSliderKey = UniqueKey();
+  final _notifStore = NotificationStore();
 
   @override
   void initState() {
     super.initState();
+    _notifStore.addListener(_onNotifChanged);
     _loadUserData();
+  }
+
+  void _onNotifChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _notifStore.removeListener(_onNotifChanged);
     _balancePageController.dispose();
     super.dispose();
   }
@@ -255,6 +264,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const Spacer(),
+                SizedBox(width: ResponsiveSize.getWidth(8)),
+                GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(ResponsiveSize.getWidth(8)),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.2),
+                        ),
+                        child: Icon(Icons.notifications_rounded, color: Colors.white, size: ResponsiveSize.getFontSize(20)),
+                      ),
+                      if (_notifStore.badgeCount > 0)
+                        Positioned(
+                          top: -2,
+                          right: -2,
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(color: Color(0xFFD32F2F), shape: BoxShape.circle),
+                            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                            child: Text(
+                              _notifStore.badgeCount > 99 ? '99+' : '${_notifStore.badgeCount}',
+                              style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
                 SizedBox(width: ResponsiveSize.getWidth(8)),
                 GestureDetector(
                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),

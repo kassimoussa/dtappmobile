@@ -7,7 +7,7 @@ class InAppNotificationBanner {
   static OverlayEntry? _currentEntry;
 
   static void show({
-    required BuildContext context,
+    required OverlayState overlay,
     required String title,
     required String body,
     required NotificationChannel channel,
@@ -28,7 +28,7 @@ class InAppNotificationBanner {
       ),
     );
 
-    Overlay.of(context).insert(_currentEntry!);
+    overlay.insert(_currentEntry!);
   }
 
   static void dismiss() {
