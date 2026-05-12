@@ -1735,6 +1735,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get typeLabel => 'Type:';
 
   @override
+  String get privacyPolicyTitle => 'Privacy Policy';
+
+  @override
+  String get privacyPolicyLastUpdated => 'Last updated: January 1, 2025';
+
+  @override
+  String get privacyPolicyScrollInfo =>
+      'Read and scroll to the bottom to accept.';
+
+  @override
+  String get privacyPolicyAcceptBtn => 'Accept and continue';
+
+  @override
+  String get privacyPolicyDeclineBtn => 'Decline';
+
+  @override
+  String get privacyPolicyScrollToAccept =>
+      'Scroll to the bottom to activate the button';
+
+  @override
+  String get iAcceptThe => 'I accept the ';
+
+  @override
+  String get privacyPolicyLinkText => 'Privacy Policy';
+
+  @override
   String balanceDisplay(String amount, String currency) {
     return 'Balance: $amount $currency';
   }

@@ -495,180 +495,262 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
     if (_isLoading) {
       return Scaffold(
         backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator(color: AppTheme.dtBlue)),
+        body: Column(
+          children: [
+            _buildHeader(context, l10n),
+            const Expanded(
+              child: Center(
+                child: CircularProgressIndicator(color: AppTheme.dtBlue),
+              ),
+            ),
+          ],
+        ),
       );
     }
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.dtBlue),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: SafeArea(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: SlideTransition(
-            position: _slideAnimation,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(
-                ResponsiveSize.getWidth(AppTheme.spacingL),
-              ),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight:
-                      MediaQuery.of(context).size.height -
-                      MediaQuery.of(context).padding.top -
-                      MediaQuery.of(context).padding.bottom -
-                      ResponsiveSize.getWidth(AppTheme.spacingL) * 2,
-                ),
-                child: IntrinsicHeight(
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: Column(
+            children: [
+              // ── Header bleu identique au LoginScreen ──────────────────
+              _buildHeader(context, l10n),
+
+              // ── Contenu ───────────────────────────────────────────────
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveSize.getWidth(28),
+                    vertical: ResponsiveSize.getHeight(32),
+                  ),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      SizedBox(height: ResponsiveSize.getHeight(20)),
-
-                      // Logo
-                      Center(
-                        child: Image.asset(
-                          'assets/djibtelogo.png',
-                          width: ResponsiveSize.getWidth(120),
-                          height: ResponsiveSize.getHeight(120),
-                        ),
-                      ),
-
-                      SizedBox(
-                        height: ResponsiveSize.getHeight(AppTheme.spacingXL),
-                      ),
-
                       // Salutation
                       Text(
                         l10n.hello,
                         textAlign: TextAlign.center,
                         style: TextStyle(
+                          fontFamily: 'Outfit',
                           fontSize: ResponsiveSize.getFontSize(28),
                           fontWeight: FontWeight.bold,
                           color: AppTheme.dtBlue,
                         ),
                       ),
-
-                      SizedBox(
-                        height: ResponsiveSize.getHeight(AppTheme.spacingS),
-                      ),
+                      SizedBox(height: ResponsiveSize.getHeight(8)),
 
                       // Numéro de téléphone
                       Text(
                         widget.phoneNumber,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: ResponsiveSize.getFontSize(18),
-                          color: Colors.grey[600],
+                          fontFamily: 'Inter',
+                          fontSize: ResponsiveSize.getFontSize(17),
+                          color: AppTheme.textSecondary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
 
-                      SizedBox(
-                        height: ResponsiveSize.getHeight(
-                          AppTheme.spacingXL * 2,
-                        ),
-                      ),
+                      SizedBox(height: ResponsiveSize.getHeight(40)),
 
-                      // Bouton de connexion principal
-                      ElevatedButton.icon(
-                        onPressed: _connectWithPrimaryMethod,
-                        icon: Icon(
-                          _getPrimaryButtonIcon(),
-                          size: ResponsiveSize.getFontSize(24),
-                        ),
-                        label: Text(
-                          _getPrimaryButtonText(),
-                          style: TextStyle(
-                            fontSize: ResponsiveSize.getFontSize(18),
-                            fontWeight: FontWeight.bold,
+                      // Bouton principal (gradient bleu, texte blanc)
+                      Container(
+                        height: ResponsiveSize.getHeight(56),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AppTheme.dtBlue, AppTheme.dtBlue2],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
                           ),
+                          borderRadius: BorderRadius.circular(
+                              ResponsiveSize.getWidth(14)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.dtBlue.withValues(alpha: 0.35),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.dtBlue,
-                          foregroundColor: AppTheme.dtYellow,
-                          padding: EdgeInsets.symmetric(
-                            vertical: ResponsiveSize.getHeight(16),
-                          ),
-                          shape: RoundedRectangleBorder(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
                             borderRadius: BorderRadius.circular(
-                              ResponsiveSize.getWidth(AppTheme.radiusM),
+                                ResponsiveSize.getWidth(14)),
+                            onTap: _connectWithPrimaryMethod,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(_getPrimaryButtonIcon(),
+                                    color: Colors.white,
+                                    size: ResponsiveSize.getFontSize(22)),
+                                SizedBox(width: ResponsiveSize.getWidth(10)),
+                                Text(
+                                  _getPrimaryButtonText(),
+                                  style: TextStyle(
+                                    fontFamily: 'Outfit',
+                                    fontSize: ResponsiveSize.getFontSize(17),
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
 
-                      SizedBox(
-                        height: ResponsiveSize.getHeight(AppTheme.spacingL),
-                      ),
+                      SizedBox(height: ResponsiveSize.getHeight(16)),
 
                       // Bouton autre méthode
-                      OutlinedButton(
-                        onPressed: _showMethodSelectionModal,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.dtBlue,
-                          side: BorderSide(color: AppTheme.dtBlue, width: 2),
-                          padding: EdgeInsets.symmetric(
-                            vertical: ResponsiveSize.getHeight(14),
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(56),
+                        child: OutlinedButton(
+                          onPressed: _showMethodSelectionModal,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.dtBlue,
+                            side: BorderSide(
+                                color: AppTheme.dtBlue.withValues(alpha: 0.4),
+                                width: 1.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  ResponsiveSize.getWidth(14)),
+                            ),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              ResponsiveSize.getWidth(AppTheme.radiusM),
+                          child: Text(
+                            l10n.otherConnectionMethod,
+                            style: TextStyle(
+                              fontFamily: 'Outfit',
+                              fontSize: ResponsiveSize.getFontSize(16),
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.dtBlue,
                             ),
                           ),
                         ),
-                        child: Text(
-                          l10n.otherConnectionMethod,
-                          style: TextStyle(
-                            fontSize: ResponsiveSize.getFontSize(16),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                       ),
 
-                      SizedBox(
-                        height: ResponsiveSize.getHeight(AppTheme.spacingM),
-                      ),
-
-                      // Bouton PIN oublié
-                      if (_hasPin)
+                      if (_hasPin) ...[
+                        SizedBox(height: ResponsiveSize.getHeight(8)),
                         TextButton(
-                          onPressed: () {
-                            // Naviguer vers l'écran de réinitialisation du PIN
-                            Navigator.of(context).push(
-                              CustomRouteTransitions.fadeScaleRoute(
-                                page: PinResetScreen(
-                                  phoneNumber: widget.phoneNumber,
-                                ),
-                              ),
-                            );
-                          },
+                          onPressed: () => Navigator.of(context).push(
+                            CustomRouteTransitions.fadeScaleRoute(
+                              page: PinResetScreen(
+                                  phoneNumber: widget.phoneNumber),
+                            ),
+                          ),
                           child: Text(
                             l10n.forgotPin,
                             style: TextStyle(
-                              fontSize: ResponsiveSize.getFontSize(16),
-                              color: AppTheme.dtBlue,
+                              fontFamily: 'Inter',
+                              fontSize: ResponsiveSize.getFontSize(14),
+                              color: AppTheme.textSecondary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
-
-                      const Spacer(),
+                      ],
                     ],
                   ),
                 ),
               ),
-            ),
+
+              // Footer
+              Padding(
+                padding:
+                    EdgeInsets.only(bottom: ResponsiveSize.getHeight(20)),
+                child: Text(
+                  '© Djibouti Telecom',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey[350],
+                    fontSize: ResponsiveSize.getFontSize(12),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top +
+            ResponsiveSize.getHeight(12),
+        bottom: ResponsiveSize.getHeight(28),
+      ),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppTheme.dtBlue, AppTheme.dtBlue2],
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(36),
+          bottomRight: Radius.circular(36),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.dtBlue.withValues(alpha: 0.3),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Bouton retour
+          Positioned(
+            left: ResponsiveSize.getWidth(8),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white, size: 20),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          // Logo + nom
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: ResponsiveSize.getWidth(72),
+                height: ResponsiveSize.getWidth(72),
+                padding: EdgeInsets.all(ResponsiveSize.getWidth(10)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      BorderRadius.circular(ResponsiveSize.getWidth(16)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child:
+                    Image.asset('assets/djibtelogo.png', fit: BoxFit.contain),
+              ),
+              SizedBox(height: ResponsiveSize.getHeight(8)),
+              Text(
+                'DTServices',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: ResponsiveSize.getFontSize(16),
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

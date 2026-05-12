@@ -743,6 +743,14 @@
     "invoiceLabel": "Facture:",
     "dueDateLabel": "Date d'échéance:",
     "typeLabel": "Type:",
+    "privacyPolicyTitle": "Politique de confidentialité",
+    "privacyPolicyLastUpdated": "Dernière mise à jour : 1er janvier 2025",
+    "privacyPolicyScrollInfo": "Lisez et faites défiler jusqu'en bas pour accepter.",
+    "privacyPolicyAcceptBtn": "Accepter et continuer",
+    "privacyPolicyDeclineBtn": "Refuser",
+    "privacyPolicyScrollToAccept": "Faites défiler jusqu'en bas pour activer le bouton",
+    "iAcceptThe": "J'accepte la ",
+    "privacyPolicyLinkText": "Politique de confidentialité",
     "balanceDisplay": "Solde: {amount} {currency}",
     "@balanceDisplay": {
       "placeholders": {

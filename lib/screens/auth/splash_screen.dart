@@ -60,9 +60,7 @@ class _SplashScreenState extends State<SplashScreen>
     _navigateAfterSplash();
   }
 
-  // Méthode pour afficher le splash puis vérifier la session et naviguer
   Future<void> _navigateAfterSplash() async {
-    // Pré-charger les images en parallèle avec le délai du splash
     await Future.wait([
       Future.delayed(const Duration(seconds: 2)),
       _preloadImages(),
@@ -71,16 +69,13 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
 
     final authProvider = context.read<AuthProvider>();
-    final isAuthenticated = authProvider.isAuthenticated;
-    final phoneNumber = authProvider.phoneNumber;
-
-    if (isAuthenticated && phoneNumber != null) {
+    if (authProvider.isAuthenticated && authProvider.phoneNumber != null) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MainScreen()),
+        MaterialPageRoute(builder: (_) => const MainScreen()),
       );
     } else {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
     }
   }

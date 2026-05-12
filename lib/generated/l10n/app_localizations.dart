@@ -3212,6 +3212,54 @@ abstract class AppLocalizations {
   /// **'Type:'**
   String get typeLabel;
 
+  /// No description provided for @privacyPolicyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Politique de confidentialité'**
+  String get privacyPolicyTitle;
+
+  /// No description provided for @privacyPolicyLastUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière mise à jour : 1er janvier 2025'**
+  String get privacyPolicyLastUpdated;
+
+  /// No description provided for @privacyPolicyScrollInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lisez et faites défiler jusqu\'en bas pour accepter.'**
+  String get privacyPolicyScrollInfo;
+
+  /// No description provided for @privacyPolicyAcceptBtn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter et continuer'**
+  String get privacyPolicyAcceptBtn;
+
+  /// No description provided for @privacyPolicyDeclineBtn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get privacyPolicyDeclineBtn;
+
+  /// No description provided for @privacyPolicyScrollToAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faites défiler jusqu\'en bas pour activer le bouton'**
+  String get privacyPolicyScrollToAccept;
+
+  /// No description provided for @iAcceptThe.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'accepte la '**
+  String get iAcceptThe;
+
+  /// No description provided for @privacyPolicyLinkText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Politique de confidentialité'**
+  String get privacyPolicyLinkText;
+
   /// No description provided for @balanceDisplay.
   ///
   /// In fr, this message translates to:

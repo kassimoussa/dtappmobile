@@ -725,6 +725,14 @@
     "invoiceLabel": "Invoice:",
     "dueDateLabel": "Due date:",
     "typeLabel": "Type:",
+    "privacyPolicyTitle": "Privacy Policy",
+    "privacyPolicyLastUpdated": "Last updated: January 1, 2025",
+    "privacyPolicyScrollInfo": "Read and scroll to the bottom to accept.",
+    "privacyPolicyAcceptBtn": "Accept and continue",
+    "privacyPolicyDeclineBtn": "Decline",
+    "privacyPolicyScrollToAccept": "Scroll to the bottom to activate the button",
+    "iAcceptThe": "I accept the ",
+    "privacyPolicyLinkText": "Privacy Policy",
     "balanceDisplay": "Balance: {amount} {currency}",
     "@balanceDisplay": {
       "placeholders": {
