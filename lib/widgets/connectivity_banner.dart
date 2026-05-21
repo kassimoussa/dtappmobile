@@ -62,7 +62,9 @@ class _ConnectivityBannerState extends State<ConnectivityBanner>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Stack(
       children: [
         widget.child,
         if (_isOffline)
@@ -103,6 +105,7 @@ class _ConnectivityBannerState extends State<ConnectivityBanner>
             ),
           ),
       ],
+      ),
     );
   }
 }
