@@ -8,6 +8,7 @@ import 'package:dtservices/services/purchase_offer_service.dart';
 import 'package:dtservices/services/user_session.dart';
 import 'package:dtservices/services/biometric_auth_service.dart';
 import 'package:dtservices/utils/responsive_size.dart';
+import 'package:dtservices/utils/validity_translator.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -159,7 +160,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
       final pinVerified = await PinVerificationBottomSheet.show(
         context,
         phoneNumber: phoneNumber,
-        title: 'Entrez votre code PIN pour valider l\'achat',
+        title: AppLocalizations.of(context)!.enterPinForPurchase,
       );
 
       // Si le code PIN n'a pas été validé (BottomSheet fermé ou erreur), on annule l'achat
@@ -213,7 +214,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
     } catch (e) {
       if (mounted) {
         _showErrorMessage(
-          'Erreur de connexion: ${e.toString().replaceAll('Exception: ', '')}',
+          '${AppLocalizations.of(context)!.connectionError2}: ${e.toString().replaceAll('Exception: ', '')}',
         );
       }
     } finally {
@@ -250,7 +251,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
           borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(8)),
         ),
         action: SnackBarAction(
-          label: 'Réessayer',
+          label: AppLocalizations.of(context)!.retry,
           textColor: Colors.white,
           onPressed: _confirmerAchat,
         ),
@@ -428,7 +429,8 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
         SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
 
         Text(
-          AppLocalizations.of(context)!.validFor(widget.forfait.validite),
+          AppLocalizations.of(context)!.validFor(
+              translateValidity(widget.forfait.validite, AppLocalizations.of(context)!)),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
@@ -505,7 +507,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
           ] else ...[
             _buildDetailRow(
               AppLocalizations.of(context)!.validityLabel,
-              widget.forfait.validite,
+              translateValidity(widget.forfait.validite, AppLocalizations.of(context)!),
             ),
           ],
         ],
@@ -621,14 +623,45 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
   }
 
   Widget _buildActionButtons() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    final l10n = AppLocalizations.of(context)!;
+    return Row(
       children: [
-        ElevatedButton(
+        // Bouton Annuler
+        Expanded(
+          child: OutlinedButton(
+            onPressed: _isLoading ? null : () => Navigator.pop(context),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: AppTheme.dtBlue),
+              padding: EdgeInsets.symmetric(
+                vertical: ResponsiveSize.getHeight(16),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  ResponsiveSize.getWidth(AppTheme.radiusM),
+                ),
+              ),
+            ),
+            child: Text(
+              l10n.cancelAction,
+              style: TextStyle(
+                fontSize: ResponsiveSize.getFontSize(16),
+                fontWeight: FontWeight.bold,
+                color: AppTheme.dtBlue,
+              ),
+            ),
+          ),
+        ),
+
+        SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+
+        // Bouton Payer
+        Expanded(
+          flex: 2,
+          child: ElevatedButton(
             onPressed: _isLoading ? null : _confirmerAchat,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.dtBlue,
-              foregroundColor: AppTheme.dtYellow,
+              foregroundColor: Colors.white,
               padding: EdgeInsets.symmetric(
                 vertical: ResponsiveSize.getHeight(16),
               ),
@@ -639,60 +672,35 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
               ),
               elevation: _isLoading ? 0 : 2,
             ),
-            child:
-                _isLoading
-                    ? SizedBox(
-                      width: ResponsiveSize.getWidth(20),
-                      height: ResponsiveSize.getHeight(20),
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppTheme.dtYellow,
+            child: _isLoading
+                ? SizedBox(
+                    width: ResponsiveSize.getWidth(20),
+                    height: ResponsiveSize.getHeight(20),
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.payment_rounded,
+                        size: ResponsiveSize.getFontSize(18),
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: ResponsiveSize.getWidth(6)),
+                      Text(
+                        l10n.payAction,
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(16),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                    )
-                    : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.check_circle_outline,
-                          size: ResponsiveSize.getFontSize(18),
-                        ),
-                        SizedBox(width: ResponsiveSize.getWidth(6)),
-                        Text(
-                            AppLocalizations.of(context)!.confirmPurchase,
-                            style: TextStyle(
-                              fontSize: ResponsiveSize.getFontSize(16),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                      ],
-                    ),
-          ),
-
-        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-
-        OutlinedButton(
-          onPressed: _isLoading ? null : () => Navigator.pop(context),
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(color: AppTheme.dtBlue),
-            padding: EdgeInsets.symmetric(
-              vertical: ResponsiveSize.getHeight(14),
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                ResponsiveSize.getWidth(AppTheme.radiusM),
-              ),
-            ),
-          ),
-          child: Text(
-            AppLocalizations.of(context)!.cancelAction,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(16),
-              fontWeight: FontWeight.bold,
-              color: AppTheme.dtBlue,
-            ),
+                    ],
+                  ),
           ),
         ),
       ],

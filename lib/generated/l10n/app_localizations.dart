@@ -3212,6 +3212,42 @@ abstract class AppLocalizations {
   /// **'Type:'**
   String get typeLabel;
 
+  /// No description provided for @otpCooldown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez patienter {seconds}s avant de redemander un code.'**
+  String otpCooldown(int seconds);
+
+  /// No description provided for @otpWindowExceeded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Réessayez dans {minutes} min.'**
+  String otpWindowExceeded(int minutes);
+
+  /// No description provided for @payAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Payer'**
+  String get payAction;
+
+  /// No description provided for @enterPinForPurchase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez votre code PIN pour valider l\'achat'**
+  String get enterPinForPurchase;
+
+  /// No description provided for @enterPinForTransfer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez votre code PIN pour valider le transfert'**
+  String get enterPinForTransfer;
+
+  /// No description provided for @connectionError2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de connexion'**
+  String get connectionError2;
+
   /// No description provided for @privacyPolicyTitle.
   ///
   /// In fr, this message translates to:

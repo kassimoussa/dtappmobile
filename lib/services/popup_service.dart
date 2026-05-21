@@ -1,9 +1,10 @@
+import 'package:dtservices/config/app_config.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/popup.dart';
 
 class PopupService {
-  static const String baseUrl = 'http://10.39.230.106/api';
+  static const String baseUrl = AppConfig.baseUrl;
 
   /// Cache statique du popup
   static PromoPopup? _cachedPopup;

@@ -1,3 +1,5 @@
+import 'package:dtservices/config/api_client.dart';
+import 'package:dtservices/config/app_config.dart';
 // lib/services/purchase_offer_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -7,7 +9,7 @@ import 'user_session.dart';
 /// Service pour l'achat d'offres
 class PurchaseOfferService {
   // URL de l'API d'achat d'offres
-  static const String baseUrl = 'http://10.39.230.106/api/air';
+  static const String baseUrl = '${AppConfig.baseUrl}/air';
   
   /// Achète une offre pour l'utilisateur actuellement connecté
   /// [offerId] : ID de l'offre à acheter (10, 11, 12, 13, 15, 16, 17, 29)
@@ -41,10 +43,7 @@ class PurchaseOfferService {
       // Faire la requête POST vers l'API
       final response = await http.post(
         Uri.parse('$baseUrl/purchase/$cleanNumber'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
         body: jsonEncode({
           'offer_id': offerId,
         }),
@@ -100,10 +99,7 @@ class PurchaseOfferService {
       // Faire la requête POST vers l'API
       final response = await http.post(
         Uri.parse('$baseUrl/gift/$cleanPayerNumber'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
         body: jsonEncode({
           'beneficiary_msisdn': cleanBeneficiaryNumber,
           'offer_id': offerId,

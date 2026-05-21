@@ -458,7 +458,7 @@ class _TransferConfirmationScreenState
       final pinVerified = await PinVerificationBottomSheet.show(
         context,
         phoneNumber: phoneNumber,
-        title: 'Entrez votre code PIN pour valider le transfert',
+        title: AppLocalizations.of(context)!.enterPinForTransfer,
       );
 
       // Si le code PIN n'a pas été validé (BottomSheet fermé ou erreur), on annule le transfert

@@ -292,8 +292,8 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
   /// Connexion avec OTP
   Future<void> _connectWithOtp() async {
     final authProvider = context.read<AuthProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
-    // Envoyer l'OTP
     final success = await authProvider.sendOtp(widget.phoneNumber);
 
     if (!mounted) return;
@@ -305,16 +305,30 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
         ),
       );
     } else {
+      final message = _rateLimitMessage(authProvider, l10n)
+          ?? authProvider.errorMessage
+          ?? l10n.otpSendError;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            authProvider.errorMessage ??
-                AppLocalizations.of(context)!.otpSendError,
-          ),
-          backgroundColor: Colors.red,
+          content: Text(message),
+          backgroundColor: authProvider.rateLimitResult != null
+              ? Colors.orange
+              : Colors.red,
+          duration: const Duration(seconds: 4),
         ),
       );
     }
+  }
+
+  String? _rateLimitMessage(AuthProvider authProvider, AppLocalizations l10n) {
+    final result = authProvider.rateLimitResult;
+    if (result == null) return null;
+    final wait = result.waitDuration!;
+    if (result.windowExceeded) {
+      return l10n.otpWindowExceeded(wait.inMinutes + 1);
+    }
+    return l10n.otpCooldown(wait.inSeconds + 1);
   }
 
   /// Affiche le modal de sélection de méthode
@@ -682,8 +696,8 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
       width: double.infinity,
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top +
-            ResponsiveSize.getHeight(12),
-        bottom: ResponsiveSize.getHeight(28),
+            ResponsiveSize.getHeight(32),
+        bottom: ResponsiveSize.getHeight(40),
       ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -720,13 +734,13 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: ResponsiveSize.getWidth(72),
-                height: ResponsiveSize.getWidth(72),
-                padding: EdgeInsets.all(ResponsiveSize.getWidth(10)),
+                width: ResponsiveSize.getWidth(100),
+                height: ResponsiveSize.getWidth(100),
+                padding: EdgeInsets.all(ResponsiveSize.getWidth(14)),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius:
-                      BorderRadius.circular(ResponsiveSize.getWidth(16)),
+                      BorderRadius.circular(ResponsiveSize.getWidth(22)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.15),
@@ -738,14 +752,14 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
                 child:
                     Image.asset('assets/djibtelogo.png', fit: BoxFit.contain),
               ),
-              SizedBox(height: ResponsiveSize.getHeight(8)),
+              SizedBox(height: ResponsiveSize.getHeight(14)),
               Text(
                 'DTServices',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: ResponsiveSize.getFontSize(16),
+                  fontSize: ResponsiveSize.getFontSize(20),
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
+                  letterSpacing: 1.2,
                 ),
               ),
             ],

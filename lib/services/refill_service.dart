@@ -1,3 +1,5 @@
+import 'package:dtservices/config/api_client.dart';
+import 'package:dtservices/config/app_config.dart';
 // lib/services/refill_service.dart
 import 'dart:convert';
 import 'dart:io';
@@ -6,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:dtservices/models/refill_models.dart';
 
 class RefillService {
-  static const String _baseUrl = 'http://10.39.230.106/api/air/refill/voucher';
+  static const String _baseUrl = '${AppConfig.baseUrl}/air/refill/voucher';
   static const Duration _timeout = Duration(seconds: 30);
 
   /// Effectue une recharge avec un code voucher
@@ -55,10 +57,7 @@ class RefillService {
       final response = await http
           .post(
             uri,
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
+            headers: await ApiClient.authHeaders(),
             body: jsonEncode(requestBody),
           )
           .timeout(_timeout);
@@ -222,7 +221,7 @@ class RefillService {
       print('=== TEST SERVEUR API ===');
       
       final response = await http.get(
-        Uri.parse('http://10.39.230.106/api/air/refill/types'),
+        Uri.parse('${AppConfig.baseUrl}/air/refill/types'),
         headers: {'Accept': 'application/json'},
       ).timeout(Duration(seconds: 10));
       

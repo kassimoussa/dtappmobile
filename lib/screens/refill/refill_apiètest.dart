@@ -1,3 +1,4 @@
+import 'package:dtservices/config/app_config.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ class RefillApiTest extends StatefulWidget {
 }
 
 class _RefillApiTestState extends State<RefillApiTest> {
-  final String baseUrl = 'http://10.39.230.106/api/air'; // Remplacez par votre URL
+  final String baseUrl = '${AppConfig.baseUrl}/air'; // Remplacez par votre URL
   
   // Contrôleurs pour les champs de saisie
   final TextEditingController msisdnController = TextEditingController();

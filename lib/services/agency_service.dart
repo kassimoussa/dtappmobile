@@ -1,9 +1,10 @@
+import 'package:dtservices/config/app_config.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/agency.dart';
 
 class AgencyService {
-  static const String baseUrl = 'http://10.39.230.106/api';
+  static const String baseUrl = AppConfig.baseUrl;
 
   static Future<List<Agency>> getAgencies() async {
     try {

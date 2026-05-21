@@ -55,7 +55,13 @@
       "Bash(curl -sL \"https://fonts.gstatic.com/s/outfit/v15/QGYyz_MVcBeNP4NjuGObqx1XmO1I4e6yC4E.ttf\" -o \"Outfit-SemiBold.ttf\")",
       "Bash(curl -sL \"https://fonts.gstatic.com/s/outfit/v15/QGYyz_MVcBeNP4NjuGObqx1XmO1I4deyC4E.ttf\" -o \"Outfit-Bold.ttf\")",
       "Bash(curl -sL \"https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZg.ttf\" -o \"Inter-Regular.ttf\")",
-      "Bash(adb shell *)"
+      "Bash(adb shell *)",
+      "Bash(xargs sed -i '' 's|http://10\\\\.39\\\\.230\\\\.106|http://196.201.193.252|g')",
+      "Bash(xargs sed -i '' -e 's|'\\\\''http://196.201.193.252/api'\\\\''|AppConfig.baseUrl|g' -e 's|'\\\\''http://196.201.193.252'\\\\''|AppConfig.serverBase|g')",
+      "Bash(xargs sed -i '' 's|'\\\\''http://196\\\\.201\\\\.193\\\\.252/api|'\\\\''${AppConfig.baseUrl}|g')",
+      "Bash(xargs -I{} basename {})",
+      "Bash(perl -i -0pe \"s/Future<Map<String, String>> _headers\\\\\\(\\\\\\) => ApiClient\\\\.authHeaders\\\\\\(\\\\\\); \\\\/\\\\/ replaced\\\\n  \\\\/\\\\/ old: \\\\{\\\\n    'Content-Type': 'application\\\\/json',\\\\n    'Accept': 'application\\\\/json',\\\\n  \\\\};/Future<Map<String, String>> _headers\\(\\) => ApiClient.authHeaders\\(\\);/g\" /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3_clone/lib/services/topup_api_service.dart)",
+      "Bash(sed -i '' 's/headers: _headers,/headers: await _headers\\(\\),/g' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3_clone/lib/services/topup_api_service.dart)"
     ],
     "deny": [],
     "ask": []

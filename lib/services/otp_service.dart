@@ -1,3 +1,4 @@
+import 'package:dtservices/config/app_config.dart';
 // lib/services/otp_service.dart (version corrigée)
 import 'dart:convert';
 import 'dart:io';
@@ -8,8 +9,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 class OtpService {
   // Définissez les URLs de vos APIs ici
-  final String sendOtpUrl = 'http://10.39.230.106/api/sms/otp/send';
-  final String verifyOtpUrl = 'http://10.39.230.106/api/sms/otp/verify';
+  final String sendOtpUrl = '${AppConfig.baseUrl}/sms/otp/send';
+  final String verifyOtpUrl = '${AppConfig.baseUrl}/sms/otp/verify';
 
   // Nom de l'expéditeur du SMS
   final String senderName = 'DjibTel';

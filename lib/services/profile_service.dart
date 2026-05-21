@@ -1,3 +1,5 @@
+import 'package:dtservices/config/api_client.dart';
+import 'package:dtservices/config/app_config.dart';
 // lib/services/profile_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -5,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'user_session.dart';
 
 class ProfileService {
-  static const String profileUrl = 'http://10.39.230.106/api/mobile/profile';
-  static const String updateProfileUrl = 'http://10.39.230.106/api/mobile/update-profile';
+  static const String profileUrl = '${AppConfig.baseUrl}/mobile/profile';
+  static const String updateProfileUrl = '${AppConfig.baseUrl}/mobile/update-profile';
 
   /// Récupère le profil utilisateur complet
   static Future<Map<String, dynamic>?> getUserProfile() async {
@@ -23,10 +25,7 @@ class ProfileService {
       // Appeler l'API
       final response = await http.post(
         Uri.parse(profileUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
         body: jsonEncode({
           'session_token': sessionToken,
         }),
@@ -86,10 +85,7 @@ class ProfileService {
       // Appeler l'API
       final response = await http.post(
         Uri.parse(updateProfileUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
         body: jsonEncode(payload),
       );
 

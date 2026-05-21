@@ -1,3 +1,5 @@
+import 'package:dtservices/config/api_client.dart';
+import 'package:dtservices/config/app_config.dart';
 // lib/services/api_service.dart
 import 'dart:convert';
 import 'dart:async';
@@ -10,18 +12,14 @@ import 'user_session.dart';
 
 class ForfaitActifService {
   // URL de base de l'API
-  static const String baseUrl = 'http://10.39.230.106/api';
+  static const String baseUrl = AppConfig.baseUrl;
   
   // Préfixes pour le cache
   static const String _cachePrefix = 'api_cache_';
   static const String _cacheTTLPrefix = 'api_ttl_';
   static const String apiTimeout = 'api_timeout';
   
-  // En-têtes par défaut pour les requêtes
-  static Map<String, String> get _headers => {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  };
+  static Future<Map<String, String>> _headers() => ApiClient.authHeaders();
 
   // Délai d'attente et tentatives
   static const Duration _timeout = Duration(seconds: 30);
@@ -73,7 +71,7 @@ class ForfaitActifService {
           // Effectuer la requête
           final response = await http.get(
             url,
-            headers: _headers,
+            headers: await _headers(),
           ).timeout(_timeout);
           
           // Traiter la réponse
@@ -145,7 +143,7 @@ class ForfaitActifService {
       // Effectuer la requête
       final response = await http.get(
         url,
-        headers: _headers,
+        headers: await _headers(),
       ).timeout(_timeout);
       
       // Vérifier la réponse

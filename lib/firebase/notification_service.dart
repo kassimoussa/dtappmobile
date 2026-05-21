@@ -1,17 +1,14 @@
 import 'dart:convert';
 import 'package:dtservices/models/app_notification.dart';
-import 'package:dtservices/screens/achat_forfait/forfait_recipient_screen.dart';
-import 'package:dtservices/screens/forfaits_actifs/forfaits_actifs_screen.dart';
-import 'package:dtservices/screens/refill/refill_recipient_screen.dart';
-import 'package:dtservices/screens/transfer_credit/transfer_input_screen.dart';
 import 'package:dtservices/services/notification_store.dart';
-import 'package:dtservices/services/user_session.dart';
 import 'package:dtservices/widgets/in_app_notification_banner.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../screens/core/main_screen.dart';
+import '../screens/notifications/notifications_screen.dart';
 
 // ─── Canaux Android ──────────────────────────────────────────────────────────
 
@@ -120,18 +117,18 @@ class NotificationService {
       }
     });
 
-    // Background → tap sur la notif
+    // Background → tap sur la notif → écran notifications
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint('🔔 Tap depuis arrière-plan: ${message.data}');
-      _handleNavigation(message.data);
+      _goToNotifications();
     });
 
-    // App fermée → tap sur la notif
+    // App fermée → tap sur la notif → écran notifications
     final initialMessage = await _fcm.getInitialMessage();
     if (initialMessage != null) {
       debugPrint('🚀 Tap depuis app fermée: ${initialMessage.data}');
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _handleNavigation(initialMessage.data);
+        _goToNotifications();
       });
     }
   }
@@ -150,15 +147,7 @@ class NotificationService {
     await _localNotifications.initialize(
       const InitializationSettings(android: androidSettings, iOS: iosSettings),
       onDidReceiveNotificationResponse: (details) {
-        if (details.payload != null) {
-          try {
-            final data =
-                jsonDecode(details.payload!) as Map<String, dynamic>;
-            _handleNavigation(data);
-          } catch (e) {
-            debugPrint('❌ Erreur décodage payload: $e');
-          }
-        }
+        _goToNotifications();
       },
     );
 
@@ -190,7 +179,7 @@ class NotificationService {
           title: title,
           body: body,
           channel: channel,
-          onTap: () => _handleNavigation(data),
+          onTap: _goToNotifications,
         );
       }
     }
@@ -272,9 +261,18 @@ class NotificationService {
 
   // ─── Notification solde bas (locale, sans serveur) ────────────────────────
 
+  static const _keyLastLowBalance = 'notif_last_low_balance';
+
   Future<void> checkAndNotifyLowBalance(double balance,
       {double threshold = 500}) async {
     if (balance >= threshold) return;
+
+    // Ne notifier que si le solde a changé depuis la dernière notif
+    final prefs = await SharedPreferences.getInstance();
+    final lastNotified = prefs.getDouble(_keyLastLowBalance);
+    if (lastNotified == balance) { return; }
+
+    await prefs.setDouble(_keyLastLowBalance, balance);
 
     const title = 'Solde faible';
     final body =
@@ -289,68 +287,15 @@ class NotificationService {
     );
   }
 
-  // ─── Deep linking ─────────────────────────────────────────────────────────
-
-  void _handleNavigation(Map<String, dynamic> data) {
-    final type = data['type'] as String?;
-    debugPrint('🎯 Deep link type: $type');
-
-    switch (type) {
-      case 'offer_purchase':
-      case 'offer_gift':
-        _goTo(_buildForfaitsActifsRoute);
-      case 'buy_offer':
-        _goTo(_buildBuyOfferRoute);
-      case 'credit_transfer':
-        _goTo(_buildTransferRoute);
-      case 'voucher_refill':
-        _goTo(_buildRefillRoute);
-      default:
-        debugPrint('⚠️ Type inconnu ($type) → accueil');
-        _goToHome();
-    }
-  }
-
-  void _goTo(Future<Widget?> Function() screenBuilder) async {
+  void _goToNotifications() {
     final nav = navigatorKey.currentState;
-    if (nav == null) {
-      debugPrint('❌ Navigator non disponible');
-      return;
-    }
+    if (nav == null) return;
     nav.pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const MainScreen()),
       (route) => false,
     );
-    final screen = await screenBuilder();
-    if (screen == null) return;
-    nav.push(MaterialPageRoute(builder: (_) => screen));
-  }
-
-  void _goToHome() {
-    navigatorKey.currentState?.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const MainScreen()),
-      (route) => false,
+    nav.push(
+      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
     );
-  }
-
-  // ─── Constructeurs d'écrans ───────────────────────────────────────────────
-
-  Future<Widget?> _buildForfaitsActifsRoute() async =>
-      const ForfaitsActifsScreen();
-
-  Future<Widget?> _buildBuyOfferRoute() async {
-    final phone = await UserSession.getPhoneNumber();
-    return ForfaitRecipientScreen(phoneNumber: phone);
-  }
-
-  Future<Widget?> _buildTransferRoute() async {
-    final phone = await UserSession.getPhoneNumber();
-    if (phone == null || phone.isEmpty) return null;
-    return TransferInputScreen(phoneNumber: phone);
-  }
-
-  Future<Widget?> _buildRefillRoute() async {
-    final phone = await UserSession.getPhoneNumber();
-    return RefillRecipientScreen(phoneNumber: phone);
   }
 }

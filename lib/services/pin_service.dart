@@ -1,3 +1,5 @@
+import 'package:dtservices/config/api_client.dart';
+import 'package:dtservices/config/app_config.dart';
 // lib/services/pin_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -6,7 +8,7 @@ import 'package:flutter/material.dart';
 /// Service pour gérer l'authentification par PIN
 /// Fournit les méthodes pour login, configuration, modification et réinitialisation du PIN
 class PinService {
-  static const String baseUrl = 'http://10.39.230.106/api';
+  static const String baseUrl = AppConfig.baseUrl;
 
   /// Connexion avec PIN
   ///
@@ -45,10 +47,7 @@ class PinService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/mobile/login-pin'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
         body: jsonEncode(body),
       );
 
@@ -134,10 +133,7 @@ class PinService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/mobile/set-pin'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
         body: jsonEncode({
           'session_token': sessionToken,
           'pin': pin,
@@ -213,10 +209,7 @@ class PinService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/mobile/change-pin'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
         body: jsonEncode({
           'session_token': sessionToken,
           'old_pin': oldPin,
@@ -298,10 +291,7 @@ class PinService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/mobile/reset-pin'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
         body: jsonEncode(body),
       );
 

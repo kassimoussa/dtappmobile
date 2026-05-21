@@ -9,6 +9,7 @@ import 'package:dtservices/utils/responsive_size.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../generated/l10n/app_localizations.dart';
+import '../../utils/validity_translator.dart';
 
 class ForfaitSuccessScreen extends StatefulWidget {
   final Forfait forfait;
@@ -227,7 +228,7 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                                         _buildDetailRow(l10n.internetLabel, widget.forfait.data!),
                                       ],
                                       _buildDivider(),
-                                      _buildDetailRow(l10n.validityLabel, widget.forfait.validite),
+                                      _buildDetailRow(l10n.validityLabel, translateValidity(widget.forfait.validite, l10n)),
                                     ],
                                   ),
                                 ),

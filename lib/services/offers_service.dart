@@ -1,10 +1,11 @@
+import 'package:dtservices/config/app_config.dart';
 // lib/services/offers_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/forfait.dart';
 
 class OffersService {
-  static const _url = 'http://10.39.230.106/api/offers';
+  static const _url = '${AppConfig.baseUrl}/offers';
   static const _cacheTtl = Duration(hours: 1);
 
   static Map<String, List<Forfait>>? _cache;

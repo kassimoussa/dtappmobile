@@ -1,3 +1,5 @@
+import 'package:dtservices/config/api_client.dart';
+import 'package:dtservices/config/app_config.dart';
 // lib/services/activity_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -6,7 +8,7 @@ import '../models/activity.dart';
 import 'user_session.dart';
 
 class ActivityService {
-  static const String baseUrl = 'http://10.39.230.106/api/activity';
+  static const String baseUrl = '${AppConfig.baseUrl}/activity';
 
   /// Récupère l'historique des activités d'un utilisateur
   static Future<ActivityHistoryResponse?> getHistory({
@@ -34,10 +36,7 @@ class ActivityService {
       final url = '$baseUrl/history/$cleanNumber?page=$page&per_page=$perPage&days=$days';
       final response = await http.get(
         Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
       );
 
       debugPrint('Activity History API: ${response.statusCode} - ${response.body}');
@@ -103,10 +102,7 @@ class ActivityService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/history'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
         body: jsonEncode(payload),
       );
 
@@ -162,10 +158,7 @@ class ActivityService {
       final url = '$baseUrl/stats/$cleanNumber?days=$days';
       final response = await http.get(
         Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
       );
 
       debugPrint('Activity Stats API: ${response.statusCode} - ${response.body}');
@@ -224,10 +217,7 @@ class ActivityService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/stats'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
         body: jsonEncode(payload),
       );
 

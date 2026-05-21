@@ -676,7 +676,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            l10n.topupActions,
+            l10n.quickActions,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(18),
               fontWeight: FontWeight.bold,
@@ -685,7 +685,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildActionButton(
                 icon: Icons.subscriptions,
@@ -707,6 +707,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                   }
                 },
               ),
+              SizedBox(width: ResponsiveSize.getWidth(12)),
               _buildActionButton(
                 icon: Icons.shopping_cart,
                 label: l10n.buyPackagesBtn,
@@ -728,6 +729,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                   }
                 },
               ),
+              SizedBox(width: ResponsiveSize.getWidth(12)),
               _buildActionButton(
                 icon: Icons.account_balance_wallet,
                 label: l10n.rechargeAccountBtn,
@@ -760,30 +762,38 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     required String label,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          CircleAvatar(
-            backgroundColor: AppTheme.dtBlue,
-            radius: ResponsiveSize.getWidth(22),
-            child: Icon(
-              icon,
-              color: AppTheme.dtYellow,
-              size: ResponsiveSize.getFontSize(20),
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
+              decoration: AppTheme.cardDecoration.copyWith(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                icon,
+                color: AppTheme.dtBlueDark,
+                size: ResponsiveSize.getFontSize(24),
+              ),
             ),
-          ),
-          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(12),
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
+            SizedBox(height: ResponsiveSize.getHeight(6)),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: ResponsiveSize.getFontSize(12),
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+                height: 1.2,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

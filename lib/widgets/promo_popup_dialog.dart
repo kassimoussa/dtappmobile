@@ -7,17 +7,31 @@ import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
 
 class PromoPopupDialog {
+  /// Affiché une seule fois par session (réinitialisé au redémarrage de l'app).
+  static bool _shownThisSession = false;
+
   static Future<void> showIfAvailable(BuildContext context) async {
+    if (_shownThisSession) return;
+
     final popup = await PopupService.getPopup();
     if (popup == null) return;
     if (!context.mounted) return;
 
-    // Délai de 1 seconde avant d'afficher le popup
+    _shownThisSession = true;
+
     await Future.delayed(const Duration(seconds: 1));
     if (!context.mounted) return;
 
     _show(context, popup);
+
+    // Fermeture automatique après 3 secondes
+    Future.delayed(const Duration(seconds: 3), () {
+      if (context.mounted) Navigator.of(context, rootNavigator: true).maybePop();
+    });
   }
+
+  /// Réinitialise le flag (utile après déconnexion).
+  static void resetSession() => _shownThisSession = false;
 
   static void _show(BuildContext context, PromoPopup popup) {
     showGeneralDialog(

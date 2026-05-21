@@ -1,5 +1,6 @@
+import 'package:dtservices/config/app_config.dart';
 class PromoPopup {
-  static const String _serverBase = 'http://10.39.230.106';
+  static const String _serverBase = AppConfig.serverBase;
 
   final int id;
   final String title;

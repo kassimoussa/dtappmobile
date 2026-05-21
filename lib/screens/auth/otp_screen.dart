@@ -4,9 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'dart:async';
+import 'dart:ui';
 import '../../constants/app_theme.dart';
+import '../../extensions/color_extensions.dart';
 import '../../utils/responsive_size.dart';
-import '../../widgets/appbar_widget.dart';
+
 import '../../routes/custom_route_transitions.dart';
 import '../../providers/auth_provider.dart';
 import '../core/main_screen.dart';
@@ -140,8 +142,8 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
     if (!_canResend) return;
 
     final authProvider = context.read<AuthProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
-    // Réenvoyer OTP via AuthProvider
     final success = await authProvider.sendOtp(widget.phone);
 
     if (!mounted) return;
@@ -149,33 +151,40 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.otpResentSuccess),
+          content: Text(l10n.otpResentSuccess),
           backgroundColor: Colors.green,
         ),
       );
-
       _startTimer();
       _clearAllFields();
-
-      // Réactiver l'écoute SMS après réenvoi
       SmsAutoFill().listenForCode;
     } else {
-      setState(() {
-        _errorMessage =
-            authProvider.errorMessage ??
-            AppLocalizations.of(context)!.otpResentError;
-      });
+      final message = _rateLimitMessage(authProvider, l10n)
+          ?? authProvider.errorMessage
+          ?? l10n.otpResentError;
+
+      setState(() => _errorMessage = message);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            authProvider.errorMessage ??
-                AppLocalizations.of(context)!.otpResentError,
-          ),
-          backgroundColor: Colors.red,
+          content: Text(message),
+          backgroundColor: authProvider.rateLimitResult != null
+              ? Colors.orange
+              : Colors.red,
+          duration: const Duration(seconds: 4),
         ),
       );
     }
+  }
+
+  String? _rateLimitMessage(AuthProvider authProvider, AppLocalizations l10n) {
+    final result = authProvider.rateLimitResult;
+    if (result == null) return null;
+    final wait = result.waitDuration!;
+    if (result.windowExceeded) {
+      return l10n.otpWindowExceeded(wait.inMinutes + 1);
+    }
+    return l10n.otpCooldown(wait.inSeconds + 1);
   }
 
   void _showPinSetupDialog() {
@@ -260,7 +269,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
-                foregroundColor: AppTheme.dtYellow,
+                foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
                   horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
                   vertical: ResponsiveSize.getHeight(12),
@@ -325,10 +334,11 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
       if (success) {
         // Succès
 
-        // Check if user already asked to skip PIN setup
         final shouldSkip = await UserSession.shouldSkipPinSetup();
+        // Vérifier aussi en local — l'API peut ne pas retourner has_pin
+        final localHasPin = await UserSession.hasPin();
 
-        if (authProvider.hasPin || shouldSkip) {
+        if (authProvider.hasPin || localHasPin || shouldSkip) {
           // PIN déjà configuré OU ignoré => vers MainScreen
           Navigator.of(context).pushAndRemoveUntil(
             CustomRouteTransitions.fadeScaleRoute(page: const MainScreen()),
@@ -339,23 +349,12 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
           _showPinSetupDialog();
         }
       } else {
-        // Échec - Afficher erreur
         setState(() {
           _errorMessage =
               authProvider.errorMessage ??
               AppLocalizations.of(context)!.otpInvalid;
           _clearAllFields();
         });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              authProvider.errorMessage ??
-                  AppLocalizations.of(context)!.otpInvalid,
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
       }
     }
   }
@@ -377,14 +376,40 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: const AppBarWidget(title: 'Vérification OTP', showAction: false),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
+        children: [
+          // Fond cercle radial — identique au PIN screen
+          Positioned(
+            top: -100,
+            left: -100,
+            right: -100,
+            child: Container(
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildGlassAppBar(context),
+                Expanded(
+                  child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: Padding(
+            padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
               Text(
                 AppLocalizations.of(
@@ -407,11 +432,11 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                     bottom: ResponsiveSize.getHeight(AppTheme.spacingM),
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(
                       ResponsiveSize.getWidth(AppTheme.radiusM),
                     ),
-                    border: Border.all(color: Colors.red.withOpacity(0.3)),
+                    border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     children: [
@@ -496,7 +521,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                 onPressed: authProvider.isLoading ? null : _onOTPSubmit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.dtBlue,
-                  foregroundColor: AppTheme.dtYellow,
+                  foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(
                     vertical: ResponsiveSize.getHeight(16),
                   ),
@@ -508,13 +533,13 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                 ),
                 child:
                     authProvider.isLoading
-                        ? SizedBox(
-                          width: ResponsiveSize.getWidth(24),
-                          height: ResponsiveSize.getHeight(24),
+                        ? const SizedBox(
+                          width: 24,
+                          height: 24,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              AppTheme.dtYellow,
+                              Colors.white,
                             ),
                           ),
                         )
@@ -580,6 +605,58 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassAppBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(12),
+            vertical: ResponsiveSize.getHeight(12),
+          ),
+          decoration: const BoxDecoration(color: Colors.transparent),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded,
+                      color: AppTheme.dtBlueDark, size: 20),
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Text(
+                  l10n.verificationTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.headingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(22),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
             ],
           ),

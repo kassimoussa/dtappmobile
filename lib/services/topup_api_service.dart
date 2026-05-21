@@ -1,3 +1,5 @@
+import 'package:dtservices/config/api_client.dart';
+import 'package:dtservices/config/app_config.dart';
 // lib/services/topup_api_service.dart
 import 'dart:convert';
 import 'dart:async';
@@ -10,7 +12,7 @@ import '../exceptions/topup_exception.dart';
 
 class TopUpApiService {
   // Configuration de l'API
-  static const String baseUrl = 'http://10.39.230.106/api/topup';
+  static const String baseUrl = '${AppConfig.baseUrl}/topup';
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
   static const Duration _retryDelay = Duration(seconds: 1);
@@ -23,11 +25,13 @@ class TopUpApiService {
   
   TopUpApiService({http.Client? client}) : _client = client ?? http.Client();
   
-  // Headers par défaut pour les requêtes
-  Map<String, String> get _headers => {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  };
+  Future<Map<String, String>> _headers() => ApiClient.authHeaders();
+
+  /// Normalise un numéro fixe/mobile au format international (253XXXXXXXX).
+  static String _normalize(String number) {
+    final clean = number.replaceAll(RegExp(r'\s+'), '');
+    return clean.startsWith('253') ? clean : '253$clean';
+  }
   
   /// Récupère les soldes d'un numéro fixe
   Future<TopUpBalanceResponse> getBalances({
@@ -60,8 +64,8 @@ class TopUpApiService {
     
     // Préparer la requête
     final requestBody = {
-      'msisdn': msisdn,
-      'isdn': isdn,
+      'msisdn': _normalize(msisdn),
+      'isdn': _normalize(isdn),
     };
     
     debugPrint('TopUp API - Consultation soldes: $msisdn -> $isdn');
@@ -72,7 +76,7 @@ class TopUpApiService {
     final response = await _executeWithRetry(() async {
       return await _client.post(
         Uri.parse('$baseUrl/balances'),
-        headers: _headers,
+        headers: await _headers(),
         body: json.encode(requestBody),
       ).timeout(_timeout);
     });
@@ -138,8 +142,8 @@ class TopUpApiService {
     
     // Préparer la requête
     final requestBody = {
-      'msisdn': msisdn,
-      'isdn': isdn,
+      'msisdn': _normalize(msisdn),
+      'isdn': _normalize(isdn),
       'package_code': packageCode,
     };
     
@@ -163,7 +167,7 @@ class TopUpApiService {
     final response = await _executeWithRetry(() async {
       return await _client.post(
         Uri.parse('$baseUrl/subscribe-package'),
-        headers: _headers,
+        headers: await _headers(),
         body: json.encode(requestBody),
       ).timeout(_timeout);
     });
@@ -204,7 +208,7 @@ class TopUpApiService {
     
     // Préparer la requête
     final requestBody = {
-      'isdn': isdn,
+      'isdn': _normalize(isdn),
     };
     
     debugPrint('TopUp API - Vérification statut: $isdn');
@@ -215,7 +219,7 @@ class TopUpApiService {
     final response = await _executeWithRetry(() async {
       return await _client.post(
         Uri.parse('$baseUrl/status'),
-        headers: _headers,
+        headers: await _headers(),
         body: json.encode(requestBody),
       ).timeout(_timeout);
     });
@@ -258,8 +262,8 @@ class TopUpApiService {
     
     // Préparer la requête
     final requestBody = {
-      'msisdn': msisdn,
-      'isdn': isdn,
+      'msisdn': _normalize(msisdn),
+      'isdn': _normalize(isdn),
       'amount': amount,
     };
     
@@ -283,7 +287,7 @@ class TopUpApiService {
     final response = await _executeWithRetry(() async {
       return await _client.post(
         Uri.parse('$baseUrl/recharge-account'),
-        headers: _headers,
+        headers: await _headers(),
         body: json.encode(requestBody),
       ).timeout(_timeout);
     });
@@ -347,8 +351,8 @@ class TopUpApiService {
     
     // Préparer la requête
     final requestBody = {
-      'msisdn': msisdn,
-      'isdn': isdn,
+      'msisdn': _normalize(msisdn),
+      'isdn': _normalize(isdn),
       'type': type,
     };
     
@@ -360,7 +364,7 @@ class TopUpApiService {
     final response = await _executeWithRetry(() async {
       return await _client.post(
         Uri.parse('$baseUrl/packages'),
-        headers: _headers,
+        headers: await _headers(),
         body: json.encode(requestBody),
       ).timeout(_timeout);
     });
@@ -392,7 +396,50 @@ class TopUpApiService {
         rethrow;
       }
     } else {
-      debugPrint('TopUp API - Erreur HTTP packages: ${response.statusCode} - ${response.body}');
+      // 404 + returnCode 453 = aucun package applicable → résultat vide, pas une exception
+      if (response.statusCode == 404) {
+        try {
+          final errorData = json.decode(response.body) as Map<String, dynamic>;
+          final status = errorData['status'] as Map<String, dynamic>?;
+          final canGet = status?['can_get_packages'] ?? true;
+
+          final msg = status?['message'] as String?
+              ?? errorData['erreur'] as String?
+              ?? 'Aucun package disponible';
+
+          if (!canGet) {
+            debugPrint('TopUp API - Aucun package disponible (returnCode: ${errorData['returnCode']})');
+
+            return TopUpPackageResponse(
+              success: false,
+              message: msg,
+              msisdn: msisdn,
+              isdn: isdn,
+              type: type,
+              typeDescription: '',
+              returnCode: errorData['returnCode']?.toString() ?? '404',
+              description: msg,
+              packages: [],
+              totalPackages: 0,
+              summary: TopUpPackageSummary(
+                totalPackages: 0,
+                categories: {},
+                priceRange: TopUpPriceRange(min: 0, max: 0, average: 0),
+                affordablePackages: 0,
+              ),
+              details: TopUpPackageDetails(
+                msisdn: msisdn,
+                isdn: isdn,
+                type: type,
+                requestTime: '',
+                totalPackages: 0,
+                backendApi: '',
+              ),
+            );
+          }
+        } catch (_) {}
+      }
+
       throw TopUpException.fromResponse(response);
     }
   }
@@ -538,7 +585,7 @@ class TopUpApiService {
     try {
       final response = await _client.get(
         Uri.parse('$baseUrl/health'),
-        headers: _headers,
+        headers: await _headers(),
       ).timeout(const Duration(seconds: 10));
       
       return response.statusCode == 200;

@@ -1765,6 +1765,30 @@ class AppLocalizationsFr extends AppLocalizations {
   String get typeLabel => 'Type:';
 
   @override
+  String otpCooldown(int seconds) {
+    return 'Veuillez patienter ${seconds}s avant de redemander un code.';
+  }
+
+  @override
+  String otpWindowExceeded(int minutes) {
+    return 'Trop de tentatives. Réessayez dans $minutes min.';
+  }
+
+  @override
+  String get payAction => 'Payer';
+
+  @override
+  String get enterPinForPurchase =>
+      'Entrez votre code PIN pour valider l\'achat';
+
+  @override
+  String get enterPinForTransfer =>
+      'Entrez votre code PIN pour valider le transfert';
+
+  @override
+  String get connectionError2 => 'Erreur de connexion';
+
+  @override
   String get privacyPolicyTitle => 'Politique de confidentialité';
 
   @override

@@ -1,3 +1,4 @@
+import 'package:dtservices/config/api_client.dart';
 import 'package:dtservices/firebase/notification_service.dart';
 import 'package:dtservices/services/fcm_token_service.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'generated/l10n/app_localizations.dart';
 import 'screens/auth/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
+import 'widgets/connectivity_banner.dart';
 import 'utils/responsive_size.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -19,6 +21,9 @@ import 'providers/language_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Brancher le navigatorKey partagé pour l'intercepteur 401
+  ApiClient.navigatorKey = NotificationService.navigatorKey;
 
   try {
     await Firebase.initializeApp(
@@ -155,10 +160,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Écouter les changements de langue
     final languageProvider = context.watch<LanguageProvider>();
 
-    return MaterialApp(
+    return ConnectivityBanner(child: MaterialApp(
       title: 'DTServices',
       debugShowCheckedModeBanner: false,
       navigatorKey: NotificationService.navigatorKey,
+      routes: {
+        '/login': (_) => const LoginScreen(),
+      },
       theme: ThemeData(
         primaryColor: const Color(0xFF002464),
         scaffoldBackgroundColor: Colors.white,
@@ -179,7 +187,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           return const SplashScreen();
         },
       ),
-    );
+    ));
   }
 }
  

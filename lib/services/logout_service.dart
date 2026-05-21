@@ -1,13 +1,15 @@
+import 'package:dtservices/config/api_client.dart';
+import 'package:dtservices/config/app_config.dart';
 // lib/services/logout_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'fcm_token_service.dart';
+import 'notification_store.dart';
 import 'user_session.dart';
+import '../widgets/promo_popup_dialog.dart';
 
 class LogoutService {
-  static const String logoutUrl = 'http://10.39.230.106/api/mobile/logout';
+  static const String logoutUrl = '${AppConfig.baseUrl}/mobile/logout';
 
   /// Effectue la déconnexion complète (API + local)
   /// NOTE: Le token FCM n'est PAS supprimé pour permettre les notifications
@@ -26,20 +28,14 @@ class LogoutService {
 
       debugPrint('Logout: Appel API avec token: ${sessionToken.substring(0, 10)}...');
 
-      // Supprimer le token FCM de cet appareil uniquement
-      final fcmToken = await FirebaseMessaging.instance.getToken();
-      await FCMTokenService.clearToken(
-        sessionToken: sessionToken,
-        fcmToken: fcmToken,
-      );
+      // Le token FCM est conservé volontairement pour continuer à recevoir
+      // les notifications même après déconnexion (transferts, cadeaux, etc.)
+      // clear-token n'est appelé que si l'user désactive explicitement les notifs.
 
       // Appeler l'API logout
       final response = await http.post(
         Uri.parse(logoutUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await ApiClient.authHeaders(),
         body: jsonEncode({
           'session_token': sessionToken,
         }),
@@ -49,6 +45,8 @@ class LogoutService {
 
       // 3. Nettoyer la session locale dans tous les cas
       await UserSession.clearSession();
+      await NotificationStore().switchUser('');
+      PromoPopupDialog.resetSession();
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);

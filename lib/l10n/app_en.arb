@@ -725,6 +725,19 @@
     "invoiceLabel": "Invoice:",
     "dueDateLabel": "Due date:",
     "typeLabel": "Type:",
+    "otpCooldown": "Please wait {seconds}s before requesting a new code.",
+    "@otpCooldown": {
+      "placeholders": { "seconds": { "type": "int" } }
+    },
+    "otpWindowExceeded": "Too many attempts. Please try again in {minutes} min.",
+    "@otpWindowExceeded": {
+      "placeholders": { "minutes": { "type": "int" } }
+    },
+    "payAction": "Pay",
+    "enterPinForPurchase": "Enter your PIN to confirm purchase",
+    "enterPinForTransfer": "Enter your PIN to confirm transfer",
+    "connectionError2": "Connection error",
+    "retry": "Retry",
     "privacyPolicyTitle": "Privacy Policy",
     "privacyPolicyLastUpdated": "Last updated: January 1, 2025",
     "privacyPolicyScrollInfo": "Read and scroll to the bottom to accept.",

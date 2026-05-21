@@ -1,5 +1,7 @@
 // lib/providers/auth_provider.dart
 import 'package:flutter/material.dart';
+import '../services/notification_store.dart';
+import '../services/otp_rate_limiter.dart';
 import '../services/user_session.dart';
 import '../services/otp_service.dart';
 import '../services/logout_service.dart';
@@ -140,6 +142,12 @@ class AuthProvider extends ChangeNotifier {
           hasPin = rawHasPin == 1;
         }
 
+        // Si l'API OTP ne retourne pas has_pin, préserver la valeur locale
+        // (définie par /mobile/check-status lors du choix de méthode)
+        if (!hasPin) {
+          hasPin = await UserSession.hasPin();
+        }
+
         // Créer la session
         await _createSession(phoneNumber, sessionToken, hasPin: hasPin);
 
@@ -212,6 +220,12 @@ class AuthProvider extends ChangeNotifier {
       sessionToken: sessionToken,
       hasPin: hasPin,
     );
+
+    // Charger les notifs du bon compte (isole les données par numéro)
+    await NotificationStore().switchUser(phoneNumber);
+
+    // Réinitialiser le compteur OTP après connexion réussie
+    await OtpRateLimiter.reset(phoneNumber);
 
     // Mettre à jour l'état du provider
     _phoneNumber = phoneNumber;
@@ -294,11 +308,26 @@ class AuthProvider extends ChangeNotifier {
 
   // ==================== Opérations d'authentification ====================
 
+  /// Dernier résultat de rate limit (null si pas de blocage).
+  /// L'UI lit ce champ pour formater le message avec l10n.
+  RateLimitResult? _rateLimitResult;
+  RateLimitResult? get rateLimitResult => _rateLimitResult;
+
   /// Envoie un code OTP au numéro de téléphone
   Future<bool> sendOtp(String phoneNumber) async {
     _isLoading = true;
     _errorMessage = null;
+    _rateLimitResult = null;
     notifyListeners();
+
+    // ── Vérification du rate limit ────────────────────────────────────────
+    final limitResult = await OtpRateLimiter.check(phoneNumber);
+    if (!limitResult.allowed) {
+      _rateLimitResult = limitResult;
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
 
     try {
       debugPrint('AuthProvider: Envoi OTP à $phoneNumber');
@@ -308,7 +337,9 @@ class AuthProvider extends ChangeNotifier {
       if (result['status'] == 'success') {
         debugPrint('AuthProvider: OTP envoyé avec succès');
 
-        // Enregistrer le token FCM pour ce numéro (permet les notifications hors connexion)
+        // Enregistrer la tentative pour le rate limiter
+        await OtpRateLimiter.record(phoneNumber);
+
         FCMTokenService.registerTokenWithPhone(phoneNumber).then((success) {
           if (success) {
             debugPrint('✅ Token FCM enregistré pour $phoneNumber');

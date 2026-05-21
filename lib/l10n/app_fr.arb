@@ -743,6 +743,19 @@
     "invoiceLabel": "Facture:",
     "dueDateLabel": "Date d'échéance:",
     "typeLabel": "Type:",
+    "otpCooldown": "Veuillez patienter {seconds}s avant de redemander un code.",
+    "@otpCooldown": {
+      "placeholders": { "seconds": { "type": "int" } }
+    },
+    "otpWindowExceeded": "Trop de tentatives. Réessayez dans {minutes} min.",
+    "@otpWindowExceeded": {
+      "placeholders": { "minutes": { "type": "int" } }
+    },
+    "payAction": "Payer",
+    "enterPinForPurchase": "Entrez votre code PIN pour valider l'achat",
+    "enterPinForTransfer": "Entrez votre code PIN pour valider le transfert",
+    "connectionError2": "Erreur de connexion",
+    "retry": "Réessayer",
     "privacyPolicyTitle": "Politique de confidentialité",
     "privacyPolicyLastUpdated": "Dernière mise à jour : 1er janvier 2025",
     "privacyPolicyScrollInfo": "Lisez et faites défiler jusqu'en bas pour accepter.",

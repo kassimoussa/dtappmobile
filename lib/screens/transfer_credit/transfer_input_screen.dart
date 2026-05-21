@@ -76,10 +76,6 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
                 controller: _recipientController,
                 labelText: AppLocalizations.of(context)!.recipientLabel,
                 onChanged: (value) {
-                  // Effacer l'erreur en temps réel et valider
-                  setState(() {
-                    _recipientError = null;
-                  });
                   _validateRecipient(value);
                 },
               ),
@@ -307,37 +303,31 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
 
   // Validation du destinataire en temps réel
   void _validateRecipient(String value) {
-    if (value.isEmpty) {
-      setState(() {
-        _recipientError = null;
-      });
+    final cleanNumber = PhoneNumberValidator.cleanPhoneNumber(value);
+
+    // Tant que l'utilisateur n'a pas fini de saisir les 8 chiffres,
+    // on efface l'erreur sans valider pour ne pas le frustrer
+    if (cleanNumber.length < 8) {
+      if (_recipientError != null) {
+        setState(() => _recipientError = null);
+      }
       return;
     }
 
-    final cleanNumber = PhoneNumberValidator.cleanPhoneNumber(value);
-
-    // Validation du format
-    final phoneValidation = PhoneNumberValidator.validatePhoneNumber(
-      cleanNumber,
-    );
+    // Numéro complet → valider le format
+    final phoneValidation = PhoneNumberValidator.validatePhoneNumber(cleanNumber);
     if (phoneValidation != null) {
-      setState(() {
-        _recipientError = phoneValidation;
-      });
+      setState(() => _recipientError = phoneValidation);
       return;
     }
 
     // Vérifier que ce n'est pas le même numéro
     if (cleanNumber == widget.phoneNumber) {
-      setState(() {
-        _recipientError = AppLocalizations.of(context)!.selfTransferError;
-      });
+      setState(() => _recipientError = AppLocalizations.of(context)!.selfTransferError);
       return;
     }
 
-    setState(() {
-      _recipientError = null;
-    });
+    setState(() => _recipientError = null);
   }
 
   // Validation du montant en temps réel

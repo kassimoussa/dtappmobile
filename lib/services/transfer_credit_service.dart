@@ -1,9 +1,11 @@
+import 'package:dtservices/config/api_client.dart';
+import 'package:dtservices/config/app_config.dart';
 // lib/services/transfer_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class TransferService {
-  static const String baseUrl = 'http://10.39.230.106/api/air'; // Remplacez par votre URL
+  static const String baseUrl = '${AppConfig.baseUrl}/air'; // Remplacez par votre URL
   
   Future<Map<String, dynamic>> transferCredit({
     required String senderMsisdn,

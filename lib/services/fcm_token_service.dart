@@ -1,3 +1,4 @@
+import 'package:dtservices/config/app_config.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -6,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'user_session.dart';
 
 class FCMTokenService {
-  static const String _baseUrl = 'http://10.39.230.106/api';
+  static const String _baseUrl = AppConfig.baseUrl;
   static const String _registerEndpoint = '/mobile/fcm/register-token';
   static const String _updateEndpoint = '/mobile/fcm/update-token';
   static const String _clearEndpoint = '/mobile/fcm/clear-token';

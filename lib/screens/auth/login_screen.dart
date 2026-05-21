@@ -115,79 +115,89 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       body: AnimatedBuilder(
         animation: _animationController,
         builder: (context, _) {
           return Column(
             children: [
-              // Zone bleue avec logo
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top +
-                        ResponsiveSize.getHeight(32),
-                    bottom: ResponsiveSize.getHeight(40),
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [AppTheme.dtBlue, AppTheme.dtBlue2],
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(36),
-                      bottomRight: Radius.circular(36),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.dtBlue.withValues(alpha: 0.3),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: ResponsiveSize.getWidth(100),
-                        height: ResponsiveSize.getWidth(100),
-                        padding:
-                            EdgeInsets.all(ResponsiveSize.getWidth(14)),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(
-                              ResponsiveSize.getWidth(22)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.15),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
+              // Zone bleue — masquée quand le clavier s'ouvre
+              AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                child: isKeyboardOpen
+                    ? const SizedBox.shrink()
+                    : FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).padding.top +
+                                ResponsiveSize.getHeight(32),
+                            bottom: ResponsiveSize.getHeight(40),
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [AppTheme.dtBlue, AppTheme.dtBlue2],
                             ),
-                          ],
-                        ),
-                        child: Image.asset(
-                          'assets/djibtelogo.png',
-                          fit: BoxFit.contain,
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(36),
+                              bottomRight: Radius.circular(36),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.dtBlue.withValues(alpha: 0.3),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: ResponsiveSize.getWidth(100),
+                                height: ResponsiveSize.getWidth(100),
+                                padding: EdgeInsets.all(
+                                    ResponsiveSize.getWidth(14)),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(
+                                      ResponsiveSize.getWidth(22)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black
+                                          .withValues(alpha: 0.15),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
+                                ),
+                                child: Image.asset(
+                                  'assets/djibtelogo.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                              SizedBox(height: ResponsiveSize.getHeight(14)),
+                              Text(
+                                'DTServices',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: ResponsiveSize.getFontSize(20),
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      SizedBox(height: ResponsiveSize.getHeight(14)),
-                      Text(
-                        'DTServices',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: ResponsiveSize.getFontSize(20),
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
 
               // Formulaire

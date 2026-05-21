@@ -1735,6 +1735,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get typeLabel => 'Type:';
 
   @override
+  String otpCooldown(int seconds) {
+    return 'Please wait ${seconds}s before requesting a new code.';
+  }
+
+  @override
+  String otpWindowExceeded(int minutes) {
+    return 'Too many attempts. Please try again in $minutes min.';
+  }
+
+  @override
+  String get payAction => 'Pay';
+
+  @override
+  String get enterPinForPurchase => 'Enter your PIN to confirm purchase';
+
+  @override
+  String get enterPinForTransfer => 'Enter your PIN to confirm transfer';
+
+  @override
+  String get connectionError2 => 'Connection error';
+
+  @override
   String get privacyPolicyTitle => 'Privacy Policy';
 
   @override
