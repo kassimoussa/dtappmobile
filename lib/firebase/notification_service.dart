@@ -45,9 +45,24 @@ const _chSecurity = AndroidNotificationChannel(
 
 // ─── Background handler (top-level, obligatoire) ─────────────────────────────
 
+/// Clé SharedPreferences pour les notifs reçues hors app.
+const _kPendingQueue = 'notif_pending_queue';
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint('📩 Message reçu en arrière-plan : ${message.notification?.title}');
+  if (message.notification == null) return;
+
+  // Stocker dans la file d'attente (SharedPreferences lisible depuis un isolate)
+  final prefs = await SharedPreferences.getInstance();
+  final raw = prefs.getStringList(_kPendingQueue) ?? [];
+  raw.add(jsonEncode({
+    'title': message.notification!.title ?? '',
+    'body': message.notification!.body ?? '',
+    'data': message.data,
+    'receivedAt': DateTime.now().toIso8601String(),
+  }));
+  await prefs.setStringList(_kPendingQueue, raw);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -117,16 +132,32 @@ class NotificationService {
       }
     });
 
-    // Background → tap sur la notif → écran notifications
+    // Background → tap sur la notif → stocker + écran notifications
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint('🔔 Tap depuis arrière-plan: ${message.data}');
+      if (message.notification != null) {
+        _handleIncoming(
+          title: message.notification!.title ?? '',
+          body: message.notification!.body ?? '',
+          data: message.data,
+          foreground: false,
+        );
+      }
       _goToNotifications();
     });
 
-    // App fermée → tap sur la notif → écran notifications
+    // App fermée → tap sur la notif → stocker + écran notifications
     final initialMessage = await _fcm.getInitialMessage();
     if (initialMessage != null) {
       debugPrint('🚀 Tap depuis app fermée: ${initialMessage.data}');
+      if (initialMessage.notification != null) {
+        await _handleIncoming(
+          title: initialMessage.notification!.title ?? '',
+          body: initialMessage.notification!.body ?? '',
+          data: initialMessage.data,
+          foreground: false,
+        );
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _goToNotifications();
       });

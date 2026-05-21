@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/app_notification.dart';
@@ -30,8 +31,41 @@ class NotificationStore extends ChangeNotifier {
     _badgeCount = 0;
     if (phoneNumber.isNotEmpty) {
       await load();
+      await _processPendingQueue();
     } else {
       notifyListeners();
+    }
+  }
+
+  /// Traite les notifications reçues hors app (background handler isolate).
+  Future<void> _processPendingQueue() async {
+    if (_phoneNumber.isEmpty) return;
+    const kPendingQueue = 'notif_pending_queue';
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList(kPendingQueue) ?? [];
+    if (raw.isEmpty) return;
+
+    // Vider la file avant de traiter (évite les doublons en cas de crash)
+    await prefs.remove(kPendingQueue);
+
+    for (final item in raw) {
+      try {
+        final map = jsonDecode(item) as Map<String, dynamic>;
+        final data = Map<String, dynamic>.from(map['data'] as Map? ?? {});
+        final type = data['type'] as String?;
+        final notif = AppNotification(
+          id: '${DateTime.now().millisecondsSinceEpoch}_${raw.indexOf(item)}',
+          title: map['title'] as String? ?? '',
+          body: map['body'] as String? ?? '',
+          channel: AppNotification.channelFromType(type),
+          receivedAt: DateTime.tryParse(map['receivedAt'] as String? ?? '') ??
+              DateTime.now(),
+          data: data,
+        );
+        await add(notif);
+      } catch (e) {
+        debugPrint('⚠️ NotificationStore: erreur traitement pending: $e');
+      }
     }
   }
 
