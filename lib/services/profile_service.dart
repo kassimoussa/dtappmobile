@@ -93,17 +93,27 @@ class ProfileService {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        
         if (responseData['status'] == 'success') {
           debugPrint('Profil mis à jour avec succès');
           return true;
-        } else {
-          debugPrint('Update Profile: Échec - ${responseData['message']}');
-          return false;
         }
+        final msg = responseData['message'] as String? ?? '';
+        throw Exception(msg.isNotEmpty ? msg : 'Échec de la mise à jour');
+      } else if (response.statusCode == 422) {
+        // Erreur de validation — extraire le premier message du champ errors
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        final errors = responseData['errors'] as Map<String, dynamic>?;
+        String msg = responseData['message'] as String? ?? '';
+        if (errors != null && errors.isNotEmpty) {
+          final firstField = errors.values.first;
+          if (firstField is List && firstField.isNotEmpty) {
+            msg = firstField.first as String;
+          }
+        }
+        throw Exception(msg.isNotEmpty ? msg : 'Données invalides');
       } else {
         debugPrint('Update Profile: Erreur HTTP ${response.statusCode}');
-        return false;
+        throw Exception('Erreur serveur (${response.statusCode})');
       }
     } catch (e) {
       debugPrint('Erreur Update Profile: $e');

@@ -64,18 +64,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
           );
-          Navigator.of(context).pop(true); // Return true to indicate update
-        } else {
-          setState(() {
-            _errorMessage = AppLocalizations.of(context)!.updateError;
-          });
+          Navigator.of(context).pop(true);
         }
       }
     } catch (e) {
       debugPrint('Erreur sauvegarde profil: $e');
       if (mounted) {
         setState(() {
-          _errorMessage = AppLocalizations.of(context)!.saveError;
+          _errorMessage = e.toString().replaceAll('Exception: ', '');
         });
       }
     } finally {
@@ -93,6 +89,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
     if (value.trim().length < 2) {
       return AppLocalizations.of(context)!.nameValidationError;
+    }
+    if (value.trim().length > 50) {
+      return 'Le nom ne doit pas dépasser 50 caractères.';
     }
     return null;
   }
@@ -170,6 +169,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 validator: _validateName,
                 textCapitalization: TextCapitalization.words,
+                maxLength: 50,
+                buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
+                    currentLength > 40
+                        ? Text('$currentLength/$maxLength',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: currentLength >= maxLength!
+                                  ? Colors.red
+                                  : Colors.grey,
+                            ))
+                        : null,
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
               TextFormField(
