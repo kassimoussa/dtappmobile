@@ -1,5 +1,4 @@
 // lib/screens/core/home_screen.dart
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -219,19 +218,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildGlassAppBar(AppLocalizations l10n) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(20)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
+      child: Container(
             padding: EdgeInsets.symmetric(
               horizontal: ResponsiveSize.getWidth(16),
               vertical: ResponsiveSize.getHeight(12),
             ),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
+              color: Colors.white.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
@@ -310,8 +305,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-          ),
-        ),
       ),
     );
   }

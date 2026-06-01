@@ -62,7 +62,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _navigateAfterSplash() async {
     await Future.wait([
-      Future.delayed(const Duration(seconds: 2)),
+      Future.delayed(const Duration(milliseconds: 800)),
       _preloadImages(),
     ]);
 

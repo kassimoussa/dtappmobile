@@ -20,6 +20,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   int _currentNavIndex = 0;
   late PageController _pageController;
   late AnimationController _animationController;
+  late Animation<double> _iconScaleAnimation;
+
   @override
   void initState() {
     super.initState();
@@ -28,6 +30,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+    _iconScaleAnimation = _animationController
+        .drive(Tween<double>(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.elasticOut)))
+        .drive(Tween<double>(begin: 1.0, end: 1.2));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       PromoPopupDialog.showIfAvailable(context);
@@ -122,11 +128,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   Widget _buildAnimatedIcon(IconData icon, int index) {
     final isSelected = _currentNavIndex == index;
-    final animation = _animationController.drive(
-      Tween<double>(begin: 0.0, end: 1.0).chain(
-        CurveTween(curve: Curves.elasticOut),
-      ),
-    );
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -140,9 +141,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
       ),
       child: ScaleTransition(
-        scale: isSelected
-            ? animation.drive(Tween<double>(begin: 1.0, end: 1.2))
-            : const AlwaysStoppedAnimation(1.0),
+        scale: isSelected ? _iconScaleAnimation : const AlwaysStoppedAnimation(1.0),
         child: Icon(
           icon,
           size: ResponsiveSize.getFontSize(isSelected ? 26 : 24),

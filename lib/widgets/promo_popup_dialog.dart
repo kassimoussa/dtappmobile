@@ -19,7 +19,6 @@ class PromoPopupDialog {
 
     _shownThisSession = true;
 
-    await Future.delayed(const Duration(seconds: 1));
     if (!context.mounted) return;
 
     _show(context, popup);

@@ -30,6 +30,7 @@ class PinLoginScreen extends StatefulWidget {
 class _PinLoginScreenState extends State<PinLoginScreen> {
   String _pin = '';
   bool _isProcessing = false;
+  bool _success = false;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +89,11 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                     SizedBox(height: ResponsiveSize.getHeight(40)),
 
                     // Affichage PIN (4 cercles)
-                    PinDots(pinLength: _pin.length, maxLength: 4),
+                    PinDots(
+                      pinLength: _pin.length,
+                      maxLength: 4,
+                      activeColor: _success ? Colors.green : AppTheme.dtBlue,
+                    ),
 
                     SizedBox(height: ResponsiveSize.getHeight(16)),
 
@@ -272,16 +277,20 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
     final success = await authProvider.loginWithPin(widget.phoneNumber, _pin);
 
     if (success) {
-      // Sauvegarder le PIN de manière sécurisée si la biométrie est activée
       final isBiometricEnabled = await UserSession.isBiometricEnabled();
       if (isBiometricEnabled) {
         await UserSession.saveSecurePin(widget.phoneNumber, _pin);
-        debugPrint('✅ PIN sauvegardé pour authentification biométrique');
       }
 
       if (!mounted) return;
+
+      // Points verts pendant 500ms avant de naviguer
+      setState(() => _success = true);
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
-        CustomRouteTransitions.slideRightRoute(page: const MainScreen()),
+        CustomRouteTransitions.fadeScaleRoute(page: const MainScreen()),
         (route) => false,
       );
     } else if (!success && mounted) {

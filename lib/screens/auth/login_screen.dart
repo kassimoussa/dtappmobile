@@ -20,13 +20,15 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   static const _keyPrivacyAccepted = 'privacy_policy_accepted';
 
   final _phoneController = TextEditingController();
+  final _focusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
   String? _savedPhoneNumber;
   bool _privacyAccepted = false;
+  bool _fieldFocused = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -50,6 +52,12 @@ class _LoginScreenState extends State<LoginScreen>
     ).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
+
+    WidgetsBinding.instance.addObserver(this);
+
+    _focusNode.addListener(() {
+      if (mounted) setState(() => _fieldFocused = _focusNode.hasFocus);
+    });
 
     _checkSavedPhoneNumber();
     _loadPrivacyAccepted();
@@ -115,7 +123,6 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -125,11 +132,11 @@ class _LoginScreenState extends State<LoginScreen>
         builder: (context, _) {
           return Column(
             children: [
-              // Zone bleue — masquée quand le clavier s'ouvre
+              // Zone bleue — masquée quand le champ est focalisé
               AnimatedSize(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeInOut,
-                child: isKeyboardOpen
+                child: _fieldFocused
                     ? const SizedBox.shrink()
                     : FadeTransition(
                         opacity: _fadeAnimation,
@@ -279,6 +286,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                     child: TextFormField(
                       controller: _phoneController,
+                      focusNode: _focusNode,
                       keyboardType: TextInputType.phone,
                       style: TextStyle(
                         fontSize: ResponsiveSize.getFontSize(18),
@@ -518,8 +526,20 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   @override
+  void didChangeMetrics() {
+    // Détecte la fermeture du clavier (bouton retour Android sans perdre le focus)
+    if (!mounted) return;
+    final keyboardOpen = View.of(context).viewInsets.bottom > 0;
+    if (!keyboardOpen && _fieldFocused && mounted) {
+      setState(() => _fieldFocused = false);
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _phoneController.dispose();
+    _focusNode.dispose();
     _animationController.dispose();
     super.dispose();
   }

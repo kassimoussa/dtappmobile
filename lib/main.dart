@@ -25,31 +25,10 @@ Future<void> main() async {
   // Brancher le navigatorKey partagé pour l'intercepteur 401
   ApiClient.navigatorKey = NotificationService.navigatorKey;
 
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-
-    // Initialiser les notifications en arrière-plan sans bloquer le démarrage
-    NotificationService().initNotifications().catchError((error) {
-      debugPrint(
-        '⚠️ Erreur lors de l\'initialisation des notifications: $error',
-      );
-    });
-
-    // Écouter les rafraîchissements de token FCM
-    FCMTokenService.listenToTokenRefresh();
-    debugPrint('🔔 Écoute des rafraîchissements de token FCM activée');
-  } catch (e) {
-    debugPrint('⚠️ Erreur lors de l\'initialisation de Firebase: $e');
-  }
-
-  // Forcer l'orientation portrait
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  // Personnaliser la barre de statut
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -60,27 +39,28 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
-        // Provider pour l'authentification et la gestion de session
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-
-        // Provider pour la gestion du solde utilisateur
         ChangeNotifierProvider(create: (_) => BalanceProvider()),
-
-        // Provider pour la gestion des sessions TopUp (recharge fixe)
         ChangeNotifierProvider(create: (_) => TopUpProvider()),
-
-        // Provider pour la gestion de l'historique des transactions
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
-
-        // Provider pour la gestion de la langue
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
-
-        // TODO: Ajouter d'autres providers ici au fur et à mesure
-        // ChangeNotifierProvider(create: (_) => ForfaitProvider()),
       ],
       child: const MyApp(),
     ),
   );
+
+  // Firebase initialisé après le premier rendu — notifications uniquement, non bloquant
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    NotificationService().initNotifications().catchError((error) {
+      debugPrint('⚠️ Erreur notifications: $error');
+    });
+    FCMTokenService.listenToTokenRefresh();
+  } catch (e) {
+    debugPrint('⚠️ Erreur Firebase: $e');
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -154,10 +134,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // Mettre à jour l'activité utilisateur à chaque construction du widget racine
-    context.read<AuthProvider>().updateActivity();
-
-    // Écouter les changements de langue
     final languageProvider = context.watch<LanguageProvider>();
 
     return ConnectivityBanner(child: MaterialApp(
