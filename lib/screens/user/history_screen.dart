@@ -1,5 +1,4 @@
 // lib/screens/user/history_screen.dart
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
@@ -119,7 +118,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    AppTheme.dtBlueO08,
                     Colors.transparent,
                   ],
                   radius: 0.8,
@@ -145,10 +144,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildGlassAppBar(AppLocalizations l10n) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
+    return Container(
           padding: EdgeInsets.symmetric(
             horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
             vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
@@ -177,7 +173,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
+                    color: AppTheme.white50,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white),
                   ),
@@ -198,9 +194,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
+        );
   }
 
   Widget _buildFiltersSection(TransactionProvider provider) {
@@ -232,7 +226,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       color: isSelected ? AppTheme.dtBlueDark : Colors.grey[300]!,
                     ),
                     boxShadow: isSelected ? [
-                      BoxShadow(color: AppTheme.dtBlueDark.withOpacityValue(0.3), blurRadius: 8, offset: Offset(0, 4))
+                      BoxShadow(color: AppTheme.dtBlueO30, blurRadius: 8, offset: Offset(0, 4))
                     ] : [],
                   ),
                   child: Text(

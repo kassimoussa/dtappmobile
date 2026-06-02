@@ -1,5 +1,4 @@
 // lib/screens/statistics/statistics_screen.dart
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
@@ -117,7 +116,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    AppTheme.dtBlueO08,
                     Colors.transparent,
                   ],
                   radius: 0.8,
@@ -148,10 +147,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _buildGlassAppBar(AppLocalizations l10n) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
+    return Container(
           padding: EdgeInsets.symmetric(
             horizontal: ResponsiveSize.getWidth(12),
             vertical: ResponsiveSize.getHeight(12),
@@ -168,7 +164,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
+                    color: AppTheme.white50,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white),
                   ),
@@ -189,9 +185,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
+        );
   }
 
   Widget _buildLoadingState() {
@@ -368,7 +362,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           color: isSelected ? AppTheme.dtBlueDark : Colors.grey[300]!,
                         ),
                         boxShadow: isSelected ? [
-                          BoxShadow(color: AppTheme.dtBlueDark.withOpacityValue(0.3), blurRadius: 8, offset: Offset(0, 4))
+                          BoxShadow(color: AppTheme.dtBlueO30, blurRadius: 8, offset: Offset(0, 4))
                         ] : [],
                       ),
                       child: Text(

@@ -1,5 +1,4 @@
 // lib/screens/topup/topup_subscription_screen.dart
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../../constants/app_theme.dart';
@@ -236,7 +235,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    AppTheme.dtBlueO08,
                     Colors.transparent,
                   ],
                   radius: 0.8,
@@ -338,15 +337,15 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
   }
 
   Widget _buildGlassAppBar(BuildContext context, String title) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
+    return Container(
           padding: EdgeInsets.symmetric(
             horizontal: ResponsiveSize.getWidth(12),
             vertical: ResponsiveSize.getHeight(12),
           ),
-          decoration: const BoxDecoration(color: Colors.transparent),
+          decoration: const BoxDecoration(
+            color: AppTheme.white95,
+            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
+          ),
           child: Row(
             children: [
               InkWell(
@@ -355,7 +354,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
+                    color: AppTheme.white50,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white),
                   ),
@@ -384,7 +383,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
                     vertical: ResponsiveSize.getHeight(8),
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: AppTheme.white50,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white),
                   ),
@@ -400,9 +399,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
+        );
   }
 
   Widget _buildOptionCard(

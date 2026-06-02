@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/providers/balance_provider.dart';
@@ -55,7 +54,7 @@ class _TransferConfirmationScreenState
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    AppTheme.dtBlueO08,
                     Colors.transparent,
                   ],
                   radius: 0.8,
@@ -80,7 +79,7 @@ class _TransferConfirmationScreenState
                   ResponsiveSize.getWidth(AppTheme.spacingL),
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.dtBlue.withOpacity(0.1),
+                  color: AppTheme.dtBlueO10,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -163,102 +162,16 @@ class _TransferConfirmationScreenState
                     AppLocalizations.of(context)!.dateKey,
                     _getCurrentDate(),
                   ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-
-            // Information sur le solde après transfert
-            Container(
-              padding: EdgeInsets.all(
-                ResponsiveSize.getWidth(AppTheme.spacingM),
-              ),
-              decoration: BoxDecoration(
-                color: AppTheme.dtYellow.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(
-                  ResponsiveSize.getWidth(AppTheme.radiusM),
-                ),
-                border: Border.all(color: AppTheme.dtYellow.withOpacity(0.3)),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.account_balance_wallet,
-                    color: AppTheme.dtYellow,
-                    size: ResponsiveSize.getFontSize(24),
+                  Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                  _buildDetailRow(
+                    'Solde actuel',
+                    '${balanceProvider.solde.toStringAsFixed(0)} DJF',
                   ),
-                  SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.currentBalanceFormat(
-                            balanceProvider.solde.toStringAsFixed(0),
-                          ),
-                          style: TextStyle(
-                            fontSize: ResponsiveSize.getFontSize(14),
-                            color: Colors.grey[800],
-                          ),
-                        ),
-                        SizedBox(
-                          height: ResponsiveSize.getHeight(AppTheme.spacingXS),
-                        ),
-                        Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.balanceAfterTransferFormat(
-                            (balanceProvider.solde -
-                                    widget.amount -
-                                    widget.transferFee)
-                                .toStringAsFixed(0),
-                          ),
-                          style: TextStyle(
-                            fontSize: ResponsiveSize.getFontSize(16),
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.dtBlue,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-
-            // Note importante
-            Container(
-              padding: EdgeInsets.all(
-                ResponsiveSize.getWidth(AppTheme.spacingM),
-              ),
-              decoration: BoxDecoration(
-                color: AppTheme.dtBlue.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(
-                  ResponsiveSize.getWidth(AppTheme.radiusM),
-                ),
-                border: Border.all(color: AppTheme.dtBlue.withOpacity(0.3)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: AppTheme.dtBlue,
-                    size: ResponsiveSize.getFontSize(20),
-                  ),
-                  SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-                  Expanded(
-                    child: Text(
-                      AppLocalizations.of(context)!.transferWarning,
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(14),
-                        color: AppTheme.dtBlue,
-                        height: 1.4,
-                      ),
-                    ),
+                  Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                  _buildDetailRow(
+                    'Solde après transfert',
+                    '${(balanceProvider.solde - widget.amount - widget.transferFee).toStringAsFixed(0)} DJF',
+                    isTotal: true,
                   ),
                 ],
               ),
@@ -271,7 +184,7 @@ class _TransferConfirmationScreenState
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: _isLoading ? null : () => Navigator.pop(context),
+                    onPressed: _isLoading ? null : () => Navigator.popUntil(context, (route) => route.isFirst),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: AppTheme.dtBlue),
                       padding: EdgeInsets.symmetric(
@@ -324,7 +237,7 @@ class _TransferConfirmationScreenState
                               ),
                             )
                             : Text(
-                              AppLocalizations.of(context)!.confirmTransfer,
+                              'Confirmer',
                               style: TextStyle(
                                 fontSize: ResponsiveSize.getFontSize(16),
                                 fontWeight: FontWeight.bold,
@@ -347,15 +260,15 @@ class _TransferConfirmationScreenState
   }
 
   Widget _buildGlassAppBar(BuildContext context, String title) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
+    return Container(
           padding: EdgeInsets.symmetric(
             horizontal: ResponsiveSize.getWidth(12),
             vertical: ResponsiveSize.getHeight(12),
           ),
-          decoration: const BoxDecoration(color: Colors.transparent),
+          decoration: const BoxDecoration(
+            color: AppTheme.white95,
+            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
+          ),
           child: Row(
             children: [
               InkWell(
@@ -364,7 +277,7 @@ class _TransferConfirmationScreenState
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
+                    color: AppTheme.white50,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white),
                   ),
@@ -385,8 +298,6 @@ class _TransferConfirmationScreenState
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 

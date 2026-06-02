@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import '../../constants/app_theme.dart';
@@ -88,7 +87,7 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    AppTheme.dtBlueO08,
                     Colors.transparent,
                   ],
                   radius: 0.8,
@@ -145,15 +144,15 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
   }
 
   Widget _buildGlassAppBar(BuildContext context, String title) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
+    return Container(
           padding: EdgeInsets.symmetric(
             horizontal: ResponsiveSize.getWidth(12),
             vertical: ResponsiveSize.getHeight(12),
           ),
-          decoration: const BoxDecoration(color: Colors.transparent),
+          decoration: const BoxDecoration(
+            color: AppTheme.white95,
+            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
+          ),
           child: Row(
             children: [
               InkWell(
@@ -162,7 +161,7 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
+                    color: AppTheme.white50,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white),
                   ),
@@ -183,8 +182,6 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 

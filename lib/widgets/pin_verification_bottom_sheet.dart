@@ -143,7 +143,7 @@ class _PinVerificationBottomSheetState extends State<PinVerificationBottomSheet>
             Container(
               padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
               decoration: BoxDecoration(
-                color: AppTheme.dtBlue.withOpacity(0.1),
+                color: AppTheme.dtBlueO10,
                 shape: BoxShape.circle,
               ),
               child: Icon(

@@ -466,7 +466,7 @@ class _SearchScreenState extends State<SearchScreen> {
       child: ListTile(
         onTap: item.action,
         leading: CircleAvatar(
-          backgroundColor: AppTheme.dtBlue.withOpacity(0.1),
+          backgroundColor: AppTheme.dtBlueO10,
           child: Icon(
             item.icon,
             color: AppTheme.dtBlue,

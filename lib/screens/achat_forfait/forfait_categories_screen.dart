@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
@@ -37,7 +36,7 @@ class ForfaitCategoriesScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    AppTheme.dtBlueO08,
                     Colors.transparent,
                   ],
                   radius: 0.8,
@@ -104,15 +103,15 @@ class ForfaitCategoriesScreen extends StatelessWidget {
   }
 
   Widget _buildGlassAppBar(BuildContext context, String title) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
+    return Container(
           padding: EdgeInsets.symmetric(
             horizontal: ResponsiveSize.getWidth(12),
             vertical: ResponsiveSize.getHeight(12),
           ),
-          decoration: BoxDecoration(color: Colors.transparent),
+          decoration: const BoxDecoration(
+            color: AppTheme.white95,
+            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
+          ),
           child: Row(
             children: [
               InkWell(
@@ -121,7 +120,7 @@ class ForfaitCategoriesScreen extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: AppTheme.white50,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white),
                   ),
@@ -150,7 +149,7 @@ class ForfaitCategoriesScreen extends StatelessWidget {
                     vertical: ResponsiveSize.getHeight(8),
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: AppTheme.white50,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white),
                   ),
@@ -166,9 +165,7 @@ class ForfaitCategoriesScreen extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
+        );
   }
 
   void _navigate(BuildContext context, String type, String title) {

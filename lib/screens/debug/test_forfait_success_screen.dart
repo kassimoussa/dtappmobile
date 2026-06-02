@@ -135,10 +135,10 @@ class _TestForfaitSuccessScreenState extends State<TestForfaitSuccessScreen>
                     child: Container(
                       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
                       decoration: BoxDecoration(
-                        color: AppTheme.dtBlue.withOpacityValue(0.1),
+                        color: AppTheme.dtBlueO10,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: AppTheme.dtBlue.withOpacityValue(0.3),
+                          color: AppTheme.dtBlueO30,
                           width: 2,
                         ),
                         boxShadow: [
@@ -277,10 +277,10 @@ class _TestForfaitSuccessScreenState extends State<TestForfaitSuccessScreen>
                             vertical: ResponsiveSize.getHeight(8),
                           ),
                           decoration: BoxDecoration(
-                            color: AppTheme.dtBlue.withOpacityValue(0.1),
+                            color: AppTheme.dtBlueO10,
                             borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(20)),
                             border: Border.all(
-                              color: AppTheme.dtBlue.withOpacityValue(0.3),
+                              color: AppTheme.dtBlueO30,
                             ),
                           ),
                           child: Row(

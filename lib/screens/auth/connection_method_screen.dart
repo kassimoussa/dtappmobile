@@ -446,7 +446,7 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
             Container(
               padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
               decoration: BoxDecoration(
-                color: AppTheme.dtBlue.withOpacityValue(0.1),
+                color: AppTheme.dtBlueO10,
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -743,7 +743,7 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
                       BorderRadius.circular(ResponsiveSize.getWidth(22)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
+                      color: AppTheme.black15,
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),

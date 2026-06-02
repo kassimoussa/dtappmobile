@@ -86,7 +86,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                     Container(
                       padding: EdgeInsets.all(ResponsiveSize.getWidth(20)),
                       decoration: BoxDecoration(
-                        color: AppTheme.dtBlue.withOpacity(0.1),
+                        color: AppTheme.dtBlueO10,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(

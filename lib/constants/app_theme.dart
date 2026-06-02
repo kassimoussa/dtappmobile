@@ -8,11 +8,32 @@ class AppTheme {
   static const Color dtBlue2 = Color(0xFF1565C0); // Bleu royal doux
   static const Color dtBlueDark = Color(0xFF0D47A1); // Bleu profond mais chaleureux
   static const Color dtYellow = Color(0xFFFFCA28); // Un doré vif, éclatant et clair
-  
+
   // Couleurs secondaires
   static const Color backgroundGrey = Color(0xFFF8F9FE); // Slightly cooler/modern grey
   static const Color textPrimary = Color(0xFF1E293B); // Slate-like modern text color
-  static const Color textSecondary = Color(0xFF64748B); 
+  static const Color textSecondary = Color(0xFF64748B);
+
+  // Couleurs pré-calculées — évite les allocations withOpacity() dans les build()
+  // dtBlue (#0D47A1) à différentes opacités
+  static const Color dtBlueO02 = Color(0x050D47A1);
+  static const Color dtBlueO05 = Color(0x0D0D47A1);
+  static const Color dtBlueO08 = Color(0x140D47A1);
+  static const Color dtBlueO10 = Color(0x1A0D47A1);
+  static const Color dtBlueO15 = Color(0x260D47A1);
+  static const Color dtBlueO20 = Color(0x330D47A1);
+  static const Color dtBlueO30 = Color(0x4D0D47A1);
+  static const Color dtBlueO35 = Color(0x590D47A1);
+  static const Color dtBlueO50 = Color(0x800D47A1);
+  // dtYellow (#FFCA28) à différentes opacités
+  static const Color dtYellowO10 = Color(0x1AFFCA28);
+  static const Color dtYellowO30 = Color(0x4DFFCA28);
+  static const Color dtYellowO50 = Color(0x80FFCA28);
+  // Blanc/Noir pré-calculés
+  static const Color white50 = Color(0x80FFFFFF);
+  static const Color white95 = Color(0xF2FFFFFF);
+  static const Color black04 = Color(0x0A000000);
+  static const Color black15 = Color(0x26000000);
   
   // Dimensions de base (adaptées dynamiquement selon l'écran)
   static const double spacingXS = 4.0;
@@ -68,7 +89,7 @@ class AppTheme {
     borderRadius: BorderRadius.circular(radiusL),
     boxShadow: [
       BoxShadow( // Ombre beaucoup plus douce et diffuse (premium)
-        color: Colors.black.withOpacity(0.04),
+        color: black04,
         blurRadius: 30,
         spreadRadius: 2,
         offset: const Offset(0, 10),

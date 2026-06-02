@@ -74,7 +74,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           TopUpHomeScreen(),
         ],
       ),
-      bottomNavigationBar: _buildAnimatedBottomNavigationBar(),
+      bottomNavigationBar: RepaintBoundary(child: _buildAnimatedBottomNavigationBar()),
     );
   }
 

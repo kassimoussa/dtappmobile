@@ -114,7 +114,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
-    final balanceProvider = context.watch<BalanceProvider>();
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -131,7 +130,12 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Premium Header with Swipable Cards
-            _buildHeroCard(balanceProvider, l10n),
+            RepaintBoundary(
+              child: Consumer<BalanceProvider>(
+                builder: (context, balanceProvider, _) =>
+                    _buildHeroCard(balanceProvider, l10n),
+              ),
+            ),
 
             Padding(
               padding: EdgeInsets.symmetric(
@@ -207,7 +211,12 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: ResponsiveSize.getHeight(24)),
               
               // Swipeable Cards
-              _buildSwipeableBalances(balanceProvider, l10n),
+              RepaintBoundary(
+                child: Consumer<BalanceProvider>(
+                  builder: (context, balanceProvider, _) =>
+                      _buildSwipeableBalances(balanceProvider, l10n),
+                ),
+              ),
             ],
           ),
         ),

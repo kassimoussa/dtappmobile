@@ -1,6 +1,5 @@
 // lib/screens/topup/topup_recharge_success_screen.dart
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../../constants/app_theme.dart';
@@ -111,7 +110,7 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.dtBlueDark.withOpacityValue(0.08),
+                    AppTheme.dtBlueO08,
                     Colors.transparent,
                   ],
                   radius: 0.8,
@@ -139,11 +138,11 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
                       ResponsiveSize.getWidth(AppTheme.spacingXL),
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.dtBlue.withOpacityValue(0.1),
+                      color: AppTheme.dtBlueO10,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.dtBlue.withOpacityValue(0.3),
+                          color: AppTheme.dtBlueO30,
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),
@@ -214,15 +213,15 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
   }
 
   Widget _buildGlassAppBar(BuildContext context) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
+    return Container(
           padding: EdgeInsets.symmetric(
             horizontal: ResponsiveSize.getWidth(12),
             vertical: ResponsiveSize.getHeight(12),
           ),
-          decoration: const BoxDecoration(color: Colors.transparent),
+          decoration: const BoxDecoration(
+            color: AppTheme.white95,
+            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
+          ),
           child: Row(
             children: [
               SizedBox(width: ResponsiveSize.getWidth(8)),
@@ -239,9 +238,7 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
               ),
             ],
           ),
-        ),
-      ),
-    );
+        );
   }
 
   Widget _buildRechargeDetails() {
@@ -313,11 +310,11 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
       decoration: BoxDecoration(
-        color: AppTheme.dtBlue.withOpacityValue(0.1),
+        color: AppTheme.dtBlueO10,
         borderRadius: BorderRadius.circular(
           ResponsiveSize.getWidth(AppTheme.radiusM),
         ),
-        border: Border.all(color: AppTheme.dtBlue.withOpacityValue(0.3)),
+        border: Border.all(color: AppTheme.dtBlueO30),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

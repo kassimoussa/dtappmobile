@@ -19,7 +19,7 @@ class LineInfoHeader extends StatelessWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: AppTheme.dtBlue.withOpacity(0.1),
+              color: AppTheme.dtBlueO10,
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.phone_android, size: 32, color: AppTheme.dtBlue),

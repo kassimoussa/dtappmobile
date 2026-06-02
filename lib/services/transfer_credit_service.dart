@@ -1,31 +1,19 @@
-import 'package:dtservices/config/api_client.dart';
-import 'package:dtservices/config/app_config.dart';
 // lib/services/transfer_service.dart
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dtservices/config/api_client.dart';
 
 class TransferService {
-  static const String baseUrl = '${AppConfig.baseUrl}/air'; // Remplacez par votre URL
-  
   Future<Map<String, dynamic>> transferCredit({
     required String senderMsisdn,
     required String receiverMsisdn,
     required double amount,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/transfer-credit'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          // 'Authorization': 'Bearer your-token', // Si vous avez une auth
-        },
-        body: jsonEncode({
-          'sender_msisdn': senderMsisdn,
-          'receiver_msisdn': receiverMsisdn,
-          'amount': amount,
-        }),
-      ).timeout(Duration(seconds: 30));
+      final response = await ApiClient.post('/air/transfer-credit', {
+        'sender_msisdn': senderMsisdn,
+        'receiver_msisdn': receiverMsisdn,
+        'amount': amount,
+      });
 
       final data = jsonDecode(response.body);
 

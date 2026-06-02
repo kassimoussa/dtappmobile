@@ -28,7 +28,6 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   String? _savedPhoneNumber;
   bool _privacyAccepted = false;
-  bool _fieldFocused = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -54,10 +53,6 @@ class _LoginScreenState extends State<LoginScreen>
     );
 
     WidgetsBinding.instance.addObserver(this);
-
-    _focusNode.addListener(() {
-      if (mounted) setState(() => _fieldFocused = _focusNode.hasFocus);
-    });
 
     _checkSavedPhoneNumber();
     _loadPrivacyAccepted();
@@ -126,21 +121,16 @@ class _LoginScreenState extends State<LoginScreen>
 
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       body: AnimatedBuilder(
         animation: _animationController,
         builder: (context, _) {
           return Column(
             children: [
-              // Zone bleue — masquée quand le champ est focalisé
-              AnimatedSize(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeInOut,
-                child: _fieldFocused
-                    ? const SizedBox.shrink()
-                    : FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Container(
+              // Zone bleue
+              FadeTransition(
+                opacity: _fadeAnimation,
+                child: Container(
                           width: double.infinity,
                           padding: EdgeInsets.only(
                             top: MediaQuery.of(context).padding.top +
@@ -204,7 +194,6 @@ class _LoginScreenState extends State<LoginScreen>
                             ],
                           ),
                         ),
-                      ),
               ),
 
               // Formulaire
@@ -235,9 +224,11 @@ class _LoginScreenState extends State<LoginScreen>
           // ── Zone scrollable : titre + champ téléphone ─────────────────
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: ResponsiveSize.getWidth(28),
-                vertical: ResponsiveSize.getHeight(20),
+              padding: EdgeInsets.fromLTRB(
+                ResponsiveSize.getWidth(28),
+                ResponsiveSize.getHeight(20),
+                ResponsiveSize.getWidth(28),
+                ResponsiveSize.getHeight(20) + MediaQuery.of(context).viewInsets.bottom,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -523,16 +514,6 @@ class _LoginScreenState extends State<LoginScreen>
         ],
       ),
     );
-  }
-
-  @override
-  void didChangeMetrics() {
-    // Détecte la fermeture du clavier (bouton retour Android sans perdre le focus)
-    if (!mounted) return;
-    final keyboardOpen = View.of(context).viewInsets.bottom > 0;
-    if (!keyboardOpen && _fieldFocused && mounted) {
-      setState(() => _fieldFocused = false);
-    }
   }
 
   @override
