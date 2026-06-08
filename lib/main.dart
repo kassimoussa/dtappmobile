@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dtservices/config/api_client.dart';
 import 'package:dtservices/firebase/notification_service.dart';
 import 'package:dtservices/services/fcm_token_service.dart';
@@ -19,7 +20,17 @@ import 'providers/topup_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'providers/language_provider.dart';
 
+// Contourne la vérification SSL (chaîne intermédiaire manquante côté serveur).
+class _TrustAllCerts extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (cert, host, port) => true;
+  }
+}
+
 Future<void> main() async {
+  HttpOverrides.global = _TrustAllCerts();
   WidgetsFlutterBinding.ensureInitialized();
 
   // Brancher le navigatorKey partagé pour l'intercepteur 401

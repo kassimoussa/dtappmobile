@@ -62,7 +62,8 @@
       "Bash(xargs -I{} basename {})",
       "Bash(perl -i -0pe \"s/Future<Map<String, String>> _headers\\\\\\(\\\\\\) => ApiClient\\\\.authHeaders\\\\\\(\\\\\\); \\\\/\\\\/ replaced\\\\n  \\\\/\\\\/ old: \\\\{\\\\n    'Content-Type': 'application\\\\/json',\\\\n    'Accept': 'application\\\\/json',\\\\n  \\\\};/Future<Map<String, String>> _headers\\(\\) => ApiClient.authHeaders\\(\\);/g\" /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3_clone/lib/services/topup_api_service.dart)",
       "Bash(sed -i '' 's/headers: _headers,/headers: await _headers\\(\\),/g' /Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3_clone/lib/services/topup_api_service.dart)",
-      "Bash(python3)"
+      "Bash(python3)",
+      "Bash(flutter config *)"
     ],
     "deny": [],
     "ask": []
