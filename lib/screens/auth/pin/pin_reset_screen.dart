@@ -1,7 +1,6 @@
 // lib/screens/auth/pin/pin_reset_screen.dart
 import 'package:flutter/material.dart';
 import '../../../constants/app_theme.dart';
-import '../../../extensions/color_extensions.dart';
 import '../../../utils/responsive_size.dart';
 import '../../../routes/custom_route_transitions.dart';
 import 'pin_reset_otp_screen.dart';

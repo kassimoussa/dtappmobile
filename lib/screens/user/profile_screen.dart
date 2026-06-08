@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../services/profile_service.dart';
-import '../../extensions/color_extensions.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../settings/language_selection_screen.dart';
 import '../settings/connection_settings_screen.dart';

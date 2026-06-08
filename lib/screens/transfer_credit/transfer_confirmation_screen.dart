@@ -1,5 +1,4 @@
 import 'package:dtservices/constants/app_theme.dart';
-import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_success_screen.dart';
 import 'package:dtservices/services/transfer_credit_service.dart';

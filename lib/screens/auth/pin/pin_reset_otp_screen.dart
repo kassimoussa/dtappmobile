@@ -3,7 +3,6 @@ import 'package:sms_autofill/sms_autofill.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import '../../../constants/app_theme.dart';
-import '../../../extensions/color_extensions.dart';
 import '../../../utils/responsive_size.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../providers/auth_provider.dart';

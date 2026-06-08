@@ -1,6 +1,5 @@
 // lib/screens/forfait_recipient_screen.dart
 import 'package:dtservices/constants/app_theme.dart';
-import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
 import 'package:dtservices/screens/achat_forfait/forfait_categories_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';

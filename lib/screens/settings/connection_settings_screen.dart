@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import '../../constants/app_theme.dart';
-import '../../extensions/color_extensions.dart';
 import '../../utils/responsive_size.dart';
 import '../../services/user_session.dart';
 import '../../generated/l10n/app_localizations.dart';

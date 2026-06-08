@@ -1,5 +1,4 @@
 import 'package:dtservices/constants/app_theme.dart';
-import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/screens/core/home_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/services/refill_service.dart';
