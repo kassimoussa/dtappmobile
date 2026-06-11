@@ -2,7 +2,7 @@
 import 'package:dtservices/constants/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:flutter_contacts/flutter_contacts.dart' hide PermissionStatus;
 import 'package:permission_handler/permission_handler.dart';
 import '../generated/l10n/app_localizations.dart';
 
@@ -61,7 +61,7 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
         _filteredContacts = List.from(_contacts);
       } else {
         _filteredContacts = _contacts.where((contact) {
-          final String name = contact.displayName.toLowerCase();
+          final String name = (contact.displayName ?? '').toLowerCase();
           final String phone = contact.phones.isNotEmpty
               ? contact.phones.first.number.replaceAll(RegExp(r'[^0-9]'), '')
               : '';
@@ -92,13 +92,16 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
       bool permissionGranted = await _requestContactPermission();
 
       if (permissionGranted) {
-        Iterable<Contact> contacts = await FlutterContacts.getContacts(
-          withProperties: true,
-          withPhoto: true
+        final contacts = await FlutterContacts.getAll(
+          properties: {
+            ContactProperty.name,
+            ContactProperty.phone,
+            ContactProperty.photoThumbnail,
+          },
         );
 
         setState(() {
-          _contacts = contacts.toList();
+          _contacts = contacts;
           _filteredContacts = List.from(_contacts);
           _isLoading = false;
         });
@@ -249,19 +252,19 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
           phoneNumber = _extractPhoneNumber(phoneNumber);
         }
 
+        final photoBytes = contact.photo?.thumbnail;
+        final name = contact.displayName ?? '';
         return ListTile(
-          leading: contact.photo != null
+          leading: photoBytes != null
               ? CircleAvatar(
-                  backgroundImage: MemoryImage(contact.photo!),
+                  backgroundImage: MemoryImage(photoBytes),
                   radius: 20,
                 )
               : CircleAvatar(
-                  backgroundColor: AppTheme.dtBlue2.withOpacity(0.1),
+                  backgroundColor: AppTheme.dtBlue2.withValues(alpha: 0.1),
                   radius: 20,
                   child: Text(
-                    contact.displayName.isNotEmpty
-                        ? contact.displayName[0].toUpperCase()
-                        : '?',
+                    name.isNotEmpty ? name[0].toUpperCase() : '?',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppTheme.dtBlue2,
@@ -269,7 +272,7 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
                   ),
                 ),
           title: Text(
-            contact.displayName,
+            name,
             style: const TextStyle(
               fontWeight: FontWeight.w500,
             ),

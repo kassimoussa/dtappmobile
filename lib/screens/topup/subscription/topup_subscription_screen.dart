@@ -131,11 +131,11 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
               Container(
                 padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(
                     ResponsiveSize.getWidth(8),
                   ),
-                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [

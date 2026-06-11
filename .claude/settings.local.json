@@ -65,9 +65,23 @@
       "Bash(python3)",
       "Bash(flutter config *)",
       "Bash(git fetch *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(find ~/.pub-cache -path \"*flutter_contacts-2*\" -name \"*.dart\" | grep -v \".dart_tool\" | head -10)",
+      "Read(//Users/kassim/.pub-cache/**)",
+      "Bash(pod install *)",
+      "Bash(find ~/Library/Developer/Xcode/DerivedData -maxdepth 1 -name \"*dtservices*\" -o -name \"*dtapp*\" -o -name \"*Runner*\" 2>/dev/null | head -5)",
+      "Read(//Users/kassim/Library/Developer/Xcode/DerivedData/**)",
+      "Bash(rm -rf ~/Library/Developer/Xcode/DerivedData/Runner-* && echo \"DerivedData cleared\")",
+      "Bash(find ~/Library/Developer/Xcode/DerivedData ~/Library/Caches/com.apple.dt.Xcode -name \"SwiftFlutterContactsPlugin*\" 2>/dev/null | head -5)",
+      "Read(//Users/kassim/Library/Caches/com.apple.dt.Xcode/**)",
+      "Bash(brew --version)",
+      "Bash(brew list *)",
+      "Bash(brew install *)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "/Users/kassim/Library/Developer/Xcode/DerivedData"
+    ]
   }
 }

@@ -470,8 +470,8 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
                           ? totalDataRemainingGo /
                               totalDataAvailableGo // Pourcentage RESTANT (sera pleine si tout est dispo)
                           : 0,
-                  backgroundColor: Colors.grey.withOpacity(
-                    0.2,
+                  backgroundColor: Colors.grey.withValues(
+                    alpha: 0.2,
                   ), // Fond gris = consommé
                   valueColor: const AlwaysStoppedAnimation<Color>(
                     Colors.blue,
@@ -547,7 +547,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
         Container(
           padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: ResponsiveSize.getFontSize(24)),

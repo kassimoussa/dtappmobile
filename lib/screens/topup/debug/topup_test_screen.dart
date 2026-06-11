@@ -438,7 +438,7 @@ ${isAvailable ? 'L\'API répond correctement' : 'L\'API ne répond pas ou est en
               width: double.infinity,
               padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
               decoration: BoxDecoration(
-                color: _error != null ? Colors.red.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+                color: _error != null ? Colors.red.withValues(alpha: 0.1) : Colors.green.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
                 border: Border.all(
                   color: _error != null ? Colors.red : Colors.green,

@@ -80,11 +80,11 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               Container(
                 padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(
                     ResponsiveSize.getWidth(8),
                   ),
-                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -553,7 +553,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
         Container(
           padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: ResponsiveSize.getFontSize(24)),
@@ -627,7 +627,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               ? BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(4)),
-                border: Border.all(color: textColor.withOpacity(0.3), width: 1),
+                border: Border.all(color: textColor.withValues(alpha: 0.3), width: 1),
               )
               : null,
       child: Row(

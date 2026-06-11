@@ -269,7 +269,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
               Icon(
                 _getPackageIcon(),
                 size: ResponsiveSize.getFontSize(80),
-                color: AppTheme.dtBlue.withOpacity(0.6),
+                color: AppTheme.dtBlue.withValues(alpha: 0.6),
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
               Text(
@@ -302,7 +302,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
           width: double.infinity,
           padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
           decoration: BoxDecoration(
-            color: AppTheme.dtBlue.withOpacity(0.05),
+            color: AppTheme.dtBlue.withValues(alpha: 0.05),
             border: Border(
               bottom: BorderSide(
                 color: AppTheme.dtBlueO10,

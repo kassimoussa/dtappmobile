@@ -278,7 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: EdgeInsets.all(ResponsiveSize.getWidth(8)),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                         ),
                         child: Icon(Icons.notifications_rounded, color: Colors.white, size: ResponsiveSize.getFontSize(20)),
                       ),
@@ -307,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
                      padding: EdgeInsets.all(ResponsiveSize.getWidth(8)),
                      decoration: BoxDecoration(
                        shape: BoxShape.circle,
-                       color: Colors.white.withOpacity(0.2)
+                       color: Colors.white.withValues(alpha: 0.2)
                      ),
                      child: Icon(Icons.person_rounded, color: Colors.white, size: ResponsiveSize.getFontSize(20))
                    )
@@ -371,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
               height: ResponsiveSize.getHeight(6),
               width: _currentBalancePage == index ? ResponsiveSize.getWidth(24) : ResponsiveSize.getWidth(8),
               decoration: BoxDecoration(
-                color: _currentBalancePage == index ? AppTheme.dtYellow : Colors.white.withOpacity(0.3),
+                color: _currentBalancePage == index ? AppTheme.dtYellow : Colors.white.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
             );
@@ -408,12 +408,12 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
         ],
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: Stack(
         children: [
@@ -421,7 +421,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned(
             right: -20,
             bottom: -20,
-            child: Icon(icon, size: ResponsiveSize.getHeight(90), color: textColor.withOpacity(0.1)),
+            child: Icon(icon, size: ResponsiveSize.getHeight(90), color: textColor.withValues(alpha: 0.1)),
           ),
           Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,7 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           title,
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            color: textColor.withOpacity(0.9),
+                            color: textColor.withValues(alpha: 0.9),
                             fontSize: ResponsiveSize.getFontSize(14),
                             fontWeight: FontWeight.w600,
                           ),
@@ -444,7 +444,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Container(
                             padding: EdgeInsets.all(ResponsiveSize.getWidth(6)),
                             decoration: BoxDecoration(
-                              color: textColor.withOpacity(0.15),
+                              color: textColor.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
@@ -482,13 +482,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             SizedBox(height: ResponsiveSize.getHeight(6)),
                             Row(
                               children: [
-                                Icon(Icons.schedule_rounded, size: 14, color: textColor.withOpacity(0.7)),
+                                Icon(Icons.schedule_rounded, size: 14, color: textColor.withValues(alpha: 0.7)),
                                 SizedBox(width: ResponsiveSize.getWidth(6)),
                                 Text(
                                   l10n.expiresOn(dateExp),
                                   style: TextStyle(
                                     fontFamily: 'Inter',
-                                    color: textColor.withOpacity(0.8),
+                                    color: textColor.withValues(alpha: 0.8),
                                     fontSize: ResponsiveSize.getFontSize(12),
                                   ),
                                 ),

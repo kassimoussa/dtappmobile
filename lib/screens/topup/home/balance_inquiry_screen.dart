@@ -513,7 +513,7 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
         Container(
           padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -592,7 +592,7 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
                       vertical: ResponsiveSize.getHeight(2),
                     ),
                     decoration: BoxDecoration(
-                      color: balance.statusColor.withOpacity(0.1),
+                      color: balance.statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusXS)),
                     ),
                     child: Text(

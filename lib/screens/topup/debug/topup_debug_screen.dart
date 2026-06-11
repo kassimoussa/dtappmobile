@@ -450,7 +450,7 @@ ${error.userFriendlyMessage}
               width: double.infinity,
               padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
               decoration: BoxDecoration(
-                color: _error != null ? Colors.red.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+                color: _error != null ? Colors.red.withValues(alpha: 0.1) : Colors.green.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
                 border: Border.all(
                   color: _error != null ? Colors.red : Colors.green,
@@ -521,7 +521,7 @@ ${error.userFriendlyMessage}
       margin: EdgeInsets.only(bottom: ResponsiveSize.getHeight(AppTheme.spacingS)),
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
-        color: isSuccess ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+        color: isSuccess ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
         border: Border.all(
           color: isSuccess ? Colors.green : Colors.red,

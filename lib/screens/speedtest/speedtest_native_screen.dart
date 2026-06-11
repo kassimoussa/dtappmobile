@@ -205,7 +205,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
                     ResponsiveSize.getWidth(AppTheme.spacingS),
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(
                       ResponsiveSize.getWidth(AppTheme.radiusS),
                     ),
@@ -318,7 +318,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -471,7 +471,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
               ResponsiveSize.getWidth(AppTheme.radiusM),
             ),
           ),
-          disabledBackgroundColor: AppTheme.dtBlue.withOpacity(0.4),
+          disabledBackgroundColor: AppTheme.dtBlue.withValues(alpha: 0.4),
           elevation: 4,
         ),
         child:

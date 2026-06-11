@@ -209,7 +209,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
         children: [
           _buildForfaitDetails(),
           Container(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             child: _buildLoadingState(),
           ),
         ],
@@ -421,7 +421,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
                     vertical: ResponsiveSize.getHeight(AppTheme.spacingXS),
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(
                       ResponsiveSize.getWidth(AppTheme.radiusS),
                     ),
@@ -661,7 +661,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
         vertical: ResponsiveSize.getHeight(AppTheme.spacingXS),
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(
           ResponsiveSize.getWidth(AppTheme.radiusS),
         ),

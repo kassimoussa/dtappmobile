@@ -272,7 +272,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 color: Colors.white,
                 shape: BoxShape.circle,
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 20, spreadRadius: 5)
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 20, spreadRadius: 5)
                 ]
               ),
               child: Icon(
@@ -356,7 +356,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       duration: const Duration(milliseconds: 200),
                       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppTheme.dtBlueDark : Colors.white.withOpacity(0.8),
+                        color: isSelected ? AppTheme.dtBlueDark : Colors.white.withValues(alpha: 0.8),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected ? AppTheme.dtBlueDark : Colors.grey[300]!,
@@ -451,7 +451,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         border: Border.all(color: Colors.grey[100]!),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.04), // Lighter colored shadow
+            color: color.withValues(alpha: 0.04), // Lighter colored shadow
             blurRadius: 10,
             offset: Offset(0, 4),
           )
@@ -465,7 +465,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               Container(
                 padding: EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: color, size: ResponsiveSize.getFontSize(16)),
@@ -530,7 +530,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         border: Border.all(color: Colors.grey[100]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.015),
+            color: Colors.black.withValues(alpha: 0.015),
             blurRadius: 10,
             offset: const Offset(0, 4),
           )
@@ -573,7 +573,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     vertical: ResponsiveSize.getHeight(4),
                   ),
                   decoration: BoxDecoration(
-                    color: _getSuccessRateColor(stat.successRate).withOpacity(0.1),
+                    color: _getSuccessRateColor(stat.successRate).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

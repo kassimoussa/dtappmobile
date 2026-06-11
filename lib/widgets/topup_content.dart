@@ -533,7 +533,7 @@ class _TopUpContentState extends State<TopUpContent> {
         Container(
           padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -575,10 +575,10 @@ class _TopUpContentState extends State<TopUpContent> {
         vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
       ),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: Colors.blue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
         border: Border.all(
-          color: Colors.blue.withOpacity(0.3),
+          color: Colors.blue.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
