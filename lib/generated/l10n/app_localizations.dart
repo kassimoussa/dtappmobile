@@ -1757,7 +1757,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmPurchaseAction.
   ///
   /// In fr, this message translates to:
-  /// **'Confirmer l\'achat'**
+  /// **'Acheter'**
   String get confirmPurchaseAction;
 
   /// No description provided for @rechargeTitle.
@@ -2293,6 +2293,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Statut inconnu'**
   String get unknownStatus;
+
+  /// No description provided for @activityDetailTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails de l\'activité'**
+  String get activityDetailTitle;
+
+  /// No description provided for @activityStatusLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut'**
+  String get activityStatusLabel;
+
+  /// No description provided for @referenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Référence'**
+  String get referenceLabel;
+
+  /// No description provided for @statusSuccessLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réussi'**
+  String get statusSuccessLabel;
+
+  /// No description provided for @statusFailedLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échoué'**
+  String get statusFailedLabel;
+
+  /// No description provided for @statusPendingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get statusPendingLabel;
+
+  /// No description provided for @noAdditionalDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun détail supplémentaire'**
+  String get noAdditionalDetails;
+
+  /// No description provided for @beneficiaryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Destinataire'**
+  String get beneficiaryLabel;
+
+  /// No description provided for @balanceBeforeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde avant'**
+  String get balanceBeforeLabel;
+
+  /// No description provided for @balanceAfterLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde après'**
+  String get balanceAfterLabel;
 
   /// No description provided for @money.
   ///
@@ -3227,7 +3287,7 @@ abstract class AppLocalizations {
   /// No description provided for @payAction.
   ///
   /// In fr, this message translates to:
-  /// **'Payer'**
+  /// **'Acheter'**
   String get payAction;
 
   /// No description provided for @enterPinForPurchase.

@@ -258,7 +258,6 @@ class UserSession {
     await prefs.remove(_phoneNumberKey); // Supprimer le numéro actuel
     // Conserver _lastUsedPhoneKey pour pré-remplir le champ de connexion
     // Conserver les préférences utilisateur (_isBiometricEnabledKey, _isPinEnabledKey, _isOtpEnabledKey)
-    // Conserver _skipPinSetupKey car c'est une préférence globale du device
 
     // Réinitialiser le cache
     _cachedPhoneNumber = null;
@@ -279,7 +278,6 @@ class UserSession {
     await prefs.remove(_isAppRunningKey);
     await prefs.remove(_sessionTokenKey);
     await prefs.remove(_hasPinKey);
-    await prefs.remove(_skipPinSetupKey);
     // Optionnel: supprimer aussi les préférences
     // await prefs.remove(_isBiometricEnabledKey);
     // await prefs.remove(_isPinEnabledKey);
@@ -339,23 +337,6 @@ class UserSession {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_isPinEnabledKey, enabled);
     debugPrint('Connexion PIN ${enabled ? "activée" : "désactivée"}');
-  }
-
-  // ==================== Gestion du Skip PIN Setup ====================
-
-  static const String _skipPinSetupKey = 'skip_pin_setup';
-
-  /// Vérifie si l'utilisateur a demandé de ne plus afficher la config PIN
-  static Future<bool> shouldSkipPinSetup() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_skipPinSetupKey) ?? false;
-  }
-
-  /// Enregistre la préférence "Plus tard" pour la config PIN
-  static Future<void> setSkipPinSetup(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_skipPinSetupKey, value);
-    debugPrint('Skip PIN setup set to: $value');
   }
 
   // ==================== Stockage sécurisé du PIN pour biométrie ====================

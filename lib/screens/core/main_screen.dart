@@ -18,14 +18,12 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   int _currentNavIndex = 0;
-  late PageController _pageController;
   late AnimationController _animationController;
   late Animation<double> _iconScaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -42,7 +40,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _pageController.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -50,11 +47,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void _onTabTapped(int index) {
     if (index == _currentNavIndex) return;
     setState(() => _currentNavIndex = index);
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
     _animationController.reset();
     _animationController.forward();
   }
@@ -65,9 +57,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) => setState(() => _currentNavIndex = index),
+      body: IndexedStack(
+        index: _currentNavIndex,
         children: const [
           HomeScreen(),
           HistoryScreen(),

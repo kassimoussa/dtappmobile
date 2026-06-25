@@ -1,5 +1,6 @@
 // lib/widgets/package_confirmation_dialog.dart
 import 'package:flutter/material.dart';
+import '../constants/app_theme.dart';
 
 class PackageConfirmationDialog extends StatelessWidget {
   final Map<String, dynamic> packageDetails;
@@ -13,8 +14,6 @@ class PackageConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color djiboutiBlue = const Color(0xFF002555);
-    
     // Générer un numéro de transaction unique
     final String transactionId = 'TR-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}';
     final String currentDate = '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}';
@@ -103,7 +102,7 @@ class PackageConfirmationDialog extends StatelessWidget {
                                   'Détails du reçu',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: djiboutiBlue,
+                                    color: AppTheme.dtBlue,
                                     fontSize: isSmallScreen ? 14 : 16,
                                   ),
                                 ),
@@ -178,7 +177,7 @@ class PackageConfirmationDialog extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.info_outline,
-                              color: djiboutiBlue,
+                              color: AppTheme.dtBlue,
                               size: isSmallScreen ? 18 : 20,
                             ),
                             const SizedBox(width: 10),
@@ -186,7 +185,7 @@ class PackageConfirmationDialog extends StatelessWidget {
                               child: Text(
                                 'Votre forfait est maintenant actif. Vous pouvez le consulter dans la section "Mes forfaits actifs".',
                                 style: TextStyle(
-                                  color: djiboutiBlue,
+                                  color: AppTheme.dtBlue,
                                   fontSize: isSmallScreen ? 12 : 14,
                                 ),
                               ),
@@ -219,13 +218,13 @@ class PackageConfirmationDialog extends StatelessWidget {
                       Navigator.pop(context);
                     },
                     style: TextButton.styleFrom(
-                      foregroundColor: djiboutiBlue,
+                      foregroundColor: AppTheme.dtBlue,
                     ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: djiboutiBlue,
+                      backgroundColor: AppTheme.dtBlue,
                       foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(
                         horizontal: isSmallScreen ? 12 : 16,

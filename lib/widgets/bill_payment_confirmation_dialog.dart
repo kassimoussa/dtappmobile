@@ -1,5 +1,6 @@
 // lib/widgets/bill_payment_confirmation_dialog.dart
 import 'package:flutter/material.dart';
+import '../constants/app_theme.dart';
 
 class BillPaymentConfirmationDialog extends StatelessWidget {
   final Map<String, dynamic> bill;
@@ -13,8 +14,6 @@ class BillPaymentConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color djiboutiBlue = const Color(0xFF002555);
-    
     // Générer un numéro de transaction unique
     final String transactionId = 'PAIE-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}';
     final String currentDate = '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}';
@@ -103,7 +102,7 @@ class BillPaymentConfirmationDialog extends StatelessWidget {
                                   'Détails du reçu',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: djiboutiBlue,
+                                    color: AppTheme.dtBlue,
                                     fontSize: isSmallScreen ? 14 : 16,
                                   ),
                                 ),
@@ -180,7 +179,7 @@ class BillPaymentConfirmationDialog extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.info_outline,
-                              color: djiboutiBlue,
+                              color: AppTheme.dtBlue,
                               size: isSmallScreen ? 18 : 20,
                             ),
                             const SizedBox(width: 10),
@@ -188,7 +187,7 @@ class BillPaymentConfirmationDialog extends StatelessWidget {
                               child: Text(
                                 'Votre facture a été payée avec succès. Vous pouvez consulter l\'historique de vos paiements dans la section "Historique".',
                                 style: TextStyle(
-                                  color: djiboutiBlue,
+                                  color: AppTheme.dtBlue,
                                   fontSize: isSmallScreen ? 12 : 14,
                                 ),
                               ),
@@ -221,13 +220,13 @@ class BillPaymentConfirmationDialog extends StatelessWidget {
                       Navigator.pop(context);
                     },
                     style: TextButton.styleFrom(
-                      foregroundColor: djiboutiBlue,
+                      foregroundColor: AppTheme.dtBlue,
                     ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: djiboutiBlue,
+                      backgroundColor: AppTheme.dtBlue,
                       foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(
                         horizontal: isSmallScreen ? 12 : 16,

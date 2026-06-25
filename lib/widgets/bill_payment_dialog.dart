@@ -1,6 +1,7 @@
 // lib/widgets/bill_payment_dialog.dart
 import 'package:dtservices/widgets/bill_payment_confirmation_dialog.dart';
 import 'package:flutter/material.dart';
+import '../constants/app_theme.dart';
 import '../generated/l10n/app_localizations.dart';
 
 class BillPaymentDialog extends StatefulWidget {
@@ -17,8 +18,6 @@ class BillPaymentDialog extends StatefulWidget {
 
 class _BillPaymentDialogState extends State<BillPaymentDialog> {
   String _selectedPaymentMethod = 'D-Money';
-  final Color djiboutiBlue = const Color(0xFF002555);
-  final Color djiboutiYellow = const Color(0xFFF7C700);
 
   void _showBillPaymentLoading() {
     final l10n = AppLocalizations.of(context)!;
@@ -45,14 +44,14 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 20),
-              CircularProgressIndicator(color: djiboutiYellow, strokeWidth: 6),
+              CircularProgressIndicator(color: AppTheme.dtYellow, strokeWidth: 6),
               const SizedBox(height: 24),
               Text(
                 l10n.processingPayment,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: djiboutiBlue,
+                  color: AppTheme.dtBlue,
                 ),
               ),
               const SizedBox(height: 8),
@@ -92,7 +91,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
               child: Text(
                 l10n.payBill,
                 style: TextStyle(
-                  color: djiboutiBlue,
+                  color: AppTheme.dtBlue,
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 18 : 20,
                 ),
@@ -130,7 +129,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: isSmallScreen ? 20 : 24,
-                                color: djiboutiBlue,
+                                color: AppTheme.dtBlue,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -158,7 +157,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
                         l10n.choosePaymentMethod,
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          color: djiboutiBlue,
+                          color: AppTheme.dtBlue,
                           fontSize: isSmallScreen ? 14 : 15,
                         ),
                       ),
@@ -169,7 +168,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
                         subtitle: l10n.dmoneyPaymentDesc,
                         value: 'D-Money',
                         icon: Icons.account_balance_wallet,
-                        iconColor: djiboutiBlue,
+                        iconColor: AppTheme.dtBlue,
                         backgroundColor: Colors.blue[50],
                         isSmallScreen: isSmallScreen,
                       ),
@@ -209,8 +208,8 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
                   const SizedBox(width: 8),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: djiboutiYellow,
-                      foregroundColor: djiboutiBlue,
+                      backgroundColor: AppTheme.dtYellow,
+                      foregroundColor: AppTheme.dtBlue,
                       padding: EdgeInsets.symmetric(
                         horizontal: isSmallScreen ? 12 : 16,
                         vertical: isSmallScreen ? 8 : 10,
@@ -253,7 +252,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: BorderSide(
-          color: isSelected ? djiboutiYellow : Colors.transparent,
+          color: isSelected ? AppTheme.dtYellow : Colors.transparent,
           width: 2,
         ),
       ),
@@ -274,7 +273,7 @@ class _BillPaymentDialogState extends State<BillPaymentDialog> {
               Radio<String>(
                 value: value,
                 groupValue: _selectedPaymentMethod,
-                activeColor: djiboutiYellow,
+                activeColor: AppTheme.dtYellow,
                 onChanged: (newValue) {
                   setState(() {
                     _selectedPaymentMethod = newValue!;

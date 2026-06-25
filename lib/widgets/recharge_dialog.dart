@@ -1,6 +1,7 @@
 // lib/widgets/recharge_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:dtservices/widgets/recharge_confirmation_dialog.dart';
+import '../constants/app_theme.dart';
 import '../generated/l10n/app_localizations.dart';
 
 class RechargeDialog extends StatefulWidget {
@@ -13,8 +14,6 @@ class RechargeDialog extends StatefulWidget {
 class _RechargeDialogState extends State<RechargeDialog> {
   final TextEditingController _rechargeAmountController = TextEditingController();
   String _selectedPaymentMethod = 'D-Money';
-  final Color djiboutiBlue = const Color(0xFF002555);
-  final Color djiboutiYellow = const Color(0xFFF7C700);
 
   @override
   void dispose() {
@@ -67,7 +66,7 @@ class _RechargeDialogState extends State<RechargeDialog> {
               child: Text(
                 l10n.rechargeYourAccount,
                 style: TextStyle(
-                  color: djiboutiBlue,
+                  color: AppTheme.dtBlue,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                 ),
@@ -100,11 +99,11 @@ class _RechargeDialogState extends State<RechargeDialog> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: djiboutiBlue, width: 2),
+                          borderSide: BorderSide(color: AppTheme.dtBlue, width: 2),
                         ),
                         hintText: 'Ex: 1000',
                         hintStyle: TextStyle(color: Colors.grey[400]),
-                        prefixIcon: Icon(Icons.attach_money, color: djiboutiBlue),
+                        prefixIcon: Icon(Icons.attach_money, color: AppTheme.dtBlue),
                         filled: true,
                         fillColor: Colors.white,
                       ),
@@ -120,7 +119,7 @@ class _RechargeDialogState extends State<RechargeDialog> {
                       subtitle: l10n.dmoneyPaymentDesc,
                       value: 'D-Money',
                       icon: Icons.account_balance_wallet,
-                      iconColor: djiboutiBlue,
+                      iconColor: AppTheme.dtBlue,
                       backgroundColor: Colors.blue[50],
                     ),
                     const SizedBox(height: 12),
@@ -153,8 +152,8 @@ class _RechargeDialogState extends State<RechargeDialog> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: djiboutiYellow,
-                      foregroundColor: djiboutiBlue,
+                      backgroundColor: AppTheme.dtYellow,
+                      foregroundColor: AppTheme.dtBlue,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                       elevation: 0,
@@ -206,7 +205,7 @@ class _RechargeDialogState extends State<RechargeDialog> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? djiboutiYellow : Colors.grey[200]!,
+            color: isSelected ? AppTheme.dtYellow : Colors.grey[200]!,
             width: isSelected ? 2 : 1,
           ),
           color: isSelected ? backgroundColor : Colors.white,
@@ -251,7 +250,7 @@ class _RechargeDialogState extends State<RechargeDialog> {
                   ? Container(
                       width: 24,
                       height: 24,
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: djiboutiYellow),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.dtYellow),
                       child: const Icon(Icons.check, color: Colors.white, size: 16),
                     )
                   : Container(

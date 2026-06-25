@@ -23,7 +23,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _isLoading = true;
+  bool _isLoading = ProfileService.cachedProfile == null;
   String? _errorMessage;
 
   // Données utilisateur
@@ -38,10 +38,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserProfile() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    final cached = ProfileService.cachedProfile;
+
+    if (cached != null) {
+      // Affiche immédiatement les données en cache, rafraîchit en arrière-plan
+      final userData = cached['user'];
+      setState(() {
+        _phoneNumber = userData['phone_number'];
+        _currentName = userData['name'];
+        _currentEmail = userData['email'];
+        _isLoading = false;
+        _errorMessage = null;
+      });
+    } else {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    }
 
     try {
       // Charger les données du profil
@@ -56,10 +70,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _currentEmail = userData['email'];
           _isLoading = false;
         });
+      } else if (cached == null && mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     } catch (e) {
       debugPrint('Erreur chargement profil: $e');
-      if (mounted) {
+      if (cached == null && mounted) {
         setState(() {
           _errorMessage = AppLocalizations.of(context)!.profileLoadError;
           _isLoading = false;

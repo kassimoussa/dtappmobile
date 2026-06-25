@@ -954,7 +954,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get fromMobile => 'Depuis votre mobile';
 
   @override
-  String get confirmPurchaseAction => 'Confirmer l\'achat';
+  String get confirmPurchaseAction => 'Acheter';
 
   @override
   String get rechargeTitle => 'Recharger compte fixe';
@@ -1251,6 +1251,36 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get unknownStatus => 'Statut inconnu';
+
+  @override
+  String get activityDetailTitle => 'Détails de l\'activité';
+
+  @override
+  String get activityStatusLabel => 'Statut';
+
+  @override
+  String get referenceLabel => 'Référence';
+
+  @override
+  String get statusSuccessLabel => 'Réussi';
+
+  @override
+  String get statusFailedLabel => 'Échoué';
+
+  @override
+  String get statusPendingLabel => 'En attente';
+
+  @override
+  String get noAdditionalDetails => 'Aucun détail supplémentaire';
+
+  @override
+  String get beneficiaryLabel => 'Destinataire';
+
+  @override
+  String get balanceBeforeLabel => 'Solde avant';
+
+  @override
+  String get balanceAfterLabel => 'Solde après';
 
   @override
   String get money => 'Crédit';
@@ -1775,7 +1805,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get payAction => 'Payer';
+  String get payAction => 'Acheter';
 
   @override
   String get enterPinForPurchase =>

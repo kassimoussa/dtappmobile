@@ -6,6 +6,7 @@ import '../../utils/responsive_size.dart';
 import '../../models/activity.dart';
 import '../../providers/transaction_provider.dart';
 import '../../routes/custom_route_transitions.dart';
+import '../../widgets/activity_detail_sheet.dart';
 import '../statistics/statistics_screen.dart';
 import '../../generated/l10n/app_localizations.dart';
 
@@ -88,7 +89,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final dateToCheck = DateTime(date.year, date.month, date.day);
 
     if (dateToCheck == today) {
-      return "Aujourd'hui"; 
+      return "Aujourd'hui";
     } else if (dateToCheck == yesterday) {
       return "Hier";
     } else {
@@ -116,24 +117,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [
-                    AppTheme.dtBlueO08,
-                    Colors.transparent,
-                  ],
+                  colors: [AppTheme.dtBlueO08, Colors.transparent],
                   radius: 0.8,
                 ),
               ),
             ),
           ),
-          
+
           SafeArea(
             child: Column(
               children: [
                 _buildGlassAppBar(l10n),
                 _buildFiltersSection(transactionProvider),
-                Expanded(
-                  child: _buildBodyContent(transactionProvider),
-                ),
+                Expanded(child: _buildBodyContent(transactionProvider)),
               ],
             ),
           ),
@@ -144,56 +140,62 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget _buildGlassAppBar(AppLocalizations l10n) {
     return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
-            vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
+        vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
+      ),
+      decoration: BoxDecoration(
+        color: Colors.transparent, // Background handles color
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            l10n.historyTitle,
+            style: AppTheme.headingStyle.copyWith(
+              fontSize: ResponsiveSize.getFontSize(24),
+              fontWeight: FontWeight.w800,
+            ),
           ),
-          decoration: BoxDecoration(
-            color: Colors.transparent, // Background handles color
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.historyTitle,
-                style: AppTheme.headingStyle.copyWith(
-                  fontSize: ResponsiveSize.getFontSize(24),
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              InkWell(
-                onTap: () => Navigator.push(
+          InkWell(
+            onTap:
+                () => Navigator.push(
                   context,
                   CustomRouteTransitions.slideRightRoute(
                     page: const StatisticsScreen(),
                   ),
                 ),
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppTheme.white50,
                 borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.bar_chart_rounded, color: AppTheme.dtBlueDark, size: 20),
-                      SizedBox(width: 6),
-                      Text("Stats", 
-                        style: AppTheme.bodyStyle.copyWith(
-                          color: AppTheme.dtBlueDark, 
-                          fontWeight: FontWeight.w600, 
-                          fontSize: 14
-                        )
-                      ),
-                    ],
-                  ),
-                ),
+                border: Border.all(color: Colors.white),
               ),
-            ],
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.bar_chart_rounded,
+                    color: AppTheme.dtBlueDark,
+                    size: 20,
+                  ),
+                  SizedBox(width: 6),
+                  Text(
+                    "Stats",
+                    style: AppTheme.bodyStyle.copyWith(
+                      color: AppTheme.dtBlueDark,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        );
+        ],
+      ),
+    );
   }
 
   Widget _buildFiltersSection(TransactionProvider provider) {
@@ -202,44 +204,62 @@ class _HistoryScreenState extends State<HistoryScreen> {
       color: Colors.transparent,
       padding: EdgeInsets.symmetric(
         vertical: ResponsiveSize.getHeight(8),
-        horizontal: ResponsiveSize.getWidth(AppTheme.spacingM)
+        horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         child: Row(
-          children: _daysOptions.map((days) {
-            final isSelected = days == provider.selectedDays;
-            return Padding(
-              padding: EdgeInsets.only(right: ResponsiveSize.getWidth(10)),
-              child: InkWell(
-                onTap: () => provider.changeDaysFilter(days),
-                borderRadius: BorderRadius.circular(20),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.dtBlueDark : Colors.white.withValues(alpha: 0.8),
+          children:
+              _daysOptions.map((days) {
+                final isSelected = days == provider.selectedDays;
+                return Padding(
+                  padding: EdgeInsets.only(right: ResponsiveSize.getWidth(10)),
+                  child: InkWell(
+                    onTap: () => provider.changeDaysFilter(days),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isSelected ? AppTheme.dtBlueDark : Colors.grey[300]!,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected
+                                ? AppTheme.dtBlueDark
+                                : Colors.white.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color:
+                              isSelected
+                                  ? AppTheme.dtBlueDark
+                                  : Colors.grey[300]!,
+                        ),
+                        boxShadow:
+                            isSelected
+                                ? [
+                                  BoxShadow(
+                                    color: AppTheme.dtBlueO30,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ]
+                                : [],
+                      ),
+                      child: Text(
+                        "$days jours", // Simplification to avoid complex translation mapping if not needed
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.grey[700],
+                          fontSize: ResponsiveSize.getFontSize(13),
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.w600,
+                        ),
+                      ),
                     ),
-                    boxShadow: isSelected ? [
-                      BoxShadow(color: AppTheme.dtBlueO30, blurRadius: 8, offset: Offset(0, 4))
-                    ] : [],
                   ),
-                  child: Text(
-                    "$days jours", // Simplification to avoid complex translation mapping if not needed
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey[700],
-                      fontSize: ResponsiveSize.getFontSize(13),
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
+                );
+              }).toList(),
         ),
       ),
     );
@@ -320,7 +340,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ElevatedButton(
               onPressed: () => provider.refresh(),
               style: AppTheme.primaryButtonStyle.copyWith(
-                padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 32, vertical: 12)),
+                padding: WidgetStateProperty.all(
+                  EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                ),
               ),
               child: Text(l10n.retry),
             ),
@@ -344,8 +366,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 color: Colors.white,
                 shape: BoxShape.circle,
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 20, spreadRadius: 5)
-                ]
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
+                ],
               ),
               child: Icon(
                 Icons.receipt_long_rounded,
@@ -403,7 +429,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       color: AppTheme.dtBlueDark,
       child: ListView.builder(
         controller: _scrollController,
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
         padding: EdgeInsets.only(
           left: ResponsiveSize.getWidth(AppTheme.spacingM),
           right: ResponsiveSize.getWidth(AppTheme.spacingM),
@@ -454,14 +482,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget _buildActivityCard(Activity activity) {
     final statusColor = _getStatusColor(activity.status);
-    final isNegative = activity.actionType == 'credit_deduct' || activity.amount != null && activity.amount! < 0;
-    
+    final isNegative =
+        activity.actionType == 'credit_deduct' ||
+        activity.amount != null && activity.amount! < 0;
+
     // Determining amount text styling dynamically
     Color amountColor = Colors.black87;
     String amountPrefix = '';
     if (activity.status.toLowerCase() == 'success') {
       if (isNegative) {
-        amountColor = Colors.black87; 
+        amountColor = Colors.black87;
         amountPrefix = '- ';
       } else {
         amountColor = Colors.green[700]!;
@@ -480,105 +510,112 @@ class _HistoryScreenState extends State<HistoryScreen> {
             color: Colors.black.withValues(alpha: 0.015),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Circular Icon Container with dynamic color
-            Container(
-              padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
+      child: InkWell(
+        onTap: () => showActivityDetailSheet(context, activity),
+        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(16)),
+        child: Padding(
+          padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Circular Icon Container with dynamic color
+              Container(
+                padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  _getActionIcon(activity.actionType),
+                  color: statusColor,
+                  size: ResponsiveSize.getFontSize(22),
+                ),
               ),
-              child: Icon(
-                _getActionIcon(activity.actionType),
-                color: statusColor,
-                size: ResponsiveSize.getFontSize(22),
-              ),
-            ),
-            SizedBox(width: ResponsiveSize.getWidth(16)),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    activity.actionLabel,
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(16),
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  SizedBox(height: ResponsiveSize.getHeight(4)),
-                  // Time and Status Row
-                  Row(
-                    children: [
-                      Text(
-                        "${activity.createdAt.hour}:${activity.createdAt.minute.toString().padLeft(2, '0')}",
-                        style: TextStyle(
-                          fontSize: ResponsiveSize.getFontSize(13),
-                          color: Colors.grey[500],
-                          fontWeight: FontWeight.w500,
-                        ),
+              SizedBox(width: ResponsiveSize.getWidth(16)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      activity.actionLabel,
+                      style: TextStyle(
+                        fontSize: ResponsiveSize.getFontSize(16),
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                        letterSpacing: -0.3,
                       ),
-                      if (activity.status.toLowerCase() != 'success') ...[
-                        SizedBox(width: 8),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: statusColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
+                    ),
+                    SizedBox(height: ResponsiveSize.getHeight(4)),
+                    // Time and Status Row
+                    Row(
+                      children: [
+                        Text(
+                          "${activity.createdAt.hour}:${activity.createdAt.minute.toString().padLeft(2, '0')}",
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(13),
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w500,
                           ),
-                          child: Text(
-                            activity.status.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: ResponsiveSize.getFontSize(10),
-                              fontWeight: FontWeight.bold,
-                              color: statusColor,
+                        ),
+                        if (activity.status.toLowerCase() != 'success') ...[
+                          SizedBox(width: 8),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: statusColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              activity.status.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: ResponsiveSize.getFontSize(10),
+                                fontWeight: FontWeight.bold,
+                                color: statusColor,
+                              ),
                             ),
                           ),
+                        ],
+                      ],
+                    ),
+                    if (activity.detailsText != null) ...[
+                      SizedBox(height: ResponsiveSize.getHeight(8)),
+                      Text(
+                        activity.detailsText!,
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(13),
+                          color: Colors.grey[600],
+                          height: 1.3,
                         ),
-                      ]
+                      ),
                     ],
-                  ),
-                  if (activity.detailsText != null) ...[
-                    SizedBox(height: ResponsiveSize.getHeight(8)),
+                  ],
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(12)),
+              // Amount Details
+              if (activity.amount != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
                     Text(
-                      activity.detailsText!,
+                      "$amountPrefix${activity.amount!.toStringAsFixed(0)} DJF",
                       style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(13),
-                        color: Colors.grey[600],
-                        height: 1.3,
+                        fontSize: ResponsiveSize.getFontSize(16),
+                        fontWeight: FontWeight.bold,
+                        color: amountColor,
+                        letterSpacing: -0.5,
                       ),
                     ),
-                  ]
-                ],
-              ),
-            ),
-            SizedBox(width: ResponsiveSize.getWidth(12)),
-            // Amount Details
-            if (activity.amount != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    "$amountPrefix${activity.amount!.toStringAsFixed(0)} DJF",
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(16),
-                      fontWeight: FontWeight.bold,
-                      color: amountColor,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                ],
-              ),
-          ],
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );

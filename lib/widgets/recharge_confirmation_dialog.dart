@@ -1,5 +1,6 @@
 // lib/widgets/recharge_confirmation_dialog.dart
 import 'package:flutter/material.dart';
+import '../constants/app_theme.dart';
 import '../generated/l10n/app_localizations.dart';
 
 class RechargeConfirmationDialog extends StatelessWidget {
@@ -14,8 +15,7 @@ class RechargeConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color djiboutiBlue = const Color(0xFF002555);
-    final l10n = AppLocalizations.of(context)!;
+final l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -47,7 +47,7 @@ class RechargeConfirmationDialog extends StatelessWidget {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: djiboutiBlue,
+                color: AppTheme.dtBlue,
               ),
             ),
             const SizedBox(height: 16),
@@ -67,7 +67,7 @@ class RechargeConfirmationDialog extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: djiboutiBlue,
+                  backgroundColor: AppTheme.dtBlue,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),

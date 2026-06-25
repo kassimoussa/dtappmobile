@@ -152,11 +152,13 @@ class AuthProvider extends ChangeNotifier {
         await _createSession(phoneNumber, sessionToken, hasPin: hasPin);
 
         // Envoyer le token FCM en arrière-plan (non bloquant)
-        FCMTokenService.updateTokenOnServer().then((_) {
-          debugPrint('AuthProvider: Token FCM envoyé au serveur');
-        }).catchError((fcmError) {
-          debugPrint('AuthProvider: Erreur FCM (non bloquant): $fcmError');
-        });
+        FCMTokenService.updateTokenOnServer()
+            .then((_) {
+              debugPrint('AuthProvider: Token FCM envoyé au serveur');
+            })
+            .catchError((fcmError) {
+              debugPrint('AuthProvider: Erreur FCM (non bloquant): $fcmError');
+            });
 
         debugPrint('AuthProvider: ✅ Authentification réussie (PIN: $hasPin)');
         _isLoading = false;
@@ -214,6 +216,14 @@ class AuthProvider extends ChangeNotifier {
     String? sessionToken, {
     bool hasPin = false,
   }) async {
+    // Si une session TopUp (ligne fixe liée) appartient à un autre numéro
+    // mobile, elle ne doit pas être réutilisée par le nouvel utilisateur.
+    final previousTopUpMobile = await TopUpSession.getMobileNumber();
+    if (previousTopUpMobile != null &&
+        _normalizePhone(previousTopUpMobile) != _normalizePhone(phoneNumber)) {
+      await TopUpSession.clearSession();
+    }
+
     // Sauvegarder dans UserSession (pour persistence)
     await UserSession.createSession(
       phoneNumber,
@@ -393,11 +403,13 @@ class AuthProvider extends ChangeNotifier {
         await _createSession(phoneNumber, sessionToken, hasPin: true);
 
         // Envoyer le token FCM en arrière-plan (non bloquant)
-        FCMTokenService.updateTokenOnServer().then((_) {
-          debugPrint('AuthProvider: Token FCM envoyé au serveur');
-        }).catchError((fcmError) {
-          debugPrint('AuthProvider: Erreur FCM (non bloquant): $fcmError');
-        });
+        FCMTokenService.updateTokenOnServer()
+            .then((_) {
+              debugPrint('AuthProvider: Token FCM envoyé au serveur');
+            })
+            .catchError((fcmError) {
+              debugPrint('AuthProvider: Erreur FCM (non bloquant): $fcmError');
+            });
 
         debugPrint('AuthProvider: ✅ Connexion PIN réussie');
         _isLoading = false;
@@ -772,6 +784,15 @@ class AuthProvider extends ChangeNotifier {
     final remaining = _inactivityTimeout - elapsed;
 
     return remaining.isNegative ? Duration.zero : remaining;
+  }
+
+  /// Normalise un numéro au format local à 8 chiffres (sans indicatif 253)
+  static String _normalizePhone(String phoneNumber) {
+    String cleanNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+    if (cleanNumber.startsWith('253')) {
+      cleanNumber = cleanNumber.substring(3);
+    }
+    return cleanNumber;
   }
 
   /// Vérifie si le numéro est valide (format Djibouti)

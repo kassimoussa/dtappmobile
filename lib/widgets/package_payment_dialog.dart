@@ -1,6 +1,7 @@
 // lib/widgets/package_payment_dialog.dart
 import 'package:dtservices/widgets/package_confirmation_dialog.dart';
 import 'package:flutter/material.dart';
+import '../constants/app_theme.dart';
 
 class PackagePaymentDialog extends StatefulWidget {
   final Map<String, dynamic> packageDetails;
@@ -16,8 +17,6 @@ class PackagePaymentDialog extends StatefulWidget {
 
 class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
   String _selectedPaymentMethod = 'D-Money';
-  final Color djiboutiBlue = const Color(0xFF002555);
-  final Color djiboutiYellow = const Color(0xFFF7C700);
 
   void _showPurchaseProcessing(BuildContext context) {
     showDialog(
@@ -43,14 +42,14 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 20),
-              CircularProgressIndicator(color: djiboutiYellow, strokeWidth: 6),
+              CircularProgressIndicator(color: AppTheme.dtYellow, strokeWidth: 6),
               const SizedBox(height: 24),
               Text(
                 'Traitement en cours...',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: djiboutiBlue,
+                  color: AppTheme.dtBlue,
                 ),
               ),
               const SizedBox(height: 8),
@@ -90,7 +89,7 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
               child: Text(
                 'Méthode de paiement',
                 style: TextStyle(
-                  color: djiboutiBlue,
+                  color: AppTheme.dtBlue,
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 18 : 20,
                 ),
@@ -120,7 +119,7 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: isSmallScreen ? 14 : 16,
-                                color: djiboutiBlue,
+                                color: AppTheme.dtBlue,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -148,7 +147,7 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
                         'Choisissez comment payer:',
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          color: djiboutiBlue,
+                          color: AppTheme.dtBlue,
                           fontSize: isSmallScreen ? 13 : 15,
                         ),
                       ),
@@ -160,7 +159,7 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
                         subtitle: 'Paiement via votre compte D-Money',
                         value: 'D-Money',
                         icon: Icons.account_balance_wallet,
-                        iconColor: djiboutiBlue,
+                        iconColor: AppTheme.dtBlue,
                         backgroundColor: Colors.blue[50],
                         isSmallScreen: isSmallScreen,
                       ),
@@ -201,8 +200,8 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
                   const SizedBox(width: 8),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: djiboutiYellow,
-                      foregroundColor: djiboutiBlue,
+                      backgroundColor: AppTheme.dtYellow,
+                      foregroundColor: AppTheme.dtBlue,
                       padding: EdgeInsets.symmetric(
                         horizontal: isSmallScreen ? 12 : 16,
                         vertical: isSmallScreen ? 8 : 10,
@@ -214,7 +213,7 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
                       _showPurchaseProcessing(context);
                     },
                     child: Text(
-                      'Payer maintenant',
+                      'Acheter',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: isSmallScreen ? 13 : 14,
@@ -246,7 +245,7 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: BorderSide(
-          color: isSelected ? djiboutiYellow : Colors.transparent,
+          color: isSelected ? AppTheme.dtYellow : Colors.transparent,
           width: 2,
         ),
       ),
@@ -267,7 +266,7 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
               Radio<String>(
                 value: value,
                 groupValue: _selectedPaymentMethod,
-                activeColor: djiboutiYellow,
+                activeColor: AppTheme.dtYellow,
                 onChanged: (newValue) {
                   setState(() {
                     _selectedPaymentMethod = newValue!;

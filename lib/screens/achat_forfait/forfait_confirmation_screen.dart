@@ -141,7 +141,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
       if (!mounted) return;
       // Authentification biométrique échouée ou annulée
       final authProvider = context.read<AuthProvider>();
-      
+
       // Si on n'a pas de PIN configuré, on bloque l'achat si l'erreur n'est pas "userCancel"
       if (!authProvider.hasPin) {
         if (authResult.errorType != BiometricAuthErrorType.userCancel) {
@@ -151,7 +151,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
         }
         return;
       }
-      
+
       // Fallback: Demander le code PIN
       final phoneNumber = authProvider.phoneNumber;
       if (phoneNumber == null) return;
@@ -275,10 +275,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [
-                    AppTheme.dtBlueO08,
-                    Colors.transparent,
-                  ],
+                  colors: [AppTheme.dtBlueO08, Colors.transparent],
                   radius: 0.8,
                 ),
               ),
@@ -287,51 +284,60 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, AppLocalizations.of(context)!.purchaseConfirmationTitle),
+                _buildGlassAppBar(
+                  context,
+                  AppLocalizations.of(context)!.purchaseConfirmationTitle,
+                ),
                 Expanded(
                   child: AnimatedBuilder(
-        animation: _animationController,
-        builder: (context, child) {
-          return FadeTransition(
-            opacity: _fadeAnimation,
-            child: ScaleTransition(scale: _scaleAnimation, child: child),
-          );
-        },
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Type d'achat avec badge
-              _buildPurchaseTypeBadge(),
+                    animation: _animationController,
+                    builder: (context, child) {
+                      return FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: ScaleTransition(
+                          scale: _scaleAnimation,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(
+                        ResponsiveSize.getWidth(AppTheme.spacingL),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Type d'achat avec badge
+                          _buildPurchaseTypeBadge(),
 
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                          SizedBox(
+                            height: ResponsiveSize.getHeight(AppTheme.spacingM),
+                          ),
 
-              // Entête avec icône animée
-              _buildHeader(),
+                          // Entête avec icône animée
+                          _buildHeader(),
 
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                          SizedBox(
+                            height: ResponsiveSize.getHeight(AppTheme.spacingL),
+                          ),
 
-              // Détails du forfait
-              _buildForfaitDetails(),
+                          // Détails de l'achat
+                          _buildDetailsTable(),
 
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                          SizedBox(
+                            height: ResponsiveSize.getHeight(AppTheme.spacingL),
+                          ),
 
-              // Information sur le solde
-              _buildSoldeInfo(),
-
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-
-              // Boutons d'action
-              _buildActionButtons(),
-            ],
-          ),
-        ),
-      ),
+                          // Boutons d'action
+                          _buildActionButtons(),
+                        ],
+                      ),
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
         ],
       ),
     );
@@ -429,7 +435,11 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
 
         Text(
           AppLocalizations.of(context)!.validFor(
-              translateValidity(widget.forfait.validite, AppLocalizations.of(context)!)),
+            translateValidity(
+              widget.forfait.validite,
+              AppLocalizations.of(context)!,
+            ),
+          ),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(16),
@@ -440,7 +450,11 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
     );
   }
 
-  Widget _buildForfaitDetails() {
+  Widget _buildDetailsTable() {
+    final l10n = AppLocalizations.of(context)!;
+    final nouveauSolde = widget.soldeActuel - widget.forfait.prix;
+    final isLowBalance = nouveauSolde < 1000; // Seuil d'alerte
+
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       decoration: BoxDecoration(
@@ -452,61 +466,68 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
       ),
       child: Column(
         children: [
-          _buildDetailRow(
-            AppLocalizations.of(context)!.recipientLabel,
-            widget.phoneNumber,
-          ),
+          _buildDetailRow(l10n.recipientLabel, widget.phoneNumber),
           _buildDivider(),
-          _buildDetailRow(
-            AppLocalizations.of(context)!.priceLabel,
-            '${widget.forfait.prix} DJF',
-          ),
+          _buildDetailRow(l10n.priceLabel, '${widget.forfait.prix} DJF'),
           _buildDivider(),
 
           // Afficher Internet seulement s'il y en a
           if (widget.forfait.data != null) ...[
-            _buildDetailRow(
-              AppLocalizations.of(context)!.internetLabel,
-              widget.forfait.data!,
-            ),
+            _buildDetailRow(l10n.internetLabel, widget.forfait.data!),
             _buildDivider(),
           ],
 
           if (widget.forfait.type == 'combo' &&
               widget.forfait.minutes != null) ...[
-            _buildDetailRow(
-              AppLocalizations.of(context)!.callsLabel,
-              '${widget.forfait.minutes} min',
-            ),
+            _buildDetailRow(l10n.callsLabel, '${widget.forfait.minutes} min'),
             _buildDivider(),
           ],
 
           if (widget.forfait.type == 'tempo' &&
               widget.forfait.minutes != null) ...[
-            _buildDetailRow(
-              AppLocalizations.of(context)!.minutesLabel,
-              '${widget.forfait.minutes} min',
-            ),
+            _buildDetailRow(l10n.minutesLabel, '${widget.forfait.minutes} min'),
             _buildDivider(),
           ],
 
           if (widget.forfait.type == 'combo' && widget.forfait.sms != null) ...[
-            _buildDetailRow(
-              AppLocalizations.of(context)!.smsLabel,
-              '${widget.forfait.sms} SMS',
-            ),
+            _buildDetailRow(l10n.smsLabel, '${widget.forfait.sms} SMS'),
             _buildDivider(),
           ],
 
           if (widget.forfait.type == 'tempo') ...[
-            _buildDetailRow(
-              AppLocalizations.of(context)!.validityLabel,
-              AppLocalizations.of(context)!.weekendValidity,
-            ),
+            _buildDetailRow(l10n.validityLabel, l10n.weekendValidity),
           ] else ...[
             _buildDetailRow(
-              AppLocalizations.of(context)!.validityLabel,
-              translateValidity(widget.forfait.validite, AppLocalizations.of(context)!),
+              l10n.validityLabel,
+              translateValidity(widget.forfait.validite, l10n),
+            ),
+          ],
+
+          _buildDivider(),
+          _buildDetailRow(
+            l10n.currentBalance,
+            '${widget.soldeActuel.toStringAsFixed(0)} DJF',
+          ),
+          _buildDivider(),
+          _buildDetailRow(
+            l10n.balanceAfterPurchase,
+            '${nouveauSolde.toStringAsFixed(0)} DJF',
+            isTotal: true,
+            isWarning: isLowBalance,
+          ),
+
+          if (isLowBalance) ...[
+            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                l10n.lowBalanceWarning,
+                style: TextStyle(
+                  fontSize: ResponsiveSize.getFontSize(12),
+                  color: Colors.orange,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
             ),
           ],
         ],
@@ -514,7 +535,13 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(
+    String label,
+    String value, {
+    bool isTotal = false,
+    bool isWarning = false,
+  }) {
+    final valueColor = isWarning ? Colors.orange : AppTheme.dtBlue;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(4)),
       child: Row(
@@ -524,7 +551,8 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
             label,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
-              color: Colors.grey[600],
+              color: isTotal ? valueColor : Colors.grey[600],
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
             ),
           ),
           Text(
@@ -532,7 +560,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
               fontWeight: FontWeight.bold,
-              color: AppTheme.dtBlue,
+              color: valueColor,
             ),
           ),
         ],
@@ -544,80 +572,6 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
     return Divider(
       height: ResponsiveSize.getHeight(AppTheme.spacingS),
       color: Colors.grey[300],
-    );
-  }
-
-  Widget _buildSoldeInfo() {
-    final nouveauSolde = widget.soldeActuel - widget.forfait.prix;
-    final isLowBalance = nouveauSolde < 1000; // Seuil d'alerte
-
-    return Container(
-      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-      decoration: BoxDecoration(
-        color:
-            isLowBalance
-                ? Colors.orange.withOpacityValue(0.1)
-                : AppTheme.dtYellow.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(
-          ResponsiveSize.getWidth(AppTheme.radiusM),
-        ),
-        border: Border.all(
-          color:
-              isLowBalance
-                  ? Colors.orange.withOpacityValue(0.3)
-                  : AppTheme.dtYellow.withOpacityValue(0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isLowBalance ? Icons.warning_amber : Icons.account_balance_wallet,
-            color: isLowBalance ? Colors.orange : AppTheme.dtYellow,
-            size: ResponsiveSize.getFontSize(24),
-          ),
-          SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(
-                    context,
-                  )!.currentBalanceFDJ(widget.soldeActuel.toStringAsFixed(0)),
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(14),
-                    color: Colors.grey[800],
-                  ),
-                ),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
-                Text(
-                  AppLocalizations.of(
-                    context,
-                  )!.balanceAfterPurchaseFDJ(nouveauSolde.toStringAsFixed(0)),
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(16),
-                    fontWeight: FontWeight.bold,
-                    color: isLowBalance ? Colors.orange : AppTheme.dtBlue,
-                  ),
-                ),
-                if (isLowBalance) ...[
-                  SizedBox(
-                    height: ResponsiveSize.getHeight(AppTheme.spacingXS),
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.lowBalanceWarning,
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(12),
-                      color: Colors.orange,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -671,35 +625,36 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
               ),
               elevation: _isLoading ? 0 : 2,
             ),
-            child: _isLoading
-                ? SizedBox(
-                    width: ResponsiveSize.getWidth(20),
-                    height: ResponsiveSize.getHeight(20),
-                    child: const CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.payment_rounded,
-                        size: ResponsiveSize.getFontSize(18),
-                        color: Colors.white,
+            child:
+                _isLoading
+                    ? SizedBox(
+                      width: ResponsiveSize.getWidth(20),
+                      height: ResponsiveSize.getHeight(20),
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
-                      SizedBox(width: ResponsiveSize.getWidth(6)),
-                      Text(
-                        l10n.payAction,
-                        style: TextStyle(
-                          fontSize: ResponsiveSize.getFontSize(16),
-                          fontWeight: FontWeight.bold,
+                    )
+                    : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.payment_rounded,
+                          size: ResponsiveSize.getFontSize(18),
                           color: Colors.white,
                         ),
-                      ),
-                    ],
-                  ),
+                        SizedBox(width: ResponsiveSize.getWidth(6)),
+                        Text(
+                          l10n.payAction,
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(16),
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
           ),
         ),
       ],
@@ -708,43 +663,49 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
 
   Widget _buildGlassAppBar(BuildContext context, String title) {
     return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveSize.getWidth(12),
+        vertical: ResponsiveSize.getHeight(12),
+      ),
+      decoration: const BoxDecoration(
+        color: AppTheme.white95,
+        border: Border(
+          bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5),
+        ),
+      ),
+      child: Row(
+        children: [
+          InkWell(
+            onTap: () => Navigator.of(context).pop(),
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.white50,
                 borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
+                border: Border.all(color: Colors.white),
               ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: AppTheme.dtBlueDark,
+                size: 20,
               ),
-            ],
+            ),
           ),
-        );
+          SizedBox(width: ResponsiveSize.getWidth(16)),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTheme.headingStyle.copyWith(
+                fontSize: ResponsiveSize.getFontSize(22),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

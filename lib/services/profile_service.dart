@@ -10,6 +10,10 @@ class ProfileService {
   static const String profileUrl = '${AppConfig.baseUrl}/mobile/profile';
   static const String updateProfileUrl = '${AppConfig.baseUrl}/mobile/update-profile';
 
+  /// Cache en mémoire du dernier profil chargé, pour éviter d'afficher
+  /// l'écran de chargement à chaque ouverture de l'écran profil.
+  static Map<String, dynamic>? cachedProfile;
+
   /// Récupère le profil utilisateur complet
   static Future<Map<String, dynamic>?> getUserProfile() async {
     try {
@@ -37,7 +41,8 @@ class ProfileService {
         final responseData = jsonDecode(response.body);
         
         if (responseData['status'] == 'success') {
-          return responseData['data'];
+          cachedProfile = responseData['data'];
+          return cachedProfile;
         } else {
           debugPrint('Profile API: Échec - ${responseData['message']}');
           return null;

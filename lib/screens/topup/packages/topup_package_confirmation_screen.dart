@@ -84,19 +84,7 @@ class _TopUpPackageConfirmationScreenState
     super.dispose();
   }
 
-  String get _purchaseTypeLabel {
-    final l10n = AppLocalizations.of(context)!;
-    bool isSubscription = widget.packageType == 1 || widget.packageType == 2;
-    return isSubscription
-        ? l10n.packageSubscriptionPurchase
-        : l10n.packageTopUpPurchase;
-  }
-
-  IconData get _purchaseTypeIcon => Icons.add_shopping_cart;
-
-  Color get _purchaseTypeColor => AppTheme.dtBlue;
-
-  bool _isSubscription() {
+bool _isSubscription() {
     return widget.packageType == 1 || widget.packageType == 2;
   }
 
@@ -263,10 +251,7 @@ class _TopUpPackageConfirmationScreenState
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [
-                    AppTheme.dtBlueO08,
-                    Colors.transparent,
-                  ],
+                  colors: [AppTheme.dtBlueO08, Colors.transparent],
                   radius: 0.8,
                 ),
               ),
@@ -285,24 +270,27 @@ class _TopUpPackageConfirmationScreenState
                     builder: (context, child) {
                       return FadeTransition(
                         opacity: _fadeAnimation,
-                        child: ScaleTransition(scale: _scaleAnimation, child: child),
+                        child: ScaleTransition(
+                          scale: _scaleAnimation,
+                          child: child,
+                        ),
                       );
                     },
                     child: SingleChildScrollView(
-                      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+                      padding: EdgeInsets.all(
+                        ResponsiveSize.getWidth(AppTheme.spacingL),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          _buildPurchaseTypeBadge(),
-                          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
                           _buildHeader(),
-                          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                          _buildPackageDetails(),
-                          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                          _buildSoldeInfo(),
-                          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                          _buildLineInfo(),
-                          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                          SizedBox(
+                            height: ResponsiveSize.getHeight(AppTheme.spacingL),
+                          ),
+                          _buildDetailsTable(),
+                          SizedBox(
+                            height: ResponsiveSize.getHeight(AppTheme.spacingL),
+                          ),
                           _buildActionButtons(),
                         ],
                       ),
@@ -319,105 +307,70 @@ class _TopUpPackageConfirmationScreenState
 
   Widget _buildGlassAppBar(BuildContext context, String title) {
     return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: AppTheme.dtBlueDark,
-                    size: 20,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              InkWell(
-                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(12),
-                    vertical: ResponsiveSize.getHeight(8),
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.cancel,
-                    style: TextStyle(
-                      color: AppTheme.dtBlueDark,
-                      fontSize: ResponsiveSize.getFontSize(13),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
-
-  Widget _buildPurchaseTypeBadge() {
-    return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
-        vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+        horizontal: ResponsiveSize.getWidth(12),
+        vertical: ResponsiveSize.getHeight(12),
       ),
-      decoration: BoxDecoration(
-        color: _purchaseTypeColor.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(
-          ResponsiveSize.getWidth(AppTheme.radiusL),
-        ),
-        border: Border.all(
-          color: _purchaseTypeColor.withOpacityValue(0.3),
-          width: 1,
+      decoration: const BoxDecoration(
+        color: AppTheme.white95,
+        border: Border(
+          bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5),
         ),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            _purchaseTypeIcon,
-            color: _purchaseTypeColor,
-            size: ResponsiveSize.getFontSize(18),
+          InkWell(
+            onTap: () => Navigator.of(context).pop(),
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.white50,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white),
+              ),
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: AppTheme.dtBlueDark,
+                size: 20,
+              ),
+            ),
           ),
-          SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-          Text(
-            _purchaseTypeLabel,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(14),
-              fontWeight: FontWeight.w600,
-              color: _purchaseTypeColor,
+          SizedBox(width: ResponsiveSize.getWidth(16)),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTheme.headingStyle.copyWith(
+                fontSize: ResponsiveSize.getFontSize(22),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          SizedBox(width: ResponsiveSize.getWidth(8)),
+          InkWell(
+            onTap:
+                () => Navigator.of(context).popUntil((route) => route.isFirst),
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveSize.getWidth(12),
+                vertical: ResponsiveSize.getHeight(8),
+              ),
+              decoration: BoxDecoration(
+                color: AppTheme.white50,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white),
+              ),
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
+                style: TextStyle(
+                  color: AppTheme.dtBlueDark,
+                  fontSize: ResponsiveSize.getFontSize(13),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
         ],
@@ -490,8 +443,11 @@ class _TopUpPackageConfirmationScreenState
     );
   }
 
-  Widget _buildPackageDetails() {
+  Widget _buildDetailsTable() {
     final l10n = AppLocalizations.of(context)!;
+    final nouveauSolde = widget.soldeActuel - widget.package.price;
+    final isLowBalance = nouveauSolde < 1000; // Seuil d'alerte
+
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
       decoration: BoxDecoration(
@@ -532,12 +488,51 @@ class _TopUpPackageConfirmationScreenState
           ] else ...[
             _buildDetailRow(l10n.content, widget.package.mainFeature),
           ],
+
+          _buildDivider(),
+          _buildDetailRow(l10n.fixedLineRecipient, widget.fixedNumber),
+          _buildDivider(),
+          _buildDetailRow(l10n.fromMobile, widget.mobileNumber),
+
+          _buildDivider(),
+          _buildDetailRow(
+            l10n.currentBalance,
+            '${widget.soldeActuel.toStringAsFixed(0)} DJF',
+          ),
+          _buildDivider(),
+          _buildDetailRow(
+            l10n.balanceAfterPurchase,
+            '${nouveauSolde.toStringAsFixed(0)} DJF',
+            isTotal: true,
+            isWarning: isLowBalance,
+          ),
+
+          if (isLowBalance) ...[
+            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                l10n.lowBalanceWarning,
+                style: TextStyle(
+                  fontSize: ResponsiveSize.getFontSize(12),
+                  color: Colors.orange,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(
+    String label,
+    String value, {
+    bool isTotal = false,
+    bool isWarning = false,
+  }) {
+    final valueColor = isWarning ? Colors.orange : AppTheme.dtBlue;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(4)),
       child: Row(
@@ -547,7 +542,8 @@ class _TopUpPackageConfirmationScreenState
             label,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
-              color: Colors.grey[600],
+              color: isTotal ? valueColor : Colors.grey[600],
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
             ),
           ),
           Text(
@@ -555,7 +551,7 @@ class _TopUpPackageConfirmationScreenState
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(16),
               fontWeight: FontWeight.bold,
-              color: AppTheme.dtBlue,
+              color: valueColor,
             ),
           ),
         ],
@@ -567,132 +563,6 @@ class _TopUpPackageConfirmationScreenState
     return Divider(
       height: ResponsiveSize.getHeight(AppTheme.spacingS),
       color: Colors.grey[300],
-    );
-  }
-
-  Widget _buildSoldeInfo() {
-    final l10n = AppLocalizations.of(context)!;
-    final nouveauSolde = widget.soldeActuel - widget.package.price;
-    final isLowBalance = nouveauSolde < 1000; // Seuil d'alerte
-
-    return Container(
-      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-      decoration: BoxDecoration(
-        color:
-            isLowBalance
-                ? Colors.orange.withOpacityValue(0.1)
-                : AppTheme.dtYellow.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(
-          ResponsiveSize.getWidth(AppTheme.radiusM),
-        ),
-        border: Border.all(
-          color:
-              isLowBalance
-                  ? Colors.orange.withOpacityValue(0.3)
-                  : AppTheme.dtYellow.withOpacityValue(0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isLowBalance ? Icons.warning_amber : Icons.account_balance_wallet,
-            color: isLowBalance ? Colors.orange : AppTheme.dtYellow,
-            size: ResponsiveSize.getFontSize(24),
-          ),
-          SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${l10n.currentBalance}: ${widget.soldeActuel.toStringAsFixed(0)} FDJ',
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(14),
-                    color: Colors.grey[800],
-                  ),
-                ),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
-                Text(
-                  '${l10n.balanceAfterPurchase}: ${nouveauSolde.toStringAsFixed(0)} FDJ',
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(16),
-                    fontWeight: FontWeight.bold,
-                    color: isLowBalance ? Colors.orange : AppTheme.dtBlue,
-                  ),
-                ),
-                if (isLowBalance) ...[
-                  SizedBox(
-                    height: ResponsiveSize.getHeight(AppTheme.spacingXS),
-                  ),
-                  Text(
-                    l10n.lowBalanceWarning,
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(12),
-                      color: Colors.orange,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLineInfo() {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-      decoration: BoxDecoration(
-        color: AppTheme.dtYellow.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(
-          ResponsiveSize.getWidth(AppTheme.radiusM),
-        ),
-        border: Border.all(color: AppTheme.dtYellow.withOpacityValue(0.3)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.phone,
-            color: AppTheme.dtYellow,
-            size: ResponsiveSize.getFontSize(24),
-          ),
-          SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.fixedLineRecipient,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(14),
-                    color: Colors.grey[800],
-                  ),
-                ),
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
-                Text(
-                  widget.fixedNumber,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(16),
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.dtBlue,
-                  ),
-                ),
-                Text(
-                  '${l10n.fromMobile}: ${widget.mobileNumber}',
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(12),
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 

@@ -219,7 +219,7 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                                       _buildDivider(),
                                       _buildDetailRow(l10n.recipientLabel, widget.phoneNumber),
                                       _buildDivider(),
-                                      _buildDetailRow(l10n.priceLabel, '${widget.forfait.prix} FDJ'),
+                                      _buildDetailRow(l10n.priceLabel, '${widget.forfait.prix} DJF'),
                                       _buildDivider(),
                                       _buildDetailRow(l10n.newBalance, '${nouveauSolde.toStringAsFixed(0)} DJF'),
                                       if (widget.forfait.data != null) ...[

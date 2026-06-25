@@ -9,6 +9,7 @@ import '../../../widgets/pin_dots.dart';
 import '../../../services/pin_service.dart';
 import '../../../services/user_session.dart';
 import '../connection_method_screen.dart';
+import '../../core/main_screen.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../../generated/l10n/app_localizations.dart';
 
@@ -20,6 +21,7 @@ class PinSetupScreen extends StatefulWidget {
   final VoidCallback onPinSet;
   final VoidCallback? onSkip;
   final bool isResetting;
+  final bool isMandatory;
   final String? phoneNumber;
   final String? otpCode;
 
@@ -28,6 +30,7 @@ class PinSetupScreen extends StatefulWidget {
     required this.onPinSet,
     this.onSkip,
     this.isResetting = false,
+    this.isMandatory = false,
     this.phoneNumber,
     this.otpCode,
   });
@@ -46,15 +49,20 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
 
-    return Scaffold(
+    return PopScope(
+      canPop: !widget.isMandatory,
+      child: Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: AppTheme.dtBlue),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        automaticallyImplyLeading: !widget.isMandatory,
+        leading: widget.isMandatory
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.close, color: AppTheme.dtBlue),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
         actions: [
           if (widget.onSkip != null)
             TextButton(
@@ -217,6 +225,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -372,6 +381,12 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
           CustomRouteTransitions.fadeScaleRoute(
             page: ConnectionMethodScreen(phoneNumber: widget.phoneNumber!),
           ),
+          (route) => false,
+        );
+      } else if (widget.isMandatory) {
+        // Première configuration obligatoire après l'OTP => vers MainScreen
+        Navigator.of(context).pushAndRemoveUntil(
+          CustomRouteTransitions.fadeScaleRoute(page: const MainScreen()),
           (route) => false,
         );
       } else {

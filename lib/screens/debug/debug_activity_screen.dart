@@ -38,7 +38,7 @@ class _DebugActivityScreenState extends State<DebugActivityScreen> {
       if (response != null) {
         setState(() {
           _parsedActivities = response.data;
-          
+
           // Simuler la réponse JSON brute pour comparaison
           _rawJsonResponse = '''Données parsées par notre service:
 - Nombre d'activités: ${response.data.length}
@@ -75,19 +75,20 @@ Première activité parsée:
 
   String _generateDebugInfo(ActivityHistoryResponse response) {
     String debug = '=== ANALYSE DÉTAILLÉE ===\n\n';
-    
+
     debug += 'PAGINATION:\n';
-    debug += '- Type currentPage: ${response.pagination.currentPage.runtimeType}\n';
+    debug +=
+        '- Type currentPage: ${response.pagination.currentPage.runtimeType}\n';
     debug += '- Valeur currentPage: ${response.pagination.currentPage}\n';
     debug += '- Type total: ${response.pagination.total.runtimeType}\n';
     debug += '- Valeur total: ${response.pagination.total}\n\n';
-    
+
     debug += 'FILTERS:\n';
     debug += '- Type days: ${response.filters.days.runtimeType}\n';
     debug += '- Valeur days: ${response.filters.days}\n';
     debug += '- Type perPage: ${response.filters.perPage.runtimeType}\n';
     debug += '- Valeur perPage: ${response.filters.perPage}\n\n';
-    
+
     if (response.data.isNotEmpty) {
       final first = response.data.first;
       debug += 'PREMIÈRE ACTIVITÉ:\n';
@@ -95,14 +96,18 @@ Première activité parsée:
       debug += '- Type amount: ${first.amount.runtimeType} = ${first.amount}\n';
       debug += '- Currency: ${first.currency}\n';
       debug += '- External ref: ${first.externalReference}\n';
-      debug += '- Details présents: ${first.details != null}\n';
-      if (first.details != null) {
-        debug += '- Clés details: ${first.details!.keys.toList()}\n';
-        debug += '- Details complets: ${first.details}\n';
+      debug += '- Description: ${first.description}\n';
+      debug += '- Old balance: ${first.oldBalance}\n';
+      debug += '- New balance: ${first.newBalance}\n';
+      debug += '- Beneficiary: ${first.beneficiaryMsisdn}\n';
+      debug += '- Metadata présent: ${first.metadata != null}\n';
+      if (first.metadata != null) {
+        debug += '- Clés metadata: ${first.metadata!.keys.toList()}\n';
+        debug += '- Metadata complet: ${first.metadata}\n';
       }
       debug += '- Details formatés: ${first.detailsText}\n';
     }
-    
+
     return debug;
   }
 
@@ -134,19 +139,22 @@ Première activité parsée:
                 backgroundColor: AppTheme.dtBlue,
                 foregroundColor: Colors.white,
               ),
-              child: _isLoading 
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : const Text('Analyser les données API'),
+              child:
+                  _isLoading
+                      ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                      : const Text('Analyser les données API'),
             ),
             const SizedBox(height: 16),
-            
+
             if (_rawJsonResponse.isNotEmpty) ...[
               Container(
                 padding: const EdgeInsets.all(8),
@@ -179,7 +187,7 @@ Première activité parsée:
               ),
               const SizedBox(height: 16),
             ],
-            
+
             if (_debugInfo.isNotEmpty) ...[
               Expanded(
                 child: Container(
@@ -215,7 +223,7 @@ Première activité parsée:
                 ),
               ),
             ],
-            
+
             if (_parsedActivities.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
@@ -241,7 +249,9 @@ Première activité parsée:
                           children: [
                             Text(
                               '${activity.actionLabel} (ID: ${activity.id})',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Text('Montant: ${activity.formattedAmount}'),
                             Text('Date: ${activity.formattedDate}'),
@@ -253,7 +263,10 @@ Première activité parsée:
                             if (activity.externalReference != null)
                               Text(
                                 'Réf: ${activity.externalReference}',
-                                style: const TextStyle(fontFamily: 'monospace', fontSize: 10),
+                                style: const TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontSize: 10,
+                                ),
                               ),
                           ],
                         ),

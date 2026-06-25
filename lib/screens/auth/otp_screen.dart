@@ -185,113 +185,6 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
     return l10n.otpCooldown(wait.inSeconds + 1);
   }
 
-  void _showPinSetupDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              ResponsiveSize.getWidth(AppTheme.radiusM),
-            ),
-          ),
-          title: Row(
-            children: [
-              Icon(
-                Icons.lock_outline,
-                color: AppTheme.dtBlue,
-                size: ResponsiveSize.getFontSize(28),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-              Expanded(
-                child: Text(
-                  AppLocalizations.of(context)!.setupPinTitle,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(20),
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            AppLocalizations.of(context)!.setupPinMessage,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(16),
-              color: AppTheme.textSecondary,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                // Save preference: Don't ask again
-                await UserSession.setSkipPinSetup(true);
-
-                if (!context.mounted) return;
-                Navigator.of(context).pop(); // Fermer le dialog
-                Navigator.of(context).pushAndRemoveUntil(
-                  CustomRouteTransitions.fadeScaleRoute(
-                    page: const MainScreen(),
-                  ),
-                  (route) => false,
-                );
-              },
-              child: Text(
-                AppLocalizations.of(context)!.later,
-                style: TextStyle(
-                  color: AppTheme.textSecondary,
-                  fontSize: ResponsiveSize.getFontSize(16),
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Fermer le dialog
-                Navigator.of(context).push(
-                  CustomRouteTransitions.fadeScaleRoute(
-                    page: PinSetupScreen(
-                      onPinSet: () {
-                        // Après configuration du PIN, aller vers MainScreen
-                        Navigator.of(context).pushAndRemoveUntil(
-                          CustomRouteTransitions.fadeScaleRoute(
-                            page: const MainScreen(),
-                          ),
-                          (route) => false,
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.dtBlue,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
-                  vertical: ResponsiveSize.getHeight(12),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    ResponsiveSize.getWidth(AppTheme.radiusM),
-                  ),
-                ),
-              ),
-              child: Text(
-                AppLocalizations.of(context)!.setup,
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(16),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _onOTPSubmit() async {
     String otp = _controllers.map((c) => c.text).join();
     if (otp.length == 6) {
@@ -332,19 +225,26 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
       if (success) {
         // Succès
 
-        final shouldSkip = await UserSession.shouldSkipPinSetup();
         // Vérifier aussi en local — l'API peut ne pas retourner has_pin
         final localHasPin = await UserSession.hasPin();
 
-        if (authProvider.hasPin || localHasPin || shouldSkip) {
-          // PIN déjà configuré OU ignoré => vers MainScreen
+        if (authProvider.hasPin || localHasPin) {
+          // PIN déjà configuré => vers MainScreen
           Navigator.of(context).pushAndRemoveUntil(
             CustomRouteTransitions.fadeScaleRoute(page: const MainScreen()),
             (route) => false,
           );
         } else {
-          // PIN non configuré => proposer configuration
-          _showPinSetupDialog();
+          // PIN non configuré => configuration obligatoire avant d'accéder à l'app
+          Navigator.of(context).pushAndRemoveUntil(
+            CustomRouteTransitions.fadeScaleRoute(
+              page: PinSetupScreen(
+                isMandatory: true,
+                onPinSet: () {},
+              ),
+            ),
+            (route) => false,
+          );
         }
       } else {
         setState(() {

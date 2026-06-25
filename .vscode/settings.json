@@ -1,4 +1,5 @@
 {
-    "cmake.sourceDirectory": "/Users/ctd-dsi-kassim/Desktop/flutter_projects/dtappv3_clone/linux",
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "cmake.sourceDirectory": "/Users/kassim/Desktop/dev/dtapp/linux",
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.jdt.ls.java.home": "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
 }
