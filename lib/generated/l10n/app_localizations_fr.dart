@@ -1191,7 +1191,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get toFixedDestination => 'Vers (Fixe)';
 
   @override
-  String get transactionId => 'ID Transaction';
+  String get transactionId => 'N° Transaction';
 
   @override
   String get accountImpact => 'Impact sur vos comptes';
@@ -1281,6 +1281,42 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get balanceAfterLabel => 'Solde après';
+
+  @override
+  String get amountDebitedLabel => 'Montant débité';
+
+  @override
+  String get amountCreditedLabel => 'Montant crédité';
+
+  @override
+  String get feeLabel => 'Frais';
+
+  @override
+  String get packageCodeLabel => 'Code package';
+
+  @override
+  String get totalAmountLabel => 'Montant total';
+
+  @override
+  String get rechargedLineLabel => 'Ligne rechargée';
+
+  @override
+  String packagePurchaseTitle(String code) {
+    return 'Achat $code';
+  }
+
+  @override
+  String offerPurchaseTitle(String name) {
+    return 'Achat de forfait : $name';
+  }
+
+  @override
+  String offerGiftTitle(String name) {
+    return 'Forfait offert : $name';
+  }
+
+  @override
+  String get topupRechargeTitle => 'Recharge de ligne fixe';
 
   @override
   String get money => 'Crédit';

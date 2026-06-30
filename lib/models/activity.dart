@@ -1,7 +1,8 @@
 // lib/models/activity.dart
+import '../generated/l10n/app_localizations.dart';
 
 class Activity {
-  final int id;
+  final String transactionNo;
   final String actionType;
   final String actionLabel;
   final String endpoint;
@@ -17,7 +18,7 @@ class Activity {
   final Map<String, dynamic>? metadata;
 
   Activity({
-    required this.id,
+    required this.transactionNo,
     required this.actionType,
     required this.actionLabel,
     required this.endpoint,
@@ -35,7 +36,7 @@ class Activity {
 
   factory Activity.fromJson(Map<String, dynamic> json) {
     return Activity(
-      id: int.tryParse(json['id'].toString()) ?? 0,
+      transactionNo: (json['transaction_no'] ?? json['id'])?.toString() ?? '',
       actionType: json['action_type']?.toString() ?? '',
       actionLabel: json['action_label']?.toString() ?? '',
       endpoint: json['endpoint']?.toString() ?? '',
@@ -65,7 +66,7 @@ class Activity {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'transaction_no': transactionNo,
       'action_type': actionType,
       'action_label': actionLabel,
       'endpoint': endpoint,
@@ -133,6 +134,50 @@ class Activity {
   /// Formate la date pour l'affichage
   String get formattedDate {
     return '${createdAt.day}/${createdAt.month}/${createdAt.year} à ${createdAt.hour}:${createdAt.minute.toString().padLeft(2, '0')}';
+  }
+
+  static const _debitActionTypes = {
+    'offer_purchase',
+    'offer_gift',
+    'credit_deduct',
+    'credit_transfer',
+    'topup_subscribe_package',
+    'topup_recharge_account',
+  };
+
+  /// Indique si l'opération a déduit de l'argent du solde (achat, transfert
+  /// envoyé, recharge payée...) plutôt qu'en avoir ajouté.
+  bool get isDebit =>
+      _debitActionTypes.contains(actionType) ||
+      (amount != null && amount! < 0);
+
+  /// Titre affiché à l'utilisateur : remplace le libellé technique générique
+  /// (ex. "Souscription package TopUp") par le nom réel de l'offre/package
+  /// acheté quand il est disponible dans les métadonnées.
+  String displayTitle(AppLocalizations l10n) {
+    switch (actionType) {
+      case 'topup_subscribe_package':
+        final code =
+            metadata?['package_code']?.toString() ??
+            metadata?['package_id']?.toString();
+        return (code != null && code.isNotEmpty)
+            ? l10n.packagePurchaseTitle(code)
+            : actionLabel;
+      case 'offer_purchase':
+        final name = metadata?['offer_name']?.toString();
+        return (name != null && name.isNotEmpty)
+            ? l10n.offerPurchaseTitle(name)
+            : actionLabel;
+      case 'offer_gift':
+        final name = metadata?['offer_name']?.toString();
+        return (name != null && name.isNotEmpty)
+            ? l10n.offerGiftTitle(name)
+            : actionLabel;
+      case 'topup_recharge_account':
+        return l10n.topupRechargeTitle;
+      default:
+        return actionLabel;
+    }
   }
 
   /// Retourne des détails supplémentaires pour l'affichage dans l'historique

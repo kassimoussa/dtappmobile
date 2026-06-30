@@ -14,6 +14,8 @@ import 'package:provider/provider.dart';
 import 'forfait_success_screen.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/balance_provider.dart';
+import '../../providers/transaction_provider.dart';
 import '../../widgets/pin_verification_bottom_sheet.dart';
 
 class ForfaitConfirmationScreen extends StatefulWidget {
@@ -178,20 +180,26 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
       // Appel API selon le type d'achat
       switch (_effectivePurchaseType) {
         case PurchaseType.personal:
-          result = await PurchaseOfferService.purchaseOffer(widget.forfait.id);
+          result = await PurchaseOfferService.purchaseOffer(
+            widget.forfait.id,
+            currentBalance: widget.soldeActuel,
+          );
           break;
         case PurchaseType.gift:
           result = await PurchaseOfferService.purchaseOfferGift(
             widget.phoneNumber,
             widget.forfait.id,
+            currentBalance: widget.soldeActuel,
           );
           break;
       }
 
       if (mounted) {
         if (result['succes'] == true) {
-          // Succès - navigation avec animation
+          // Succès - rafraîchir le solde et l'historique
           widget.onAchatReussi?.call();
+          context.read<BalanceProvider>().refreshBalance();
+          context.read<TransactionProvider>().refresh();
 
           Navigator.pushReplacement(
             context,

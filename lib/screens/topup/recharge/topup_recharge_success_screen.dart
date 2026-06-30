@@ -125,7 +125,7 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
                 Expanded(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
-                    child: Padding(
+                    child: SingleChildScrollView(
                       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,

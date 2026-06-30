@@ -14,7 +14,7 @@ class PurchaseOfferService {
   /// Achète une offre pour l'utilisateur actuellement connecté
   /// [offerId] : ID de l'offre à acheter (10, 11, 12, 13, 15, 16, 17, 29)
   /// Retourne un map contenant les informations de l'achat
-  static Future<Map<String, dynamic>> purchaseOffer(int offerId) async {
+  static Future<Map<String, dynamic>> purchaseOffer(int offerId, {double? currentBalance}) async {
     try {
       // Vérifier si l'utilisateur est authentifié
       final isAuthenticated = await UserSession.isAuthenticated();
@@ -46,6 +46,7 @@ class PurchaseOfferService {
         headers: await ApiClient.authHeaders(),
         body: jsonEncode({
           'offer_id': offerId,
+          if (currentBalance != null) 'current_balance': currentBalance,
         }),
       );
 
@@ -67,7 +68,7 @@ class PurchaseOfferService {
   /// Achète une offre cadeau pour quelqu'un d'autre
   /// [beneficiaryNumber] : Numéro du bénéficiaire
   /// [offerId] : ID de l'offre à offrir
-  static Future<Map<String, dynamic>> purchaseOfferGift(String beneficiaryNumber, int offerId) async {
+  static Future<Map<String, dynamic>> purchaseOfferGift(String beneficiaryNumber, int offerId, {double? currentBalance}) async {
     try {
       // Vérifier si l'utilisateur est authentifié
       final isAuthenticated = await UserSession.isAuthenticated();
@@ -103,6 +104,7 @@ class PurchaseOfferService {
         body: jsonEncode({
           'beneficiary_msisdn': cleanBeneficiaryNumber,
           'offer_id': offerId,
+          if (currentBalance != null) 'current_balance': currentBalance,
         }),
       );
 

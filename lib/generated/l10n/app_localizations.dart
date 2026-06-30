@@ -2189,7 +2189,7 @@ abstract class AppLocalizations {
   /// No description provided for @transactionId.
   ///
   /// In fr, this message translates to:
-  /// **'ID Transaction'**
+  /// **'N° Transaction'**
   String get transactionId;
 
   /// No description provided for @accountImpact.
@@ -2353,6 +2353,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Solde après'**
   String get balanceAfterLabel;
+
+  /// No description provided for @amountDebitedLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant débité'**
+  String get amountDebitedLabel;
+
+  /// No description provided for @amountCreditedLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant crédité'**
+  String get amountCreditedLabel;
+
+  /// No description provided for @feeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais'**
+  String get feeLabel;
+
+  /// No description provided for @packageCodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code package'**
+  String get packageCodeLabel;
+
+  /// No description provided for @totalAmountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant total'**
+  String get totalAmountLabel;
+
+  /// No description provided for @rechargedLineLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ligne rechargée'**
+  String get rechargedLineLabel;
+
+  /// No description provided for @packagePurchaseTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat {code}'**
+  String packagePurchaseTitle(String code);
+
+  /// No description provided for @offerPurchaseTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat de forfait : {name}'**
+  String offerPurchaseTitle(String name);
+
+  /// No description provided for @offerGiftTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Forfait offert : {name}'**
+  String offerGiftTitle(String name);
+
+  /// No description provided for @topupRechargeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recharge de ligne fixe'**
+  String get topupRechargeTitle;
 
   /// No description provided for @money.
   ///

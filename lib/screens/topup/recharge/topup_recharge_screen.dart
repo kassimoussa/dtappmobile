@@ -1,6 +1,7 @@
 // lib/screens/topup/topup_recharge_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
@@ -9,6 +10,8 @@ import '../../../exceptions/topup_exception.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../extensions/color_extensions.dart';
 import '../../../generated/l10n/app_localizations.dart';
+import '../../../providers/balance_provider.dart';
+import '../../../providers/transaction_provider.dart';
 import 'topup_recharge_success_screen.dart';
 
 class TopUpRechargeScreen extends StatefulWidget {
@@ -98,7 +101,11 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
         final success = response['success'] ?? false;
 
         if (success) {
-          // Succès - naviguer vers l'écran de succès
+          // Succès - rafraîchir le solde et l'historique
+          context.read<BalanceProvider>().refreshBalance();
+          context.read<TransactionProvider>().refresh();
+
+          // naviguer vers l'écran de succès
           Navigator.pushReplacement(
             context,
             CustomRouteTransitions.fadeRoute(

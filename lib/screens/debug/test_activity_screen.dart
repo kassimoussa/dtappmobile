@@ -41,7 +41,7 @@ class _TestActivityScreenState extends State<TestActivityScreen> {
           _testResults += 'Première activité:\n';
           if (response.data.isNotEmpty) {
             final first = response.data.first;
-            _testResults += '- ID: ${first.id}\n';
+            _testResults += '- ID: ${first.transactionNo}\n';
             _testResults += '- Type: ${first.actionType}\n';
             _testResults += '- Label: ${first.actionLabel}\n';
             _testResults += '- Statut: ${first.status}\n';

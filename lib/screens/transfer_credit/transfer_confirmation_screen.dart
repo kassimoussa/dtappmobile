@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/transaction_provider.dart';
 import '../../widgets/pin_verification_bottom_sheet.dart';
 
 class TransferConfirmationScreen extends StatefulWidget {
@@ -401,6 +402,9 @@ class _TransferConfirmationScreenState
 
           // Vérifier que le widget est toujours monté avant navigation
           if (!mounted) return;
+
+          // Rafraîchir l'historique pour que le transfert apparaisse
+          context.read<TransactionProvider>().refresh();
 
           // Navigation vers l'écran de succès
           Navigator.pushReplacement(

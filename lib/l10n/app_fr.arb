@@ -497,7 +497,7 @@
     "transferAmount": "Montant transféré",
     "fromMobileSource": "De (Mobile)",
     "toFixedDestination": "Vers (Fixe)",
-    "transactionId": "ID Transaction",
+    "transactionId": "N° Transaction",
     "accountImpact": "Impact sur vos comptes",
     "newMobileBalance": "Nouveau solde mobile",
     "newFixedBalance": "Nouveau solde fixe",
@@ -530,6 +530,31 @@
     "beneficiaryLabel": "Destinataire",
     "balanceBeforeLabel": "Solde avant",
     "balanceAfterLabel": "Solde après",
+    "amountDebitedLabel": "Montant débité",
+    "amountCreditedLabel": "Montant crédité",
+    "feeLabel": "Frais",
+    "packageCodeLabel": "Code package",
+    "totalAmountLabel": "Montant total",
+    "rechargedLineLabel": "Ligne rechargée",
+    "packagePurchaseTitle": "Achat {code}",
+    "@packagePurchaseTitle": {
+      "placeholders": {
+        "code": {"type": "String"}
+      }
+    },
+    "offerPurchaseTitle": "Achat de forfait : {name}",
+    "@offerPurchaseTitle": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "offerGiftTitle": "Forfait offert : {name}",
+    "@offerGiftTitle": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "topupRechargeTitle": "Recharge de ligne fixe",
     "money": "Crédit",
     "invalidNumber": "Numéro invalide",
     "numberNotFound": "Ce numéro n'existe pas dans le système.",

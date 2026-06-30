@@ -48,7 +48,7 @@ class _DebugActivityScreenState extends State<DebugActivityScreen> {
 - Période: ${response.filters.days} jours
 
 Première activité parsée:
-- ID: ${response.data.isNotEmpty ? response.data.first.id : 'N/A'}
+- Transaction No: ${response.data.isNotEmpty ? response.data.first.transactionNo : 'N/A'}
 - Type: ${response.data.isNotEmpty ? response.data.first.actionType : 'N/A'}
 - Label: ${response.data.isNotEmpty ? response.data.first.actionLabel : 'N/A'}
 - Montant: ${response.data.isNotEmpty ? response.data.first.formattedAmount : 'N/A'}
@@ -92,7 +92,7 @@ Première activité parsée:
     if (response.data.isNotEmpty) {
       final first = response.data.first;
       debug += 'PREMIÈRE ACTIVITÉ:\n';
-      debug += '- Type ID: ${first.id.runtimeType} = ${first.id}\n';
+      debug += '- Transaction No: ${first.transactionNo.runtimeType} = ${first.transactionNo}\n';
       debug += '- Type amount: ${first.amount.runtimeType} = ${first.amount}\n';
       debug += '- Currency: ${first.currency}\n';
       debug += '- External ref: ${first.externalReference}\n';
@@ -248,7 +248,7 @@ Première activité parsée:
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${activity.actionLabel} (ID: ${activity.id})',
+                              '${activity.actionLabel} (#${activity.transactionNo})',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),

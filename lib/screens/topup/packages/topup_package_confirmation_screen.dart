@@ -1,5 +1,6 @@
 // lib/screens/topup/topup_package_confirmation_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
@@ -10,6 +11,8 @@ import '../../../routes/custom_route_transitions.dart';
 import '../../../extensions/color_extensions.dart';
 import '../../../exceptions/topup_exception.dart';
 import '../../../generated/l10n/app_localizations.dart';
+import '../../../providers/balance_provider.dart';
+import '../../../providers/transaction_provider.dart';
 import 'topup_success_screen.dart';
 import '../subscription/topup_subscription_success_screen.dart';
 
@@ -126,6 +129,12 @@ bool _isSubscription() {
         msisdn: widget.mobileNumber,
         isdn: widget.fixedNumber,
         packageCode: widget.package.packageCode,
+        currentBalance: widget.soldeActuel,
+        packagePrice: widget.package.price,
+        packageName: widget.package.displayName,
+        packageData: widget.package.isDataPackage ? widget.package.formattedData : null,
+        packageVoice: widget.package.isVoicePackage ? widget.package.formattedVoice : null,
+        packageValidity: widget.package.validityDays > 0 ? widget.package.validityDays : null,
       );
 
       debugPrint(
@@ -137,7 +146,11 @@ bool _isSubscription() {
       if (mounted) {
         if (response.success) {
           debugPrint('TopUp - Navigation vers success screen...');
-          // Succès - naviguer vers l'écran de succès approprié
+          // Succès - rafraîchir le solde et l'historique
+          context.read<BalanceProvider>().refreshBalance();
+          context.read<TransactionProvider>().refresh();
+
+          // naviguer vers l'écran de succès approprié
           final isSubscription = _isSubscription();
 
           Navigator.pushReplacement(

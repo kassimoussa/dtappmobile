@@ -5,7 +5,10 @@ import 'package:dtservices/services/refill_service.dart';
 import 'package:dtservices/models/refill_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../generated/l10n/app_localizations.dart';
+import '../../providers/balance_provider.dart';
+import '../../providers/transaction_provider.dart';
 
 class RefillCodeScreen extends StatefulWidget {
   final String phoneNumber;
@@ -386,7 +389,11 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
         voucherCode: cleanCode,
       );
 
-      // Si succès, afficher le dialog de réussite
+      if (!mounted) return;
+
+      // Si succès, rafraîchir le solde, l'historique et afficher le dialog
+      context.read<BalanceProvider>().refreshBalance();
+      context.read<TransactionProvider>().refresh();
       _showSuccessDialog(response);
     } on RefillException catch (e) {
       // Gérer les erreurs spécifiques de recharge

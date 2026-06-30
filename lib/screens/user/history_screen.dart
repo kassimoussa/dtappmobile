@@ -408,16 +408,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final items = <Widget>[];
     String? lastDate;
 
+    // On masque les opérations échouées de l'historique affiché
+    final visibleActivities = provider.activities
+        .where((a) => a.status.toLowerCase() != 'failed' && a.status.toLowerCase() != 'error')
+        .toList();
+
+    if (visibleActivities.isEmpty) {
+      return _buildEmptyState();
+    }
+
     // Construction de la liste sémantique avec headers
-    for (int i = 0; i < provider.activities.length; i++) {
-      final activity = provider.activities[i];
+    for (int i = 0; i < visibleActivities.length; i++) {
+      final activity = visibleActivities[i];
       final currentHeader = _getDateHeader(activity.createdAt, l10n);
 
       if (currentHeader != lastDate) {
         items.add(_buildDateHeader(currentHeader));
         lastDate = currentHeader;
       }
-      items.add(_buildActivityCard(activity));
+      items.add(_buildActivityCard(activity, l10n));
     }
 
     if (provider.isLoadingMore) {
@@ -480,11 +489,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildActivityCard(Activity activity) {
+  Widget _buildActivityCard(Activity activity, AppLocalizations l10n) {
     final statusColor = _getStatusColor(activity.status);
-    final isNegative =
-        activity.actionType == 'credit_deduct' ||
-        activity.amount != null && activity.amount! < 0;
+    final isNegative = activity.isDebit;
 
     // Determining amount text styling dynamically
     Color amountColor = Colors.black87;
@@ -540,7 +547,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      activity.actionLabel,
+                      activity.displayTitle(l10n),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: ResponsiveSize.getFontSize(16),
                         fontWeight: FontWeight.w600,
@@ -583,17 +592,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ],
                       ],
                     ),
-                    if (activity.detailsText != null) ...[
-                      SizedBox(height: ResponsiveSize.getHeight(8)),
-                      Text(
-                        activity.detailsText!,
-                        style: TextStyle(
-                          fontSize: ResponsiveSize.getFontSize(13),
-                          color: Colors.grey[600],
-                          height: 1.3,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),

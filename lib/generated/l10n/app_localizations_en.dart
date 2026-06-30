@@ -1270,6 +1270,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get balanceAfterLabel => 'Balance after';
 
   @override
+  String get amountDebitedLabel => 'Amount debited';
+
+  @override
+  String get amountCreditedLabel => 'Amount credited';
+
+  @override
+  String get feeLabel => 'Fee';
+
+  @override
+  String get packageCodeLabel => 'Package Code';
+
+  @override
+  String get totalAmountLabel => 'Total Amount';
+
+  @override
+  String get rechargedLineLabel => 'Recharged Line';
+
+  @override
+  String packagePurchaseTitle(String code) {
+    return 'Purchase $code';
+  }
+
+  @override
+  String offerPurchaseTitle(String name) {
+    return 'Offer purchase: $name';
+  }
+
+  @override
+  String offerGiftTitle(String name) {
+    return 'Gifted offer: $name';
+  }
+
+  @override
+  String get topupRechargeTitle => 'Landline recharge';
+
+  @override
   String get money => 'Credit';
 
   @override

@@ -131,22 +131,34 @@ class TopUpApiService {
     required String packageCode,
     String? pincode,
     String? transactionId,
+    double? currentBalance,
+    num? packagePrice,
+    String? packageName,
+    String? packageData,
+    String? packageVoice,
+    int? packageValidity,
   }) async {
     // Validation des entrées
     TopUpValidator.validateMobile(msisdn);
     TopUpValidator.validateFixed(isdn);
-    
+
     if (packageCode.isEmpty) {
       throw TopUpException.validationError('Le code du package est requis');
     }
-    
+
     // Préparer la requête
-    final requestBody = {
+    final requestBody = <String, dynamic>{
       'msisdn': _normalize(msisdn),
       'isdn': _normalize(isdn),
       'package_code': packageCode,
+      if (currentBalance != null) 'current_balance': currentBalance,
+      if (packagePrice != null) 'package_price': packagePrice,
+      if (packageName != null && packageName.isNotEmpty) 'package_name': packageName,
+      if (packageData != null && packageData.isNotEmpty) 'package_data': packageData,
+      if (packageVoice != null && packageVoice.isNotEmpty) 'package_voice': packageVoice,
+      if (packageValidity != null) 'package_validity': packageValidity,
     };
-    
+
     // Ajouter les paramètres optionnels
     if (pincode != null && pincode.isNotEmpty) {
       requestBody['pincode'] = pincode;

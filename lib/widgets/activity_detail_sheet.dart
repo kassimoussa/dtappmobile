@@ -20,29 +20,12 @@ class ActivityDetailSheet extends StatelessWidget {
 
   const ActivityDetailSheet({super.key, required this.activity});
 
-  // Libellés français pour les clés techniques retournées par l'API
-  // (champ "metadata" de l'activité, spécifique à chaque type d'action,
-  // voir activity-history-responses.md section 4)
-  static const Map<String, String> _detailLabels = {
-    'offer_name': 'Offre',
-    'package_name': 'Package',
-    'validity_days': 'Validité',
-    'fixed_line_number': 'Ligne fixe',
-    'voucher_serial': 'Numéro de voucher',
-    'voucher_value': 'Valeur du voucher',
-    'refill_type': 'Type de recharge',
-    'recharge_type': 'Type de recharge',
-    'sender_msisdn': 'Expéditeur',
-    'contact_name': 'Contact',
-    'contact_number': 'Numéro du contact',
-    'error_code': 'Code erreur',
-  };
-
-  // Valeurs techniques traduites pour un affichage plus lisible
-  static const Map<String, String> _valueLabels = {
-    'personal': 'Personnel',
-    'gift': 'Cadeau',
-    'voucher': 'Voucher',
+  // Types pour lesquels displayTitle contient déjà le nom de l'offre/package :
+  // la description brute de l'API ne fait alors que répéter la même info.
+  static const Set<String> _typesWithEnrichedTitle = {
+    'topup_subscribe_package',
+    'offer_purchase',
+    'offer_gift',
   };
 
   static const List<String> _phonePrefixes = [
@@ -93,6 +76,20 @@ class ActivityDetailSheet extends StatelessWidget {
     }
   }
 
+  IconData _getStatusIcon(String status) {
+    switch (status.toLowerCase()) {
+      case 'success':
+        return Icons.check_circle_rounded;
+      case 'failed':
+      case 'error':
+        return Icons.cancel_rounded;
+      case 'pending':
+        return Icons.schedule_rounded;
+      default:
+        return Icons.help_rounded;
+    }
+  }
+
   String _statusLabel(String status, AppLocalizations l10n) {
     switch (status.toLowerCase()) {
       case 'success':
@@ -115,95 +112,31 @@ class ActivityDetailSheet extends StatelessWidget {
     return value;
   }
 
-  String _formatLabel(String key) {
-    final knownLabel = _detailLabels[key];
-    if (knownLabel != null) return knownLabel;
+  // Clés possibles pour les frais selon le type d'opération (transfert de
+  // crédit notamment) — la première trouvée dans metadata est utilisée.
+  static const List<String> _feeKeys = [
+    'fee',
+    'frais',
+    'frais_appliques',
+    'transfer_fee',
+  ];
 
-    return key
-        .split('_')
-        .map(
-          (word) =>
-              word.isEmpty
-                  ? word
-                  : '${word[0].toUpperCase()}${word.substring(1)}',
-        )
-        .join(' ');
-  }
+  String? get _fixedLineNumber => activity.metadata?['fixed_line_number']?.toString();
 
-  String _formatValue(String key, dynamic value) {
-    final text = value.toString();
-    if (text.isEmpty) return text;
+  String? get _packageCode =>
+      activity.metadata?['package_code']?.toString() ??
+      activity.metadata?['package_id']?.toString();
 
-    final knownValue = _valueLabels[text];
-    if (knownValue != null) return knownValue;
-
-    if (key.contains('msisdn') ||
-        key.contains('destinataire') ||
-        key.contains('expediteur') ||
-        key.contains('numero') ||
-        key.contains('phone')) {
-      return _cleanPhoneNumber(text);
-    }
-
-    if (key.contains('montant') || key.contains('solde')) {
-      final parsed = double.tryParse(text);
-      if (parsed != null) return '${parsed.toStringAsFixed(0)} DJF';
-    }
-
-    if (key == 'validity_days') {
-      final days = int.tryParse(text);
-      if (days != null) return '$days jour${days > 1 ? 's' : ''}';
-    }
-
-    if (key == 'voucher_value') {
-      final parsed = double.tryParse(text);
-      if (parsed != null) return '${parsed.toStringAsFixed(0)} DJF';
-    }
-
-    return text;
-  }
-
-  // Clés techniques à ne jamais afficher à l'utilisateur
-  // (error_message duplique déjà activity.description pour les échecs ;
-  // offer_id/package_id/selected_option sont des codes internes déjà
-  // reflétés par offer_name/package_name/refill_type)
-  static const Set<String> _hiddenKeys = {
-    'success',
-    'message',
-    'error_message',
-    'status',
-    'http_code',
-    'error',
-    'errors',
-    'token',
-    'signature',
-    'raw',
-    'offer_id',
-    'package_id',
-    'selected_option',
-    // déjà affiché via le champ racine beneficiary_msisdn (info card)
-    'to_msisdn',
-  };
-
-  List<MapEntry<String, String>> _buildDetailRows() {
+  String? get _feeAmount {
     final metadata = activity.metadata;
-    if (metadata == null) return [];
-
-    final rows = <MapEntry<String, String>>[];
-    for (final entry in metadata.entries) {
-      if (_hiddenKeys.contains(entry.key)) continue;
-      final value = entry.value;
+    if (metadata == null) return null;
+    for (final key in _feeKeys) {
+      final value = metadata[key];
       if (value == null) continue;
-      // On évite d'afficher des objets/listes imbriqués bruts
-      if (value is Map || value is List) continue;
-      final text = value.toString();
-      if (text.isEmpty) continue;
-      rows.add(
-        MapEntry(_formatLabel(entry.key), _formatValue(entry.key, value)),
-      );
+      final parsed = double.tryParse(value.toString());
+      if (parsed != null) return '${parsed.toStringAsFixed(0)} DJF';
     }
-
-    return rows;
+    return null;
   }
 
   @override
@@ -211,9 +144,7 @@ class ActivityDetailSheet extends StatelessWidget {
     ResponsiveSize.init(context);
     final l10n = AppLocalizations.of(context)!;
     final statusColor = _getStatusColor(activity.status);
-    final isNegative =
-        activity.actionType == 'credit_deduct' ||
-        (activity.amount != null && activity.amount! < 0);
+    final isNegative = activity.isDebit;
 
     Color amountColor = AppTheme.textPrimary;
     String amountPrefix = '';
@@ -226,8 +157,8 @@ class ActivityDetailSheet extends StatelessWidget {
       }
     }
 
-    final detailRows = _buildDetailRows();
     final showDescription =
+        !_typesWithEnrichedTitle.contains(activity.actionType) &&
         activity.description != null &&
         activity.description!.trim().isNotEmpty &&
         activity.description != activity.actionLabel;
@@ -290,7 +221,7 @@ class ActivityDetailSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          activity.actionLabel,
+                          activity.displayTitle(l10n),
                           style: TextStyle(
                             fontSize: ResponsiveSize.getFontSize(18),
                             fontWeight: FontWeight.w700,
@@ -298,23 +229,34 @@ class ActivityDetailSheet extends StatelessWidget {
                             letterSpacing: -0.3,
                           ),
                         ),
-                        SizedBox(height: ResponsiveSize.getHeight(4)),
+                        SizedBox(height: ResponsiveSize.getHeight(6)),
                         Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 8,
-                            vertical: 2,
+                            vertical: 3,
                           ),
                           decoration: BoxDecoration(
                             color: statusColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(
-                            _statusLabel(activity.status, l10n),
-                            style: TextStyle(
-                              fontSize: ResponsiveSize.getFontSize(11),
-                              fontWeight: FontWeight.bold,
-                              color: statusColor,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _getStatusIcon(activity.status),
+                                size: ResponsiveSize.getFontSize(13),
+                                color: statusColor,
+                              ),
+                              SizedBox(width: ResponsiveSize.getWidth(4)),
+                              Text(
+                                _statusLabel(activity.status, l10n),
+                                style: TextStyle(
+                                  fontSize: ResponsiveSize.getFontSize(11),
+                                  fontWeight: FontWeight.bold,
+                                  color: statusColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -336,15 +278,39 @@ class ActivityDetailSheet extends StatelessWidget {
 
               if (activity.amount != null) ...[
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                Center(
-                  child: Text(
-                    "$amountPrefix${activity.amount!.toStringAsFixed(0)} DJF",
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(32),
-                      fontWeight: FontWeight.bold,
-                      color: amountColor,
-                      letterSpacing: -1,
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                    vertical: ResponsiveSize.getHeight(AppTheme.spacingL),
+                  ),
+                  decoration: BoxDecoration(
+                    color: amountColor.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveSize.getWidth(20),
                     ),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        isNegative ? l10n.amountDebitedLabel : l10n.amountCreditedLabel,
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(12),
+                          fontWeight: FontWeight.w600,
+                          color: amountColor.withValues(alpha: 0.7),
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      SizedBox(height: ResponsiveSize.getHeight(4)),
+                      Text(
+                        "$amountPrefix${activity.amount!.toStringAsFixed(0)} DJF",
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(32),
+                          fontWeight: FontWeight.bold,
+                          color: amountColor,
+                          letterSpacing: -1,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -353,17 +319,13 @@ class ActivityDetailSheet extends StatelessWidget {
 
               // Informations générales
               _buildCard([
-                _buildInfoRow(l10n.dateKey, activity.formattedDate),
+                _buildInfoRow(l10n.transactionId, activity.transactionNo),
                 _buildDivider(),
-                _buildInfoRow(l10n.transactionId, '#${activity.id}'),
-                if (activity.externalReference != null) ...[
+                _buildInfoRow(l10n.dateKey, activity.formattedDate),
+                if (_fixedLineNumber != null && _fixedLineNumber!.isNotEmpty) ...[
                   _buildDivider(),
-                  _buildInfoRow(
-                    l10n.referenceLabel,
-                    activity.externalReference!,
-                  ),
-                ],
-                if (activity.beneficiaryMsisdn != null &&
+                  _buildInfoRow(l10n.rechargedLineLabel, _fixedLineNumber!),
+                ] else if (activity.beneficiaryMsisdn != null &&
                     activity.beneficiaryMsisdn!.isNotEmpty) ...[
                   _buildDivider(),
                   _buildInfoRow(
@@ -371,40 +333,22 @@ class ActivityDetailSheet extends StatelessWidget {
                     _cleanPhoneNumber(activity.beneficiaryMsisdn!),
                   ),
                 ],
-                if (activity.oldBalance != null &&
-                    activity.newBalance != null) ...[
+                if (_packageCode != null && _packageCode!.isNotEmpty) ...[
+                  _buildDivider(),
+                  _buildInfoRow(l10n.packageCodeLabel, _packageCode!),
+                ],
+                if (_feeAmount != null) ...[
+                  _buildDivider(),
+                  _buildInfoRow(l10n.feeLabel, _feeAmount!),
+                ],
+                if (activity.amount != null) ...[
                   _buildDivider(),
                   _buildInfoRow(
-                    l10n.balanceBeforeLabel,
-                    '${activity.oldBalance!.toStringAsFixed(0)} DJF',
-                  ),
-                  _buildDivider(),
-                  _buildInfoRow(
-                    l10n.balanceAfterLabel,
-                    '${activity.newBalance!.toStringAsFixed(0)} DJF',
+                    l10n.totalAmountLabel,
+                    "$amountPrefix${activity.amount!.toStringAsFixed(0)} DJF",
                   ),
                 ],
               ]),
-
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-
-              // Détails spécifiques
-              _buildSectionTitle(l10n.activityDetailTitle),
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-              detailRows.isEmpty
-                  ? _buildCard([
-                    _buildInfoRow(
-                      null,
-                      l10n.noAdditionalDetails,
-                      isEmpty: true,
-                    ),
-                  ])
-                  : _buildCard([
-                    for (int i = 0; i < detailRows.length; i++) ...[
-                      if (i > 0) _buildDivider(),
-                      _buildInfoRow(detailRows[i].key, detailRows[i].value),
-                    ],
-                  ]),
 
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
 
@@ -441,18 +385,6 @@ class ActivityDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: ResponsiveSize.getFontSize(14),
-        fontWeight: FontWeight.bold,
-        color: Colors.grey[600],
-        letterSpacing: -0.2,
-      ),
-    );
-  }
-
   Widget _buildCard(List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
@@ -479,7 +411,12 @@ class ActivityDetailSheet extends StatelessWidget {
     return Divider(height: 1, color: Colors.grey[100]);
   }
 
-  Widget _buildInfoRow(String? label, String value, {bool isEmpty = false}) {
+  Widget _buildInfoRow(
+    String? label,
+    String value, {
+    bool isEmpty = false,
+    bool muted = false,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(12)),
       child:
@@ -496,9 +433,15 @@ class ActivityDetailSheet extends StatelessWidget {
               : Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
+                  // Largeur fixe (et non un ratio flex) pour que la colonne
+                  // valeur démarre toujours au même endroit sur chaque ligne,
+                  // quelle que soit la longueur du libellé.
+                  SizedBox(
+                    width: ResponsiveSize.getWidth(125),
                     child: Text(
                       label!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: ResponsiveSize.getFontSize(14),
                         color: Colors.grey[600],
@@ -507,15 +450,15 @@ class ActivityDetailSheet extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-                  Flexible(
-                    flex: 2,
+                  Expanded(
                     child: Text(
                       value,
                       textAlign: TextAlign.end,
                       style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(14),
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
+                        fontSize: ResponsiveSize.getFontSize(muted ? 12 : 14),
+                        fontWeight: muted ? FontWeight.w500 : FontWeight.w600,
+                        fontFamily: muted ? 'monospace' : null,
+                        color: muted ? Colors.grey[500] : AppTheme.textPrimary,
                       ),
                     ),
                   ),

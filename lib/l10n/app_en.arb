@@ -512,6 +512,31 @@
     "beneficiaryLabel": "Recipient",
     "balanceBeforeLabel": "Balance before",
     "balanceAfterLabel": "Balance after",
+    "amountDebitedLabel": "Amount debited",
+    "amountCreditedLabel": "Amount credited",
+    "feeLabel": "Fee",
+    "packageCodeLabel": "Package Code",
+    "totalAmountLabel": "Total Amount",
+    "rechargedLineLabel": "Recharged Line",
+    "packagePurchaseTitle": "Purchase {code}",
+    "@packagePurchaseTitle": {
+      "placeholders": {
+        "code": {"type": "String"}
+      }
+    },
+    "offerPurchaseTitle": "Offer purchase: {name}",
+    "@offerPurchaseTitle": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "offerGiftTitle": "Gifted offer: {name}",
+    "@offerGiftTitle": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "topupRechargeTitle": "Landline recharge",
     "money": "Credit",
     "invalidNumber": "Invalid number",
     "numberNotFound": "This number does not exist in the system.",
