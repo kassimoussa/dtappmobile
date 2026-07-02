@@ -162,7 +162,7 @@ class Activity {
             metadata?['package_id']?.toString();
         return (code != null && code.isNotEmpty)
             ? l10n.packagePurchaseTitle(code)
-            : actionLabel;
+            : l10n.topupSubscribeGenericTitle;
       case 'offer_purchase':
         final name = metadata?['offer_name']?.toString();
         return (name != null && name.isNotEmpty)
@@ -175,6 +175,20 @@ class Activity {
             : actionLabel;
       case 'topup_recharge_account':
         return l10n.topupRechargeTitle;
+      case 'credit_received':
+        return l10n.creditReceivedTitle;
+      case 'credit_add':
+        return l10n.creditAddTitle;
+      case 'voucher_refill':
+        return l10n.voucherRefillTitle;
+      case 'credit_deduct':
+        return l10n.creditDeductTitle;
+      case 'credit_transfer':
+        return l10n.creditTransferTitle;
+      case 'offer_received':
+        return l10n.offerReceivedTitle;
+      case 'profile_update':
+        return l10n.profileUpdateTitle;
       default:
         return actionLabel;
     }

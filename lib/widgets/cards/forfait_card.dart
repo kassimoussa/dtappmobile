@@ -8,6 +8,7 @@ import 'package:dtservices/screens/achat_forfait/forfait_confirmation_screen.dar
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:flutter/material.dart';
 import '../../generated/l10n/app_localizations.dart';
+import '../../utils/validity_translator.dart';
 
 class ForfaitCard extends StatefulWidget {
   final Forfait forfait;
@@ -319,7 +320,10 @@ class _ForfaitCardState extends State<ForfaitCard> {
           ),
           SizedBox(width: ResponsiveSize.getWidth(8)),
           Expanded(
-            child: _buildDetailItem(Icons.access_time, widget.forfait.validite),
+            child: _buildDetailItem(
+              Icons.access_time,
+              translateValidity(widget.forfait.validite, AppLocalizations.of(context)!),
+            ),
           ),
         ],
       ),
@@ -370,7 +374,7 @@ class _ForfaitCardState extends State<ForfaitCard> {
               Expanded(
                 child: _buildDetailItem(
                   Icons.access_time,
-                  widget.forfait.validite,
+                  translateValidity(widget.forfait.validite, AppLocalizations.of(context)!),
                 ),
               ),
             ],
@@ -411,7 +415,10 @@ class _ForfaitCardState extends State<ForfaitCard> {
             ],
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-          _buildDetailItem(Icons.schedule, widget.forfait.validite),
+          _buildDetailItem(
+            Icons.schedule,
+            translateValidity(widget.forfait.validite, AppLocalizations.of(context)!),
+          ),
         ],
       ),
     );

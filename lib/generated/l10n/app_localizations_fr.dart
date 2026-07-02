@@ -875,6 +875,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get toggleShowDetails => 'Afficher plus de détails';
 
   @override
+  String get descriptionLabel => 'Détails';
+
+  @override
   String get navHome => 'Accueil';
 
   @override
@@ -1317,6 +1320,41 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get topupRechargeTitle => 'Recharge de ligne fixe';
+
+  @override
+  String get topupSubscribeGenericTitle => 'Souscription package TopUp';
+
+  @override
+  String get creditReceivedTitle => 'Crédit reçu';
+
+  @override
+  String get creditAddTitle => 'Crédit ajouté';
+
+  @override
+  String get voucherRefillTitle => 'Recharge par code';
+
+  @override
+  String get creditDeductTitle => 'Débit de crédit';
+
+  @override
+  String get creditTransferTitle => 'Transfert de crédit';
+
+  @override
+  String get offerReceivedTitle => 'Forfait reçu';
+
+  @override
+  String get profileUpdateTitle => 'Mise à jour du profil';
+
+  @override
+  String get todayLabel => 'Aujourd\'hui';
+
+  @override
+  String get yesterdayLabel => 'Hier';
+
+  @override
+  String daysFilterLabel(int days) {
+    return '$days jours';
+  }
 
   @override
   String get money => 'Crédit';

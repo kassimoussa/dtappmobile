@@ -324,6 +324,7 @@
     
     "toggleHideDetails": "Hide details",
     "toggleShowDetails": "Show details",
+    "descriptionLabel": "Details",
     "navHome": "Home",
     "navHistory": "History",
     "navMyLine": "My Line",
@@ -537,6 +538,22 @@
       }
     },
     "topupRechargeTitle": "Landline recharge",
+    "topupSubscribeGenericTitle": "TopUp package subscription",
+    "creditReceivedTitle": "Credit received",
+    "creditAddTitle": "Credit added",
+    "voucherRefillTitle": "Voucher refill",
+    "creditDeductTitle": "Credit debited",
+    "creditTransferTitle": "Credit transfer",
+    "offerReceivedTitle": "Package received",
+    "profileUpdateTitle": "Profile update",
+    "todayLabel": "Today",
+    "yesterdayLabel": "Yesterday",
+    "daysFilterLabel": "{days} days",
+    "@daysFilterLabel": {
+      "placeholders": {
+        "days": {"type": "int"}
+      }
+    },
     "money": "Credit",
     "invalidNumber": "Invalid number",
     "numberNotFound": "This number does not exist in the system.",

@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/balance_provider.dart';
 import '../../providers/topup_provider.dart';
+import '../../providers/transaction_provider.dart';
 import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -635,12 +636,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final authProvider = context.read<AuthProvider>();
       final balanceProvider = context.read<BalanceProvider>();
       final topUpProvider = context.read<TopUpProvider>();
+      final transactionProvider = context.read<TransactionProvider>();
 
       final success = await authProvider.logout();
 
       if (success) {
         balanceProvider.reset();
         topUpProvider.reset();
+        transactionProvider.reset();
       }
 
       if (mounted) Navigator.of(context, rootNavigator: true).pop();

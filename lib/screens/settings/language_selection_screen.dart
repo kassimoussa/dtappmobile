@@ -66,55 +66,53 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
             child: Column(
               children: [
                 _buildGlassAppBar(context, l10n.changeLanguage, l10n.save),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
-                    child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(
-              ResponsiveSize.getWidth(AppTheme.radiusM),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildLanguageOption(
-                title: l10n.french,
-                value: const Locale('fr'),
-                groupValue: _selectedLocale,
-                onChanged: (Locale? value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedLocale = value;
-                    });
-                  }
-                },
-              ),
-              Divider(height: 1, color: Colors.grey[200]),
-              _buildLanguageOption(
-                title: l10n.english,
-                value: const Locale('en'),
-                groupValue: _selectedLocale,
-                onChanged: (Locale? value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedLocale = value;
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+                Padding(
+                  padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(
+                        ResponsiveSize.getWidth(AppTheme.radiusM),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildLanguageOption(
+                          title: l10n.french,
+                          value: const Locale('fr'),
+                          groupValue: _selectedLocale,
+                          onChanged: (Locale? value) {
+                            if (value != null) {
+                              setState(() {
+                                _selectedLocale = value;
+                              });
+                            }
+                          },
+                        ),
+                        Divider(height: 1, color: Colors.grey[200]),
+                        _buildLanguageOption(
+                          title: l10n.english,
+                          value: const Locale('en'),
+                          groupValue: _selectedLocale,
+                          onChanged: (Locale? value) {
+                            if (value != null) {
+                              setState(() {
+                                _selectedLocale = value;
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

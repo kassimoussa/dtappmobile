@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/forfait.dart';
 import '../../generated/l10n/app_localizations.dart';
+import '../../utils/validity_translator.dart';
 
 class ConfirmationAchatDialog extends StatelessWidget {
   final Forfait forfait;
@@ -73,7 +74,7 @@ class ConfirmationAchatDialog extends StatelessWidget {
           if (forfait.minutes != null)
             _buildDetailRow(l10n.minutesRow, '${forfait.minutes} min'),
           if (forfait.sms != null) _buildDetailRow('SMS:', forfait.sms!),
-          _buildDetailRow(l10n.validityRow, forfait.validite),
+          _buildDetailRow(l10n.validityRow, translateValidity(forfait.validite, l10n)),
         ],
       ),
     );

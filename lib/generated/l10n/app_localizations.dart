@@ -1598,6 +1598,12 @@ abstract class AppLocalizations {
   /// **'Afficher plus de détails'**
   String get toggleShowDetails;
 
+  /// No description provided for @descriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails'**
+  String get descriptionLabel;
+
   /// No description provided for @navHome.
   ///
   /// In fr, this message translates to:
@@ -2413,6 +2419,72 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Recharge de ligne fixe'**
   String get topupRechargeTitle;
+
+  /// No description provided for @topupSubscribeGenericTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souscription package TopUp'**
+  String get topupSubscribeGenericTitle;
+
+  /// No description provided for @creditReceivedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crédit reçu'**
+  String get creditReceivedTitle;
+
+  /// No description provided for @creditAddTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crédit ajouté'**
+  String get creditAddTitle;
+
+  /// No description provided for @voucherRefillTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recharge par code'**
+  String get voucherRefillTitle;
+
+  /// No description provided for @creditDeductTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débit de crédit'**
+  String get creditDeductTitle;
+
+  /// No description provided for @creditTransferTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transfert de crédit'**
+  String get creditTransferTitle;
+
+  /// No description provided for @offerReceivedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Forfait reçu'**
+  String get offerReceivedTitle;
+
+  /// No description provided for @profileUpdateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise à jour du profil'**
+  String get profileUpdateTitle;
+
+  /// No description provided for @todayLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get todayLabel;
+
+  /// No description provided for @yesterdayLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hier'**
+  String get yesterdayLabel;
+
+  /// No description provided for @daysFilterLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days} jours'**
+  String daysFilterLabel(int days);
 
   /// No description provided for @money.
   ///

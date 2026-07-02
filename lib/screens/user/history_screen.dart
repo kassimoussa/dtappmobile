@@ -89,9 +89,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final dateToCheck = DateTime(date.year, date.month, date.day);
 
     if (dateToCheck == today) {
-      return "Aujourd'hui";
+      return l10n.todayLabel;
     } else if (dateToCheck == yesterday) {
-      return "Hier";
+      return l10n.yesterdayLabel;
     } else {
       return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
     }
@@ -128,7 +128,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: Column(
               children: [
                 _buildGlassAppBar(l10n),
-                _buildFiltersSection(transactionProvider),
+                _buildFiltersSection(transactionProvider, l10n),
                 Expanded(child: _buildBodyContent(transactionProvider)),
               ],
             ),
@@ -198,7 +198,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildFiltersSection(TransactionProvider provider) {
+  Widget _buildFiltersSection(TransactionProvider provider, AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       color: Colors.transparent,
@@ -248,7 +248,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 : [],
                       ),
                       child: Text(
-                        "$days jours", // Simplification to avoid complex translation mapping if not needed
+                        l10n.daysFilterLabel(days),
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.grey[700],
                           fontSize: ResponsiveSize.getFontSize(13),

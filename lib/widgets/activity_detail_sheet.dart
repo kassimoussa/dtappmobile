@@ -28,6 +28,14 @@ class ActivityDetailSheet extends StatelessWidget {
     'offer_gift',
   };
 
+  // Types dont les infos de la description (destinataire, frais...) sont
+  // déjà reconstruites sous forme de lignes dédiées dans le tableau de détails.
+  static const Set<String> _typesWithOwnDetailRows = {
+    'credit_received',
+    'credit_transfer',
+    'offer_received',
+  };
+
   static const List<String> _phonePrefixes = [
     '77',
     '78',
@@ -123,20 +131,56 @@ class ActivityDetailSheet extends StatelessWidget {
 
   String? get _fixedLineNumber => activity.metadata?['fixed_line_number']?.toString();
 
+  static const Set<String> _typesWithSender = {
+    'credit_received',
+    'offer_received',
+  };
+
+  // Le numéro de l'expéditeur n'est pas exposé dans un champ dédié pour les
+  // crédits/forfaits reçus : on le récupère dans metadata si présent, sinon
+  // on le retrouve dans la description ("Crédit reçu : 50.00 DJF de 77000112").
+  String? get _senderMsisdn {
+    if (!_typesWithSender.contains(activity.actionType)) return null;
+
+    final metaSender =
+        activity.metadata?['sender_msisdn']?.toString() ??
+        activity.metadata?['from_msisdn']?.toString();
+    if (metaSender != null && metaSender.isNotEmpty) {
+      return _cleanPhoneNumber(metaSender);
+    }
+
+    if (activity.beneficiaryMsisdn != null && activity.beneficiaryMsisdn!.isNotEmpty) {
+      return _cleanPhoneNumber(activity.beneficiaryMsisdn!);
+    }
+
+    final match = RegExp(r'\bde\s+(\d{8,15})\b').firstMatch(activity.description ?? '');
+    return match != null ? _cleanPhoneNumber(match.group(1)!) : null;
+  }
+
   String? get _packageCode =>
       activity.metadata?['package_code']?.toString() ??
       activity.metadata?['package_id']?.toString();
 
   String? get _feeAmount {
     final metadata = activity.metadata;
-    if (metadata == null) return null;
-    for (final key in _feeKeys) {
-      final value = metadata[key];
-      if (value == null) continue;
-      final parsed = double.tryParse(value.toString());
-      if (parsed != null) return '${parsed.toStringAsFixed(0)} DJF';
+    if (metadata != null) {
+      for (final key in _feeKeys) {
+        final value = metadata[key];
+        if (value == null) continue;
+        final parsed = double.tryParse(value.toString());
+        if (parsed != null) return '${parsed.toStringAsFixed(0)} DJF';
+      }
     }
-    return null;
+
+    // Repli : les frais ne sont parfois exposés que dans la description
+    // ("... (frais 3 DJF)") et absents des métadonnées.
+    final match = RegExp(
+      r'frais\s+(\d+(?:[.,]\d+)?)',
+      caseSensitive: false,
+    ).firstMatch(activity.description ?? '');
+    if (match == null) return null;
+    final parsed = double.tryParse(match.group(1)!.replaceAll(',', '.'));
+    return parsed != null ? '${parsed.toStringAsFixed(0)} DJF' : null;
   }
 
   @override
@@ -157,8 +201,13 @@ class ActivityDetailSheet extends StatelessWidget {
       }
     }
 
-    final showDescription =
+    // Tout le contenu informatif de la description (destinataire, frais...)
+    // est reconstruit en lignes dédiées dans le tableau ; ce qui reste après
+    // extraction retombe dans une ligne "Détails" générique du même tableau,
+    // jamais affiché en texte libre sous le titre.
+    final showGenericDescriptionRow =
         !_typesWithEnrichedTitle.contains(activity.actionType) &&
+        !_typesWithOwnDetailRows.contains(activity.actionType) &&
         activity.description != null &&
         activity.description!.trim().isNotEmpty &&
         activity.description != activity.actionLabel;
@@ -265,17 +314,6 @@ class ActivityDetailSheet extends StatelessWidget {
                 ],
               ),
 
-              if (showDescription) ...[
-                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-                Text(
-                  activity.description!,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(13),
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ],
-
               if (activity.amount != null) ...[
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
                 Container(
@@ -322,7 +360,10 @@ class ActivityDetailSheet extends StatelessWidget {
                 _buildInfoRow(l10n.transactionId, activity.transactionNo),
                 _buildDivider(),
                 _buildInfoRow(l10n.dateKey, activity.formattedDate),
-                if (_fixedLineNumber != null && _fixedLineNumber!.isNotEmpty) ...[
+                if (_senderMsisdn != null) ...[
+                  _buildDivider(),
+                  _buildInfoRow(l10n.fromLabel, _senderMsisdn!),
+                ] else if (_fixedLineNumber != null && _fixedLineNumber!.isNotEmpty) ...[
                   _buildDivider(),
                   _buildInfoRow(l10n.rechargedLineLabel, _fixedLineNumber!),
                 ] else if (activity.beneficiaryMsisdn != null &&
@@ -340,6 +381,10 @@ class ActivityDetailSheet extends StatelessWidget {
                 if (_feeAmount != null) ...[
                   _buildDivider(),
                   _buildInfoRow(l10n.feeLabel, _feeAmount!),
+                ],
+                if (showGenericDescriptionRow) ...[
+                  _buildDivider(),
+                  _buildInfoRow(l10n.descriptionLabel, activity.description!),
                 ],
                 if (activity.amount != null) ...[
                   _buildDivider(),

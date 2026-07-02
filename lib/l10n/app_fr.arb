@@ -341,6 +341,7 @@
     
     "toggleHideDetails": "Masquer les détails",
     "toggleShowDetails": "Afficher plus de détails",
+    "descriptionLabel": "Détails",
     "navHome": "Accueil",
     "navHistory": "Historique",
     "navMyLine": "Ma ligne",
@@ -555,6 +556,22 @@
       }
     },
     "topupRechargeTitle": "Recharge de ligne fixe",
+    "topupSubscribeGenericTitle": "Souscription package TopUp",
+    "creditReceivedTitle": "Crédit reçu",
+    "creditAddTitle": "Crédit ajouté",
+    "voucherRefillTitle": "Recharge par code",
+    "creditDeductTitle": "Débit de crédit",
+    "creditTransferTitle": "Transfert de crédit",
+    "offerReceivedTitle": "Forfait reçu",
+    "profileUpdateTitle": "Mise à jour du profil",
+    "todayLabel": "Aujourd'hui",
+    "yesterdayLabel": "Hier",
+    "daysFilterLabel": "{days} jours",
+    "@daysFilterLabel": {
+      "placeholders": {
+        "days": {"type": "int"}
+      }
+    },
     "money": "Crédit",
     "invalidNumber": "Numéro invalide",
     "numberNotFound": "Ce numéro n'existe pas dans le système.",
