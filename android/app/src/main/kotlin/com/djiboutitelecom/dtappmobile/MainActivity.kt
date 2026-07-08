@@ -1,4 +1,4 @@
-package com.example.dtservices
+package com.djiboutitelecom.dtappmobile
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

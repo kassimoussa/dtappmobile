@@ -66,6 +66,10 @@ class _SplashScreenState extends State<SplashScreen>
     // attendre l'utilisateur que le temps d'une courte animation fixe.
     _preloadImages();
 
+    // Attendre que le premier frame soit réellement dessiné avant de compter
+    // le délai : au cold start sur appareil réel le premier rendu peut prendre
+    // plusieurs secondes, et le timer expirait avant que le splash soit visible.
+    await WidgetsBinding.instance.endOfFrame;
     await Future.delayed(const Duration(milliseconds: 800));
 
     if (!mounted) return;

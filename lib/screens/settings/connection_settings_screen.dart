@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
+import 'package:dtservices/widgets/settings_card.dart';
 import 'package:local_auth/local_auth.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
@@ -112,29 +113,22 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
                 Expanded(
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
-                      : Padding(
+                      : SingleChildScrollView(
                           padding: EdgeInsets.all(
                             ResponsiveSize.getWidth(AppTheme.spacingL),
                           ),
-                          child: Column(
+                          child: SettingsCard(
                             children: [
-                              if (_isBiometricSupported) ...[
+                              if (_isBiometricSupported)
                                 _buildSwitchOption(
                                   title: l10n.biometricLogin,
                                   value: _isBiometricEnabled,
                                   onChanged: _toggleBiometric,
                                 ),
-                                SizedBox(
-                                  height: ResponsiveSize.getHeight(AppTheme.spacingM),
-                                ),
-                              ],
                               _buildSwitchOption(
                                 title: l10n.pinLogin,
                                 value: _isPinEnabled,
                                 onChanged: _togglePin,
-                              ),
-                              SizedBox(
-                                height: ResponsiveSize.getHeight(AppTheme.spacingM),
                               ),
                               _buildSwitchOption(
                                 title: l10n.otpLogin,
@@ -159,36 +153,13 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
-        horizontal: ResponsiveSize.getWidth(AppTheme.spacingS),
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(
-          ResponsiveSize.getWidth(AppTheme.radiusM),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(16),
-                color: Colors.black87,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-          Switch.adaptive(
-            value: value,
-            onChanged: onChanged,
-            activeColor: AppTheme.dtBlue,
-          ),
-        ],
+    return SettingsTile(
+      label: title,
+      onTap: () => onChanged(!value),
+      trailing: Switch.adaptive(
+        value: value,
+        onChanged: onChanged,
+        activeThumbColor: AppTheme.dtBlue,
       ),
     );
   }

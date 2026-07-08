@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
+import 'package:dtservices/widgets/settings_card.dart';
 import 'package:provider/provider.dart';
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
@@ -54,11 +55,10 @@ class _PinManagementScreenState extends State<PinManagementScreen> {
                     children: [
                       Padding(
                         padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-                        child: Column(
+                        child: SettingsCard(
                           children: [
-                            _buildMenuOption(
-                              context,
-                              title: AppLocalizations.of(context)!.changePinTitle,
+                            SettingsTile(
+                              label: AppLocalizations.of(context)!.changePinTitle,
                               onTap: () {
                                 if (_isSendingOtp) return;
                                 Navigator.of(context).push(
@@ -68,12 +68,18 @@ class _PinManagementScreenState extends State<PinManagementScreen> {
                                 );
                               },
                             ),
-                            Divider(height: 1, color: Colors.grey[200]),
-                            _buildMenuOption(
-                              context,
-                              title: AppLocalizations.of(context)!.forgotPinOption,
+                            SettingsTile(
+                              label: AppLocalizations.of(context)!.forgotPinOption,
                               onTap: _handleForgotPin,
-                              showLoading: _isSendingOtp,
+                              trailing: _isSendingOtp
+                                  ? SizedBox(
+                                      width: ResponsiveSize.getWidth(16),
+                                      height: ResponsiveSize.getHeight(16),
+                                      child: const CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : null,
                             ),
                           ],
                         ),
@@ -136,44 +142,4 @@ class _PinManagementScreenState extends State<PinManagementScreen> {
     }
   }
 
-  Widget _buildMenuOption(
-    BuildContext context, {
-    required String title,
-    required VoidCallback onTap,
-    bool showLoading = false,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(16),
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            if (showLoading)
-              SizedBox(
-                width: ResponsiveSize.getWidth(16),
-                height: ResponsiveSize.getHeight(16),
-                child: const CircularProgressIndicator(strokeWidth: 2),
-              )
-            else
-              Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey[400],
-                size: ResponsiveSize.getFontSize(16),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
 }

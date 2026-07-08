@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:295853171575:android:ecc578ff830ad43f90b772",
+        "android_client_info": {
+          "package_name": "com.djiboutitelecom.dtappmobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLDBf3jihn6HSVTM7GzcuN0u__dZlNYSk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:295853171575:android:0d0203499ec7ceb690b772",
         "android_client_info": {
           "package_name": "com.example.dtservices"

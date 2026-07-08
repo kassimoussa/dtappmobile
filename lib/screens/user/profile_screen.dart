@@ -1,6 +1,7 @@
 // lib/screens/user/profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
+import 'package:dtservices/widgets/settings_card.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../services/profile_service.dart';
@@ -131,13 +132,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               _buildProfileHeader(),
-                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                              _buildPersonalInfoSection(),
-                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
                               _buildPreferencesSection(l10n, authProvider),
-                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
                               _buildLogoutButton(l10n),
-                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
                               if (_errorMessage != null) ...[
                                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
                                 _buildErrorMessage(),
@@ -174,49 +172,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  /// Carte identité compacte : avatar + nom/numéro/email sur une ligne,
+  /// bouton d'édition intégré. Remplace l'ancien en-tête vertical et la
+  /// section "Infos personnelles" qui dupliquait le nom.
   Widget _buildProfileHeader() {
+    final l10n = AppLocalizations.of(context)!;
+    final hasName = _currentName?.isNotEmpty == true;
+
     return Container(
-      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-      decoration: BoxDecoration(
-        color: AppTheme.dtBlueO10,
-        borderRadius: BorderRadius.circular(
-          ResponsiveSize.getWidth(AppTheme.radiusM),
-        ),
-        border: Border.all(color: AppTheme.dtBlueO30),
-      ),
-      child: Column(
+      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
+      decoration: AppTheme.cardDecoration,
+      child: Row(
         children: [
           CircleAvatar(
-            radius: ResponsiveSize.getWidth(40),
+            radius: ResponsiveSize.getWidth(28),
             backgroundColor: AppTheme.dtBlue,
             child: Text(
-              _currentName?.isNotEmpty == true
+              hasName
                   ? _currentName!.substring(0, 1).toUpperCase()
                   : _phoneNumber?.substring(_phoneNumber!.length - 4) ?? '?',
               style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(24),
+                fontSize: ResponsiveSize.getFontSize(hasName ? 22 : 14),
                 fontWeight: FontWeight.bold,
                 color: AppTheme.dtYellow,
               ),
             ),
           ),
-          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          Text(
-            _currentName?.isNotEmpty == true
-                ? _currentName!
-                : AppLocalizations.of(context)!.defaultUser,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(20),
-              fontWeight: FontWeight.bold,
-              color: AppTheme.dtBlue,
+          SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  hasName ? _currentName! : l10n.defaultUser,
+                  style: AppTheme.subheadingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(17),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: ResponsiveSize.getHeight(2)),
+                Text(
+                  _phoneNumber ?? '',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: ResponsiveSize.getFontSize(14),
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+                if (_currentEmail?.isNotEmpty == true) ...[
+                  SizedBox(height: ResponsiveSize.getHeight(2)),
+                  Text(
+                    _currentEmail!,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: ResponsiveSize.getFontSize(13),
+                      color: AppTheme.textSecondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
             ),
           ),
-          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-          Text(
-            _phoneNumber ?? '',
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(16),
-              color: Colors.grey[600],
+          SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+          Material(
+            color: AppTheme.dtBlueO10,
+            borderRadius: BorderRadius.circular(
+              ResponsiveSize.getWidth(AppTheme.radiusM),
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusM),
+              ),
+              onTap: _openEditProfile,
+              child: Padding(
+                padding: EdgeInsets.all(ResponsiveSize.getWidth(10)),
+                child: Icon(
+                  Icons.edit_rounded,
+                  color: AppTheme.dtBlue,
+                  size: ResponsiveSize.getFontSize(20),
+                ),
+              ),
             ),
           ),
         ],
@@ -224,49 +262,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildPersonalInfoSection() {
-    final l10n = AppLocalizations.of(context)!;
-    return _buildSection(
-      title: l10n.personalInfo,
-      action: IconButton(
-        icon: const Icon(Icons.edit, color: AppTheme.dtBlue),
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (context) => EditProfileScreen(
-                    initialName: _currentName,
-                    initialEmail: _currentEmail,
-                  ),
-            ),
-          );
-
-          if (result == true) {
-            _loadUserProfile();
-          }
-        },
+  Future<void> _openEditProfile() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfileScreen(
+          initialName: _currentName,
+          initialEmail: _currentEmail,
+        ),
       ),
-      children: [
-        _buildInfoRow(
-          l10n.nameLabel,
-          _currentName?.isNotEmpty == true ? _currentName! : l10n.notAvailable,
-        ),
-        _buildInfoRow(
-          l10n.emailLabel,
-          _currentEmail?.isNotEmpty == true
-              ? _currentEmail!
-              : l10n.notAvailable,
-        ),
-      ],
     );
+
+    if (result == true) {
+      _loadUserProfile();
+    }
   }
 
   Widget _buildPreferencesSection(AppLocalizations l10n, AuthProvider authProvider) {
-    return _buildSection(
+    return SettingsCard(
       title: l10n.preferences,
       children: [
-        InkWell(
+        SettingsTile(
+          icon: Icons.settings,
+          label: l10n.connectionSettings,
           onTap: () {
             Navigator.push(
               context,
@@ -275,38 +293,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             );
           },
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.settings,
-                  color: Colors.grey[600],
-                  size: ResponsiveSize.getFontSize(24),
-                ),
-                SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-                Expanded(
-                  child: Text(
-                    l10n.connectionSettings,
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(16),
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.grey[400],
-                  size: ResponsiveSize.getFontSize(16),
-                ),
-              ],
-            ),
-          ),
         ),
-        Divider(height: 1, color: Colors.grey[200]),
-        InkWell(
+        SettingsTile(
+          icon: authProvider.hasPin ? Icons.lock_outline : Icons.lock_open_rounded,
+          label: authProvider.hasPin ? l10n.managePin : l10n.setupPinTitle,
+          iconColor: authProvider.hasPin ? null : AppTheme.dtBlue,
+          labelColor: authProvider.hasPin ? null : AppTheme.dtBlue,
+          fontWeight: authProvider.hasPin ? FontWeight.normal : FontWeight.w600,
           onTap: () {
             if (authProvider.hasPin) {
               Navigator.push(
@@ -334,39 +327,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             }
           },
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  authProvider.hasPin ? Icons.lock_outline : Icons.lock_open_rounded,
-                  color: authProvider.hasPin ? Colors.grey[600] : AppTheme.dtBlue,
-                  size: ResponsiveSize.getFontSize(24),
-                ),
-                SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-                Expanded(
-                  child: Text(
-                    authProvider.hasPin ? l10n.managePin : l10n.setupPinTitle,
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(16),
-                      color: authProvider.hasPin ? Colors.black87 : AppTheme.dtBlue,
-                      fontWeight: authProvider.hasPin ? FontWeight.normal : FontWeight.w600,
-                    ),
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.grey[400],
-                  size: ResponsiveSize.getFontSize(16),
-                ),
-              ],
-            ),
-          ),
         ),
-        Divider(height: 1, color: Colors.grey[200]),
-        InkWell(
+        SettingsTile(
+          icon: Icons.language,
+          label: l10n.changeLanguage,
           onTap: () {
             Navigator.push(
               context,
@@ -375,112 +339,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             );
           },
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.language,
-                  color: Colors.grey[600],
-                  size: ResponsiveSize.getFontSize(24),
-                ),
-                SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-                Expanded(
-                  child: Text(
-                    l10n.changeLanguage,
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(16),
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.grey[400],
-                  size: ResponsiveSize.getFontSize(16),
-                ),
-              ],
-            ),
-          ),
         ),
       ],
-    );
-  }
-
-  Widget _buildSection({
-    required String title,
-    required List<Widget> children,
-    Widget? action,
-  }) {
-    return Container(
-      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(
-          ResponsiveSize.getWidth(AppTheme.radiusM),
-        ),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(18),
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.dtBlue,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (action != null) action,
-            ],
-          ),
-          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          ...children,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: ResponsiveSize.getHeight(AppTheme.spacingS),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(14),
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(14),
-                color: Colors.black87,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -513,45 +373,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildLogoutButton(AppLocalizations l10n) {
-    return Container(
-      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusM)),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: InkWell(
-        onTap: () => _showLogoutDialog(l10n),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.logout_rounded,
-                color: Colors.red[600],
-                size: ResponsiveSize.getFontSize(24),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
-              Expanded(
-                child: Text(
-                  l10n.logoutAction,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(16),
-                    color: Colors.red[600],
-                  ),
-                ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.red[300],
-                size: ResponsiveSize.getFontSize(16),
-              ),
-            ],
-          ),
+    return SettingsCard(
+      children: [
+        SettingsTile(
+          icon: Icons.logout_rounded,
+          label: l10n.logoutAction,
+          iconColor: Colors.red[600],
+          labelColor: Colors.red[600],
+          fontWeight: FontWeight.w600,
+          trailing: SettingsChevron(color: Colors.red[300]),
+          onTap: () => _showLogoutDialog(l10n),
         ),
-      ),
+      ],
     );
   }
 
