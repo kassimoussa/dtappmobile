@@ -1,5 +1,6 @@
 // lib/screens/topup/topup_package_list_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
@@ -85,7 +86,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -100,7 +101,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, widget.typeLabel),
+                GlassAppBar(title: widget.typeLabel, actions: [GlassAppBarAction(icon: Icons.close, onTap: () => Navigator.of(context).popUntil((route) => route.isFirst))]),
                 Expanded(
                   child: _isLoading
                       ? _buildLoadingState()
@@ -116,75 +117,6 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: AppTheme.dtBlueDark,
-                    size: 20,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              InkWell(
-                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(12),
-                    vertical: ResponsiveSize.getHeight(8),
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.cancel,
-                    style: TextStyle(
-                      color: AppTheme.dtBlueDark,
-                      fontSize: ResponsiveSize.getFontSize(13),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildLoadingState() {
     final l10n = AppLocalizations.of(context)!;
@@ -192,7 +124,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlue),
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
@@ -303,7 +235,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
           padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
           decoration: BoxDecoration(
             color: AppTheme.dtBlue.withValues(alpha: 0.05),
-            border: Border(
+            border: const Border(
               bottom: BorderSide(
                 color: AppTheme.dtBlueO10,
                 width: 1,
@@ -421,7 +353,7 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
                             : () => _navigateToConfirmation(package),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.dtBlue,
-                      foregroundColor: AppTheme.dtYellow,
+                      foregroundColor: Colors.white,
                       disabledBackgroundColor: Colors.grey[400],
                       disabledForegroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(
@@ -526,11 +458,11 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
       decoration: BoxDecoration(
-        color: Colors.blue[50],
+        color: AppTheme.dtBlueO05,
         borderRadius: BorderRadius.circular(
           ResponsiveSize.getWidth(AppTheme.radiusS),
         ),
-        border: Border.all(color: Colors.blue[200]!),
+        border: Border.all(color: AppTheme.dtBlueO20),
       ),
       child: Row(
         children: [
@@ -642,132 +574,6 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
     );
   }
 
-  void _showPackageDetails(TopUpPackage package) {
-    final l10n = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(
-              package.displayName,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(18),
-                fontWeight: FontWeight.bold,
-                color: AppTheme.dtBlue,
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildDetailRow(l10n.price, package.formattedPrice),
-                if (package.isDataPackage)
-                  _buildDetailRow(l10n.dataType, package.formattedData),
-                if (package.isVoicePackage)
-                  _buildDetailRow(l10n.minutesLabel, package.formattedVoice),
-                if (package.formattedValidity.isNotEmpty &&
-                    package.formattedValidity != 'Non spécifiée')
-                  _buildDetailRow(l10n.validity, package.formattedValidity),
-                _buildDetailRow(
-                  l10n.availability,
-                  package.price <= widget.soldeActuel
-                      ? l10n.availableStatus
-                      : l10n.insufficientBalanceSimple,
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  l10n.closeAction,
-                  style: TextStyle(color: AppTheme.dtBlue),
-                ),
-              ),
-              if (package.price <= widget.soldeActuel)
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _navigateToConfirmation(package);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.dtBlue,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: Text(l10n.subscribe),
-                ),
-            ],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                ResponsiveSize.getWidth(AppTheme.radiusM),
-              ),
-            ),
-          ),
-    );
-  }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(4)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '$label:',
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(14),
-              color: AppTheme.textSecondary,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(14),
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  void _showComingSoonDialog(String feature) {
-    final l10n = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(
-              feature,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(18),
-                fontWeight: FontWeight.bold,
-                color: AppTheme.dtBlue,
-              ),
-            ),
-            content: Text(
-              l10n.comingSoonMessage,
-              style: TextStyle(fontSize: ResponsiveSize.getFontSize(16)),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  l10n.ok,
-                  style: TextStyle(
-                    color: AppTheme.dtBlue,
-                    fontSize: ResponsiveSize.getFontSize(16),
-                  ),
-                ),
-              ),
-            ],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                ResponsiveSize.getWidth(AppTheme.radiusM),
-              ),
-            ),
-          ),
-    );
-  }
 }

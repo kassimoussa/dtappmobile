@@ -18,11 +18,11 @@ class LineInfoHeader extends StatelessWidget {
           Container(
             width: 60,
             height: 60,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppTheme.dtBlueO10,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.phone_android, size: 32, color: AppTheme.dtBlue),
+            child: const Icon(Icons.phone_android, size: 32, color: AppTheme.dtBlue),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -31,7 +31,7 @@ class LineInfoHeader extends StatelessWidget {
               children: [
                 Text(
                   phoneNumber,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.dtBlue,
@@ -78,7 +78,7 @@ class LineInfoHeader extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.qr_code, color: AppTheme.dtBlue),
+            icon: const Icon(Icons.qr_code, color: AppTheme.dtBlue),
             onPressed: () {
               // Action pour afficher le QR code
             },

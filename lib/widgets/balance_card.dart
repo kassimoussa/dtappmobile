@@ -1,6 +1,7 @@
 
 // lib/widgets/balance_card.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/widgets/recharge_dialog.dart';
 
 class BalanceCard extends StatefulWidget {
@@ -11,8 +12,8 @@ class BalanceCard extends StatefulWidget {
 }
 
 class _BalanceCardState extends State<BalanceCard> {
-  final Color djiboutiBlue = const Color(0xFF002555);
-  final Color djiboutiYellow = const Color(0xFFF7C700);
+  final Color djiboutiBlue = AppTheme.dtBlue;
+  final Color djiboutiYellow = AppTheme.dtYellow;
   bool _showBalance = false;
 
   @override

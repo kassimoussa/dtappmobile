@@ -1,5 +1,7 @@
 // lib/screens/auth/pin/pin_reset_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
+import 'package:dtservices/widgets/dt_button.dart';
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
 import '../../../routes/custom_route_transitions.dart';
@@ -68,7 +70,7 @@ class _PinResetScreenState extends State<PinResetScreen> {
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.dtBlue,
-                  foregroundColor: AppTheme.dtYellow,
+                  foregroundColor: Colors.white,
                 ),
                 child: Text(AppLocalizations.of(context)!.ok),
               ),
@@ -91,7 +93,7 @@ class _PinResetScreenState extends State<PinResetScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -106,7 +108,7 @@ class _PinResetScreenState extends State<PinResetScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, AppLocalizations.of(context)!.resetPinTitle),
+                GlassAppBar(title: AppLocalizations.of(context)!.resetPinTitle),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
@@ -215,38 +217,10 @@ class _PinResetScreenState extends State<PinResetScreen> {
                   SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
 
                   // Bouton d'envoi
-                  SizedBox(
-                    height: ResponsiveSize.getHeight(52),
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _sendOtpForReset,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.dtBlue,
-                        foregroundColor: AppTheme.dtYellow,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                        ),
-                        elevation: 0,
-                      ),
-                      child:
-                          _isLoading
-                              ? SizedBox(
-                                height: ResponsiveSize.getHeight(24),
-                                width: ResponsiveSize.getWidth(24),
-                                child: const CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppTheme.dtYellow,
-                                  ),
-                                ),
-                              )
-                              : Text(
-                                AppLocalizations.of(context)!.sendCode,
-                                style: TextStyle(
-                                  fontSize: ResponsiveSize.getFontSize(16),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                    ),
+                  DtButton.primary(
+                    label: AppLocalizations.of(context)!.sendCode,
+                    loading: _isLoading,
+                    onPressed: _sendOtpForReset,
                   ),
 
                   SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
@@ -278,47 +252,6 @@ class _PinResetScreenState extends State<PinResetScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
 
   /// Widget pour afficher une étape
   Widget _buildStep({required String number, required String text}) {
@@ -328,7 +261,7 @@ class _PinResetScreenState extends State<PinResetScreen> {
         Container(
           width: ResponsiveSize.getWidth(24),
           height: ResponsiveSize.getHeight(24),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppTheme.dtBlue,
             shape: BoxShape.circle,
           ),

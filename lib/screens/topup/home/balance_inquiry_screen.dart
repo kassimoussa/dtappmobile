@@ -1,5 +1,6 @@
 // lib/screens/topup/balance_inquiry_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
@@ -7,7 +8,7 @@ import '../../../models/topup_balance.dart';
 import '../../../services/topup_api_service.dart';
 import '../../../services/user_session.dart';
 import '../../../exceptions/topup_exception.dart';
-import '../debug/topup_debug_screen.dart';
+import '../../../generated/l10n/app_localizations.dart';
 
 class BalanceInquiryScreen extends StatefulWidget {
   const BalanceInquiryScreen({super.key});
@@ -103,7 +104,7 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -118,7 +119,7 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context),
+                GlassAppBar(title: AppLocalizations.of(context)!.balanceInquiryTitle),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -144,63 +145,6 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  'Consultation des Soldes',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TopUpDebugScreen()),
-                ),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.bug_report_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildUserInfoCard() {
     return Card(
@@ -281,13 +225,13 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
                 validator: _validateFixedNumber,
                 decoration: InputDecoration(
                   hintText: 'Ex: 21123456 ou 25321123456',
-                  prefixIcon: Icon(Icons.phone, color: AppTheme.dtBlue),
+                  prefixIcon: const Icon(Icons.phone, color: AppTheme.dtBlue),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
-                    borderSide: BorderSide(color: AppTheme.dtBlue, width: 2),
+                    borderSide: const BorderSide(color: AppTheme.dtBlue, width: 2),
                   ),
                 ),
               ),
@@ -298,7 +242,7 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
                   onPressed: _isLoading ? null : _consultBalances,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.dtBlue,
-                    foregroundColor: AppTheme.dtYellow,
+                    foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(
                       vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
                     ),
@@ -326,7 +270,7 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
     return Center(
       child: Column(
         children: [
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlue),
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
@@ -379,10 +323,10 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
             ElevatedButton.icon(
               onPressed: _consultBalances,
               icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
+              label: Text(AppLocalizations.of(context)!.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
-                foregroundColor: AppTheme.dtYellow,
+                foregroundColor: Colors.white,
               ),
             ),
           ],
@@ -483,7 +427,7 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
               children: [
                 _buildSummaryItem(
                   'Argent',
-                  summary.moneyTotalFormatted,
+                  summary.moneyTotalCompact,
                   Icons.monetization_on,
                   Colors.green,
                 ),
@@ -491,11 +435,11 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
                   'Données',
                   summary.dataTotalFormatted,
                   Icons.data_usage,
-                  Colors.blue,
+                  AppTheme.dtBlue,
                 ),
                 _buildSummaryItem(
                   'Voix',
-                  summary.voiceTotalFormatted,
+                  summary.voiceTotalHoursMinutes,
                   Icons.phone,
                   Colors.orange,
                 ),

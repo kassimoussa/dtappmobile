@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
+import 'package:dtservices/widgets/dt_button.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
@@ -132,7 +134,7 @@ class _PinResetOtpScreenState extends State<PinResetOtpScreen>
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -147,7 +149,7 @@ class _PinResetOtpScreenState extends State<PinResetOtpScreen>
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, AppLocalizations.of(context)!.verificationTitle),
+                GlassAppBar(title: AppLocalizations.of(context)!.verificationTitle),
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.symmetric(
@@ -193,7 +195,7 @@ class _PinResetOtpScreenState extends State<PinResetOtpScreen>
                     Colors.grey.shade300,
                   ),
                   bgColorBuilder: FixedColorBuilder(Colors.grey.shade50),
-                  radius: Radius.circular(AppTheme.radiusM),
+                  radius: const Radius.circular(AppTheme.radiusM),
                   gapSpace: ResponsiveSize.getWidth(10),
                 ),
                 currentCode: _otpCode,
@@ -231,41 +233,11 @@ class _PinResetOtpScreenState extends State<PinResetOtpScreen>
               SizedBox(height: ResponsiveSize.getHeight(20)),
 
               // Bouton Continuer
-              SizedBox(
-                height: ResponsiveSize.getHeight(52),
-                child: ElevatedButton(
-                  onPressed:
-                      _otpCode.length == 6 && !_isProcessing
-                          ? _verifyAndProceed
-                          : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.dtBlue,
-                    foregroundColor: AppTheme.dtYellow,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                    ),
-                    elevation: 0,
-                  ),
-                  child:
-                      _isProcessing
-                          ? SizedBox(
-                            height: ResponsiveSize.getHeight(24),
-                            width: ResponsiveSize.getWidth(24),
-                            child: const CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                AppTheme.dtYellow,
-                              ),
-                            ),
-                          )
-                          : Text(
-                            AppLocalizations.of(context)!.continueText,
-                            style: TextStyle(
-                              fontSize: ResponsiveSize.getFontSize(16),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                ),
+              DtButton.primary(
+                label: AppLocalizations.of(context)!.continueText,
+                loading: _isProcessing,
+                onPressed:
+                    _otpCode.length == 6 ? _verifyAndProceed : null,
               ),
 
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
@@ -281,45 +253,4 @@ class _PinResetOtpScreenState extends State<PinResetOtpScreen>
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
 }

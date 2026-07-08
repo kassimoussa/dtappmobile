@@ -257,7 +257,7 @@ class UserSession {
     await prefs.remove(_isAppRunningKey);
     await prefs.remove(_phoneNumberKey); // Supprimer le numéro actuel
     // Conserver _lastUsedPhoneKey pour pré-remplir le champ de connexion
-    // Conserver les préférences utilisateur (_isBiometricEnabledKey, _isPinEnabledKey, _isOtpEnabledKey)
+    // Conserver les préférences utilisateur (biométrie par numéro, _isPinEnabledKey, _isOtpEnabledKey)
 
     // Réinitialiser le cache
     _cachedPhoneNumber = null;
@@ -279,7 +279,7 @@ class UserSession {
     await prefs.remove(_sessionTokenKey);
     await prefs.remove(_hasPinKey);
     // Optionnel: supprimer aussi les préférences
-    // await prefs.remove(_isBiometricEnabledKey);
+    // await prefs.remove('$_isBiometricEnabledPrefix<phoneNumber>');
     // await prefs.remove(_isPinEnabledKey);
     // await prefs.remove(_isOtpEnabledKey);
 
@@ -295,20 +295,25 @@ class UserSession {
 
   // ==================== Préférences de connexion ====================
 
-  static const String _isBiometricEnabledKey = 'is_biometric_enabled';
+  static const String _isBiometricEnabledPrefix = 'is_biometric_enabled_';
   static const String _isOtpEnabledKey = 'is_otp_enabled';
 
-  /// Vérifie si l'authentification biométrique est activée
-  static Future<bool> isBiometricEnabled() async {
+  /// Vérifie si l'authentification biométrique est activée pour CE numéro.
+  /// Scopé par numéro : la biométrie activée par un compte ne doit jamais
+  /// s'appliquer à un autre compte utilisé sur le même appareil.
+  static Future<bool> isBiometricEnabled(String phoneNumber) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_isBiometricEnabledKey) ?? false;
+    return prefs.getBool('$_isBiometricEnabledPrefix$phoneNumber') ?? false;
   }
 
-  /// Active ou désactive l'authentification biométrique
-  static Future<void> setBiometricEnabled(bool enabled) async {
+  /// Active ou désactive l'authentification biométrique pour CE numéro
+  static Future<void> setBiometricEnabled(
+    String phoneNumber,
+    bool enabled,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_isBiometricEnabledKey, enabled);
-    debugPrint('Biométrie ${enabled ? "activée" : "désactivée"}');
+    await prefs.setBool('$_isBiometricEnabledPrefix$phoneNumber', enabled);
+    debugPrint('Biométrie ${enabled ? "activée" : "désactivée"} pour $phoneNumber');
   }
 
   /// Vérifie si l'OTP est activé (par défaut true)
@@ -387,6 +392,42 @@ class UserSession {
   static Future<bool> hasSecurePin(String phoneNumber) async {
     final pin = await getSecurePin(phoneNumber);
     return pin != null && pin.isNotEmpty;
+  }
+
+  // ==================== Migration : correction faille biométrie ====================
+
+  static const String _biometricMigrationDoneKey = 'biometric_scope_migration_v1_done';
+
+  /// Corrige une faille où l'activation de la biométrie sur un compte
+  /// s'appliquait à tous les numéros utilisés sur l'appareil : l'ancien
+  /// flag global 'is_biometric_enabled' était réutilisé par n'importe
+  /// quel compte, et son PIN se retrouvait mis en cache silencieusement
+  /// puis déverrouillable par simple empreinte, sans jamais avoir activé
+  /// la biométrie lui-même.
+  ///
+  /// Ne s'exécute qu'une seule fois : supprime l'ancien flag global et
+  /// tous les PIN mis en cache (on ne peut pas distinguer ceux légitimement
+  /// activés de ceux qui ont fuité). Chaque compte devra réactiver la
+  /// biométrie explicitement dans les réglages.
+  static Future<void> migrateLegacyBiometricScope() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_biometricMigrationDoneKey) ?? false) return;
+
+    await prefs.remove('is_biometric_enabled');
+
+    try {
+      final all = await _secureStorage.readAll();
+      for (final key in all.keys) {
+        if (key.startsWith(_securePinPrefix)) {
+          await _secureStorage.delete(key: key);
+        }
+      }
+    } catch (e) {
+      debugPrint('Erreur purge PIN sécurisés hérités: $e');
+    }
+
+    await prefs.setBool(_biometricMigrationDoneKey, true);
+    debugPrint('Migration sécurité biométrie effectuée');
   }
 
   // ==================== FCM Token Management ====================

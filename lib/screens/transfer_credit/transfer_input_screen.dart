@@ -1,4 +1,6 @@
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/widgets/dt_button.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_confirmation_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
@@ -44,7 +46,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -59,10 +61,10 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, AppLocalizations.of(context)!.transferTitle),
+                GlassAppBar(title: AppLocalizations.of(context)!.transferTitle),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.all(AppTheme.spacingM),
+                    padding: const EdgeInsets.all(AppTheme.spacingM),
                     child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,14 +103,20 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
               //_buildInfoBox(),
               const SizedBox(height: 32),
 
-              // Bouton de confirmation
-              _buildConfirmButton(),
-
               const SizedBox(height: 24),
             ],
           ),
                     ),
                   ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    ResponsiveSize.getWidth(AppTheme.spacingM),
+                    0,
+                    ResponsiveSize.getWidth(AppTheme.spacingM),
+                    ResponsiveSize.getHeight(AppTheme.spacingL),
+                  ),
+                  child: _buildConfirmButton(),
                 ),
               ],
             ),
@@ -118,47 +126,6 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   // Widget pour le champ montant
   Widget _buildAmountField() {
@@ -184,7 +151,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
             decoration: InputDecoration(
               hintText: AppLocalizations.of(context)!.amountHint,
               suffixText: 'DJF',
-              prefixIcon: Icon(Icons.attach_money, color: AppTheme.dtBlue),
+              prefixIcon: const Icon(Icons.attach_money, color: AppTheme.dtBlue),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -227,43 +194,6 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
   }
 
   // Widget pour la boîte d'information
-  Widget _buildInfoBox() {
-    final balanceProvider = context.read<BalanceProvider>();
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.dtBlueO10,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.dtBlueO30),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.info_outline, color: AppTheme.dtBlue, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                AppLocalizations.of(context)!.transferImportantInfo,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.dtBlue,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${AppLocalizations.of(context)!.transferMinAmountParams}\n'
-            '${AppLocalizations.of(context)!.transferFeesParams}\n'
-            '${AppLocalizations.of(context)!.transferCurrentBalance(balanceProvider.solde.toStringAsFixed(0))}',
-            style: TextStyle(color: AppTheme.dtBlue, fontSize: 14),
-          ),
-        ],
-      ),
-    );
-  }
 
   // Widget pour le bouton de confirmation
   Widget _buildConfirmButton() {
@@ -273,27 +203,9 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
         _recipientController.text.isNotEmpty &&
         _amountController.text.isNotEmpty;
 
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: isFormValid ? _validateAndSendTransfer : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isFormValid ? AppTheme.dtBlue : Colors.grey[400],
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 0,
-        ),
-        child: Text(
-          AppLocalizations.of(context)!.confirmTransfer,
-          style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(16),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+    return DtButton.primary(
+      label: AppLocalizations.of(context)!.confirmTransfer,
+      onPressed: isFormValid ? _validateAndSendTransfer : null,
     );
   }
 

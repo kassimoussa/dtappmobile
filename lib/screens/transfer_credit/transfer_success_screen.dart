@@ -1,4 +1,5 @@
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/screens/core/main_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
@@ -113,7 +114,7 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
               right: -100,
               child: Container(
                 height: 350,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
@@ -128,7 +129,7 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
             SafeArea(
               child: Column(
                 children: [
-                  _buildGlassAppBar(context, AppLocalizations.of(context)!.transferSuccessTitle),
+                  GlassAppBar(title: AppLocalizations.of(context)!.transferSuccessTitle, showBack: false),
                   Expanded(
                     child: AnimatedBuilder(
           animation: _animationController,
@@ -282,7 +283,7 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
                             onPressed: _redirectToHome,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.dtBlue,
-                              foregroundColor: AppTheme.dtYellow,
+                              foregroundColor: Colors.white,
                               padding: EdgeInsets.symmetric(
                                 horizontal: ResponsiveSize.getWidth(
                                   AppTheme.spacingL,
@@ -381,34 +382,6 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(

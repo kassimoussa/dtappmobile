@@ -207,6 +207,38 @@ class TopUpBalanceSummary {
       'voice_total_formatted': voiceTotalFormatted,
     };
   }
+
+  /// Crédit avec suffixe compact (K / M) pour les grands montants.
+  /// Ex : 514135.56 → « 514,1K DJF » ; 3675 → « 3675 DJF ».
+  String get moneyTotalCompact {
+    return '${_compact(moneyTotal)} DJF';
+  }
+
+  /// Voix en heures et minutes uniquement (secondes ignorées).
+  /// Ex : 7200 s → « 2h00 » ; 1830 s → « 0h30 ».
+  String get voiceTotalHoursMinutes {
+    final h = voiceTotalSeconds ~/ 3600;
+    final m = (voiceTotalSeconds % 3600) ~/ 60;
+    return '${h}h${m.toString().padLeft(2, '0')}';
+  }
+
+  /// Formate un nombre avec suffixe K (millier) ou M (million) au-delà
+  /// de 10 000, sans décimale superflue. En dessous, valeur entière brute.
+  static String _compact(double value) {
+    if (value >= 1000000) {
+      return '${_trim(value / 1000000)}M';
+    }
+    if (value >= 10000) {
+      return '${_trim(value / 1000)}K';
+    }
+    return value.toStringAsFixed(0);
+  }
+
+  /// Une décimale, mais sans « ,0 » inutile (20,0K → 20K).
+  static String _trim(double v) {
+    final s = v.toStringAsFixed(1);
+    return s.endsWith('.0') ? s.substring(0, s.length - 2) : s;
+  }
 }
 
 class TopUpBalanceDetails {

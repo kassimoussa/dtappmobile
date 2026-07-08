@@ -1,5 +1,6 @@
 // lib/widgets/fixed_line_input.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/constants/app_theme.dart';
 
 class FixedLineInput extends StatefulWidget {
   final Function(String) onSubmit;
@@ -12,7 +13,7 @@ class FixedLineInput extends StatefulWidget {
 
 class _FixedLineInputState extends State<FixedLineInput> {
   final TextEditingController _fixedLineController = TextEditingController();
-  final Color djiboutiBlue = const Color(0xFF002555);
+  final Color djiboutiBlue = AppTheme.dtBlue;
 
   @override
   void dispose() {

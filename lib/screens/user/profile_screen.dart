@@ -1,5 +1,6 @@
 // lib/screens/user/profile_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../services/profile_service.dart';
@@ -103,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -118,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, l10n.myProfile),
+                GlassAppBar(title: l10n.myProfile),
                 Expanded(
                   child: _isLoading
                       ? _buildLoadingState()
@@ -153,54 +154,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildLoadingState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppTheme.dtBlue),
+          const CircularProgressIndicator(color: AppTheme.dtBlue),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
           Text(
             AppLocalizations.of(context)!.loadingProfile,
@@ -269,7 +229,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return _buildSection(
       title: l10n.personalInfo,
       action: IconButton(
-        icon: Icon(Icons.edit, color: AppTheme.dtBlue),
+        icon: const Icon(Icons.edit, color: AppTheme.dtBlue),
         onPressed: () async {
           final result = await Navigator.push(
             context,
@@ -655,10 +615,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
     } catch (e) {
+      debugPrint('Erreur déconnexion: $e');
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.logoutError}: $e')),
+          SnackBar(content: Text(l10n.logoutError)),
         );
       }
     }

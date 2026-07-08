@@ -1,4 +1,6 @@
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/widgets/dt_button.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_success_screen.dart';
 import 'package:dtservices/services/transfer_credit_service.dart';
@@ -50,7 +52,7 @@ class _TransferConfirmationScreenState
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -65,7 +67,7 @@ class _TransferConfirmationScreenState
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, AppLocalizations.of(context)!.transferConfirmationTitle),
+                GlassAppBar(title: AppLocalizations.of(context)!.transferConfirmationTitle),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
@@ -78,7 +80,7 @@ class _TransferConfirmationScreenState
                 padding: EdgeInsets.all(
                   ResponsiveSize.getWidth(AppTheme.spacingL),
                 ),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppTheme.dtBlueO10,
                   shape: BoxShape.circle,
                 ),
@@ -183,28 +185,10 @@ class _TransferConfirmationScreenState
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: _isLoading ? null : () => Navigator.popUntil(context, (route) => route.isFirst),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppTheme.dtBlue),
-                      padding: EdgeInsets.symmetric(
-                        vertical: ResponsiveSize.getHeight(16),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          ResponsiveSize.getWidth(AppTheme.radiusM),
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.cancelAction,
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(16),
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.dtBlue,
-                      ),
-                    ),
-                  ),
+                  child: DtButton.secondary(
+            label: AppLocalizations.of(context)!.cancelAction,
+            onPressed: _isLoading ? null : () => Navigator.popUntil(context, (route) => route.isFirst),
+          ),
                 ),
 
                 SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -214,7 +198,7 @@ class _TransferConfirmationScreenState
                     onPressed: _isLoading ? null : _processTransfer,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.dtBlue,
-                      foregroundColor: AppTheme.dtYellow,
+                      foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(
                         vertical: ResponsiveSize.getHeight(16),
                       ),
@@ -229,7 +213,7 @@ class _TransferConfirmationScreenState
                             ? SizedBox(
                               width: ResponsiveSize.getWidth(20),
                               height: ResponsiveSize.getHeight(20),
-                              child: CircularProgressIndicator(
+                              child: const CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                   AppTheme.dtYellow,
@@ -259,47 +243,6 @@ class _TransferConfirmationScreenState
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
 
   Widget _buildDetailRow(String label, String value, {bool isTotal = false}) {
     return Row(
@@ -424,7 +367,7 @@ class _TransferConfirmationScreenState
           // Transfert échoué - Afficher l'erreur
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erreur: ${result['error']}'),
+              content: Text(AppLocalizations.of(context)!.transferError(result['error'] ?? '')),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 4),
             ),

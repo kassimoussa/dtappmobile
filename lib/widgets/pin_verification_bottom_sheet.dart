@@ -142,7 +142,7 @@ class _PinVerificationBottomSheetState extends State<PinVerificationBottomSheet>
             // Icon
             Container(
               padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.dtBlueO10,
                 shape: BoxShape.circle,
               ),
@@ -191,7 +191,7 @@ class _PinVerificationBottomSheetState extends State<PinVerificationBottomSheet>
                SizedBox(
                 height: ResponsiveSize.getHeight(24),
                 width: ResponsiveSize.getHeight(24),
-                child: CircularProgressIndicator(color: AppTheme.dtBlue, strokeWidth: 3),
+                child: const CircularProgressIndicator(color: AppTheme.dtBlue, strokeWidth: 3),
               )
             else ...[
               PinDots(pinLength: _pin.length, maxLength: 4),

@@ -1,5 +1,7 @@
 // lib/screens/topup/topup_recharge_success_screen.dart
 import 'dart:async';
+import 'package:dtservices/widgets/dt_button.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants/app_theme.dart';
@@ -106,7 +108,7 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -121,7 +123,7 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context),
+                GlassAppBar(title: AppLocalizations.of(context)!.rechargeSuccessTitle, showBack: false),
                 Expanded(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
@@ -137,7 +139,7 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
                     padding: EdgeInsets.all(
                       ResponsiveSize.getWidth(AppTheme.spacingXL),
                     ),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppTheme.dtBlueO10,
                       shape: BoxShape.circle,
                       boxShadow: [
@@ -212,34 +214,6 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              Expanded(
-                child: Text(
-                  AppLocalizations.of(context)!.rechargeSuccessTitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildRechargeDetails() {
     final l10n = AppLocalizations.of(context)!;
@@ -341,27 +315,9 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
     return Row(
       children: [
         Expanded(
-          child: OutlinedButton(
+          child: DtButton.secondary(
+            label: l10n.returnHome,
             onPressed: _navigateToHome,
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppTheme.dtBlue),
-              padding: EdgeInsets.symmetric(
-                vertical: ResponsiveSize.getHeight(16),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  ResponsiveSize.getWidth(AppTheme.radiusM),
-                ),
-              ),
-            ),
-            child: Text(
-              l10n.returnHome,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(16),
-                fontWeight: FontWeight.bold,
-                color: AppTheme.dtBlue,
-              ),
-            ),
           ),
         ),
         SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -373,7 +329,7 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.dtBlue,
-              foregroundColor: AppTheme.dtYellow,
+              foregroundColor: Colors.white,
               padding: EdgeInsets.symmetric(
                 vertical: ResponsiveSize.getHeight(16),
               ),

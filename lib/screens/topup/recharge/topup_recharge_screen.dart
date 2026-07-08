@@ -1,5 +1,7 @@
 // lib/screens/topup/topup_recharge_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/dt_button.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -219,7 +221,7 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -234,7 +236,7 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, AppLocalizations.of(context)!.rechargeTitle),
+                GlassAppBar(title: AppLocalizations.of(context)!.rechargeTitle, actions: [GlassAppBarAction(icon: Icons.close, onTap: () => Navigator.of(context).popUntil((route) => route.isFirst))]),
                 Expanded(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
@@ -245,8 +247,6 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            _buildHeader(),
-                            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
                             _buildAccountInfo(),
                             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
                             _buildPredefinedAmounts(),
@@ -270,112 +270,6 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              InkWell(
-                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(12),
-                    vertical: ResponsiveSize.getHeight(8),
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.cancel,
-                    style: TextStyle(
-                      color: AppTheme.dtBlueDark,
-                      fontSize: ResponsiveSize.getFontSize(13),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
-
-  Widget _buildHeader() {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-      decoration: BoxDecoration(
-        color: AppTheme.dtBlueO10,
-        borderRadius: BorderRadius.circular(
-          ResponsiveSize.getWidth(AppTheme.radiusM),
-        ),
-        border: Border.all(color: AppTheme.dtBlueO30),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            Icons.account_balance_wallet,
-            color: AppTheme.dtBlue,
-            size: ResponsiveSize.getFontSize(32),
-          ),
-          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-          Text(
-            l10n.rechargeSubtitle,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(20),
-              fontWeight: FontWeight.bold,
-              color: AppTheme.dtBlue,
-            ),
-          ),
-          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-          Text(
-            l10n.rechargeDescription,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(14),
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildAccountInfo() {
     final l10n = AppLocalizations.of(context)!;
@@ -514,7 +408,7 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
           decoration: InputDecoration(
             hintText: l10n.amountHint,
             suffixText: 'DJF',
-            prefixIcon: Icon(Icons.payments, color: AppTheme.dtBlue),
+            prefixIcon: const Icon(Icons.payments, color: AppTheme.dtBlue),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(
                 ResponsiveSize.getWidth(AppTheme.radiusM),
@@ -524,7 +418,7 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
               borderRadius: BorderRadius.circular(
                 ResponsiveSize.getWidth(AppTheme.radiusM),
               ),
-              borderSide: BorderSide(color: AppTheme.dtBlue, width: 2),
+              borderSide: const BorderSide(color: AppTheme.dtBlue, width: 2),
             ),
           ),
           validator: _validateAmount,
@@ -557,7 +451,7 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
           ],
           decoration: InputDecoration(
             hintText: '0000',
-            prefixIcon: Icon(Icons.lock, color: AppTheme.dtBlue),
+            prefixIcon: const Icon(Icons.lock, color: AppTheme.dtBlue),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(
                 ResponsiveSize.getWidth(AppTheme.radiusM),
@@ -567,7 +461,7 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
               borderRadius: BorderRadius.circular(
                 ResponsiveSize.getWidth(AppTheme.radiusM),
               ),
-              borderSide: BorderSide(color: AppTheme.dtBlue, width: 2),
+              borderSide: const BorderSide(color: AppTheme.dtBlue, width: 2),
             ),
           ),
           validator: (value) {
@@ -591,43 +485,11 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
   }
 
   Widget _buildActionButton() {
-    return ElevatedButton(
-      onPressed: _isLoading ? null : _rechargeAccount,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppTheme.dtBlue,
-        foregroundColor: AppTheme.dtYellow,
-        padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(16)),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            ResponsiveSize.getWidth(AppTheme.radiusM),
-          ),
-        ),
-        elevation: _isLoading ? 0 : 2,
-      ),
-      child:
-          _isLoading
-              ? SizedBox(
-                width: ResponsiveSize.getWidth(20),
-                height: ResponsiveSize.getHeight(20),
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtYellow),
-                ),
-              )
-              : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.send, size: ResponsiveSize.getFontSize(18)),
-                  SizedBox(width: ResponsiveSize.getWidth(8)),
-                  Text(
-                    AppLocalizations.of(context)!.performRecharge,
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(16),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+    return DtButton.primary(
+      label: AppLocalizations.of(context)!.performRecharge,
+      icon: Icons.send,
+      loading: _isLoading,
+      onPressed: _rechargeAccount,
     );
   }
 }

@@ -1,5 +1,7 @@
 // lib/screens/topup/topup_home_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/dt_button.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../../../constants/app_theme.dart';
@@ -54,7 +56,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
         return AlertDialog(
           title: Row(
             children: [
-              Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+              const Icon(Icons.warning_amber, color: Colors.orange, size: 24),
               SizedBox(width: ResponsiveSize.getWidth(8)),
               Text(
                 l10n.numberSuspended,
@@ -88,7 +90,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                    const Icon(Icons.info_outline, color: Colors.orange, size: 20),
                     SizedBox(width: ResponsiveSize.getWidth(8)),
                     Expanded(
                       child: Text(
@@ -197,7 +199,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -212,7 +214,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, l10n.myLineTitle, topUpProvider),
+                GlassAppBar(title: l10n.myLineTitle, showBack: false, actions: [if (topUpProvider.hasActiveSession) GlassAppBarAction(icon: Icons.logout_rounded, onTap: _disconnectTopUp)]),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -233,7 +235,6 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               // Résultats (toujours affichés s'ils existent)
               if (topUpProvider.balanceResponse != null) ...[
                 _buildBalanceSummary(topUpProvider),
-                _buildExpirationInfo(topUpProvider),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
                 _buildActionButtons(topUpProvider),
               ],
@@ -249,48 +250,6 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title, TopUpProvider topUpProvider) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              if (topUpProvider.hasActiveSession)
-                InkWell(
-                  onTap: _disconnectTopUp,
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppTheme.white50,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.white),
-                    ),
-                    child: Icon(Icons.logout_rounded, color: AppTheme.dtBlueDark, size: 20),
-                  ),
-                ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildInputForm(TopUpProvider provider) {
     final l10n = AppLocalizations.of(context)!;
@@ -334,7 +293,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                   decoration: InputDecoration(
                     labelText: l10n.fixedLineNumberKey,
                     hintText: l10n.fixedLineNumberHint,
-                    prefixIcon: Icon(Icons.phone, color: AppTheme.dtBlue),
+                    prefixIcon: const Icon(Icons.phone, color: AppTheme.dtBlue),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(
                         ResponsiveSize.getWidth(AppTheme.radiusS),
@@ -344,35 +303,15 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                       borderRadius: BorderRadius.circular(
                         ResponsiveSize.getWidth(AppTheme.radiusS),
                       ),
-                      borderSide: BorderSide(color: AppTheme.dtBlue, width: 2),
+                      borderSide: const BorderSide(color: AppTheme.dtBlue, width: 2),
                     ),
                   ),
                 ),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: provider.isLoading ? null : _consultBalances,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.dtBlue,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          ResponsiveSize.getWidth(AppTheme.radiusS),
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      provider.isLoading ? l10n.consulting : l10n.consult,
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(16),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                DtButton.primary(
+                  label: l10n.consult,
+                  loading: provider.isLoading,
+                  onPressed: _consultBalances,
                 ),
               ],
             ),
@@ -387,7 +326,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     return Center(
       child: Column(
         children: [
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlue),
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
@@ -446,7 +385,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
-                foregroundColor: AppTheme.dtYellow,
+                foregroundColor: Colors.white,
               ),
             ),
           ],
@@ -518,7 +457,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               children: [
                 _buildSummaryItem(
                   l10n.money,
-                  response.summary.moneyTotalFormatted,
+                  response.summary.moneyTotalCompact,
                   Icons.monetization_on,
                   Colors.green,
                 ),
@@ -526,20 +465,34 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                   l10n.dataType,
                   _getDataDisplay(provider),
                   Icons.data_usage,
-                  Colors.blue,
+                  AppTheme.dtBlue,
                 ),
                 _buildSummaryItem(
                   l10n.voiceType,
-                  response.summary.voiceTotalFormatted,
+                  response.summary.voiceTotalHoursMinutes,
                   Icons.phone,
                   Colors.orange,
                 ),
               ],
             ),
+            // Expiration en pied de carte, rattachée aux données
+            ..._buildExpirationFooter(provider),
           ],
         ),
       ),
     );
+  }
+
+  /// Pied de carte « Expire le … » — liste vide si aucune date disponible
+  List<Widget> _buildExpirationFooter(TopUpProvider provider) {
+    final row = _buildExpirationInfo(provider);
+    if (row == null) return const [];
+    return [
+      SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+      Divider(height: 1, color: Colors.grey[200]),
+      SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
+      Center(child: row),
+    ];
   }
 
   Widget _buildSummaryItem(
@@ -578,7 +531,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     );
   }
 
-  Widget _buildExpirationInfo(TopUpProvider provider) {
+  Widget? _buildExpirationInfo(TopUpProvider provider) {
     final response = provider.balanceResponse!;
 
     // Chercher les données prépayées (type data)
@@ -594,7 +547,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     }
 
     if (dataBalance == null || dataBalance.expireDateFormatted.isEmpty) {
-      return const SizedBox.shrink();
+      return null;
     }
 
     // Vérifier si la date est expirée
@@ -613,11 +566,6 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     }
 
     return Container(
-      margin: EdgeInsets.only(
-        top: ResponsiveSize.getHeight(AppTheme.spacingS),
-        left: ResponsiveSize.getWidth(AppTheme.spacingM),
-        right: ResponsiveSize.getWidth(AppTheme.spacingM),
-      ),
       padding: EdgeInsets.symmetric(
         horizontal: ResponsiveSize.getWidth(8),
         vertical: ResponsiveSize.getHeight(4),

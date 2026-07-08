@@ -1,5 +1,6 @@
 // lib/screens/statistics/statistics_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../models/activity.dart';
@@ -112,7 +113,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -128,7 +129,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(l10n),
+                GlassAppBar(title: l10n.statsTitle),
                 Expanded(
                   child: _isLoading
                       ? _buildLoadingState()
@@ -146,54 +147,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(AppLocalizations l10n) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: BoxDecoration(
-            color: Colors.transparent, // Handled implicitly via Stack
-          ),
-          child: Row(
-            children: [
-              // Bouton retour
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: AppTheme.dtBlueDark,
-                    size: 20,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Text(
-                l10n.statsTitle,
-                style: AppTheme.headingStyle.copyWith(
-                  fontSize: ResponsiveSize.getFontSize(24),
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildLoadingState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppTheme.dtBlueDark, strokeWidth: 3),
+          const CircularProgressIndicator(color: AppTheme.dtBlueDark, strokeWidth: 3),
           SizedBox(height: ResponsiveSize.getHeight(16)),
           Text(
             AppLocalizations.of(context)!.historyLoading,
@@ -216,7 +176,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.red[50],
                 shape: BoxShape.circle,
@@ -249,7 +209,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ElevatedButton(
               onPressed: _loadStats,
               style: AppTheme.primaryButtonStyle.copyWith(
-                padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 32, vertical: 12)),
+                padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 32, vertical: 12)),
               ),
               child: Text(AppLocalizations.of(context)!.retry),
             ),
@@ -267,7 +227,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
@@ -354,7 +314,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     borderRadius: BorderRadius.circular(20),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected ? AppTheme.dtBlueDark : Colors.white.withValues(alpha: 0.8),
                         borderRadius: BorderRadius.circular(20),
@@ -362,7 +322,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           color: isSelected ? AppTheme.dtBlueDark : Colors.grey[300]!,
                         ),
                         boxShadow: isSelected ? [
-                          BoxShadow(color: AppTheme.dtBlueO30, blurRadius: 8, offset: Offset(0, 4))
+                          const BoxShadow(color: AppTheme.dtBlueO30, blurRadius: 8, offset: Offset(0, 4))
                         ] : [],
                       ),
                       child: Text(
@@ -453,7 +413,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           BoxShadow(
             color: color.withValues(alpha: 0.04), // Lighter colored shadow
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           )
         ],
       ),
@@ -463,7 +423,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(6),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,

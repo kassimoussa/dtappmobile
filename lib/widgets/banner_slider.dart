@@ -19,7 +19,6 @@ class _BannerSliderState extends State<BannerSlider> {
 
   List<PromoBanner> _banners = [];
   bool _isLoading = true;
-  int _currentPage = 0;
   late final PageController _pageController;
   Timer? _autoScrollTimer;
 
@@ -99,8 +98,6 @@ class _BannerSliderState extends State<BannerSlider> {
           child: PageView.builder(
             controller: _pageController,
             itemCount: _maxPages,
-            onPageChanged: (index) =>
-                setState(() => _currentPage = index % _banners.length),
             itemBuilder: (context, index) {
               final banner = _banners[index % _banners.length];
               return GestureDetector(
@@ -120,9 +117,9 @@ class _BannerSliderState extends State<BannerSlider> {
                       height: sliderHeight,
                       placeholder: (context, url) => Container(
                         color: Colors.grey[200],
-                        child: Center(
+                        child: const Center(
                           child: CircularProgressIndicator(
-                            valueColor: const AlwaysStoppedAnimation<Color>(
+                            valueColor: AlwaysStoppedAnimation<Color>(
                               AppTheme.dtBlue,
                             ),
                           ),

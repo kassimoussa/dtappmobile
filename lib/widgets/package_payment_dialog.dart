@@ -25,6 +25,7 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
       builder: (BuildContext context) {
         // Pour simuler un traitement
         Future.delayed(const Duration(seconds: 2), () {
+          if (!context.mounted) return;
           Navigator.pop(context);
 
           // Afficher la confirmation finale
@@ -42,9 +43,9 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 20),
-              CircularProgressIndicator(color: AppTheme.dtYellow, strokeWidth: 6),
+              const CircularProgressIndicator(color: AppTheme.dtYellow, strokeWidth: 6),
               const SizedBox(height: 24),
-              Text(
+              const Text(
                 'Traitement en cours...',
                 style: TextStyle(
                   fontSize: 16,
@@ -108,7 +109,7 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
                         width: double.infinity,
                         padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                         decoration: BoxDecoration(
-                          color: Colors.blue[50],
+                          color: AppTheme.dtBlueO05,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -160,7 +161,7 @@ class _PackagePaymentDialogState extends State<PackagePaymentDialog> {
                         value: 'D-Money',
                         icon: Icons.account_balance_wallet,
                         iconColor: AppTheme.dtBlue,
-                        backgroundColor: Colors.blue[50],
+                        backgroundColor: AppTheme.dtBlueO05,
                         isSmallScreen: isSmallScreen,
                       ),
 

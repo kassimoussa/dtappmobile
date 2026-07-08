@@ -1,5 +1,6 @@
 // lib/screens/forfaits_actifs_screen.dart
 import 'package:dtservices/models/forfait_actif2.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/services/forfait_actif_service.dart';
 import 'package:dtservices/widgets/cards/forfait_actif_card2.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,8 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
       // Vérifier si l'API est en délai d'attente
       final isTimedOut = await ForfaitActifService.isApiTimedOut();
 
+      if (!mounted) return;
+
       // Si on a déjà des données et que l'API est en délai d'attente, on s'arrête
       if (isTimedOut && _forfaitsActifs.isNotEmpty) {
         setState(() {
@@ -51,7 +54,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.serverUnavailable),
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
             backgroundColor: Colors.orange,
           ),
         );
@@ -101,7 +104,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -116,7 +119,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, AppLocalizations.of(context)!.myPackagesTitle),
+                GlassAppBar(title: AppLocalizations.of(context)!.myPackagesTitle, actions: [GlassAppBarAction(icon: Icons.refresh_rounded, onTap: _isLoading ? null : _loadForfaitsActifs)]),
                 Expanded(child: _buildBody()),
               ],
             ),
@@ -126,60 +129,6 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: _isLoading ? null : _loadForfaitsActifs,
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.refresh_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildBody() {
     if (_isLoading && _forfaitsActifs.isEmpty) {
@@ -202,7 +151,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlue),
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
@@ -246,7 +195,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
               label: Text(AppLocalizations.of(context)!.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
-                foregroundColor: AppTheme.dtYellow,
+                foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
                   horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
                   vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
@@ -300,7 +249,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
               label: Text(AppLocalizations.of(context)!.buyAPackage),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
-                foregroundColor: AppTheme.dtYellow,
+                foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
                   horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
                   vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
@@ -474,7 +423,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
                     alpha: 0.2,
                   ), // Fond gris = consommé
                   valueColor: const AlwaysStoppedAnimation<Color>(
-                    Colors.blue,
+                    AppTheme.dtBlue,
                   ), // Bleu = disponible
                   minHeight: ResponsiveSize.getHeight(10),
                 ),
@@ -520,7 +469,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
                   '$forfaitsInternet',
                   'Internet', // Usually same in EN/FR but could be localized if needed, let's keep it simple or use key if exists. 'Internet' is fine. Or AppLocalizations.of(context)!.internetLabel
                   Icons.wifi,
-                  Colors.blue,
+                  AppTheme.dtBlue,
                 ),
                 _buildStatItem(
                   '$forfaitsCombo',

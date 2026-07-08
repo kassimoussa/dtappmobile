@@ -169,7 +169,7 @@ class PackageConfirmationDialog extends StatelessWidget {
                       Container(
                         padding: EdgeInsets.all(isSmallScreen ? 12 : 15),
                         decoration: BoxDecoration(
-                          color: Colors.blue[50],
+                          color: AppTheme.dtBlueO05,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(

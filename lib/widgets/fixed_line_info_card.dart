@@ -1,5 +1,6 @@
 // lib/widgets/fixed_line_info_card.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/constants/app_theme.dart';
 
 class FixedLineInfoCard extends StatelessWidget {
   final String fixedLineNumber;
@@ -13,8 +14,8 @@ class FixedLineInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color djiboutiBlue = const Color(0xFF002555);
-    final Color djiboutiYellow = const Color(0xFFF7C700);
+    final Color djiboutiBlue = AppTheme.dtBlue;
+    final Color djiboutiYellow = AppTheme.dtYellow;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),

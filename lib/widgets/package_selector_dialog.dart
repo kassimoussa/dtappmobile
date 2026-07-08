@@ -1,5 +1,6 @@
 // lib/widgets/package_selector_dialog.dart
 import 'package:dtservices/widgets/package_payment_dialog.dart';
+import 'package:dtservices/constants/app_theme.dart';
 import 'package:flutter/material.dart';
 import '../generated/l10n/app_localizations.dart';
 
@@ -8,7 +9,7 @@ class PackageSelectorDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color djiboutiBlue = const Color(0xFF002555);
+    final Color djiboutiBlue = AppTheme.dtBlue;
     final l10n = AppLocalizations.of(context)!;
 
     return SimpleDialog(
@@ -26,7 +27,7 @@ class PackageSelectorDialog extends StatelessWidget {
             _showBuyPackageDialog(context, 'internet');
           },
           child: ListTile(
-            leading: const Icon(Icons.wifi, color: Color(0xFFF7C700)),
+            leading: const Icon(Icons.wifi, color: AppTheme.dtYellow),
             title: Text(l10n.internetPackage),
             subtitle: Text(l10n.dataForBrowsing),
           ),
@@ -37,7 +38,7 @@ class PackageSelectorDialog extends StatelessWidget {
             _showBuyPackageDialog(context, 'voice');
           },
           child: ListTile(
-            leading: const Icon(Icons.call, color: Color(0xFFF7C700)),
+            leading: const Icon(Icons.call, color: AppTheme.dtYellow),
             title: Text(l10n.voicePackage),
             subtitle: Text(l10n.minutesForCalls),
           ),
@@ -139,8 +140,8 @@ class _PackageDialogState extends State<PackageDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Color djiboutiBlue = const Color(0xFF002555);
-    final Color djiboutiYellow = const Color(0xFFF7C700);
+    final Color djiboutiBlue = AppTheme.dtBlue;
+    final Color djiboutiYellow = AppTheme.dtYellow;
     final l10n = AppLocalizations.of(context)!;
 
     final size = MediaQuery.of(context).size;
@@ -256,7 +257,7 @@ class _PackageDialogState extends State<PackageDialog> {
                                                 vertical: 2,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: Colors.blue[50],
+                                                color: AppTheme.dtBlueO05,
                                                 borderRadius: BorderRadius.circular(10),
                                               ),
                                               child: Text(

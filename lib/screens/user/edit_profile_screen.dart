@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
+import 'package:dtservices/widgets/dt_button.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../services/profile_service.dart';
@@ -120,7 +122,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -135,7 +137,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, l10n.personalInfo),
+                GlassAppBar(title: l10n.personalInfo),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
@@ -149,7 +151,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 decoration: InputDecoration(
                   labelText: l10n.nameLabel,
                   hintText: l10n.nameHint,
-                  prefixIcon: Icon(Icons.person, color: AppTheme.dtBlue),
+                  prefixIcon: const Icon(Icons.person, color: AppTheme.dtBlue),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(
                       ResponsiveSize.getWidth(AppTheme.radiusM),
@@ -185,7 +187,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 decoration: InputDecoration(
                   labelText: l10n.emailLabel,
                   hintText: l10n.emailHint,
-                  prefixIcon: Icon(Icons.email, color: AppTheme.dtBlue),
+                  prefixIcon: const Icon(Icons.email, color: AppTheme.dtBlue),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(
                       ResponsiveSize.getWidth(AppTheme.radiusM),
@@ -206,10 +208,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
                           if (_errorMessage != null) _buildErrorMessage(),
-                          _buildSaveButton(),
                         ],
                       ),
                     ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    ResponsiveSize.getWidth(AppTheme.spacingM),
+                    0,
+                    ResponsiveSize.getWidth(AppTheme.spacingM),
+                    ResponsiveSize.getHeight(AppTheme.spacingL),
+                  ),
+                  child: DtButton.primary(
+                    label: l10n.save,
+                    loading: _isSaving,
+                    onPressed: _saveProfile,
                   ),
                 ),
               ],
@@ -220,47 +234,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildErrorMessage() {
     return Padding(
@@ -295,44 +268,4 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildSaveButton() {
-    return ElevatedButton(
-      onPressed: _isSaving ? null : _saveProfile,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppTheme.dtBlue,
-        foregroundColor: AppTheme.dtYellow,
-        padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(16)),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            ResponsiveSize.getWidth(AppTheme.radiusM),
-          ),
-        ),
-        elevation: _isSaving ? 0 : 2,
-      ),
-      child:
-          _isSaving
-              ? SizedBox(
-                width: ResponsiveSize.getWidth(20),
-                height: ResponsiveSize.getHeight(20),
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtYellow),
-                ),
-              )
-              : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.save, size: ResponsiveSize.getFontSize(18)),
-                  SizedBox(width: ResponsiveSize.getWidth(8)),
-                  Text(
-                    AppLocalizations.of(context)!.saveChanges,
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(16),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-    );
-  }
 }

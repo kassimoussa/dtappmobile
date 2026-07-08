@@ -1,5 +1,6 @@
 // lib/widgets/progress_bar.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/constants/app_theme.dart';
 
 class ProgressBar extends StatelessWidget {
   final String label;
@@ -13,7 +14,7 @@ class ProgressBar extends StatelessWidget {
     required this.label,
     required this.value,
     required this.percentage,
-    this.color = Colors.blue,
+    this.color = AppTheme.dtBlue,
     this.invertProgress = true, 
   });
 

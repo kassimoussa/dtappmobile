@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:local_auth/local_auth.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
@@ -19,6 +20,7 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
   bool _isPinEnabled = true;
   bool _isOtpEnabled = true;
   bool _isLoading = true;
+  String? _phoneNumber;
 
   @override
   void initState() {
@@ -31,12 +33,16 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
     final canCheckBiometrics = await localAuth.canCheckBiometrics;
     final isDeviceSupported = await localAuth.isDeviceSupported();
 
-    final biometricEnabled = await UserSession.isBiometricEnabled();
+    final phoneNumber = await UserSession.getPhoneNumber();
+    final biometricEnabled = phoneNumber == null
+        ? false
+        : await UserSession.isBiometricEnabled(phoneNumber);
     final pinEnabled = await UserSession.isPinEnabled();
     final otpEnabled = await UserSession.isOtpEnabled();
 
     if (mounted) {
       setState(() {
+        _phoneNumber = phoneNumber;
         _isBiometricSupported = canCheckBiometrics && isDeviceSupported;
         _isBiometricEnabled = biometricEnabled;
         _isPinEnabled = pinEnabled;
@@ -47,10 +53,15 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
   }
 
   Future<void> _toggleBiometric(bool value) async {
+    final phoneNumber = _phoneNumber;
+    if (phoneNumber == null) return;
     setState(() {
       _isBiometricEnabled = value;
     });
-    await UserSession.setBiometricEnabled(value);
+    await UserSession.setBiometricEnabled(phoneNumber, value);
+    if (!value) {
+      await UserSession.deleteSecurePin(phoneNumber);
+    }
   }
 
   Future<void> _togglePin(bool value) async {
@@ -82,7 +93,7 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -97,7 +108,7 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, l10n.connectionSettings),
+                GlassAppBar(title: l10n.connectionSettings),
                 Expanded(
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
@@ -142,47 +153,6 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
 
   Widget _buildSwitchOption({
     required String title,

@@ -10,7 +10,6 @@ import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../services/user_session.dart';
-import '../../services/balance_service.dart';
 import '../../generated/l10n/app_localizations.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -31,7 +30,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
   // Données utilisateur pour navigation
   String _phoneNumber = '';
-  double _soldeActuel = 0.0;
 
   @override
   void initState() {
@@ -60,14 +58,10 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<void> _loadUserData() async {
     try {
       final phoneNumber = await UserSession.getPhoneNumber();
-      final balanceData = await BalanceService.getCurrentBalance();
 
       if (mounted) {
         setState(() {
           _phoneNumber = phoneNumber ?? '';
-          _soldeActuel = balanceData['solde'] != null
-              ? double.parse(balanceData['solde']) / 100
-              : 0.0;
           _isLoading = false;
         });
       }
@@ -225,7 +219,7 @@ class _SearchScreenState extends State<SearchScreen> {
     Navigator.push(
       context,
       CustomRouteTransitions.slideRightRoute(
-        page: ForfaitsActifsScreen(),
+        page: const ForfaitsActifsScreen(),
       ),
     );
   }
@@ -328,7 +322,7 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppTheme.dtBlue),
+          const CircularProgressIndicator(color: AppTheme.dtBlue),
           SizedBox(height: ResponsiveSize.getHeight(16)),
           Text(
             l10n.loading,

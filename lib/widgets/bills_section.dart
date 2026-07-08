@@ -1,5 +1,6 @@
 // lib/widgets/bills_section.dart
 import 'package:dtservices/widgets/bill_payment_dialog.dart';
+import 'package:dtservices/constants/app_theme.dart';
 import 'package:flutter/material.dart'; 
 
 class BillsSection extends StatelessWidget {
@@ -7,8 +8,8 @@ class BillsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color djiboutiBlue = const Color(0xFF002555);
-    final Color djiboutiYellow = const Color(0xFFF7C700);
+    final Color djiboutiBlue = AppTheme.dtBlue;
+    final Color djiboutiYellow = AppTheme.dtYellow;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

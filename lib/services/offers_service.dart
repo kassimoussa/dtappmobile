@@ -23,7 +23,9 @@ class OffersService {
   }) async {
     if (!forceRefresh && _isCacheValid) return _cache!;
 
-    final response = await http.get(Uri.parse(_url));
+    final response = await http
+        .get(Uri.parse(_url))
+        .timeout(const Duration(seconds: 30));
     if (response.statusCode != 200) {
       throw Exception('Erreur réseau: HTTP ${response.statusCode}');
     }

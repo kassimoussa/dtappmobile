@@ -363,7 +363,7 @@ ${error.userFriendlyMessage}
                     label: const Text('Test Manuel'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.dtBlue,
-                      foregroundColor: AppTheme.dtYellow,
+                      foregroundColor: Colors.white,
                     ),
                   ),
                 ),
@@ -398,7 +398,7 @@ ${error.userFriendlyMessage}
         child: Center(
           child: Column(
             children: [
-              CircularProgressIndicator(
+              const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlue),
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),

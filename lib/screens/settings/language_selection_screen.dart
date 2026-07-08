@@ -1,5 +1,7 @@
 // lib/screens/settings/language_selection_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
+import 'package:dtservices/widgets/dt_button.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
 import '../../providers/language_provider.dart';
@@ -50,7 +52,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -65,7 +67,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, l10n.changeLanguage, l10n.save),
+                GlassAppBar(title: l10n.changeLanguage),
                 Padding(
                   padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
                   child: Container(
@@ -114,6 +116,19 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                     ),
                   ),
                 ),
+                const Spacer(),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    ResponsiveSize.getWidth(AppTheme.spacingM),
+                    0,
+                    ResponsiveSize.getWidth(AppTheme.spacingM),
+                    ResponsiveSize.getHeight(AppTheme.spacingL),
+                  ),
+                  child: DtButton.primary(
+                    label: l10n.save,
+                    onPressed: _onSave,
+                  ),
+                ),
               ],
             ),
           ),
@@ -122,66 +137,6 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title, String saveLabel) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: _onSave,
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.dtBlueDark,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Text(
-                    saveLabel,
-                    style: TextStyle(
-                      color: AppTheme.dtYellow,
-                      fontSize: ResponsiveSize.getFontSize(14),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildLanguageOption({
     required String title,

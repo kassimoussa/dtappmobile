@@ -9,7 +9,7 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get appTitle => 'DTServices';
+  String get appTitle => 'DJIBTEL';
 
   @override
   String get home => 'Accueil';
@@ -263,7 +263,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get recipientRequired => 'Veuillez entrer un numéro de destinataire';
 
   @override
-  String get confirmTransfer => 'Confirmer le transfert';
+  String get confirmTransfer => 'Confirmer';
 
   @override
   String get transferConfirmationTitle => 'Confirmation de transfert';
@@ -600,6 +600,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get retry => 'Réessayer';
+
+  @override
+  String get balanceInquiryTitle => 'Consultation des soldes';
 
   @override
   String get noActivePackages => 'Vous n\'avez aucun forfait actif';
@@ -995,7 +998,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pinError => 'Le code PIN doit contenir 4 chiffres';
 
   @override
-  String get performRecharge => 'Effectuer la recharge';
+  String get performRecharge => 'Recharger';
 
   @override
   String get rechargeError => 'Erreur lors de la recharge';
@@ -1387,7 +1390,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loginWithSms => 'Se connecter avec SMS';
 
   @override
-  String get otherConnectionMethod => 'Autre méthode de connexion';
+  String get otherConnectionMethod => 'Autre méthode';
 
   @override
   String get forgotPin => 'PIN oublié ?';
@@ -1461,7 +1464,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le code OTP a expiré. Vous devez obtenir un nouveau code pour réinitialiser votre PIN.';
 
   @override
-  String get getNewCode => 'Obtenir un nouveau code';
+  String get getNewCode => 'Nouveau code';
 
   @override
   String get resetPinTitle => 'Réinitialiser le PIN';
@@ -1723,7 +1726,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get buySubscriptionBtn => 'Acheter une\nsouscription';
+  String get buySubscriptionBtn => 'Souscrire';
 
   @override
   String get buyPackagesBtn => 'Acheter\npackages';
@@ -1904,7 +1907,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Lisez et faites défiler jusqu\'en bas pour accepter.';
 
   @override
-  String get privacyPolicyAcceptBtn => 'Accepter et continuer';
+  String get privacyPolicyAcceptBtn => 'Accepter';
 
   @override
   String get privacyPolicyDeclineBtn => 'Refuser';

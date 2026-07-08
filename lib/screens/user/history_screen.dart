@@ -1,5 +1,6 @@
 // lib/screens/user/history_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
@@ -114,7 +115,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [AppTheme.dtBlueO08, Colors.transparent],
@@ -127,7 +128,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(l10n),
+                GlassAppBar(title: l10n.historyTitle, showBack: false, actions: [GlassAppBarAction(icon: Icons.bar_chart_rounded, label: 'Stats', onTap: () => Navigator.push(context, CustomRouteTransitions.slideRightRoute(page: const StatisticsScreen())))]),
                 _buildFiltersSection(transactionProvider, l10n),
                 Expanded(child: _buildBodyContent(transactionProvider)),
               ],
@@ -138,65 +139,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(AppLocalizations l10n) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
-        vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
-      ),
-      decoration: BoxDecoration(
-        color: Colors.transparent, // Background handles color
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            l10n.historyTitle,
-            style: AppTheme.headingStyle.copyWith(
-              fontSize: ResponsiveSize.getFontSize(24),
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          InkWell(
-            onTap:
-                () => Navigator.push(
-                  context,
-                  CustomRouteTransitions.slideRightRoute(
-                    page: const StatisticsScreen(),
-                  ),
-                ),
-            borderRadius: BorderRadius.circular(14),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppTheme.white50,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.bar_chart_rounded,
-                    color: AppTheme.dtBlueDark,
-                    size: 20,
-                  ),
-                  SizedBox(width: 6),
-                  Text(
-                    "Stats",
-                    style: AppTheme.bodyStyle.copyWith(
-                      color: AppTheme.dtBlueDark,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildFiltersSection(TransactionProvider provider, AppLocalizations l10n) {
     return Container(
@@ -220,7 +162,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     borderRadius: BorderRadius.circular(20),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
                       ),
@@ -239,7 +181,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         boxShadow:
                             isSelected
                                 ? [
-                                  BoxShadow(
+                                  const BoxShadow(
                                     color: AppTheme.dtBlueO30,
                                     blurRadius: 8,
                                     offset: Offset(0, 4),
@@ -283,7 +225,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppTheme.dtBlueDark, strokeWidth: 3),
+          const CircularProgressIndicator(color: AppTheme.dtBlueDark, strokeWidth: 3),
           SizedBox(height: ResponsiveSize.getHeight(16)),
           Text(
             l10n.historyLoading,
@@ -307,7 +249,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.red[50],
                 shape: BoxShape.circle,
@@ -341,7 +283,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               onPressed: () => provider.refresh(),
               style: AppTheme.primaryButtonStyle.copyWith(
                 padding: WidgetStateProperty.all(
-                  EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 ),
               ),
               child: Text(l10n.retry),
@@ -361,7 +303,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
@@ -481,7 +423,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       child: SizedBox(
         width: ResponsiveSize.getWidth(24),
         height: ResponsiveSize.getHeight(24),
-        child: CircularProgressIndicator(
+        child: const CircularProgressIndicator(
           strokeWidth: 2,
           valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlueDark),
         ),
@@ -570,9 +512,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                         ),
                         if (activity.status.toLowerCase() != 'success') ...[
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 6,
                               vertical: 2,
                             ),

@@ -24,7 +24,7 @@ class MyLineScreen extends StatefulWidget {
 class _MyLineScreenState extends State<MyLineScreen> {
   final int _currentNavIndex = 2;
   // Couleurs de Djibouti Telecom
-  final Color djiboutiYellow = const Color(0xFFF7C700);
+  final Color djiboutiYellow = AppTheme.dtYellow;
 
   String? _fixedLineNumber;
   bool _isFixedLineEntered = false;
@@ -145,7 +145,7 @@ class _MyLineScreenState extends State<MyLineScreen> {
               _showAllSections
                   ? l10n.toggleHideDetails
                   : l10n.toggleShowDetails,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppTheme.dtBlue,
                 fontWeight: FontWeight.w500,
               ),
@@ -180,7 +180,7 @@ class _MyLineScreenState extends State<MyLineScreen> {
             MaterialPageRoute(
               builder:
                   (context) =>
-                      HomeScreen(/* phoneNumber: widget.phoneNumber */),
+                      const HomeScreen(/* phoneNumber: widget.phoneNumber */),
             ),
           );
         } else if (index == 1) {

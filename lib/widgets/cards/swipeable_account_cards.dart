@@ -18,7 +18,7 @@ class AccountCardData {
     required this.label,
     required this.balance,
     required this.suffix,
-    this.cardColor = const Color(0xFF002464),
+    this.cardColor = AppTheme.dtBlue,
     this.accentColor,
   });
 }

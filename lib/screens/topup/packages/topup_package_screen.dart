@@ -1,5 +1,6 @@
 // lib/screens/topup/topup_package_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
@@ -41,7 +42,7 @@ class _TopUpPackageScreenState extends State<TopUpPackageScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -56,7 +57,7 @@ class _TopUpPackageScreenState extends State<TopUpPackageScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, l10n.buyPackagesTitle),
+                GlassAppBar(title: l10n.buyPackagesTitle, actions: [GlassAppBarAction(icon: Icons.close, onTap: () => Navigator.of(context).popUntil((route) => route.isFirst))]),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
@@ -137,75 +138,6 @@ class _TopUpPackageScreenState extends State<TopUpPackageScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: AppTheme.dtBlueDark,
-                    size: 20,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              InkWell(
-                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(12),
-                    vertical: ResponsiveSize.getHeight(8),
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.cancel,
-                    style: TextStyle(
-                      color: AppTheme.dtBlueDark,
-                      fontSize: ResponsiveSize.getFontSize(13),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildOptionCard(
     BuildContext context,
@@ -274,7 +206,7 @@ class _TopUpPackageScreenState extends State<TopUpPackageScreen> {
         ),
         title: Row(
           children: [
-            Icon(Icons.data_usage, color: AppTheme.dtBlue, size: 24),
+            const Icon(Icons.data_usage, color: AppTheme.dtBlue, size: 24),
             SizedBox(width: ResponsiveSize.getWidth(8)),
             Text(
               l10n.unlimitedDataTitle,
@@ -307,40 +239,4 @@ class _TopUpPackageScreenState extends State<TopUpPackageScreen> {
     );
   }
 
-  void _showComingSoonDialog(String packageType) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          packageType,
-          style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(18),
-            fontWeight: FontWeight.bold,
-            color: AppTheme.dtBlue,
-          ),
-        ),
-        content: Text(
-          'Cette fonctionnalité sera bientôt disponible.',
-          style: TextStyle(fontSize: ResponsiveSize.getFontSize(16)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'OK',
-              style: TextStyle(
-                color: AppTheme.dtBlue,
-                fontSize: ResponsiveSize.getFontSize(16),
-              ),
-            ),
-          ),
-        ],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            ResponsiveSize.getWidth(AppTheme.radiusM),
-          ),
-        ),
-      ),
-    );
-  }
 }

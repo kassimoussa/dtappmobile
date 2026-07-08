@@ -334,7 +334,7 @@ ${isAvailable ? 'L\'API répond correctement' : 'L\'API ne répond pas ou est en
                     label: const Text('Test Soldes'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.dtBlue,
-                      foregroundColor: AppTheme.dtYellow,
+                      foregroundColor: Colors.white,
                     ),
                   ),
                 ),
@@ -383,7 +383,7 @@ ${isAvailable ? 'L\'API répond correctement' : 'L\'API ne répond pas ou est en
           child: Center(
             child: Column(
               children: [
-                CircularProgressIndicator(
+                const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlue),
                 ),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),

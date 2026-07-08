@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:provider/provider.dart';
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
@@ -67,7 +68,7 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -82,7 +83,7 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, AppLocalizations.of(context)!.changePinTitle),
+                GlassAppBar(title: AppLocalizations.of(context)!.changePinTitle),
                 Expanded(
                   child: CustomScrollView(
                     slivers: [
@@ -161,47 +162,6 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
 
   void _handleNumberPressed(String number) {
     String currentPin = _getCurrentPin();
@@ -362,7 +322,8 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
       // Mettre à jour le PIN stocké de manière sécurisée si biométrie activée
       final phoneNumber = authProvider.phoneNumber;
       if (phoneNumber != null) {
-        final isBiometricEnabled = await UserSession.isBiometricEnabled();
+        final isBiometricEnabled =
+            await UserSession.isBiometricEnabled(phoneNumber);
         if (isBiometricEnabled) {
           await UserSession.saveSecurePin(phoneNumber, _newPin);
           debugPrint('✅ Nouveau PIN sauvegardé pour authentification biométrique');

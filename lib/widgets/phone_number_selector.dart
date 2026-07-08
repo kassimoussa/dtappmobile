@@ -265,7 +265,7 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
                   radius: 20,
                   child: Text(
                     name.isNotEmpty ? name[0].toUpperCase() : '?',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppTheme.dtBlue2,
                     ),
@@ -281,7 +281,7 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
               ? Text('${widget.countryCode} $phoneNumber')
               : Text(l10n.noNumber),
           trailing: phoneNumber.isNotEmpty
-              ? Icon(
+              ? const Icon(
                   Icons.phone,
                   color: AppTheme.dtBlue2,
                   size: 20,

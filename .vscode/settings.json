@@ -1,5 +1,22 @@
 {
-    "cmake.sourceDirectory": "/Users/kassim/Desktop/dev/dtapp/linux",
+    "cmake.configureOnOpen": false,
+    "cmake.sourceDirectory": "/Users/kassim/Documents/flutter-dev/dtappmobile/linux",
     "java.configuration.updateBuildConfiguration": "interactive",
-    "java.jdt.ls.java.home": "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
+    "java.jdt.ls.java.home": "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home",
+    "files.readonlyInclude": {
+        "**/build/**": true,
+        "**/.dart_tool/**": true,
+        "**/Pods/**": true
+    },
+    "files.watcherExclude": {
+        "**/build/**": true,
+        "**/.dart_tool/**": true,
+        "**/Pods/**": true
+    },
+    "search.exclude": {
+        "**/build/**": true,
+        "**/.dart_tool/**": true,
+        "**/Pods/**": true
+    },
+    
 }

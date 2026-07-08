@@ -280,7 +280,7 @@ class ActivityDetailSheet extends StatelessWidget {
                         ),
                         SizedBox(height: ResponsiveSize.getHeight(6)),
                         Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 3,
                           ),

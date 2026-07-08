@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'DTServices';
+  String get appTitle => 'DJIBTEL';
 
   @override
   String get home => 'Home';
@@ -260,7 +260,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recipientRequired => 'Please enter a recipient number';
 
   @override
-  String get confirmTransfer => 'Confirm Transfer';
+  String get confirmTransfer => 'Confirm';
 
   @override
   String get transferConfirmationTitle => 'Transfer Confirmation';
@@ -593,6 +593,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Retry';
+
+  @override
+  String get balanceInquiryTitle => 'Balance inquiry';
 
   @override
   String get noActivePackages => 'No active packages';
@@ -984,7 +987,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pinError => 'PIN code must contain 4 digits';
 
   @override
-  String get performRecharge => 'Refill Account';
+  String get performRecharge => 'Recharge';
 
   @override
   String get rechargeError => 'Error during refill';
@@ -1374,7 +1377,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginWithSms => 'Log in with SMS';
 
   @override
-  String get otherConnectionMethod => 'Other connection method';
+  String get otherConnectionMethod => 'Other method';
 
   @override
   String get forgotPin => 'Forgot PIN?';
@@ -1446,7 +1449,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The OTP code has expired. You must get a new code to reset your PIN.';
 
   @override
-  String get getNewCode => 'Get a new code';
+  String get getNewCode => 'New code';
 
   @override
   String get resetPinTitle => 'Reset PIN';
@@ -1699,7 +1702,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get buySubscriptionBtn => 'Buy a\nsubscription';
+  String get buySubscriptionBtn => 'Subscribe';
 
   @override
   String get buyPackagesBtn => 'Buy\npackages';
@@ -1871,7 +1874,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Read and scroll to the bottom to accept.';
 
   @override
-  String get privacyPolicyAcceptBtn => 'Accept and continue';
+  String get privacyPolicyAcceptBtn => 'Accept';
 
   @override
   String get privacyPolicyDeclineBtn => 'Decline';

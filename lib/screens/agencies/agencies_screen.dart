@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -64,7 +65,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -79,7 +80,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, l10n.agenciesTitle),
+                GlassAppBar(title: l10n.agenciesTitle, actions: [GlassAppBarAction(icon: _showMap ? Icons.list : Icons.map, onTap: () => setState(() => _showMap = !_showMap))]),
                 Expanded(child: _buildBody()),
               ],
             ),
@@ -89,64 +90,6 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () => setState(() => _showMap = !_showMap),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(
-                    _showMap ? Icons.list : Icons.map,
-                    color: AppTheme.dtBlueDark,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildBody() {
     final l10n = AppLocalizations.of(context)!;
@@ -155,7 +98,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlue),
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
@@ -249,7 +192,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
             onPositionChanged: (position, hasGesture) {
               if (hasGesture) {
                 setState(() {
-                  _currentZoom = position.zoom ?? _currentZoom;
+                  _currentZoom = position.zoom;
                 });
               }
             },
@@ -274,7 +217,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                           height: 40,
                           child: GestureDetector(
                             onTap: () => _showAgencyDetails(agency),
-                            child: Icon(
+                            child: const Icon(
                               Icons.location_on,
                               color: AppTheme.dtBlue,
                               size: 40,
@@ -304,7 +247,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                     _currentZoom,
                   );
                 },
-                child: Icon(Icons.add, color: AppTheme.dtBlue),
+                child: const Icon(Icons.add, color: AppTheme.dtBlue),
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
               FloatingActionButton(
@@ -320,7 +263,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                     _currentZoom,
                   );
                 },
-                child: Icon(Icons.remove, color: AppTheme.dtBlue),
+                child: const Icon(Icons.remove, color: AppTheme.dtBlue),
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
               FloatingActionButton(
@@ -333,7 +276,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                   });
                   _mapController.move(djiboutiCenter, _currentZoom);
                 },
-                child: Icon(Icons.my_location, color: AppTheme.dtBlue),
+                child: const Icon(Icons.my_location, color: AppTheme.dtBlue),
               ),
             ],
           ),

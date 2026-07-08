@@ -71,7 +71,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
               color: AppTheme.dtBlue.withValues(alpha: 0.08),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline_rounded,
+                  const Icon(Icons.info_outline_rounded,
                       size: 16, color: AppTheme.dtBlue),
                   const SizedBox(width: 8),
                   Expanded(
@@ -309,11 +309,11 @@ class _PolicyContentFr extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _header('Politique de confidentialité', 'DTServices — Djibouti Telecom'),
+      _header('Politique de confidentialité', 'DJIBTEL — Djibouti Telecom'),
       _meta(lastUpdated),
       const SizedBox(height: 20),
       _section('1. Introduction'),
-      _body('Djibouti Telecom (« nous », « notre ») s\'engage à protéger la vie privée des utilisateurs de l\'application mobile DTServices. La présente Politique décrit les données que nous collectons, leur utilisation et vos droits.'),
+      _body('Djibouti Telecom (« nous », « notre ») s\'engage à protéger la vie privée des utilisateurs de l\'application mobile DJIBTEL. La présente Politique décrit les données que nous collectons, leur utilisation et vos droits.'),
       _section('2. Données collectées'),
       _bullet('Numéro de téléphone — pour l\'authentification par OTP.'),
       _bullet('Solde et historique de transactions — affichés dans l\'app, non stockés de façon permanente.'),
@@ -356,11 +356,11 @@ class _PolicyContentEn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _header('Privacy Policy', 'DTServices — Djibouti Telecom'),
+      _header('Privacy Policy', 'DJIBTEL — Djibouti Telecom'),
       _meta(lastUpdated),
       const SizedBox(height: 20),
       _section('1. Introduction'),
-      _body('Djibouti Telecom ("we", "our") is committed to protecting the privacy of DTServices mobile application users. This Policy describes the data we collect, how we use it, and your rights.'),
+      _body('Djibouti Telecom ("we", "our") is committed to protecting the privacy of DJIBTEL mobile application users. This Policy describes the data we collect, how we use it, and your rights.'),
       _section('2. Data Collected'),
       _bullet('Phone number — used for OTP authentication.'),
       _bullet('Balance and transaction history — displayed in the app, not permanently stored.'),

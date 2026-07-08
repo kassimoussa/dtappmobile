@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
+import '../../widgets/dt_button.dart';
 import '../../services/user_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../routes/custom_route_transitions.dart';
@@ -177,13 +178,14 @@ class _LoginScreenState extends State<LoginScreen>
                                   ],
                                 ),
                                 child: Image.asset(
-                                  'assets/djibtelogo.png',
+                                  'assets/logos/dtlogo-img-wbg.png',
+                                  cacheWidth: 240,
                                   fit: BoxFit.contain,
                                 ),
                               ),
                               SizedBox(height: ResponsiveSize.getHeight(14)),
                               Text(
-                                'DTServices',
+                                'DJIBTEL',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: ResponsiveSize.getFontSize(20),
@@ -435,70 +437,10 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
                 SizedBox(height: ResponsiveSize.getHeight(16)),
                 // Bouton Continuer
-                SizedBox(
-                  width: double.infinity,
-                  height: ResponsiveSize.getHeight(56),
-                  child: ElevatedButton(
-                    onPressed: authProvider.isLoading || !_privacyAccepted
-                        ? null
-                        : _handleLogin,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(ResponsiveSize.getWidth(14)),
-                      ),
-                    ),
-                    child: Ink(
-                      decoration: BoxDecoration(
-                        gradient: authProvider.isLoading || !_privacyAccepted
-                            ? null
-                            : LinearGradient(
-                                colors: [AppTheme.dtBlue, AppTheme.dtBlue2],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                        color: authProvider.isLoading || !_privacyAccepted
-                            ? Colors.grey[300]
-                            : null,
-                        borderRadius: BorderRadius.circular(
-                            ResponsiveSize.getWidth(14)),
-                        boxShadow: authProvider.isLoading || !_privacyAccepted
-                            ? []
-                            : [
-                                BoxShadow(
-                                  color: AppTheme.dtBlue.withValues(alpha: 0.35),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 6),
-                                ),
-                              ],
-                      ),
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: authProvider.isLoading
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white),
-                                ),
-                              )
-                            : Text(
-                                l10n.continueAction,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: ResponsiveSize.getFontSize(17),
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ),
+                DtButton.primary(
+                  label: l10n.continueAction,
+                  loading: authProvider.isLoading,
+                  onPressed: _privacyAccepted ? _handleLogin : null,
                 ),
                 SizedBox(height: ResponsiveSize.getHeight(16)),
                 /* Text(

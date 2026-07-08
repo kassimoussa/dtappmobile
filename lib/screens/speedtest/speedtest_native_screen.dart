@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../constants/app_theme.dart';
@@ -18,16 +19,12 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
   double _downloadRate = 0.0;
   double _uploadRate = 0.0;
   double _ping = 0.0;
-  String _downloadProgress = '0';
-  String _uploadProgress = '0';
   bool _isTesting = false;
-  bool _testDone = false;
   final String _unitText = 'Mbps';
   TestingPhase _currentPhase = TestingPhase.idle;
   String? _errorMessage;
 
   late AnimationController _animationController;
-  late Animation<double> _animation;
 
   @override
   void initState() {
@@ -35,10 +32,6 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
     );
   }
 
@@ -51,13 +44,10 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
   Future<void> _startTest() async {
     setState(() {
       _isTesting = true;
-      _testDone = false;
       _errorMessage = null;
       _downloadRate = 0.0;
       _uploadRate = 0.0;
       _ping = 0.0;
-      _downloadProgress = '0';
-      _uploadProgress = '0';
       _currentPhase = TestingPhase.ping;
     });
 
@@ -81,13 +71,11 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
 
       setState(() {
         _isTesting = false;
-        _testDone = true;
         _currentPhase = TestingPhase.done;
       });
     } catch (e) {
       setState(() {
         _isTesting = false;
-        _testDone = false;
         _errorMessage = AppLocalizations.of(
           context,
         )!.speedTestError(e.toString());
@@ -118,7 +106,6 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
         onProgress: (progress, currentSpeed) {
           if (mounted) {
             setState(() {
-              _downloadProgress = progress.toStringAsFixed(1);
               _downloadRate = currentSpeed;
             });
           }
@@ -128,7 +115,6 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
       if (mounted) {
         setState(() {
           _downloadRate = result.speedMbps;
-          _downloadProgress = '100';
         });
       }
     } catch (e) {
@@ -143,7 +129,6 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
         onProgress: (progress, currentSpeed) {
           if (mounted) {
             setState(() {
-              _uploadProgress = progress.toStringAsFixed(1);
               _uploadRate = currentSpeed;
             });
           }
@@ -153,7 +138,6 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
       if (mounted) {
         setState(() {
           _uploadRate = result.speedMbps;
-          _uploadProgress = '100';
         });
       }
     } catch (e) {
@@ -176,7 +160,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -191,7 +175,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, AppLocalizations.of(context)!.speedTestTitle),
+                GlassAppBar(title: AppLocalizations.of(context)!.speedTestTitle),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
@@ -253,47 +237,6 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildSpeedGauge() {
     double currentSpeed =
@@ -443,7 +386,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
                 color: AppTheme.textPrimary,
               ),
             ),
-            SizedBox(width: 3),
+            const SizedBox(width: 3),
             Text(
               unit,
               style: TextStyle(
@@ -559,11 +502,11 @@ class SpeedGaugePainter extends CustomPainter {
     if (isActive && angle > 0) {
       final progressPaint =
           Paint()
-            ..shader = LinearGradient(
+            ..shader = const LinearGradient(
               colors: [
-                const Color(0xFF00C853), // Vert
+                Color(0xFF00C853), // Vert
                 AppTheme.dtYellow, // Jaune DT
-                const Color(0xFFFF6F00), // Orange
+                Color(0xFFFF6F00), // Orange
               ],
               stops: [0.0, 0.5, 1.0],
             ).createShader(Rect.fromCircle(center: center, radius: radius))

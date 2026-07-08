@@ -17,7 +17,7 @@ class PopupService {
       final response = await http.get(
         Uri.parse('$baseUrl/popup'),
         headers: {'Content-Type': 'application/json'},
-      );
+      ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = json.decode(response.body);

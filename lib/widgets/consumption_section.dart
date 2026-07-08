@@ -1,5 +1,6 @@
 // lib/widgets/consumption_section.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/constants/app_theme.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 // import 'package:dtservices/screens/history_page.dart';
 
@@ -8,7 +9,7 @@ class ConsumptionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color djiboutiBlue = const Color(0xFF002555);
+    final Color djiboutiBlue = AppTheme.dtBlue;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,7 +32,7 @@ class ConsumptionSection extends StatelessWidget {
   }
 
   Widget _buildConsumptionCard(BuildContext context, Color djiboutiBlue) {
-    final Color djiboutiYellow = const Color(0xFFF7C700);
+    final Color djiboutiYellow = AppTheme.dtYellow;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),

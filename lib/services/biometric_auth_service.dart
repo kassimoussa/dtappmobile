@@ -58,7 +58,6 @@ class BiometricAuthService {
     try {
       // Vérification défensive des capacités de l'appareil
       bool isDeviceSupported = false;
-      bool canCheckBiometrics = false;
       
       try {
         isDeviceSupported = await _localAuth.isDeviceSupported();
@@ -73,13 +72,6 @@ class BiometricAuthService {
           errorMessage: 'L\'authentification n\'est pas supportée sur cet appareil',
           errorType: BiometricAuthErrorType.notAvailable,
         );
-      }
-
-      try {
-        canCheckBiometrics = await _localAuth.canCheckBiometrics;
-      } on PlatformException catch (e) {
-        debugPrint('Erreur vérification biométrie: ${e.code} - ${e.message}');
-        canCheckBiometrics = true; // Assume disponible si erreur de communication
       }
 
       // Authentifier avec toutes les méthodes disponibles (biométrie + PIN/schéma)

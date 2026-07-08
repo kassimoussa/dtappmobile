@@ -223,7 +223,7 @@ class RefillService {
       final response = await http.get(
         Uri.parse('${AppConfig.baseUrl}/air/refill/types'),
         headers: {'Accept': 'application/json'},
-      ).timeout(Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 10));
       
       print('Status: ${response.statusCode}');
       print('Body: ${response.body}');

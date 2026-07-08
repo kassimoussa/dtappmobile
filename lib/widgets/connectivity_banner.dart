@@ -82,13 +82,13 @@ class _ConnectivityBannerState extends State<ConnectivityBanner>
                     color: Colors.red.shade700,
                     padding: const EdgeInsets.symmetric(
                         vertical: 8, horizontal: 16),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.wifi_off_rounded,
+                        Icon(Icons.wifi_off_rounded,
                             color: Colors.white, size: 16),
-                        const SizedBox(width: 8),
-                        const Text(
+                        SizedBox(width: 8),
+                        Text(
                           'Pas de connexion',
                           style: TextStyle(
                             fontFamily: 'Inter',

@@ -55,7 +55,7 @@ class MobileStatusService {
         body: jsonEncode({
           'msisdn': cleanPhoneNumber,
         }),
-      );
+      ).timeout(const Duration(seconds: 30));
 
       debugPrint('MobileStatusService: Response ${response.statusCode} - ${response.body}');
 

@@ -1,5 +1,7 @@
 // lib/screens/forfait_recipient_screen.dart
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/widgets/dt_button.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
 import 'package:dtservices/screens/achat_forfait/forfait_categories_screen.dart';
 import 'package:dtservices/utils/responsive_size.dart';
@@ -104,7 +106,7 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -119,7 +121,7 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, AppLocalizations.of(context)!.buyPackageTitle),
+                GlassAppBar(title: AppLocalizations.of(context)!.buyPackageTitle),
                 Expanded(
                   child: SingleChildScrollView(
                     child: ConstrainedBox(
@@ -358,61 +360,11 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
                                     ),
 
                                     // Bouton de continuation
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton(
-                                        onPressed:
-                                            _phoneController.text.isNotEmpty
-                                                ? _validateAndContinue
-                                                : null,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppTheme.dtBlue2,
-                                          foregroundColor: Colors.white,
-                                          disabledBackgroundColor:
-                                              Colors.grey[300],
-                                          disabledForegroundColor:
-                                              Colors.grey[600],
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: ResponsiveSize.getHeight(
-                                              16,
-                                            ),
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              ResponsiveSize.getWidth(12),
-                                            ),
-                                          ),
-                                          elevation: 0,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.continueAction,
-                                              style: TextStyle(
-                                                fontSize:
-                                                    ResponsiveSize.getFontSize(
-                                                      16,
-                                                    ),
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: ResponsiveSize.getWidth(8),
-                                            ),
-                                            Icon(
-                                              Icons.arrow_forward,
-                                              size: ResponsiveSize.getFontSize(
-                                                18,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                    DtButton.primary(
+                                                  label: AppLocalizations.of(context)!.continueAction,
+                                                  icon: Icons.arrow_forward,
+                                                  onPressed: _phoneController.text.isNotEmpty ? _validateAndContinue : null,
+                                                ),
 
                                     // Espace pour le safe area
                                     SizedBox(
@@ -486,7 +438,7 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
                   right: 0,
                   child: Container(
                     padding: EdgeInsets.all(ResponsiveSize.getWidth(4)),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppTheme.dtBlue2,
                     ),
@@ -523,45 +475,4 @@ class _ForfaitRecipientScreenState extends State<ForfaitRecipientScreen>
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 }

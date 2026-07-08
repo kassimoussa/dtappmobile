@@ -1,5 +1,6 @@
 // lib/screens/achat_forfait/forfait_success_screen.dart
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/models/forfait.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
@@ -115,7 +116,7 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
               right: -100,
               child: Container(
                 height: 350,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
@@ -130,7 +131,7 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
             SafeArea(
               child: Column(
                 children: [
-                  _buildGlassAppBar(context, l10n.purchaseSuccessTitle),
+                  GlassAppBar(title: l10n.purchaseSuccessTitle, showBack: false),
                   Expanded(
                     child: AnimatedBuilder(
                       animation: _animationController,
@@ -277,7 +278,7 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(Icons.timer_outlined, size: 16, color: AppTheme.dtBlueDark.withOpacityValue(0.6)),
-                                          SizedBox(width: 8),
+                                          const SizedBox(width: 8),
                                           Text(
                                             l10n.autoRedirect(_remainingSeconds),
                                             style: TextStyle(
@@ -307,34 +308,6 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(

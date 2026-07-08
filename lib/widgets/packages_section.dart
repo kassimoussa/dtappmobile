@@ -1,5 +1,6 @@
 // lib/widgets/packages_section.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/constants/app_theme.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:dtservices/widgets/package_selector_dialog.dart';
 
@@ -8,8 +9,8 @@ class PackagesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color djiboutiBlue = const Color(0xFF002555);
-    final Color djiboutiYellow = const Color(0xFFF7C700);
+    final Color djiboutiBlue = AppTheme.dtBlue;
+    final Color djiboutiYellow = AppTheme.dtYellow;
 
     void showPackageOptionsDialog() {
       showDialog(

@@ -19,6 +19,8 @@ import 'providers/auth_provider.dart';
 import 'providers/topup_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'providers/language_provider.dart';
+import 'services/user_session.dart';
+import 'package:dtservices/constants/app_theme.dart';
 
 // Contourne la vérification SSL (chaîne intermédiaire manquante côté serveur).
 class _TrustAllCerts extends HttpOverrides {
@@ -27,11 +29,15 @@ class _TrustAllCerts extends HttpOverrides {
     return super.createHttpClient(context)
       ..badCertificateCallback = (cert, host, port) => true;
   }
-}
+} 
 
 Future<void> main() async {
   HttpOverrides.global = _TrustAllCerts();
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Corrige une faille de sécurité : purge le flag biométrique global
+  // hérité et les PIN mis en cache par erreur (voir user_session.dart)
+  await UserSession.migrateLegacyBiometricScope();
 
   // Brancher le navigatorKey partagé pour l'intercepteur 401
   ApiClient.navigatorKey = NotificationService.navigatorKey;
@@ -148,16 +154,21 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     final languageProvider = context.watch<LanguageProvider>();
 
     return ConnectivityBanner(child: MaterialApp(
-      title: 'DTServices',
+      title: 'DJIBTEL',
       debugShowCheckedModeBanner: false,
       navigatorKey: NotificationService.navigatorKey,
       routes: {
         '/login': (_) => const LoginScreen(),
       },
       theme: ThemeData(
-        primaryColor: const Color(0xFF002464),
+        primaryColor: AppTheme.dtBlue,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppTheme.dtBlue,
+          primary: AppTheme.dtBlue,
+          secondary: AppTheme.dtYellow,
+        ),
         scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Roboto',
+        fontFamily: 'Inter',
       ),
       locale: languageProvider.currentLocale,
       localizationsDelegates: const [

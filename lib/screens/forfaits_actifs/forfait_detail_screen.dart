@@ -1,5 +1,6 @@
 // lib/screens/forfait_detail_screen.dart
 import 'package:dtservices/models/forfait_actif2.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/services/forfait_actif_service.dart';
 import 'package:dtservices/widgets/cards/progress_bar.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,6 @@ class ForfaitDetailScreen extends StatefulWidget {
 class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
   late ForfaitActif2 _forfait;
   bool _isLoading = false;
-  String? _errorMessage;
 
   @override
   void initState() {
@@ -32,7 +32,6 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
   Future<void> _refreshForfaitDetails() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
@@ -45,13 +44,15 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
         orElse: () => _forfait,
       );
 
+      if (!mounted) return;
+
       setState(() {
         _forfait = updatedForfait;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _errorMessage = e.toString();
         _isLoading = false;
       });
 
@@ -99,7 +100,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -114,7 +115,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, _forfait.nom),
+                GlassAppBar(title: _forfait.nom, actions: [GlassAppBarAction(icon: Icons.refresh_rounded, onTap: _isLoading ? null : _refreshForfaitDetails), SizedBox(width: ResponsiveSize.getWidth(8)), GlassAppBarAction(icon: Icons.close, onTap: () => Navigator.of(context).popUntil((route) => route.isFirst))]),
                 Expanded(child: _buildBody()),
               ],
             ),
@@ -124,84 +125,6 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: _isLoading ? null : _refreshForfaitDetails,
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.refresh_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              InkWell(
-                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(12),
-                    vertical: ResponsiveSize.getHeight(8),
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.cancel,
-                    style: TextStyle(
-                      color: AppTheme.dtBlueDark,
-                      fontSize: ResponsiveSize.getFontSize(13),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildBody() {
     if (_isLoading) {
@@ -224,7 +147,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlue),
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
@@ -240,99 +163,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
     );
   }
 
-  Widget _buildErrorState() {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: ResponsiveSize.getFontSize(60),
-              color: Colors.red,
-            ),
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-            Text(
-              _errorMessage!,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(16),
-                color: AppTheme.textSecondary,
-              ),
-            ),
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-            ElevatedButton.icon(
-              onPressed: _refreshForfaitDetails,
-              icon: const Icon(Icons.refresh),
-              label: Text(AppLocalizations.of(context)!.retry),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.dtBlue,
-                foregroundColor: AppTheme.dtYellow,
-                padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
-                  vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildForfaitNotFoundState() {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search_off,
-              size: ResponsiveSize.getFontSize(60),
-              color: Colors.grey,
-            ),
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-            Text(
-              AppLocalizations.of(context)!.packageNotFound,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(18),
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-            Text(
-              AppLocalizations.of(context)!.packageNotFoundDesc,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(14),
-                color: AppTheme.textSecondary,
-              ),
-            ),
-            SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              icon: const Icon(Icons.arrow_back),
-              label: Text(AppLocalizations.of(context)!.back),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.dtBlue,
-                foregroundColor: AppTheme.dtYellow,
-                padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
-                  vertical: ResponsiveSize.getHeight(AppTheme.spacingM),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildForfaitDetails() {
     final forfait = _forfait;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dtservices/constants/app_theme.dart';
 
 import '../../models/forfait.dart';
 import '../../generated/l10n/app_localizations.dart';
@@ -27,7 +28,7 @@ class ConfirmationAchatDialog extends StatelessWidget {
         style: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          color: Color(0xFF002464),
+          color: AppTheme.dtBlue,
         ),
       ),
       content: _buildDialogContent(l10n),
@@ -92,8 +93,8 @@ class ConfirmationAchatDialog extends StatelessWidget {
       ElevatedButton(
         onPressed: () => Navigator.of(context).pop(true),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF002464),
-          foregroundColor: const Color(0xFFF8C02C),
+          backgroundColor: AppTheme.dtBlue,
+          foregroundColor: Colors.white,
         ),
         child: Text(l10n.confirm),
       ),

@@ -44,7 +44,7 @@ final l10n = AppLocalizations.of(context)!;
             const SizedBox(height: 20),
             Text(
               l10n.requestSent,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.dtBlue,

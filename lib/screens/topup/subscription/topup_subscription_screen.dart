@@ -1,5 +1,6 @@
 // lib/screens/topup/topup_subscription_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
@@ -102,7 +103,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
         return AlertDialog(
           title: Row(
             children: [
-              Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+              const Icon(Icons.warning_amber, color: Colors.orange, size: 24),
               SizedBox(width: ResponsiveSize.getWidth(8)),
               Expanded(
                 child: Text(
@@ -139,7 +140,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                    const Icon(Icons.info_outline, color: Colors.orange, size: 20),
                     SizedBox(width: ResponsiveSize.getWidth(8)),
                     Expanded(
                       child: Text(
@@ -173,7 +174,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.dtBlue,
-                foregroundColor: AppTheme.dtYellow,
+                foregroundColor: Colors.white,
               ),
               child: Text(
                 l10n.continueAction,
@@ -230,7 +231,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -245,7 +246,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, AppLocalizations.of(context)!.buySubscriptionTitle),
+                GlassAppBar(title: AppLocalizations.of(context)!.buySubscriptionTitle, actions: [GlassAppBarAction(icon: Icons.close, onTap: () => Navigator.of(context).popUntil((route) => route.isFirst))]),
                 Expanded(
                   child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -269,7 +270,7 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
                     Center(
                       child: Column(
                         children: [
-                          CircularProgressIndicator(color: AppTheme.dtBlue),
+                          const CircularProgressIndicator(color: AppTheme.dtBlue),
                           SizedBox(height: ResponsiveSize.getHeight(16)),
                           Text(
                             AppLocalizations.of(
@@ -335,71 +336,6 @@ class _TopUpSubscriptionScreenState extends State<TopUpSubscriptionScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              InkWell(
-                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(12),
-                    vertical: ResponsiveSize.getHeight(8),
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.cancel,
-                    style: TextStyle(
-                      color: AppTheme.dtBlueDark,
-                      fontSize: ResponsiveSize.getFontSize(13),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildOptionCard(
     BuildContext context,

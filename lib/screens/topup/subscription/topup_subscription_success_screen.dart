@@ -1,5 +1,6 @@
 // lib/screens/topup/topup_subscription_success_screen.dart
 import 'dart:async';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants/app_theme.dart';
@@ -118,7 +119,7 @@ class _TopUpSubscriptionSuccessScreenState
               right: -100,
               child: Container(
                 height: 350,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
@@ -133,7 +134,7 @@ class _TopUpSubscriptionSuccessScreenState
             SafeArea(
               child: Column(
                 children: [
-                  _buildGlassAppBar(context, AppLocalizations.of(context)!.subscriptionSuccessTitle),
+                  GlassAppBar(title: AppLocalizations.of(context)!.subscriptionSuccessTitle, showBack: false),
                   Expanded(
                     child: AnimatedBuilder(
                       animation: _animationController,
@@ -316,7 +317,7 @@ class _TopUpSubscriptionSuccessScreenState
                             onPressed: _redirectToHome,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.dtBlue,
-                              foregroundColor: AppTheme.dtYellow,
+                              foregroundColor: Colors.white,
                               padding: EdgeInsets.symmetric(
                                 horizontal: ResponsiveSize.getWidth(
                                   AppTheme.spacingL,
@@ -460,34 +461,6 @@ class _TopUpSubscriptionSuccessScreenState
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(

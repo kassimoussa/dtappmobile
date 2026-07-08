@@ -93,7 +93,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                     // Icône
                     Container(
                       padding: EdgeInsets.all(ResponsiveSize.getWidth(20)),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppTheme.dtBlueO10,
                         shape: BoxShape.circle,
                       ),
@@ -353,7 +353,8 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
       // Sauvegarder le PIN de manière sécurisée si biométrie activée
       final phoneNumber = widget.phoneNumber ?? authProvider.phoneNumber;
       if (phoneNumber != null) {
-        final isBiometricEnabled = await UserSession.isBiometricEnabled();
+        final isBiometricEnabled =
+            await UserSession.isBiometricEnabled(phoneNumber);
         if (isBiometricEnabled) {
           await UserSession.saveSecurePin(phoneNumber, _pin);
           debugPrint('✅ PIN sauvegardé pour authentification biométrique');

@@ -1,5 +1,6 @@
 import 'package:dtservices/constants/app_theme.dart';
-import 'package:dtservices/screens/core/home_screen.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
+import 'package:dtservices/widgets/dt_button.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/services/refill_service.dart';
 import 'package:dtservices/models/refill_models.dart';
@@ -29,12 +30,20 @@ class RefillCodeScreen extends StatefulWidget {
 class _RefillCodeScreenState extends State<RefillCodeScreen> {
   final TextEditingController _codeController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final FocusNode _codeFocusNode = FocusNode();
   String? _codeError;
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    _codeFocusNode.addListener(() => setState(() {}));
+  }
+
+  @override
   void dispose() {
     _codeController.dispose();
+    _codeFocusNode.dispose();
     super.dispose();
   }
 
@@ -50,7 +59,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -65,36 +74,19 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(
-                  context,
-                  AppLocalizations.of(context)!.refillTitle,
-                ),
+                GlassAppBar(title: AppLocalizations.of(context)!.refillTitle),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
-                      padding: EdgeInsets.all(AppTheme.spacingM),
+                      padding: const EdgeInsets.all(AppTheme.spacingM),
                       child: Form(
                         key: _formKey,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 16),
-
-                            // Titre principal
-                            Text(
-                              widget.isGift
-                                  ? AppLocalizations.of(context)!.refillGiftTitle
-                                  : AppLocalizations.of(context)!.refillMyCredit,
-                              style: TextStyle(
-                                fontSize: ResponsiveSize.getFontSize(20),
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-
                             const SizedBox(height: 8),
 
-                            // Sous-titre avec numéro
+                            // Numéro concerné (le titre est déjà dans le header)
                             Text(
                               widget.isGift
                                   ? AppLocalizations.of(
@@ -125,17 +117,21 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
                             // Information importante
                             _buildInfoBox(),
 
-                            const SizedBox(height: 32),
-
-                            // Bouton de confirmation
-                            _buildConfirmButton(),
-
                             const SizedBox(height: 24),
                           ],
                         ),
                       ),
                     ),
                   ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    ResponsiveSize.getWidth(AppTheme.spacingM),
+                    0,
+                    ResponsiveSize.getWidth(AppTheme.spacingM),
+                    ResponsiveSize.getHeight(AppTheme.spacingL),
+                  ),
+                  child: _buildConfirmButton(),
                 ),
               ],
             ),
@@ -166,17 +162,20 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
             border:
                 _codeError != null
                     ? Border.all(color: Colors.red[300]!, width: 1.5)
-                    : null,
+                    : _codeFocusNode.hasFocus
+                        ? Border.all(color: AppTheme.dtBlue, width: 1.5)
+                        : null,
           ),
           child: TextFormField(
             controller: _codeController,
+            focusNode: _codeFocusNode,
             decoration: InputDecoration(
-              hintText: '123456789012',
+              hintText: '1234 5678 9012',
               hintStyle: TextStyle(color: Colors.grey[500], letterSpacing: 2),
-              prefixIcon: Icon(Icons.qr_code, color: AppTheme.dtBlue),
+              prefixIcon: const Icon(Icons.dialpad, color: AppTheme.dtBlue),
               suffixIcon:
-                  _codeController.text.length == 14
-                      ? Icon(Icons.check_circle, color: Colors.green)
+                  _codeController.text.replaceAll(' ', '').length == 12
+                      ? const Icon(Icons.check_circle, color: Colors.green)
                       : null,
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
@@ -264,11 +263,11 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline, color: AppTheme.dtBlue, size: 20),
+              const Icon(Icons.info_outline, color: AppTheme.dtBlue, size: 20),
               const SizedBox(width: 8),
               Text(
                 AppLocalizations.of(context)!.howToUseCode,
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.dtBlue,
                 ),
@@ -276,10 +275,28 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            AppLocalizations.of(context)!.refillInstructions,
-            style: TextStyle(color: AppTheme.dtBlue, fontSize: 14),
-          ),
+          // Une ligne par consigne, avec indentation suspendue sous la puce
+          ...AppLocalizations.of(context)!.refillInstructions
+              .split('\n')
+              .map((line) => Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('•',
+                            style: TextStyle(
+                                color: AppTheme.dtBlue, fontSize: 14)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            line.replaceFirst(RegExp(r'^•\s*'), ''),
+                            style: const TextStyle(
+                                color: AppTheme.dtBlue, fontSize: 14),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
         ],
       ),
     );
@@ -288,73 +305,19 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
   // Widget pour le bouton de confirmation
   Widget _buildConfirmButton() {
     final cleanCode = _codeController.text.replaceAll(' ', '');
-    bool isFormValid = _codeError == null && cleanCode.length == 12;
+    final bool isFormValid = _codeError == null && cleanCode.length == 12;
 
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed:
-            isFormValid && !_isLoading ? _validateAndProcessRefill : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isFormValid ? AppTheme.dtBlue2 : Colors.grey[400],
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 0,
-        ),
-        child:
-            _isLoading
-                ? SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-                : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.account_balance_wallet,
-                      size: ResponsiveSize.getFontSize(18),
-                    ),
-                    SizedBox(width: ResponsiveSize.getWidth(8)),
-                    Text(
-                      AppLocalizations.of(context)!.confirmRefill,
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(16),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-      ),
+    return DtButton.primary(
+      label: AppLocalizations.of(context)!.confirm,
+      loading: _isLoading,
+      onPressed: isFormValid ? _validateAndProcessRefill : null,
     );
   }
 
-  // Validation du code en temps réel
+  // Pendant la frappe : on efface seulement l'erreur (la validation
+  // complète a lieu à la soumission — pas de message pendant la saisie)
   void _validateCode(String value) {
-    final cleanCode = value.replaceAll(' ', '');
-
     setState(() {
-      if (cleanCode.isEmpty) {
-        _codeError = null;
-        return;
-      }
-
-      if (cleanCode.length < 12) {
-        _codeError = AppLocalizations.of(context)!.refillCodeLengthError;
-        return;
-      }
-
-      if (!RegExp(r'^\d{12}$').hasMatch(cleanCode)) {
-        _codeError = AppLocalizations.of(context)!.refillCodeDigitError;
-        return;
-      }
-
       _codeError = null;
     });
   }
@@ -397,21 +360,24 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
       _showSuccessDialog(response);
     } on RefillException catch (e) {
       // Gérer les erreurs spécifiques de recharge
-      print('RefillException: ${e.toString()}');
+      debugPrint('RefillException: ${e.toString()}');
+      if (!mounted) return;
       setState(() {
         _codeError = e.userFriendlyMessage;
       });
     } catch (e, stackTrace) {
-      // Gérer les autres erreurs avec plus de détails
-      print('Erreur inattendue: $e');
-      print('StackTrace: $stackTrace');
+      debugPrint('Erreur inattendue: $e');
+      debugPrint('StackTrace: $stackTrace');
+      if (!mounted) return;
       setState(() {
-        _codeError = '${AppLocalizations.of(context)!.unexpectedError}: $e';
+        _codeError = AppLocalizations.of(context)!.unexpectedError;
       });
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -505,14 +471,11 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
                 // Fermer le dialog et revenir à l'écran principal
                 Navigator.of(context).pop(); // Fermer le dialog
                 widget.onRefreshSolde?.call(); // Rafraîchir le solde
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  HomeScreen as String,
-                  (route) => false,
-                ); // Retourner à l'écran précédent
+                Navigator.of(context).popUntil((route) => route.isFirst);
               },
               child: Text(
                 AppLocalizations.of(context)!.closeAction,
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppTheme.dtBlue2,
                   fontWeight: FontWeight.bold,
                 ),
@@ -524,73 +487,4 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: AppTheme.dtBlueDark,
-                    size: 20,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              InkWell(
-                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(12),
-                    vertical: ResponsiveSize.getHeight(8),
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.cancel,
-                    style: TextStyle(
-                      color: AppTheme.dtBlueDark,
-                      fontSize: ResponsiveSize.getFontSize(13),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 }

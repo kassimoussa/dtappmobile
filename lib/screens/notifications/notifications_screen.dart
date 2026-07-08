@@ -215,11 +215,11 @@ class _NotificationTile extends StatelessWidget {
         border: Border(
           left: BorderSide(color: channelColor, width: 3),
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppTheme.black04,
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),

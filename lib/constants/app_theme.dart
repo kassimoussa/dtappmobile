@@ -72,14 +72,14 @@ class AppTheme {
     color: textPrimary,
   );
   
-  // Styles de boutons
+  // Styles de boutons — préférer le widget DtButton (lib/widgets/dt_button.dart)
   static ButtonStyle get primaryButtonStyle => ElevatedButton.styleFrom(
-    backgroundColor: dtBlueDark,
-    foregroundColor: dtYellow,
+    backgroundColor: dtBlue,
+    foregroundColor: Colors.white,
     elevation: 0, // Flat premium look
     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(radiusM),
+      borderRadius: BorderRadius.circular(14),
     ),
   );
   
@@ -87,12 +87,12 @@ class AppTheme {
   static BoxDecoration get cardDecoration => BoxDecoration(
     color: Colors.white,
     borderRadius: BorderRadius.circular(radiusL),
-    boxShadow: [
+    boxShadow: const [
       BoxShadow( // Ombre beaucoup plus douce et diffuse (premium)
         color: black04,
         blurRadius: 30,
         spreadRadius: 2,
-        offset: const Offset(0, 10),
+        offset: Offset(0, 10),
       ),
     ],
   );

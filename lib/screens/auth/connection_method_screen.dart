@@ -1,5 +1,6 @@
 // lib/screens/auth/connection_method_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/dt_button.dart';
 import 'package:local_auth/local_auth.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
@@ -107,7 +108,8 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
       final localAuth = LocalAuthentication();
       final canCheckBiometrics = await localAuth.canCheckBiometrics;
       final isDeviceSupported = await localAuth.isDeviceSupported();
-      final biometricEnabled = await UserSession.isBiometricEnabled();
+      final biometricEnabled =
+          await UserSession.isBiometricEnabled(widget.phoneNumber);
 
       if (!mounted) return;
 
@@ -157,13 +159,22 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.dtBlue,
-                  foregroundColor: AppTheme.dtYellow,
+                  foregroundColor: Colors.white,
                 ),
                 child: Text(AppLocalizations.of(context)!.ok),
               ),
             ],
           ),
     );
+  }
+
+  /// Vrai s'il existe au moins une méthode de connexion autre que la principale
+  bool get _hasAlternativeMethods {
+    int count = 0;
+    if (_isBiometricSupported && _primaryMethod != 'biometric') count++;
+    if (_hasPin && _primaryMethod != 'pin') count++;
+    if (_primaryMethod != 'otp') count++; // l'OTP est toujours disponible
+    return count > 0;
   }
 
   /// Connexion avec la méthode principale
@@ -378,8 +389,9 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
 
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
 
-                // Biométrie
-                if (_isBiometricSupported)
+                // Seules les alternatives à la méthode principale sont
+                // proposées — pas de doublon avec le bouton principal
+                if (_isBiometricSupported && _primaryMethod != 'biometric')
                   _buildMethodOption(
                     icon: Icons.fingerprint,
                     title: l10n.biometricLogin,
@@ -389,8 +401,7 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
                     },
                   ),
 
-                // PIN
-                if (_hasPin)
+                if (_hasPin && _primaryMethod != 'pin')
                   _buildMethodOption(
                     icon: Icons.pin,
                     title: l10n.pinLogin,
@@ -400,15 +411,15 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
                     },
                   ),
 
-                // OTP
-                _buildMethodOption(
-                  icon: Icons.sms,
-                  title: l10n.smsCodeOtp,
-                  onTap: () {
-                    Navigator.pop(context);
-                    _connectWithOtp();
-                  },
-                ),
+                if (_primaryMethod != 'otp')
+                  _buildMethodOption(
+                    icon: Icons.sms,
+                    title: l10n.smsCodeOtp,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _connectWithOtp();
+                    },
+                  ),
 
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
               ],
@@ -444,7 +455,7 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
           children: [
             Container(
               padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.dtBlueO10,
                 shape: BoxShape.circle,
               ),
@@ -569,81 +580,21 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
 
                       SizedBox(height: ResponsiveSize.getHeight(40)),
 
-                      // Bouton principal (gradient bleu, texte blanc)
-                      Container(
-                        height: ResponsiveSize.getHeight(56),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppTheme.dtBlue, AppTheme.dtBlue2],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          borderRadius: BorderRadius.circular(
-                              ResponsiveSize.getWidth(14)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.dtBlue.withValues(alpha: 0.35),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(
-                                ResponsiveSize.getWidth(14)),
-                            onTap: _connectWithPrimaryMethod,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(_getPrimaryButtonIcon(),
-                                    color: Colors.white,
-                                    size: ResponsiveSize.getFontSize(22)),
-                                SizedBox(width: ResponsiveSize.getWidth(10)),
-                                Text(
-                                  _getPrimaryButtonText(),
-                                  style: TextStyle(
-                                    fontFamily: 'Outfit',
-                                    fontSize: ResponsiveSize.getFontSize(17),
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                      DtButton.primary(
+                        label: _getPrimaryButtonText(),
+                        icon: _getPrimaryButtonIcon(),
+                        onPressed: _connectWithPrimaryMethod,
                       ),
 
-                      SizedBox(height: ResponsiveSize.getHeight(16)),
-
-                      // Bouton autre méthode
-                      SizedBox(
-                        height: ResponsiveSize.getHeight(56),
-                        child: OutlinedButton(
+                      // Bouton « autre méthode » seulement s'il existe
+                      // au moins une alternative à la méthode principale
+                      if (_hasAlternativeMethods) ...[
+                        SizedBox(height: ResponsiveSize.getHeight(16)),
+                        DtButton.secondary(
+                          label: l10n.otherConnectionMethod,
                           onPressed: _showMethodSelectionModal,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.dtBlue,
-                            side: BorderSide(
-                                color: AppTheme.dtBlue.withValues(alpha: 0.4),
-                                width: 1.5),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  ResponsiveSize.getWidth(14)),
-                            ),
-                          ),
-                          child: Text(
-                            l10n.otherConnectionMethod,
-                            style: TextStyle(
-                              fontFamily: 'Outfit',
-                              fontSize: ResponsiveSize.getFontSize(16),
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.dtBlue,
-                            ),
-                          ),
                         ),
-                      ),
+                      ],
 
                       if (_hasPin) ...[
                         SizedBox(height: ResponsiveSize.getHeight(8)),
@@ -740,20 +691,20 @@ class _ConnectionMethodScreenState extends State<ConnectionMethodScreen>
                   color: Colors.white,
                   borderRadius:
                       BorderRadius.circular(ResponsiveSize.getWidth(22)),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: AppTheme.black15,
                       blurRadius: 16,
-                      offset: const Offset(0, 6),
+                      offset: Offset(0, 6),
                     ),
                   ],
                 ),
-                child:
-                    Image.asset('assets/djibtelogo.png', fit: BoxFit.contain),
+                child: Image.asset('assets/logos/dtlogo-img-wbg.png',
+                    cacheWidth: 240, fit: BoxFit.contain),
               ),
               SizedBox(height: ResponsiveSize.getHeight(14)),
               Text(
-                'DTServices',
+                'DJIBTEL',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: ResponsiveSize.getFontSize(20),

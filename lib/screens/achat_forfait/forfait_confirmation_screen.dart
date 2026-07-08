@@ -1,5 +1,7 @@
 // lib/screens/forfait_confirmation_screen.dart
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/widgets/dt_button.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/models/forfait.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
@@ -100,33 +102,6 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
     }
 
     return PurchaseType.personal;
-  }
-
-  String get _purchaseTypeLabel {
-    switch (_effectivePurchaseType) {
-      case PurchaseType.personal:
-        return AppLocalizations.of(context)!.purchaseForMyNumber;
-      case PurchaseType.gift:
-        return AppLocalizations.of(context)!.giftPurchase;
-    }
-  }
-
-  IconData get _purchaseTypeIcon {
-    switch (_effectivePurchaseType) {
-      case PurchaseType.personal:
-        return Icons.person;
-      case PurchaseType.gift:
-        return Icons.card_giftcard;
-    }
-  }
-
-  Color get _purchaseTypeColor {
-    switch (_effectivePurchaseType) {
-      case PurchaseType.personal:
-        return AppTheme.dtBlue;
-      case PurchaseType.gift:
-        return Colors.orange;
-    }
   }
 
   Future<void> _confirmerAchat() async {
@@ -238,7 +213,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
       SnackBar(
         content: Row(
           children: [
-            Icon(Icons.error_outline, color: Colors.white),
+            const Icon(Icons.error_outline, color: Colors.white),
             SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
             Expanded(
               child: Text(
@@ -280,7 +255,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [AppTheme.dtBlueO08, Colors.transparent],
@@ -292,10 +267,7 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(
-                  context,
-                  AppLocalizations.of(context)!.purchaseConfirmationTitle,
-                ),
+                GlassAppBar(title: AppLocalizations.of(context)!.purchaseConfirmationTitle),
                 Expanded(
                   child: AnimatedBuilder(
                     animation: _animationController,
@@ -315,13 +287,6 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Type d'achat avec badge
-                          _buildPurchaseTypeBadge(),
-
-                          SizedBox(
-                            height: ResponsiveSize.getHeight(AppTheme.spacingM),
-                          ),
-
                           // Entête avec icône animée
                           _buildHeader(),
 
@@ -344,44 +309,6 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPurchaseTypeBadge() {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
-        vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
-      ),
-      decoration: BoxDecoration(
-        color: _purchaseTypeColor.withOpacityValue(0.1),
-        borderRadius: BorderRadius.circular(
-          ResponsiveSize.getWidth(AppTheme.radiusL),
-        ),
-        border: Border.all(
-          color: _purchaseTypeColor.withOpacityValue(0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            _purchaseTypeIcon,
-            color: _purchaseTypeColor,
-            size: ResponsiveSize.getFontSize(18),
-          ),
-          SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-          Text(
-            _purchaseTypeLabel,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(14),
-              fontWeight: FontWeight.w600,
-              color: _purchaseTypeColor,
             ),
           ),
         ],
@@ -589,27 +516,9 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
       children: [
         // Bouton Annuler
         Expanded(
-          child: OutlinedButton(
+          child: DtButton.secondary(
+            label: l10n.cancelAction,
             onPressed: _isLoading ? null : () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppTheme.dtBlue),
-              padding: EdgeInsets.symmetric(
-                vertical: ResponsiveSize.getHeight(16),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  ResponsiveSize.getWidth(AppTheme.radiusM),
-                ),
-              ),
-            ),
-            child: Text(
-              l10n.cancelAction,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(16),
-                fontWeight: FontWeight.bold,
-                color: AppTheme.dtBlue,
-              ),
-            ),
           ),
         ),
 
@@ -669,51 +578,4 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: ResponsiveSize.getWidth(12),
-        vertical: ResponsiveSize.getHeight(12),
-      ),
-      decoration: const BoxDecoration(
-        color: AppTheme.white95,
-        border: Border(
-          bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5),
-        ),
-      ),
-      child: Row(
-        children: [
-          InkWell(
-            onTap: () => Navigator.of(context).pop(),
-            borderRadius: BorderRadius.circular(14),
-            child: Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppTheme.white50,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white),
-              ),
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: AppTheme.dtBlueDark,
-                size: 20,
-              ),
-            ),
-          ),
-          SizedBox(width: ResponsiveSize.getWidth(16)),
-          Expanded(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTheme.headingStyle.copyWith(
-                fontSize: ResponsiveSize.getFontSize(22),
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

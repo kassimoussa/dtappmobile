@@ -249,8 +249,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Image.asset(
-                    'assets/djibtelogo.png',
+                    'assets/logos/dtlogo-img-wbg.png',
                     height: ResponsiveSize.getHeight(24),
+                    cacheWidth: 120,
                   ),
                 ),
                 const Spacer(),
@@ -394,7 +395,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required bool isVisible,
     required VoidCallback onToggleVisibility,
   }) {
-    final textColor = textDark ? const Color(0xFF1E293B) : Colors.white;
+    final textColor = textDark ? AppTheme.textPrimary : Colors.white;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(8)),
@@ -531,7 +532,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _buildUnifiedAction(
                 icon: Icons.inventory_2_rounded,
                 label: l10n.myPackages,
-                onTap: () => Navigator.push(context, CustomRouteTransitions.slideRightRoute(page: ForfaitsActifsScreen())),
+                onTap: () => Navigator.push(context, CustomRouteTransitions.slideRightRoute(page: const ForfaitsActifsScreen())),
               ),
             ),
           ],

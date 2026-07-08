@@ -1,5 +1,6 @@
 // lib/screens/topup/topup_success_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'dart:async';
 
 import '../../../constants/app_theme.dart';
@@ -36,7 +37,6 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
   int _remainingSeconds = 5; // Compte à rebours de 5 secondes
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _slideAnimation;
   late Animation<double> _fadeAnimation;
 
   @override
@@ -56,13 +56,6 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
-      ),
-    );
-
-    _slideAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
       ),
     );
 
@@ -124,7 +117,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
               right: -100,
               child: Container(
                 height: 350,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
@@ -139,9 +132,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
             SafeArea(
               child: Column(
                 children: [
-                  _buildGlassAppBar(
-                    context,
-                    AppLocalizations.of(context)!.purchaseSuccessTitle,
+                  GlassAppBar(title: AppLocalizations.of(context)!.purchaseSuccessTitle, showBack: false,
                   ),
                   Expanded(
                     child: AnimatedBuilder(
@@ -302,7 +293,7 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                                         onPressed: _redirectToHome,
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: AppTheme.dtBlue,
-                                          foregroundColor: AppTheme.dtYellow,
+                                          foregroundColor: Colors.white,
                                           padding: EdgeInsets.symmetric(
                                             horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
                                             vertical: ResponsiveSize.getHeight(16),
@@ -405,34 +396,6 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(

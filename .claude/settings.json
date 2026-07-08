@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(awk '/Widget _buildConfirmButton/,/^  \\\\}$/' lib/screens/transfer_credit/transfer_input_screen.dart)",
+      "Bash(sed -i '' \"/import '..\\\\/..\\\\/services\\\\/balance_service.dart';/d\" lib/screens/core/search_screen.dart)",
+      "Bash(sed -i '' \"/import '..\\\\/..\\\\/..\\\\/services\\\\/user_session.dart';/d\" lib/screens/topup/packages/topup_package_confirmation_screen.dart)",
+      "Bash(sed -i '' \"s|assets/djibtelogo.png|assets/logos/dtlogo-img-wbg.png|g\" lib/screens/core/home_screen.dart lib/screens/auth/connection_method_screen.dart lib/screens/auth/login_screen.dart)",
+      "Bash(sed -i '' \"s|assets/dtlogo3.webp|assets/logos/dtlogo-img-wbg.png|g\" lib/screens/auth/splash_screen.dart)",
+      "Bash(sed -i '' \"s/title: 'DTServices',/title: 'DJIBTEL',/\" lib/main.dart)",
+      "Bash(sed -i '' \"s/'DTServices'/'DJIBTEL'/g\" lib/screens/auth/connection_method_screen.dart lib/screens/auth/login_screen.dart)",
+      "Bash(sed -i '' \"s/DTServices — Djibouti Telecom/DJIBTEL — Djibouti Telecom/g; s/application mobile DTServices/application mobile DJIBTEL/g; s/DTServices mobile application/DJIBTEL mobile application/g\" lib/screens/auth/privacy_policy_screen.dart)",
+      "Bash(sed -i '' 's/\"appTitle\": \"DTServices\"/\"appTitle\": \"DJIBTEL\"/' lib/l10n/app_fr.arb lib/l10n/app_en.arb)",
+      "Bash(sed -i '' 's/<string>DTServicesV2<\\\\/string>/<string>DJIBTEL<\\\\/string>/g' ios/Runner/Info.plist)",
+      "Bash(awk '/Future<void> appResumed/,/^  \\\\}/' lib/providers/auth_provider.dart)",
+      "Bash(awk '/static Future<void> appResumed/,/^  \\\\}/' lib/services/user_session.dart)",
+      "Bash(awk '{print $5, $9}')",
+      "Bash(dart fix *)",
+      "Bash(git ls-remote *)"
+    ]
+  }
+}

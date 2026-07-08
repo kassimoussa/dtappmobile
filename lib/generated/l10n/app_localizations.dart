@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// Titre de l'application
   ///
   /// In fr, this message translates to:
-  /// **'DTServices'**
+  /// **'DJIBTEL'**
   String get appTitle;
 
   /// No description provided for @home.
@@ -581,7 +581,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmTransfer.
   ///
   /// In fr, this message translates to:
-  /// **'Confirmer le transfert'**
+  /// **'Confirmer'**
   String get confirmTransfer;
 
   /// No description provided for @transferConfirmationTitle.
@@ -1153,6 +1153,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Réessayer'**
   String get retry;
+
+  /// No description provided for @balanceInquiryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultation des soldes'**
+  String get balanceInquiryTitle;
 
   /// No description provided for @noActivePackages.
   ///
@@ -1835,7 +1841,7 @@ abstract class AppLocalizations {
   /// No description provided for @performRecharge.
   ///
   /// In fr, this message translates to:
-  /// **'Effectuer la recharge'**
+  /// **'Recharger'**
   String get performRecharge;
 
   /// No description provided for @rechargeError.
@@ -2549,7 +2555,7 @@ abstract class AppLocalizations {
   /// No description provided for @otherConnectionMethod.
   ///
   /// In fr, this message translates to:
-  /// **'Autre méthode de connexion'**
+  /// **'Autre méthode'**
   String get otherConnectionMethod;
 
   /// No description provided for @forgotPin.
@@ -2681,7 +2687,7 @@ abstract class AppLocalizations {
   /// No description provided for @getNewCode.
   ///
   /// In fr, this message translates to:
-  /// **'Obtenir un nouveau code'**
+  /// **'Nouveau code'**
   String get getNewCode;
 
   /// No description provided for @resetPinTitle.
@@ -3137,7 +3143,7 @@ abstract class AppLocalizations {
   /// No description provided for @buySubscriptionBtn.
   ///
   /// In fr, this message translates to:
-  /// **'Acheter une\nsouscription'**
+  /// **'Souscrire'**
   String get buySubscriptionBtn;
 
   /// No description provided for @buyPackagesBtn.
@@ -3461,7 +3467,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyPolicyAcceptBtn.
   ///
   /// In fr, this message translates to:
-  /// **'Accepter et continuer'**
+  /// **'Accepter'**
   String get privacyPolicyAcceptBtn;
 
   /// No description provided for @privacyPolicyDeclineBtn.

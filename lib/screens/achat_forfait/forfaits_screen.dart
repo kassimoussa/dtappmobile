@@ -1,4 +1,5 @@
 import 'package:dtservices/constants/app_theme.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/models/forfait.dart';
 import 'package:dtservices/providers/balance_provider.dart';
@@ -64,6 +65,8 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
     final forfaitsTempo = _offers?['tempo'] ?? [];
 
     return Scaffold(
+
+      backgroundColor: AppTheme.backgroundGrey,
       body: Stack(
         children: [
           Container(
@@ -81,7 +84,7 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
           ),
           PositionNotifier(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -96,7 +99,7 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context, widget.forfaitTitle),
+                GlassAppBar(title: widget.forfaitTitle, actions: [GlassAppBarAction(icon: Icons.close, onTap: () => Navigator.of(context).popUntil((route) => route.isFirst))]),
                 Expanded(
                   child: Column(
                     children: [
@@ -133,7 +136,7 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
                             ]);
                           },
                           child: _isLoading
-                              ? Center(
+                              ? const Center(
                                   child: CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlueDark),
                                   ),
@@ -159,7 +162,7 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
                                               label: Text(l10n.retry),
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: AppTheme.dtBlueDark,
-                                                foregroundColor: AppTheme.dtYellow,
+                                                foregroundColor: Colors.white,
                                               ),
                                             ),
                                           ],
@@ -201,71 +204,6 @@ class _ForfaitsScreenState extends State<ForfaitsScreen> {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(8)),
-              InkWell(
-                onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(12),
-                    vertical: ResponsiveSize.getHeight(8),
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.cancel,
-                    style: TextStyle(
-                      color: AppTheme.dtBlueDark,
-                      fontSize: ResponsiveSize.getFontSize(13),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
 
   String _getDescriptionText() {
     switch (_selectedType) {

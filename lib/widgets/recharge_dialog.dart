@@ -65,7 +65,7 @@ class _RechargeDialogState extends State<RechargeDialog> {
               ),
               child: Text(
                 l10n.rechargeYourAccount,
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppTheme.dtBlue,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
@@ -99,11 +99,11 @@ class _RechargeDialogState extends State<RechargeDialog> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: AppTheme.dtBlue, width: 2),
+                          borderSide: const BorderSide(color: AppTheme.dtBlue, width: 2),
                         ),
                         hintText: 'Ex: 1000',
                         hintStyle: TextStyle(color: Colors.grey[400]),
-                        prefixIcon: Icon(Icons.attach_money, color: AppTheme.dtBlue),
+                        prefixIcon: const Icon(Icons.attach_money, color: AppTheme.dtBlue),
                         filled: true,
                         fillColor: Colors.white,
                       ),
@@ -120,7 +120,7 @@ class _RechargeDialogState extends State<RechargeDialog> {
                       value: 'D-Money',
                       icon: Icons.account_balance_wallet,
                       iconColor: AppTheme.dtBlue,
-                      backgroundColor: Colors.blue[50],
+                      backgroundColor: AppTheme.dtBlueO05,
                     ),
                     const SizedBox(height: 12),
                     _buildPaymentOption(
@@ -250,7 +250,7 @@ class _RechargeDialogState extends State<RechargeDialog> {
                   ? Container(
                       width: 24,
                       height: 24,
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.dtYellow),
+                      decoration: const BoxDecoration(shape: BoxShape.circle, color: AppTheme.dtYellow),
                       child: const Icon(Icons.check, color: Colors.white, size: 16),
                     )
                   : Container(

@@ -10,7 +10,6 @@ import '../services/user_session.dart';
 import '../services/topup_session.dart';
 import '../exceptions/topup_exception.dart';
 import '../screens/topup/home/balance_inquiry_screen.dart';
-import '../screens/topup/debug/topup_debug_screen.dart';
 
 class TopUpContent extends StatefulWidget {
   const TopUpContent({super.key});
@@ -253,18 +252,6 @@ class _TopUpContentState extends State<TopUpContent> {
                   },
                   tooltip: l10n.detailedConsultation,
                 ),
-                IconButton(
-                  icon: const Icon(Icons.bug_report, color: Colors.white),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const TopUpDebugScreen(),
-                      ),
-                    );
-                  },
-                  tooltip: 'Debug',
-                ),
               ],
             ),
           ),
@@ -339,13 +326,13 @@ class _TopUpContentState extends State<TopUpContent> {
                 decoration: InputDecoration(
                   labelText: l10n.fixedLineNumberKey,
                   hintText: l10n.fixedLineNumberHint,
-                  prefixIcon: Icon(Icons.phone, color: AppTheme.dtBlue),
+                  prefixIcon: const Icon(Icons.phone, color: AppTheme.dtBlue),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
-                    borderSide: BorderSide(color: AppTheme.dtBlue, width: 2),
+                    borderSide: const BorderSide(color: AppTheme.dtBlue, width: 2),
                   ),
                 ),
               ),
@@ -384,7 +371,7 @@ class _TopUpContentState extends State<TopUpContent> {
     return Center(
       child: Column(
         children: [
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dtBlue),
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
@@ -508,7 +495,7 @@ class _TopUpContentState extends State<TopUpContent> {
                   l10n.dataType,
                   response.summary.dataTotalFormatted,
                   Icons.data_usage,
-                  Colors.blue,
+                  AppTheme.dtBlue,
                 ),
                 _buildSummaryItem(
                   l10n.voiceType,
@@ -575,10 +562,10 @@ class _TopUpContentState extends State<TopUpContent> {
         vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
       ),
       decoration: BoxDecoration(
-        color: Colors.blue.withValues(alpha: 0.1),
+        color: AppTheme.dtBlueO10,
         borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(AppTheme.radiusS)),
         border: Border.all(
-          color: Colors.blue.withValues(alpha: 0.3),
+          color: AppTheme.dtBlueO30,
           width: 1,
         ),
       ),
@@ -588,14 +575,14 @@ class _TopUpContentState extends State<TopUpContent> {
           Icon(
             Icons.schedule,
             size: ResponsiveSize.getFontSize(16),
-            color: Colors.blue,
+            color: AppTheme.dtBlue,
           ),
           SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingXS)),
           Text(
             l10n.dataExpireOn(dataBalance.expireDateFormatted),
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(12),
-              color: Colors.blue[700],
+              color: AppTheme.dtBlue2,
               fontWeight: FontWeight.w500,
             ),
           ),

@@ -1,11 +1,12 @@
 // lib/screens/topup/topup_package_confirmation_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/dt_button.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../utils/responsive_size.dart';
 import '../../../models/topup_balance.dart';
-import '../../../services/user_session.dart';
 import '../../../services/topup_api_service.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../extensions/color_extensions.dart';
@@ -41,7 +42,6 @@ class _TopUpPackageConfirmationScreenState
     extends State<TopUpPackageConfirmationScreen>
     with SingleTickerProviderStateMixin {
   bool _isLoading = false;
-  String? _userPhoneNumber;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
@@ -50,7 +50,6 @@ class _TopUpPackageConfirmationScreenState
   void initState() {
     super.initState();
     _setupAnimations();
-    _loadUserPhoneNumber();
   }
 
   void _setupAnimations() {
@@ -68,17 +67,6 @@ class _TopUpPackageConfirmationScreenState
     );
 
     _animationController.forward();
-  }
-
-  Future<void> _loadUserPhoneNumber() async {
-    try {
-      final phoneNumber = await UserSession.getPhoneNumber();
-      setState(() {
-        _userPhoneNumber = phoneNumber;
-      });
-    } catch (e) {
-      debugPrint('Erreur lors du chargement du numéro utilisateur: $e');
-    }
   }
 
   @override
@@ -261,7 +249,7 @@ bool _isSubscription() {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [AppTheme.dtBlueO08, Colors.transparent],
@@ -273,9 +261,7 @@ bool _isSubscription() {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(
-                  context,
-                  AppLocalizations.of(context)!.confirmPurchaseTitle,
+                GlassAppBar(title: AppLocalizations.of(context)!.confirmPurchaseTitle, actions: [GlassAppBarAction(icon: Icons.close, onTap: () => Navigator.of(context).popUntil((route) => route.isFirst))],
                 ),
                 Expanded(
                   child: AnimatedBuilder(
@@ -318,78 +304,6 @@ bool _isSubscription() {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context, String title) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: ResponsiveSize.getWidth(12),
-        vertical: ResponsiveSize.getHeight(12),
-      ),
-      decoration: const BoxDecoration(
-        color: AppTheme.white95,
-        border: Border(
-          bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5),
-        ),
-      ),
-      child: Row(
-        children: [
-          InkWell(
-            onTap: () => Navigator.of(context).pop(),
-            borderRadius: BorderRadius.circular(14),
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppTheme.white50,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white),
-              ),
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: AppTheme.dtBlueDark,
-                size: 20,
-              ),
-            ),
-          ),
-          SizedBox(width: ResponsiveSize.getWidth(16)),
-          Expanded(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTheme.headingStyle.copyWith(
-                fontSize: ResponsiveSize.getFontSize(22),
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          SizedBox(width: ResponsiveSize.getWidth(8)),
-          InkWell(
-            onTap:
-                () => Navigator.of(context).popUntil((route) => route.isFirst),
-            borderRadius: BorderRadius.circular(14),
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: ResponsiveSize.getWidth(12),
-                vertical: ResponsiveSize.getHeight(8),
-              ),
-              decoration: BoxDecoration(
-                color: AppTheme.white50,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white),
-              ),
-              child: Text(
-                AppLocalizations.of(context)!.cancel,
-                style: TextStyle(
-                  color: AppTheme.dtBlueDark,
-                  fontSize: ResponsiveSize.getFontSize(13),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildHeader() {
     final isDataPackage = widget.package.isDataPackage;
@@ -584,27 +498,9 @@ bool _isSubscription() {
     return Row(
       children: [
         Expanded(
-          child: OutlinedButton(
+          child: DtButton.secondary(
+            label: l10n.cancel,
             onPressed: _isLoading ? null : () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppTheme.dtBlue),
-              padding: EdgeInsets.symmetric(
-                vertical: ResponsiveSize.getHeight(16),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  ResponsiveSize.getWidth(AppTheme.radiusM),
-                ),
-              ),
-            ),
-            child: Text(
-              l10n.cancel,
-              style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(16),
-                fontWeight: FontWeight.bold,
-                color: AppTheme.dtBlue,
-              ),
-            ),
           ),
         ),
 
@@ -618,7 +514,7 @@ bool _isSubscription() {
                     : _confirmerAchat,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.dtBlue,
-              foregroundColor: AppTheme.dtYellow,
+              foregroundColor: Colors.white,
               padding: EdgeInsets.symmetric(
                 vertical: ResponsiveSize.getHeight(16),
               ),
@@ -634,7 +530,7 @@ bool _isSubscription() {
                     ? SizedBox(
                       width: ResponsiveSize.getWidth(20),
                       height: ResponsiveSize.getHeight(20),
-                      child: CircularProgressIndicator(
+                      child: const CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(
                           AppTheme.dtYellow,

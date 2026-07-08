@@ -1,5 +1,7 @@
 // lib/screens/auth/otp_screen.dart
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
+import 'package:dtservices/widgets/dt_button.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sms_autofill/sms_autofill.dart';
@@ -228,6 +230,8 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
         // Vérifier aussi en local — l'API peut ne pas retourner has_pin
         final localHasPin = await UserSession.hasPin();
 
+        if (!mounted) return;
+
         if (authProvider.hasPin || localHasPin) {
           // PIN déjà configuré => vers MainScreen
           Navigator.of(context).pushAndRemoveUntil(
@@ -284,7 +288,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
             right: -100,
             child: Container(
               height: 350,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
@@ -299,7 +303,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
           SafeArea(
             child: Column(
               children: [
-                _buildGlassAppBar(context),
+                GlassAppBar(title: AppLocalizations.of(context)!.verificationTitle),
                 Expanded(
                   child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -369,6 +373,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                     child: TextField(
                       controller: _controllers[index],
                       focusNode: _focusNodes[index],
+                      autofocus: index == 0,
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       textAlignVertical:
@@ -415,39 +420,10 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                 ),
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXL)),
-              ElevatedButton(
-                onPressed: authProvider.isLoading ? null : _onOTPSubmit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.dtBlue,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(
-                    vertical: ResponsiveSize.getHeight(16),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      ResponsiveSize.getWidth(AppTheme.radiusM),
-                    ),
-                  ),
-                ),
-                child:
-                    authProvider.isLoading
-                        ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
-                        : Text(
-                          AppLocalizations.of(context)!.verifyAction,
-                          style: TextStyle(
-                            fontSize: ResponsiveSize.getFontSize(18),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+              DtButton.primary(
+                label: AppLocalizations.of(context)!.verifyAction,
+                loading: authProvider.isLoading,
+                onPressed: _onOTPSubmit,
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
 
@@ -471,7 +447,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                             ? SizedBox(
                               width: ResponsiveSize.getWidth(16),
                               height: ResponsiveSize.getHeight(16),
-                              child: CircularProgressIndicator(
+                              child: const CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                   Colors.grey,
@@ -517,47 +493,4 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
     );
   }
 
-  Widget _buildGlassAppBar(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveSize.getWidth(12),
-            vertical: ResponsiveSize.getHeight(12),
-          ),
-          decoration: const BoxDecoration(
-            color: AppTheme.white95,
-            border: Border(bottom: BorderSide(color: AppTheme.dtBlueO10, width: 0.5)),
-          ),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded,
-                      color: AppTheme.dtBlueDark, size: 20),
-                ),
-              ),
-              SizedBox(width: ResponsiveSize.getWidth(16)),
-              Expanded(
-                child: Text(
-                  l10n.verificationTitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTheme.headingStyle.copyWith(
-                    fontSize: ResponsiveSize.getFontSize(22),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
 }

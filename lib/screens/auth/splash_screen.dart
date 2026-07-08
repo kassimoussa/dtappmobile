@@ -61,10 +61,12 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _navigateAfterSplash() async {
-    await Future.wait([
-      Future.delayed(const Duration(milliseconds: 800)),
-      _preloadImages(),
-    ]);
+    // Précharger bannières/popup en arrière-plan, SANS bloquer l'affichage :
+    // l'accueil sait les afficher quand elles arrivent. On ne fait donc
+    // attendre l'utilisateur que le temps d'une courte animation fixe.
+    _preloadImages();
+
+    await Future.delayed(const Duration(milliseconds: 800));
 
     if (!mounted) return;
 
@@ -156,8 +158,9 @@ class _SplashScreenState extends State<SplashScreen>
                         child: ScaleTransition(
                           scale: _scaleAnimation,
                           child: Image.asset(
-                            'assets/dtlogo3.webp',
+                            'assets/logos/dtlogo-img-wbg.png',
                             width: ResponsiveSize.getWidth(300),
+                            cacheWidth: 600,
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -174,7 +177,7 @@ class _SplashScreenState extends State<SplashScreen>
                           width: ResponsiveSize.getWidth(40),
                           height: ResponsiveSize.getHeight(40),
                           child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
+                            valueColor: const AlwaysStoppedAnimation<Color>(
                               AppTheme.dtBlue,
                             ),
                             strokeWidth: ResponsiveSize.isTablet ? 3.5 : 2.5,

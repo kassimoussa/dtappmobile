@@ -21,7 +21,7 @@ class BannerService {
       final response = await http.get(
         Uri.parse('$baseUrl/banners'),
         headers: {'Content-Type': 'application/json'},
-      );
+      ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = json.decode(response.body);

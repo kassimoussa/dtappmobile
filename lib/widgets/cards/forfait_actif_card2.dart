@@ -1,5 +1,6 @@
 // lib/widgets/forfait_actif_card.dart
 import 'package:dtservices/models/forfait_actif2.dart';
+import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/screens/forfaits_actifs/forfait_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'progress_bar.dart';
@@ -74,7 +75,7 @@ class ForfaitActifCard2 extends StatelessWidget {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blue[50],
+                      color: AppTheme.dtBlueO05,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -82,7 +83,7 @@ class ForfaitActifCard2 extends StatelessWidget {
                         context,
                       )!.expiresOn(_formatDate(forfait.dateFin)),
                       style: const TextStyle(
-                        color: Colors.blue,
+                        color: AppTheme.dtBlue,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),

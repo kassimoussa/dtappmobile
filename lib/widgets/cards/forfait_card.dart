@@ -122,7 +122,7 @@ class _ForfaitCardState extends State<ForfaitCard> {
         ),
         side:
             widget.forfait.isPopulaire
-                ? BorderSide(color: AppTheme.dtYellow, width: 2)
+                ? const BorderSide(color: AppTheme.dtYellow, width: 2)
                 : BorderSide.none,
       ),
       child: Column(
@@ -218,7 +218,7 @@ class _ForfaitCardState extends State<ForfaitCard> {
                               : () => _handleAchat(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.dtBlue,
-                        foregroundColor: AppTheme.dtYellow,
+                        foregroundColor: Colors.white,
                         disabledBackgroundColor: Colors.grey[400],
                         disabledForegroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(
@@ -238,7 +238,7 @@ class _ForfaitCardState extends State<ForfaitCard> {
                               ? SizedBox(
                                 width: ResponsiveSize.getWidth(20),
                                 height: ResponsiveSize.getHeight(20),
-                                child: CircularProgressIndicator(
+                                child: const CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     AppTheme.dtYellow,
