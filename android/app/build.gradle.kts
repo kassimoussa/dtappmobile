@@ -44,6 +44,15 @@ android {
     }
 
     signingConfigs {
+        // Keystore debug PARTAGÉ (commité, mot de passe standard "android").
+        // Toutes les machines produisent ainsi le même SHA-1 debug → un seul
+        // SHA-1 à enregistrer sur la clé Google Maps, valable pour tous les devs.
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
         // Configured only when key.properties exists, so checkouts without the
         // keystore (CI, fresh clones) still build without failing.
         if (keystorePropertiesFile.exists()) {

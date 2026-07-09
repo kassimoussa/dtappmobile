@@ -12,3 +12,8 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+# Exception : keystore DEBUG partagé (mot de passe standard "android", non
+# sensible) — volontairement commité pour un SHA-1 debug identique sur toutes
+# les machines. NE PAS committer un keystore de RELEASE ici.
+!app/debug.keystore
