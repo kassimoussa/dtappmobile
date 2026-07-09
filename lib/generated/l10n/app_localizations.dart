@@ -1370,6 +1370,12 @@ abstract class AppLocalizations {
   /// **'Ping'**
   String get pingLabel;
 
+  /// No description provided for @jitterLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gigue'**
+  String get jitterLabel;
+
   /// No description provided for @speedTestError.
   ///
   /// In fr, this message translates to:

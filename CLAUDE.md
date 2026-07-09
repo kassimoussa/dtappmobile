@@ -84,7 +84,7 @@ Custom responsive sizing system in `ResponsiveSize` (`lib/utils/responsive_size.
 - **Font Scaling**: Intelligent font size scaling based on screen width
 
 #### API Integration Architecture
-- **Base URL Configuration**: `http://10.39.230.106/api/` (configurable)
+- **Base URL Configuration**: `https://196.201.193.252/api` — public IP, temporarily hardcoded in `lib/config/app_config.dart` (domain `https://mydtapp.djiboutitelecom.dj/` pending DNS fix)
 - **RESTful Services**: HTTP-based API calls with proper error handling
 - **Phone Number Formatting**: Automatic formatting to include country code (253)
 - **Request/Response Patterns**: Consistent error handling and response parsing

@@ -264,6 +264,7 @@
     "downloadLabel": "Download",
     "uploadLabel": "Upload",
     "pingLabel": "Ping",
+    "jitterLabel": "Jitter",
     "speedTestError": "Error: {error}",
     "agenciesTitle": "Our Agencies",
     "loadingAgencies": "Loading agencies...",

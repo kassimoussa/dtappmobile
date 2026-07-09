@@ -1,154 +1,245 @@
 import 'dart:async';
-import 'package:http/http.dart' as http;
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 
+/// Service de mesure de débit réseau (download / upload / latence).
+///
+/// S'appuie sur les endpoints publics de test de Cloudflare
+/// (`speed.cloudflare.com`), servis en Anycast donc proches du client :
+///   * `__down?bytes=N` : renvoie N octets  → download + latence (N=0)
+///   * `__up`           : absorbe le corps POST → upload
+///
+/// Principes de fiabilité :
+///   * plusieurs connexions parallèles pour saturer les liens rapides ;
+///   * mesure bornée dans le temps (régime établi) et non sur une taille fixe ;
+///   * exclusion de la phase de démarrage lent (« slow-start » TCP) ;
+///   * vitesse instantanée calculée par fenêtre glissante ;
+///   * upload basé sur les octets réellement poussés dans la socket
+///     (plus aucune simulation par minuterie).
 class SpeedTestService {
-  // URLs de test fiables
-  static const String downloadTestUrl = 'https://speed.cloudflare.com/__down?bytes=10000000'; // 10 MB
-  static const String uploadTestUrl = 'https://speed.cloudflare.com/__up'; // Upload test
+  static const String _downloadUrl = 'https://speed.cloudflare.com/__down';
+  static const String _uploadUrl = 'https://speed.cloudflare.com/__up';
+  static const String _latencyUrl =
+      'https://speed.cloudflare.com/__down?bytes=0';
 
-  /// Teste la vitesse de téléchargement
-  static Future<SpeedTestResult> testDownloadSpeed({
-    Function(double progress, double currentSpeed)? onProgress,
-  }) async {
+  static const int _downloadConnections = 4;
+  static const int _uploadConnections = 3;
+  static const Duration _downloadDuration = Duration(seconds: 10);
+  static const Duration _uploadDuration = Duration(seconds: 10);
+  // Fenêtre de démarrage ignorée pour ne mesurer que le régime établi.
+  static const Duration _warmup = Duration(milliseconds: 1500);
+  static const int _latencySamples = 8;
+
+  static const int _chunkSize = 256 * 1024; // 256 KB
+  // Cloudflare plafonne __down (100 Mo => 403). On reste sous la limite.
+  static const int _downloadBytesPerRequest = 50 * 1000 * 1000; // 50 MB
+  static const int _uploadBytesPerRequest = 50 * 1024 * 1024; // 50 MB
+
+  /// Mesure la latence (ping médian) et la gigue (jitter) en millisecondes.
+  ///
+  /// Réutilise une même connexion (keep-alive) pour ne pas recompter le
+  /// DNS/TCP/TLS à chaque échantillon, et ignore la première requête (à froid).
+  static Future<({double ping, double jitter})> measureLatency() async {
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 5);
+    final samples = <double>[];
     try {
-      final stopwatch = Stopwatch()..start();
-      int totalBytes = 0;
-      double currentSpeed = 0.0;
-
-      final request = http.Request('GET', Uri.parse(downloadTestUrl));
-      final response = await request.send();
-
-      if (response.statusCode != 200) {
-        throw Exception('Erreur HTTP: ${response.statusCode}');
+      // Requête de chauffe hors mesure (établit la connexion).
+      await _timedRequest(client);
+      for (var i = 0; i < _latencySamples; i++) {
+        final ms = await _timedRequest(client);
+        if (ms != null) samples.add(ms);
       }
+    } catch (e) {
+      debugPrint('Erreur latence: $e');
+    } finally {
+      client.close(force: true);
+    }
 
-      final contentLength = response.contentLength ?? 10000000;
+    if (samples.isEmpty) return (ping: -1.0, jitter: 0.0);
+    samples.sort();
+    final ping = samples[samples.length ~/ 2]; // médiane
 
-      await for (var chunk in response.stream) {
-        totalBytes += chunk.length;
-        final elapsedSeconds = stopwatch.elapsed.inMilliseconds / 1000.0;
+    double jitter = 0;
+    if (samples.length > 1) {
+      double sum = 0;
+      for (var i = 1; i < samples.length; i++) {
+        sum += (samples[i] - samples[i - 1]).abs();
+      }
+      jitter = sum / (samples.length - 1);
+    }
+    return (ping: ping, jitter: jitter);
+  }
 
-        if (elapsedSeconds > 0) {
-          // Calcul de la vitesse en Mbps
-          currentSpeed = (totalBytes * 8) / (elapsedSeconds * 1000000);
+  static Future<double?> _timedRequest(HttpClient client) async {
+    try {
+      final sw = Stopwatch()..start();
+      final req = await client.getUrl(Uri.parse(_latencyUrl));
+      final resp = await req.close();
+      await resp.drain<void>();
+      sw.stop();
+      return sw.elapsedMicroseconds / 1000.0;
+    } catch (_) {
+      return null;
+    }
+  }
 
-          // Calcul du pourcentage de progression
-          final progress = (totalBytes / contentLength) * 100;
-
-          onProgress?.call(progress, currentSpeed);
+  /// Débit descendant en Mbps. `onProgress` reçoit la vitesse instantanée.
+  static Future<double> measureDownload({
+    void Function(double instantMbps)? onProgress,
+  }) {
+    return _measureThroughput(
+      connections: _downloadConnections,
+      duration: _downloadDuration,
+      onProgress: onProgress,
+      task: (client, addBytes, shouldStop) async {
+        while (!shouldStop()) {
+          final req = await client.getUrl(
+            Uri.parse('$_downloadUrl?bytes=$_downloadBytesPerRequest'),
+          );
+          final resp = await req.close();
+          if (resp.statusCode != 200) {
+            await resp.drain<void>();
+            throw SpeedTestException('HTTP ${resp.statusCode}');
+          }
+          await for (final chunk in resp) {
+            addBytes(chunk.length);
+            if (shouldStop()) break;
+          }
         }
-      }
-
-      stopwatch.stop();
-      final totalSeconds = stopwatch.elapsed.inMilliseconds / 1000.0;
-      final speedMbps = (totalBytes * 8) / (totalSeconds * 1000000);
-
-      return SpeedTestResult(
-        speedMbps: speedMbps,
-        bytes: totalBytes,
-        durationSeconds: totalSeconds,
-      );
-    } catch (e) {
-      debugPrint('Erreur test download: $e');
-      rethrow;
-    }
+      },
+    );
   }
 
-  /// Teste la vitesse d'upload
-  static Future<SpeedTestResult> testUploadSpeed({
-    Function(double progress, double currentSpeed)? onProgress,
+  /// Débit montant en Mbps. `onProgress` reçoit la vitesse instantanée.
+  static Future<double> measureUpload({
+    void Function(double instantMbps)? onProgress,
+  }) {
+    final chunk = Uint8List(_chunkSize);
+    return _measureThroughput(
+      connections: _uploadConnections,
+      duration: _uploadDuration,
+      onProgress: onProgress,
+      task: (client, addBytes, shouldStop) async {
+        while (!shouldStop()) {
+          final req = await client.postUrl(Uri.parse(_uploadUrl));
+          req.headers.contentType = ContentType.binary;
+          req.contentLength = _uploadBytesPerRequest;
+
+          int sent = 0;
+          final stream = () async* {
+            while (sent < _uploadBytesPerRequest && !shouldStop()) {
+              final take = (_uploadBytesPerRequest - sent) < chunk.length
+                  ? (_uploadBytesPerRequest - sent)
+                  : chunk.length;
+              sent += take;
+              // Compté au moment où la socket accepte le bloc (backpressure
+              // gérée par addStream) → reflète le débit réel.
+              addBytes(take);
+              yield take == chunk.length
+                  ? chunk
+                  : Uint8List.sublistView(chunk, 0, take);
+            }
+          }();
+
+          try {
+            await req.addStream(stream);
+            final resp = await req.close();
+            await resp.drain<void>();
+          } catch (_) {
+            break; // connexion coupée à l'arrêt du test
+          }
+        }
+      },
+    );
+  }
+
+  /// Moteur commun : lance `connections` tâches en parallèle, agrège les octets,
+  /// borne la mesure à `duration`, et renvoie le débit du régime établi (Mbps).
+  static Future<double> _measureThroughput({
+    required int connections,
+    required Duration duration,
+    required void Function(double instantMbps)? onProgress,
+    required Future<void> Function(
+      HttpClient client,
+      void Function(int) addBytes,
+      bool Function() shouldStop,
+    ) task,
   }) async {
-    try {
-      final stopwatch = Stopwatch()..start();
+    var totalBytes = 0;
+    var stop = false;
+    final overall = Stopwatch()..start();
 
-      // Créer des données de test (5 MB)
-      final testDataSize = 5 * 1024 * 1024;
-      final testData = List<int>.filled(testDataSize, 0);
+    void addBytes(int n) => totalBytes += n;
+    bool shouldStop() => stop;
 
-      double currentSpeed = 0.0;
-      int bytesSent = 0;
+    // Fenêtre glissante (vitesse instantanée) + borne de fin de warm-up.
+    var lastBytes = 0;
+    var lastTickUs = 0;
+    var warmupBytes = 0;
+    var warmupUs = 0;
+    var warmupDone = false;
 
-      final request = http.MultipartRequest('POST', Uri.parse(uploadTestUrl));
-      request.files.add(http.MultipartFile.fromBytes(
-        'file',
-        testData,
-        filename: 'speedtest.bin',
-      ));
-
-      // Simuler le progrès pour l'upload
-      final progressTimer = Timer.periodic(
-        const Duration(milliseconds: 100),
-        (timer) {
-          bytesSent += (testDataSize ~/ 50); // Simuler l'envoi progressif
-          if (bytesSent > testDataSize) bytesSent = testDataSize;
-
-          final elapsedSeconds = stopwatch.elapsed.inMilliseconds / 1000.0;
-          if (elapsedSeconds > 0) {
-            currentSpeed = (bytesSent * 8) / (elapsedSeconds * 1000000);
-            final progress = (bytesSent / testDataSize) * 100;
-            onProgress?.call(progress, currentSpeed);
-          }
-
-          if (bytesSent >= testDataSize) {
-            timer.cancel();
-          }
-        },
-      );
-
-      final response = await request.send();
-      progressTimer.cancel();
-
-      stopwatch.stop();
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        debugPrint('Upload status: ${response.statusCode}');
+    final ticker = Timer.periodic(const Duration(milliseconds: 200), (_) {
+      final nowUs = overall.elapsedMicroseconds;
+      final dUs = nowUs - lastTickUs;
+      if (dUs > 0) {
+        final dBytes = totalBytes - lastBytes;
+        onProgress?.call((dBytes * 8) / dUs); // octets*8 / µs == Mbit/s
       }
+      lastBytes = totalBytes;
+      lastTickUs = nowUs;
 
-      final totalSeconds = stopwatch.elapsed.inMilliseconds / 1000.0;
-      final speedMbps = (testDataSize * 8) / (totalSeconds * 1000000);
+      if (!warmupDone && overall.elapsed >= _warmup) {
+        warmupDone = true;
+        warmupBytes = totalBytes;
+        warmupUs = nowUs;
+      }
+    });
 
-      return SpeedTestResult(
-        speedMbps: speedMbps,
-        bytes: testDataSize,
-        durationSeconds: totalSeconds,
-      );
-    } catch (e) {
-      debugPrint('Erreur test upload: $e');
-      rethrow;
+    final clients = <HttpClient>[];
+    final futures = <Future<void>>[];
+    for (var i = 0; i < connections; i++) {
+      final client = HttpClient()
+        ..connectionTimeout = const Duration(seconds: 8)
+        ..idleTimeout = const Duration(seconds: 8);
+      clients.add(client);
+      futures.add(task(client, addBytes, shouldStop).catchError((_) {}));
     }
-  }
 
-  /// Teste le ping (latence)
-  static Future<double> testPing() async {
+    // On s'arrête à la durée impartie, ou plus tôt si toutes les tâches meurent.
+    await Future.any([
+      Future<void>.delayed(duration),
+      Future.wait(futures),
+    ]);
+
+    stop = true;
+    final endUs = overall.elapsedMicroseconds;
+    final endBytes = totalBytes;
+    ticker.cancel();
+    for (final c in clients) {
+      c.close(force: true);
+    }
     try {
-      final stopwatch = Stopwatch()..start();
+      await Future.wait(futures).timeout(const Duration(seconds: 2));
+    } catch (_) {}
+    overall.stop();
 
-      await http.head(Uri.parse('https://www.google.com'));
-
-      stopwatch.stop();
-      return stopwatch.elapsed.inMilliseconds.toDouble();
-    } catch (e) {
-      debugPrint('Erreur test ping: $e');
-      return -1;
+    if (endBytes == 0) {
+      throw const SpeedTestException('Aucune donnée transférée');
     }
+
+    // Régime établi (après warm-up) si disponible, sinon mesure globale.
+    final measuredBytes = warmupDone ? (endBytes - warmupBytes) : endBytes;
+    final measuredUs = warmupDone ? (endUs - warmupUs) : endUs;
+    if (measuredUs <= 0) return 0;
+    return (measuredBytes * 8) / measuredUs; // Mbps
   }
 }
 
-class SpeedTestResult {
-  final double speedMbps;
-  final int bytes;
-  final double durationSeconds;
-
-  SpeedTestResult({
-    required this.speedMbps,
-    required this.bytes,
-    required this.durationSeconds,
-  });
-
+class SpeedTestException implements Exception {
+  final String message;
+  const SpeedTestException(this.message);
   @override
-  String toString() {
-    return 'Speed: ${speedMbps.toStringAsFixed(2)} Mbps, '
-        'Bytes: $bytes, Duration: ${durationSeconds.toStringAsFixed(2)}s';
-  }
+  String toString() => message;
 }

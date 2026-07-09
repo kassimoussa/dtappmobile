@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../constants/app_theme.dart';
 import '../../models/agency.dart';
@@ -21,13 +20,25 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   bool _showMap = true;
-  final MapController _mapController = MapController();
-  double _currentZoom = 8.0;
+  GoogleMapController? _mapController;
+
+  // Centre de Djibouti comme position par défaut
+  static const LatLng _djiboutiCenter = LatLng(11.539376, 42.782418);
+  static const CameraPosition _initialCamera = CameraPosition(
+    target: _djiboutiCenter,
+    zoom: 8.0,
+  );
 
   @override
   void initState() {
     super.initState();
     _loadAgencies();
+  }
+
+  @override
+  void dispose() {
+    _mapController?.dispose();
+    super.dispose();
   }
 
   Future<void> _loadAgencies() async {
@@ -177,57 +188,34 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
   }
 
   Widget _buildMapView() {
-    // Centre de Djibouti comme position par défaut
-    const LatLng djiboutiCenter = LatLng(11.539376, 42.782418);
+    final Set<Marker> markers =
+        _agencies!
+            .where(
+              (agency) =>
+                  agency.latitude != null && agency.longitude != null,
+            )
+            .map(
+              (agency) => Marker(
+                markerId: MarkerId(agency.id.toString()),
+                position: LatLng(agency.latitude!, agency.longitude!),
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                  BitmapDescriptor.hueAzure,
+                ),
+                onTap: () => _showAgencyDetails(agency),
+              ),
+            )
+            .toSet();
 
     return Stack(
       children: [
-        FlutterMap(
-          mapController: _mapController,
-          options: MapOptions(
-            initialCenter: djiboutiCenter,
-            initialZoom: _currentZoom,
-            minZoom: 8.0,
-            maxZoom: 18.0,
-            onPositionChanged: (position, hasGesture) {
-              if (hasGesture) {
-                setState(() {
-                  _currentZoom = position.zoom;
-                });
-              }
-            },
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.example.dtservices',
-              tileProvider: NetworkTileProvider(),
-            ),
-            MarkerLayer(
-              markers:
-                  _agencies!
-                      .where(
-                        (agency) =>
-                            agency.latitude != null && agency.longitude != null,
-                      )
-                      .map((agency) {
-                        return Marker(
-                          point: LatLng(agency.latitude!, agency.longitude!),
-                          width: 40,
-                          height: 40,
-                          child: GestureDetector(
-                            onTap: () => _showAgencyDetails(agency),
-                            child: const Icon(
-                              Icons.location_on,
-                              color: AppTheme.dtBlue,
-                              size: 40,
-                            ),
-                          ),
-                        );
-                      })
-                      .toList(),
-            ),
-          ],
+        GoogleMap(
+          initialCameraPosition: _initialCamera,
+          onMapCreated: (controller) => _mapController = controller,
+          markers: markers,
+          minMaxZoomPreference: const MinMaxZoomPreference(8.0, 18.0),
+          myLocationButtonEnabled: false,
+          zoomControlsEnabled: false,
+          mapToolbarEnabled: false,
         ),
         Positioned(
           right: ResponsiveSize.getWidth(AppTheme.spacingM),
@@ -238,15 +226,8 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                 heroTag: 'zoom_in',
                 mini: true,
                 backgroundColor: Colors.white,
-                onPressed: () {
-                  setState(() {
-                    _currentZoom = (_currentZoom + 1).clamp(8.0, 18.0);
-                  });
-                  _mapController.move(
-                    _mapController.camera.center,
-                    _currentZoom,
-                  );
-                },
+                onPressed:
+                    () => _mapController?.animateCamera(CameraUpdate.zoomIn()),
                 child: const Icon(Icons.add, color: AppTheme.dtBlue),
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
@@ -254,15 +235,8 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                 heroTag: 'zoom_out',
                 mini: true,
                 backgroundColor: Colors.white,
-                onPressed: () {
-                  setState(() {
-                    _currentZoom = (_currentZoom - 1).clamp(8.0, 18.0);
-                  });
-                  _mapController.move(
-                    _mapController.camera.center,
-                    _currentZoom,
-                  );
-                },
+                onPressed:
+                    () => _mapController?.animateCamera(CameraUpdate.zoomOut()),
                 child: const Icon(Icons.remove, color: AppTheme.dtBlue),
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
@@ -270,12 +244,10 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                 heroTag: 'center_map',
                 mini: true,
                 backgroundColor: Colors.white,
-                onPressed: () {
-                  setState(() {
-                    _currentZoom = 8.0;
-                  });
-                  _mapController.move(djiboutiCenter, _currentZoom);
-                },
+                onPressed:
+                    () => _mapController?.animateCamera(
+                      CameraUpdate.newCameraPosition(_initialCamera),
+                    ),
                 child: const Icon(Icons.my_location, color: AppTheme.dtBlue),
               ),
             ],

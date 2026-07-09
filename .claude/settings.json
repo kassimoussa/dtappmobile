@@ -16,7 +16,16 @@
       "Bash(awk '/static Future<void> appResumed/,/^  \\\\}/' lib/services/user_session.dart)",
       "Bash(awk '{print $5, $9}')",
       "Bash(dart fix *)",
-      "Bash(git ls-remote *)"
+      "Bash(git ls-remote *)",
+      "Bash(awk '/^  google_maps_flutter:/{f=1} f&&/version:/{print; exit}' pubspec.lock)",
+      "Bash(keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android)",
+      "Bash(./gradlew signingReport)",
+      "Bash(/Users/kassim/Documents/flutter-dev/dtappmobile/android/gradlew -p /Users/kassim/Documents/flutter-dev/dtappmobile/android signingReport)",
+      "Bash(flutter doctor *)",
+      "Read(//Applications/Android Studio.app/Contents/jbr/Contents/Home/**)",
+      "Bash(JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\" /Users/kassim/Documents/flutter-dev/dtappmobile/android/gradlew -p /Users/kassim/Documents/flutter-dev/dtappmobile/android signingReport)",
+      "Bash(JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\" /Users/kassim/Documents/flutter-dev/dtappmobile/android/gradlew -p /Users/kassim/Documents/flutter-dev/dtappmobile/android :app:signingReport)",
+      "Bash(flutter test *)"
     ]
   }
 }

@@ -744,6 +744,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pingLabel => 'Ping';
 
   @override
+  String get jitterLabel => 'Gigue';
+
+  @override
   String speedTestError(Object error) {
     return 'Erreur: $error';
   }

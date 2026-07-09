@@ -13,7 +13,13 @@
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
 
-        <receiver android:name="com.jaumard.smsautofill.SmsAutoFillReceiver" 
+        <!-- Google Maps API key (Maps SDK for Android), restricted by package
+             name + SHA-1 in Google Cloud Console. -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCVxnQjI-xrrj6LOzMZtEFdWSdpdGhRR3o" />
+
+        <receiver android:name="com.jaumard.smsautofill.SmsAutoFillReceiver"
           android:exported="true">
             <intent-filter>
                 <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED" />
