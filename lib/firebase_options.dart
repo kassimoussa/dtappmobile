@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBLDBf3jihn6HSVTM7GzcuN0u__dZlNYSk',
-    appId: '1:295853171575:android:0d0203499ec7ceb690b772',
+    appId: '1:295853171575:android:ecc578ff830ad43f90b772',
     messagingSenderId: '295853171575',
     projectId: 'dtapp-60b81',
     storageBucket: 'dtapp-60b81.firebasestorage.app',
@@ -59,10 +59,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDDiZ4JB_TKTnw9T1MFIRWzxPNkUXgkFDM',
-    appId: '1:295853171575:ios:899617c0abcb6f0d90b772',
+    appId: '1:295853171575:ios:897d39cd6d77396590b772',
     messagingSenderId: '295853171575',
     projectId: 'dtapp-60b81',
     storageBucket: 'dtapp-60b81.firebasestorage.app',
-    iosBundleId: 'com.example.dtapp3',
+    iosBundleId: 'com.djiboutitelecom.dtappmobile',
   );
 }

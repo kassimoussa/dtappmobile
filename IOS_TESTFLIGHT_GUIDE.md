@@ -12,34 +12,9 @@ Bundle ID cible (iOS **et** Android) : `com.djiboutitelecom.dtappmobile`
 - `UIBackgroundModes` (`fetch`, `remote-notification`) dans `Info.plist`
 - `ITSAppUsesNonExemptEncryption = false` dans `Info.plist` (pas de question de conformité export à chaque build)
 - Icônes iOS vérifiées (1024×1024 sans canal alpha, logo DT)
-
-## Étape 1 — Régénérer la config Firebase (À FAIRE EN PREMIER)
-
-⚠️ **Le build Android est cassé tant que cette étape n'est pas faite** : le plugin
-`google-services` exige que `google-services.json` contienne le nouveau package.
-
-Dans un terminal (la commande pose des questions interactives, ne pas la lancer via un script) :
-
-```bash
-flutterfire configure \
-  --project=dtapp-60b81 \
-  --platforms=ios,android \
-  --ios-bundle-id=com.djiboutitelecom.dtappmobile \
-  --android-package-name=com.djiboutitelecom.dtappmobile
-```
-
-La CLI crée les deux nouvelles apps dans le projet Firebase `dtapp-60b81` et régénère :
-
-- `lib/firebase_options.dart` (nouveaux `appId`, `iosBundleId`)
-- `ios/Runner/GoogleService-Info.plist`
-- `android/app/google-services.json`
-
-Vérification :
-
-```bash
-grep iosBundleId lib/firebase_options.dart          # → com.djiboutitelecom.dtappmobile
-flutter build apk --debug                            # → doit passer
-```
+- Config Firebase régénérée : apps iOS + Android `com.djiboutitelecom.dtappmobile`
+  enregistrées dans le projet `dtapp-60b81` ; `firebase_options.dart`,
+  `GoogleService-Info.plist` et `google-services.json` à jour ; build Android vérifié
 
 ## Étape 2 — Côté Apple Developer (rôle Admin requis pour la clé)
 
