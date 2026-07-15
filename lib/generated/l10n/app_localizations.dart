@@ -266,6 +266,162 @@ abstract class AppLocalizations {
   /// **'Changer la langue'**
   String get changeLanguage;
 
+  /// No description provided for @notifications.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @notificationPreferences.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préférences de notification'**
+  String get notificationPreferences;
+
+  /// No description provided for @notificationsIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez les notifications que vous souhaitez recevoir.'**
+  String get notificationsIntro;
+
+  /// No description provided for @notifTransactions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transactions'**
+  String get notifTransactions;
+
+  /// No description provided for @notifTransactionsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechargements, transferts et achats de forfaits'**
+  String get notifTransactionsDesc;
+
+  /// No description provided for @notifOffers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offres & promotions'**
+  String get notifOffers;
+
+  /// No description provided for @notifOffersDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelles offres et bons plans'**
+  String get notifOffersDesc;
+
+  /// No description provided for @notifBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde & forfaits'**
+  String get notifBalance;
+
+  /// No description provided for @notifBalanceDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alertes de solde bas et d\'expiration de forfait'**
+  String get notifBalanceDesc;
+
+  /// No description provided for @notifSecurity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sécurité'**
+  String get notifSecurity;
+
+  /// No description provided for @notifSecurityDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexions et changements liés à la sécurité'**
+  String get notifSecurityDesc;
+
+  /// No description provided for @supportSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Support & à propos'**
+  String get supportSection;
+
+  /// No description provided for @helpSupport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide & support'**
+  String get helpSupport;
+
+  /// No description provided for @termsOfService.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions d\'utilisation'**
+  String get termsOfService;
+
+  /// No description provided for @about.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos'**
+  String get about;
+
+  /// No description provided for @shareApp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager l\'application'**
+  String get shareApp;
+
+  /// No description provided for @rateApp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Noter l\'application'**
+  String get rateApp;
+
+  /// No description provided for @shareAppMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez DT Mobile, l\'application de Djibouti Telecom :'**
+  String get shareAppMessage;
+
+  /// No description provided for @faqTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions fréquentes'**
+  String get faqTitle;
+
+  /// No description provided for @contactTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous contacter'**
+  String get contactTitle;
+
+  /// No description provided for @callCustomerService.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appeler le service client'**
+  String get callCustomerService;
+
+  /// No description provided for @emailSupport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous écrire par e-mail'**
+  String get emailSupport;
+
+  /// No description provided for @version.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @licenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Licences open source'**
+  String get licenses;
+
+  /// No description provided for @rightsReserved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous droits réservés.'**
+  String get rightsReserved;
+
+  /// No description provided for @linkError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'ouvrir le lien.'**
+  String get linkError;
+
   /// No description provided for @connectionSettings.
   ///
   /// In fr, this message translates to:

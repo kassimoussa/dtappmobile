@@ -98,6 +98,89 @@ class AppLocalizationsFr extends AppLocalizations {
   String get changeLanguage => 'Changer la langue';
 
   @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get notificationPreferences => 'Préférences de notification';
+
+  @override
+  String get notificationsIntro =>
+      'Choisissez les notifications que vous souhaitez recevoir.';
+
+  @override
+  String get notifTransactions => 'Transactions';
+
+  @override
+  String get notifTransactionsDesc =>
+      'Rechargements, transferts et achats de forfaits';
+
+  @override
+  String get notifOffers => 'Offres & promotions';
+
+  @override
+  String get notifOffersDesc => 'Nouvelles offres et bons plans';
+
+  @override
+  String get notifBalance => 'Solde & forfaits';
+
+  @override
+  String get notifBalanceDesc =>
+      'Alertes de solde bas et d\'expiration de forfait';
+
+  @override
+  String get notifSecurity => 'Sécurité';
+
+  @override
+  String get notifSecurityDesc =>
+      'Connexions et changements liés à la sécurité';
+
+  @override
+  String get supportSection => 'Support & à propos';
+
+  @override
+  String get helpSupport => 'Aide & support';
+
+  @override
+  String get termsOfService => 'Conditions d\'utilisation';
+
+  @override
+  String get about => 'À propos';
+
+  @override
+  String get shareApp => 'Partager l\'application';
+
+  @override
+  String get rateApp => 'Noter l\'application';
+
+  @override
+  String get shareAppMessage =>
+      'Découvrez DT Mobile, l\'application de Djibouti Telecom :';
+
+  @override
+  String get faqTitle => 'Questions fréquentes';
+
+  @override
+  String get contactTitle => 'Nous contacter';
+
+  @override
+  String get callCustomerService => 'Appeler le service client';
+
+  @override
+  String get emailSupport => 'Nous écrire par e-mail';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get licenses => 'Licences open source';
+
+  @override
+  String get rightsReserved => 'Tous droits réservés.';
+
+  @override
+  String get linkError => 'Impossible d\'ouvrir le lien.';
+
+  @override
   String get connectionSettings => 'Paramètre de connexion';
 
   @override

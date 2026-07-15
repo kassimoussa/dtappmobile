@@ -2,6 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/widgets/settings_card.dart';
+import 'package:dtservices/widgets/dt_button.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+// import '../settings/notification_preferences_screen.dart'; // masqué temporairement
+// import '../settings/help_support_screen.dart'; // masqué temporairement
+import '../settings/terms_of_service_screen.dart';
+import '../settings/about_screen.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../services/profile_service.dart';
@@ -134,6 +141,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildProfileHeader(),
                               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
                               _buildPreferencesSection(l10n, authProvider),
+                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                              _buildSupportSection(l10n),
                               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
                               _buildLogoutButton(l10n),
                               if (_errorMessage != null) ...[
@@ -280,7 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildPreferencesSection(AppLocalizations l10n, AuthProvider authProvider) {
     return SettingsCard(
-      title: l10n.preferences,
+      // title: l10n.preferences, // masqué temporairement
       children: [
         SettingsTile(
           icon: Icons.settings,
@@ -340,8 +349,100 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           },
         ),
+        // Notifications — masqué temporairement
+        /*
+        SettingsTile(
+          icon: Icons.notifications_none_rounded,
+          label: l10n.notifications,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotificationPreferencesScreen(),
+              ),
+            );
+          },
+        ),
+        */
       ],
     );
+  }
+
+  Widget _buildSupportSection(AppLocalizations l10n) {
+    return SettingsCard(
+      // title: l10n.supportSection, // masqué temporairement
+      children: [
+        // Aide & support — masqué temporairement
+        /*
+        SettingsTile(
+          icon: Icons.help_outline_rounded,
+          label: l10n.helpSupport,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const HelpSupportScreen()),
+          ),
+        ),
+        */
+        SettingsTile(
+          icon: Icons.description_outlined,
+          label: l10n.termsOfService,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TermsOfServiceScreen()),
+          ),
+        ),
+        SettingsTile(
+          icon: Icons.info_outline_rounded,
+          label: l10n.about,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AboutScreen()),
+          ),
+        ),
+        SettingsTile(
+          icon: Icons.share_outlined,
+          label: l10n.shareApp,
+          onTap: () => _shareApp(l10n),
+        ),
+        SettingsTile(
+          icon: Icons.star_outline_rounded,
+          label: l10n.rateApp,
+          onTap: () => _rateApp(l10n),
+        ),
+      ],
+    );
+  }
+
+  static const String _playStoreUrl =
+      'https://play.google.com/store/apps/details?id=com.djiboutitelecom.dtappmobile';
+
+  Future<void> _shareApp(AppLocalizations l10n) async {
+    try {
+      await SharePlus.instance.share(
+        ShareParams(text: '${l10n.shareAppMessage} $_playStoreUrl'),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.linkError)));
+      }
+    }
+  }
+
+  Future<void> _rateApp(AppLocalizations l10n) async {
+    final uri = Uri.parse(_playStoreUrl);
+    try {
+      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!ok && mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.linkError)));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.linkError)));
+      }
+    }
   }
 
   Widget _buildErrorMessage() {
@@ -392,27 +493,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text(l10n.logout, style: AppTheme.subheadingStyle),
-          content: Text(l10n.logoutConfirmation, style: AppTheme.bodyStyle),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(l10n.cancel, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+        return Dialog(
+          backgroundColor: Colors.white,
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: ResponsiveSize.getWidth(AppTheme.spacingXL),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              ResponsiveSize.getWidth(AppTheme.radiusL),
             ),
-            ElevatedButton(
-              style: AppTheme.primaryButtonStyle.copyWith(
-                backgroundColor: WidgetStateProperty.all(Colors.red.shade600),
-                foregroundColor: WidgetStateProperty.all(Colors.white),
-              ),
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                _performLogout(l10n);
-              },
-              child: Text(l10n.logoutAction),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingL)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: ResponsiveSize.getWidth(64),
+                  height: ResponsiveSize.getWidth(64),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.dtBlueO10,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.logout_rounded,
+                    color: AppTheme.dtBlue,
+                    size: ResponsiveSize.getFontSize(30),
+                  ),
+                ),
+                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                Text(
+                  l10n.logout,
+                  textAlign: TextAlign.center,
+                  style: AppTheme.subheadingStyle.copyWith(
+                    fontSize: ResponsiveSize.getFontSize(20),
+                  ),
+                ),
+                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
+                Text(
+                  l10n.logoutConfirmation,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: ResponsiveSize.getFontSize(14),
+                    color: AppTheme.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+                DtButton.danger(
+                  label: l10n.logoutAction,
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    _performLogout(l10n);
+                  },
+                ),
+                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
+                DtButton.text(
+                  label: l10n.cancel,
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

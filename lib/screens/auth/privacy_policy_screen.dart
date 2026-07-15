@@ -337,11 +337,11 @@ class _PolicyContentFr extends StatelessWidget {
       _section('8. Vos droits'),
       _bullet('Droit d\'accès, de rectification et d\'effacement.'),
       _bullet('Droit d\'opposition et à la portabilité.'),
-      _body('Contact : privacy@djiboutitelecom.dj'),
+      _body('Contact : developer@djibtel.dj'),
       _section('9. Modifications'),
       _body('Toute modification substantielle vous sera notifiée via l\'application. L\'utilisation continue vaut acceptation.'),
       _section('10. Contact'),
-      _body('Djibouti Telecom — Boulevard de la République, Djibouti\nTél. : +253 21 35 07 90 — privacy@djiboutitelecom.dj'),
+      _body('Djibouti Telecom — Boulevard de la République, Djibouti\nTél. : +253 21 35 07 90 — developer@djibtel.dj'),
       _footer(),
     ]);
   }
@@ -384,11 +384,11 @@ class _PolicyContentEn extends StatelessWidget {
       _section('8. Your Rights'),
       _bullet('Right of access, rectification, and erasure.'),
       _bullet('Right to object and to data portability.'),
-      _body('Contact: privacy@djiboutitelecom.dj'),
+      _body('Contact: developer@djibtel.dj'),
       _section('9. Changes'),
       _body('Any significant change will be notified via the application. Continued use constitutes acceptance.'),
       _section('10. Contact'),
-      _body('Djibouti Telecom — Boulevard de la République, Djibouti\nTel: +253 21 35 07 90 — privacy@djiboutitelecom.dj'),
+      _body('Djibouti Telecom — Boulevard de la République, Djibouti\nTel: +253 21 35 07 90 — developer@djibtel.dj'),
       _footer(),
     ]);
   }

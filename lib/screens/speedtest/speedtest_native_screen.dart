@@ -22,8 +22,9 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
     10, 25, 50, 100, 250, 500, 1000, 2500,
   ];
 
-  static const Color _downloadColor = Color(0xFF00C853);
+  static const Color _downloadColor = AppTheme.dtBlue;
   static const Color _uploadColor = Color(0xFFF9A825);
+  static const Color _pingColor = Color(0xFF00ACC1);
   static const Color _jitterColor = Color(0xFF7C4DFF);
 
   double _downloadRate = 0.0;
@@ -239,8 +240,12 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
     );
   }
 
+  // Durée d'interpolation entre deux mesures (arrivent toutes les ~200 ms) :
+  // légèrement plus longue pour un glissé continu sans à-coups.
+  static const Duration _tweenDuration = Duration(milliseconds: 320);
+
   Widget _buildSpeedGauge() {
-    final fraction = (_displaySpeed / _gaugeMax).clamp(0.0, 1.0);
+    final targetFraction = (_displaySpeed / _gaugeMax).clamp(0.0, 1.0);
 
     return Container(
       height: ResponsiveSize.getHeight(280),
@@ -258,67 +263,85 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
           ),
         ],
       ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, _) {
-              return CustomPaint(
-                size: Size(
-                  ResponsiveSize.getWidth(220),
-                  ResponsiveSize.getHeight(220),
-                ),
-                painter: SpeedGaugePainter(
-                  fraction: fraction,
-                  gaugeMax: _gaugeMax,
-                  isActive: _isTesting,
-                  pulse: _animationController.value,
-                ),
-              );
-            },
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                _displaySpeed.toStringAsFixed(_displaySpeed >= 100 ? 0 : 1),
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(52),
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.dtBlue,
-                  height: 1.0,
-                ),
-              ),
-              Text(
-                'Mbps',
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(15),
-                  color: AppTheme.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: ResponsiveSize.getHeight(10)),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+      // Interpolation continue de la valeur (chiffre) et de la fraction (arc)
+      // entre chaque mesure → l'aiguille glisse au lieu de sauter.
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(end: _displaySpeed),
+        duration: _tweenDuration,
+        curve: Curves.easeOut,
+        builder: (context, animatedSpeed, _) {
+          return TweenAnimationBuilder<double>(
+            tween: Tween<double>(end: targetFraction),
+            duration: _tweenDuration,
+            curve: Curves.easeOut,
+            builder: (context, animatedFraction, __) {
+              return Stack(
+                alignment: Alignment.center,
                 children: [
-                  if (_isTesting) ...[
-                    _PhaseDot(color: _phaseColor()),
-                    SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingXS)),
-                  ],
-                  Text(
-                    _getPhaseText(),
-                    style: TextStyle(
-                      fontSize: ResponsiveSize.getFontSize(13),
-                      color: _phaseColor(),
-                      fontWeight: FontWeight.w600,
-                    ),
+                  AnimatedBuilder(
+                    animation: _animationController,
+                    builder: (context, ___) {
+                      return CustomPaint(
+                        size: Size(
+                          ResponsiveSize.getWidth(220),
+                          ResponsiveSize.getHeight(220),
+                        ),
+                        painter: SpeedGaugePainter(
+                          fraction: animatedFraction,
+                          gaugeMax: _gaugeMax,
+                          isActive: _isTesting,
+                          pulse: _animationController.value,
+                        ),
+                      );
+                    },
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        animatedSpeed.toStringAsFixed(0),
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(52),
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.dtBlue,
+                          height: 1.0,
+                        ),
+                      ),
+                      Text(
+                        'Mbps',
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(15),
+                          color: AppTheme.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: ResponsiveSize.getHeight(10)),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_isTesting) ...[
+                            _PhaseDot(color: _phaseColor()),
+                            SizedBox(
+                              width: ResponsiveSize.getWidth(AppTheme.spacingXS),
+                            ),
+                          ],
+                          Text(
+                            _getPhaseText(),
+                            style: TextStyle(
+                              fontSize: ResponsiveSize.getFontSize(13),
+                              color: _phaseColor(),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ],
-          ),
-        ],
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -378,7 +401,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
                   l10n.pingLabel,
                   hasPing ? _ping.toStringAsFixed(0) : '--',
                   'ms',
-                  AppTheme.dtBlue,
+                  _pingColor,
                 ),
               ),
               _divider(),
@@ -514,7 +537,7 @@ class _SpeedtestNativeScreenState extends State<SpeedtestNativeScreen>
       case TestingPhase.upload:
         return _uploadColor;
       case TestingPhase.ping:
-        return AppTheme.dtBlue;
+        return _pingColor;
       case TestingPhase.done:
         return _downloadColor;
       case TestingPhase.idle:
@@ -617,7 +640,7 @@ class SpeedGaugePainter extends CustomPainter {
         ..shader = const SweepGradient(
           startAngle: _startAngle,
           endAngle: _startAngle + _sweepAngle,
-          colors: [Color(0xFF00C853), Color(0xFFFFCA28), Color(0xFFFF6F00)],
+          colors: [AppTheme.dtBlue, AppTheme.dtBlueLight, AppTheme.dtYellow],
           stops: [0.0, 0.5, 1.0],
           transform: GradientRotation(_startAngle),
         ).createShader(Rect.fromCircle(center: center, radius: radius))
@@ -642,7 +665,7 @@ class SpeedGaugePainter extends CustomPainter {
       canvas.drawCircle(
         thumbCenter,
         glow + 4,
-        Paint()..color = const Color(0xFFFF6F00).withValues(alpha: 0.18),
+        Paint()..color = AppTheme.dtBlue.withValues(alpha: 0.18),
       );
       canvas.drawCircle(
         thumbCenter,
@@ -653,7 +676,7 @@ class SpeedGaugePainter extends CustomPainter {
         thumbCenter,
         6,
         Paint()
-          ..color = const Color(0xFFFF6F00)
+          ..color = AppTheme.dtBlue
           ..style = PaintingStyle.stroke
           ..strokeWidth = 3,
       );

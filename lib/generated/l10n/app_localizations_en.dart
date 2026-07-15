@@ -97,6 +97,86 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changeLanguage => 'Change Language';
 
   @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get notificationPreferences => 'Notification preferences';
+
+  @override
+  String get notificationsIntro =>
+      'Choose which notifications you want to receive.';
+
+  @override
+  String get notifTransactions => 'Transactions';
+
+  @override
+  String get notifTransactionsDesc =>
+      'Top-ups, transfers and package purchases';
+
+  @override
+  String get notifOffers => 'Offers & promotions';
+
+  @override
+  String get notifOffersDesc => 'New offers and deals';
+
+  @override
+  String get notifBalance => 'Balance & packages';
+
+  @override
+  String get notifBalanceDesc => 'Low balance and package expiry alerts';
+
+  @override
+  String get notifSecurity => 'Security';
+
+  @override
+  String get notifSecurityDesc => 'Sign-ins and security-related changes';
+
+  @override
+  String get supportSection => 'Support & about';
+
+  @override
+  String get helpSupport => 'Help & support';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get shareApp => 'Share the app';
+
+  @override
+  String get rateApp => 'Rate the app';
+
+  @override
+  String get shareAppMessage => 'Discover DT Mobile, the Djibouti Telecom app:';
+
+  @override
+  String get faqTitle => 'Frequently asked questions';
+
+  @override
+  String get contactTitle => 'Contact us';
+
+  @override
+  String get callCustomerService => 'Call customer service';
+
+  @override
+  String get emailSupport => 'Email us';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get licenses => 'Open source licenses';
+
+  @override
+  String get rightsReserved => 'All rights reserved.';
+
+  @override
+  String get linkError => 'Could not open the link.';
+
+  @override
   String get connectionSettings => 'Connection Settings';
 
   @override
