@@ -34,7 +34,9 @@ class _PinResetOtpScreenState extends State<PinResetOtpScreen>
 
   void _initSmsListener() async {
     try {
-      SmsAutoFill().listenForCode;
+      // listenForCode() DU MIXIN (avec parenthèses) : s'abonne au flux `code`
+      // et arme SMS Retriever. L'ancienne référence sans () ne démarrait rien.
+      listenForCode(smsCodeRegexPattern: r'\d{6}');
       debugPrint('Écoute des SMS activée (PinResetOtpScreen)');
     } catch (e) {
       debugPrint('Erreur init SMS listener: $e');
@@ -43,7 +45,8 @@ class _PinResetOtpScreenState extends State<PinResetOtpScreen>
 
   @override
   void dispose() {
-    SmsAutoFill().unregisterListener();
+    cancel(); // annule l'abonnement au flux du mixin CodeAutoFill
+    unregisterListener(); // arrête l'écoute native (SMS Retriever)
     _otpController.dispose();
     super.dispose();
   }

@@ -36,10 +36,29 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showMainBalance = false;
   bool _showBonusBalance = false;
   String _normalPhoneNumber = '';
-  final PageController _balancePageController = PageController(viewportFraction: 0.92);
+  final PageController _balancePageController = PageController(
+    viewportFraction: 0.92,
+  );
   int _currentBalancePage = 0;
   Key _bannerSliderKey = UniqueKey();
   final _notifStore = NotificationStore();
+
+  // Écran « Nos agences » monté en overlay persistant : la carte Google Maps
+  // est ainsi construite une seule fois (au premier affichage) puis conservée,
+  // au lieu d'être recréée à chaque ouverture via un Navigator.push.
+  bool _agenciesOpen = false;
+  bool _agenciesEverOpened = false;
+
+  void _openAgencies() {
+    setState(() {
+      _agenciesOpen = true;
+      _agenciesEverOpened = true;
+    });
+  }
+
+  void _closeAgencies() {
+    setState(() => _agenciesOpen = false);
+  }
 
   @override
   void initState() {
@@ -91,9 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
     BannerService.clearCache();
 
     // Lancer les rafraîchissements en parallèle
-    final futures = <Future>[
-      context.read<BalanceProvider>().refreshBalance(),
-    ];
+    final futures = <Future>[context.read<BalanceProvider>().refreshBalance()];
 
     // Rafraîchir TopUp si une session est active
     final topUpProvider = context.read<TopUpProvider>();
@@ -116,72 +133,99 @@ class _HomeScreenState extends State<HomeScreen> {
     ResponsiveSize.init(context);
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundGrey,
-      body: RefreshIndicator(
-        onRefresh: _handleRefresh,
-        color: AppTheme.dtBlue,
-        backgroundColor: Colors.white,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics(),
-          ),
-          child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return PopScope(
+      // Quand l'overlay agences est ouvert, le bouton retour le referme
+      // au lieu de quitter le home.
+      canPop: !_agenciesOpen,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _agenciesOpen) _closeAgencies();
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.backgroundGrey,
+        body: Stack(
           children: [
-            // Premium Header with Swipable Cards
-            RepaintBoundary(
-              child: Consumer<BalanceProvider>(
-                builder: (context, balanceProvider, _) =>
-                    _buildHeroCard(balanceProvider, l10n),
+            RefreshIndicator(
+              onRefresh: _handleRefresh,
+              color: AppTheme.dtBlue,
+              backgroundColor: Colors.white,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Premium Header with Swipable Cards
+                    RepaintBoundary(
+                      child: Consumer<BalanceProvider>(
+                        builder:
+                            (context, balanceProvider, _) =>
+                                _buildHeroCard(balanceProvider, l10n),
+                      ),
+                    ),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveSize.getWidth(20),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: ResponsiveSize.getHeight(10)),
+
+                          // Titre section actions
+                          Text(
+                            l10n.quickActions,
+                            style: AppTheme.subheadingStyle,
+                          ),
+
+                          SizedBox(height: ResponsiveSize.getHeight(16)),
+
+                          // Actions rapides
+                          _buildQuickActions(l10n),
+
+                          SizedBox(height: ResponsiveSize.getHeight(32)),
+
+                          // Bannières
+                          Container(
+                            decoration: AppTheme.cardDecoration.copyWith(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: BannerSlider(key: _bannerSliderKey),
+                            ),
+                          ),
+
+                          SizedBox(height: ResponsiveSize.getHeight(32)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: ResponsiveSize.getWidth(20),
+            // Overlay « Nos agences » : monté au premier affichage puis conservé
+            // vivant (Offstage quand fermé) → la carte Google Maps n'est plus
+            // recréée à chaque ouverture de l'écran.
+            if (_agenciesEverOpened)
+              Offstage(
+                offstage: !_agenciesOpen,
+                child: TickerMode(
+                  enabled: _agenciesOpen,
+                  child: AgenciesScreen(onClose: _closeAgencies),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: ResponsiveSize.getHeight(10)),
-
-                  // Titre section actions
-                  Text(
-                    l10n.quickActions,
-                    style: AppTheme.subheadingStyle,
-                  ),
-
-                  SizedBox(height: ResponsiveSize.getHeight(16)),
-
-                  // Actions rapides
-                  _buildQuickActions(l10n),
-
-                  SizedBox(height: ResponsiveSize.getHeight(32)),
-
-                  // Bannières
-                  Container(
-                    decoration: AppTheme.cardDecoration.copyWith(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: BannerSlider(key: _bannerSliderKey),
-                    ),
-                  ),
-
-                  SizedBox(height: ResponsiveSize.getHeight(32)),
-                ],
-              ),
-            ),
           ],
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-  Widget _buildHeroCard(BalanceProvider balanceProvider, AppLocalizations l10n) {
+  Widget _buildHeroCard(
+    BalanceProvider balanceProvider,
+    AppLocalizations l10n,
+  ) {
     return Stack(
       children: [
         // Background Gradient that spans top half organically
@@ -200,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-        
+
         SafeArea(
           bottom: false,
           child: Column(
@@ -209,12 +253,13 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: ResponsiveSize.getHeight(12)),
               _buildGlassAppBar(l10n),
               SizedBox(height: ResponsiveSize.getHeight(24)),
-              
+
               // Swipeable Cards
               RepaintBoundary(
                 child: Consumer<BalanceProvider>(
-                  builder: (context, balanceProvider, _) =>
-                      _buildSwipeableBalances(balanceProvider, l10n),
+                  builder:
+                      (context, balanceProvider, _) =>
+                          _buildSwipeableBalances(balanceProvider, l10n),
                 ),
               ),
             ],
@@ -228,98 +273,133 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(20)),
       child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: ResponsiveSize.getWidth(16),
-              vertical: ResponsiveSize.getHeight(12),
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveSize.getWidth(16),
+          vertical: ResponsiveSize.getHeight(12),
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveSize.getWidth(8),
+                vertical: ResponsiveSize.getHeight(4),
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Image.asset(
+                'assets/logos/dtlogo-img-wbg.png',
+                height: ResponsiveSize.getHeight(24),
+                cacheWidth: 120,
+              ),
             ),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(8),
-                    vertical: ResponsiveSize.getHeight(4),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Image.asset(
-                    'assets/logos/dtlogo-img-wbg.png',
-                    height: ResponsiveSize.getHeight(24),
-                    cacheWidth: 120,
-                  ),
+            const Spacer(),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveSize.getWidth(8),
+              ),
+              child: Text(
+                l10n.welcomeMessage(_normalPhoneNumber),
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  color: Colors.white,
+                  fontSize: ResponsiveSize.getFontSize(14),
+                  fontWeight: FontWeight.w500,
                 ),
-                const Spacer(),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(8)),
-                  child: Text(
-                    l10n.welcomeMessage(_normalPhoneNumber),
-                    style: TextStyle(
-                      fontFamily: 'Outfit',
-                      color: Colors.white,
-                      fontSize: ResponsiveSize.getFontSize(14),
-                      fontWeight: FontWeight.w500,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const Spacer(),
+            SizedBox(width: ResponsiveSize.getWidth(8)),
+            GestureDetector(
+              onTap:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationsScreen(),
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                const Spacer(),
-                SizedBox(width: ResponsiveSize.getWidth(8)),
-                GestureDetector(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(ResponsiveSize.getWidth(8)),
-                        decoration: BoxDecoration(
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(ResponsiveSize.getWidth(8)),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                    child: Icon(
+                      Icons.notifications_rounded,
+                      color: Colors.white,
+                      size: ResponsiveSize.getFontSize(20),
+                    ),
+                  ),
+                  if (_notifStore.badgeCount > 0)
+                    Positioned(
+                      top: -2,
+                      right: -2,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFD32F2F),
                           shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.2),
                         ),
-                        child: Icon(Icons.notifications_rounded, color: Colors.white, size: ResponsiveSize.getFontSize(20)),
-                      ),
-                      if (_notifStore.badgeCount > 0)
-                        Positioned(
-                          top: -2,
-                          right: -2,
-                          child: Container(
-                            padding: const EdgeInsets.all(3),
-                            decoration: const BoxDecoration(color: Color(0xFFD32F2F), shape: BoxShape.circle),
-                            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                            child: Text(
-                              _notifStore.badgeCount > 99 ? '99+' : '${_notifStore.badgeCount}',
-                              style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                            ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          _notifStore.badgeCount > 99
+                              ? '99+'
+                              : '${_notifStore.badgeCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: ResponsiveSize.getWidth(8)),
-                GestureDetector(
-                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
-                   child: Container(
-                     padding: EdgeInsets.all(ResponsiveSize.getWidth(8)),
-                     decoration: BoxDecoration(
-                       shape: BoxShape.circle,
-                       color: Colors.white.withValues(alpha: 0.2)
-                     ),
-                     child: Icon(Icons.person_rounded, color: Colors.white, size: ResponsiveSize.getFontSize(20))
-                   )
-                ),
-              ],
+                      ),
+                    ),
+                ],
+              ),
             ),
+            SizedBox(width: ResponsiveSize.getWidth(8)),
+            GestureDetector(
+              onTap:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  ),
+              child: Container(
+                padding: EdgeInsets.all(ResponsiveSize.getWidth(8)),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.2),
+                ),
+                child: Icon(
+                  Icons.person_rounded,
+                  color: Colors.white,
+                  size: ResponsiveSize.getFontSize(20),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSwipeableBalances(BalanceProvider balanceProvider, AppLocalizations l10n) {
+  Widget _buildSwipeableBalances(
+    BalanceProvider balanceProvider,
+    AppLocalizations l10n,
+  ) {
     return Column(
       children: [
         SizedBox(
@@ -343,7 +423,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 dateExp: balanceProvider.dateExpiration,
                 l10n: l10n,
                 isVisible: _showMainBalance,
-                onToggleVisibility: () => setState(() => _showMainBalance = !_showMainBalance),
+                onToggleVisibility:
+                    () => setState(() => _showMainBalance = !_showMainBalance),
               ),
               _buildCreditCard(
                 title: l10n.bonusBalance,
@@ -356,7 +437,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 dateExp: null,
                 l10n: l10n,
                 isVisible: _showBonusBalance,
-                onToggleVisibility: () => setState(() => _showBonusBalance = !_showBonusBalance),
+                onToggleVisibility:
+                    () =>
+                        setState(() => _showBonusBalance = !_showBonusBalance),
               ),
             ],
           ),
@@ -368,11 +451,19 @@ class _HomeScreenState extends State<HomeScreen> {
           children: List.generate(2, (index) {
             return AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              margin: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(4)),
+              margin: EdgeInsets.symmetric(
+                horizontal: ResponsiveSize.getWidth(4),
+              ),
               height: ResponsiveSize.getHeight(6),
-              width: _currentBalancePage == index ? ResponsiveSize.getWidth(24) : ResponsiveSize.getWidth(8),
+              width:
+                  _currentBalancePage == index
+                      ? ResponsiveSize.getWidth(24)
+                      : ResponsiveSize.getWidth(8),
               decoration: BoxDecoration(
-                color: _currentBalancePage == index ? AppTheme.dtYellow : Colors.white.withValues(alpha: 0.3),
+                color:
+                    _currentBalancePage == index
+                        ? AppTheme.dtYellow
+                        : Colors.white.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
             );
@@ -422,87 +513,102 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned(
             right: -20,
             bottom: -20,
-            child: Icon(icon, size: ResponsiveSize.getHeight(90), color: textColor.withValues(alpha: 0.1)),
+            child: Icon(
+              icon,
+              size: ResponsiveSize.getHeight(90),
+              color: textColor.withValues(alpha: 0.1),
+            ),
           ),
           Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            color: textColor.withValues(alpha: 0.9),
-                            fontSize: ResponsiveSize.getFontSize(14),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: onToggleVisibility,
-                          child: Container(
-                            padding: EdgeInsets.all(ResponsiveSize.getWidth(6)),
-                            decoration: BoxDecoration(
-                              color: textColor.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              isVisible ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-                              color: textColor,
-                              size: ResponsiveSize.getFontSize(18),
-                            ),
-                          ),
-                        ),
-                      ],
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      color: textColor.withValues(alpha: 0.9),
+                      fontSize: ResponsiveSize.getFontSize(14),
+                      fontWeight: FontWeight.w600,
                     ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if (isLoading)
-                            SizedBox(
-                              height: ResponsiveSize.getHeight(24),
-                              width: ResponsiveSize.getHeight(24),
-                              child: CircularProgressIndicator(color: textColor, strokeWidth: 2),
-                            )
-                          else
-                            Text(
-                              isVisible ? amount : '••••••••',
-                              style: TextStyle(
-                                fontFamily: 'Outfit',
-                                color: textColor,
-                                fontSize: ResponsiveSize.getFontSize(28),
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: isVisible ? 0 : 4.0,
-                              ),
-                            ),
-                          if (dateExp != null && dateExp.isNotEmpty && !isLoading) ...[
-                            SizedBox(height: ResponsiveSize.getHeight(6)),
-                            Row(
-                              children: [
-                                Icon(Icons.schedule_rounded, size: 14, color: textColor.withValues(alpha: 0.7)),
-                                SizedBox(width: ResponsiveSize.getWidth(6)),
-                                Text(
-                                  l10n.expiresOn(dateExp),
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    color: textColor.withValues(alpha: 0.8),
-                                    fontSize: ResponsiveSize.getFontSize(12),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ]
-                        ],
+                  ),
+                  GestureDetector(
+                    onTap: onToggleVisibility,
+                    child: Container(
+                      padding: EdgeInsets.all(ResponsiveSize.getWidth(6)),
+                      decoration: BoxDecoration(
+                        color: textColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        isVisible
+                            ? Icons.visibility_rounded
+                            : Icons.visibility_off_rounded,
+                        color: textColor,
+                        size: ResponsiveSize.getFontSize(18),
                       ),
                     ),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (isLoading)
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(24),
+                        width: ResponsiveSize.getHeight(24),
+                        child: CircularProgressIndicator(
+                          color: textColor,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    else
+                      Text(
+                        isVisible ? amount : '••••••••',
+                        style: TextStyle(
+                          fontFamily: 'Outfit',
+                          color: textColor,
+                          fontSize: ResponsiveSize.getFontSize(28),
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: isVisible ? 0 : 4.0,
+                        ),
+                      ),
+                    if (dateExp != null &&
+                        dateExp.isNotEmpty &&
+                        !isLoading) ...[
+                      SizedBox(height: ResponsiveSize.getHeight(6)),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.schedule_rounded,
+                            size: 14,
+                            color: textColor.withValues(alpha: 0.7),
+                          ),
+                          SizedBox(width: ResponsiveSize.getWidth(6)),
+                          Text(
+                            l10n.expiresOn(dateExp),
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              color: textColor.withValues(alpha: 0.8),
+                              fontSize: ResponsiveSize.getFontSize(12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -516,7 +622,15 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _buildUnifiedAction(
                 icon: Icons.local_mall_rounded,
                 label: l10n.buyPackage,
-                onTap: () => Navigator.push(context, CustomRouteTransitions.slideRightRoute(page: ForfaitRecipientScreen(phoneNumber: _normalPhoneNumber))),
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      CustomRouteTransitions.slideRightRoute(
+                        page: ForfaitRecipientScreen(
+                          phoneNumber: _normalPhoneNumber,
+                        ),
+                      ),
+                    ),
               ),
             ),
             SizedBox(width: ResponsiveSize.getWidth(12)),
@@ -524,7 +638,15 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _buildUnifiedAction(
                 icon: Icons.add_circle_rounded,
                 label: l10n.creditRefill,
-                onTap: () => Navigator.push(context, CustomRouteTransitions.slideRightRoute(page: RefillRecipientScreen(phoneNumber: _normalPhoneNumber))),
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      CustomRouteTransitions.slideRightRoute(
+                        page: RefillRecipientScreen(
+                          phoneNumber: _normalPhoneNumber,
+                        ),
+                      ),
+                    ),
               ),
             ),
             SizedBox(width: ResponsiveSize.getWidth(12)),
@@ -532,7 +654,13 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _buildUnifiedAction(
                 icon: Icons.inventory_2_rounded,
                 label: l10n.myPackages,
-                onTap: () => Navigator.push(context, CustomRouteTransitions.slideRightRoute(page: const ForfaitsActifsScreen())),
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      CustomRouteTransitions.slideRightRoute(
+                        page: const ForfaitsActifsScreen(),
+                      ),
+                    ),
               ),
             ),
           ],
@@ -545,7 +673,15 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _buildUnifiedAction(
                 icon: Icons.send_rounded,
                 label: l10n.creditTransfer,
-                onTap: () => Navigator.push(context, CustomRouteTransitions.slideRightRoute(page: TransferInputScreen(phoneNumber: _normalPhoneNumber))),
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      CustomRouteTransitions.slideRightRoute(
+                        page: TransferInputScreen(
+                          phoneNumber: _normalPhoneNumber,
+                        ),
+                      ),
+                    ),
               ),
             ),
             SizedBox(width: ResponsiveSize.getWidth(12)),
@@ -553,7 +689,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _buildUnifiedAction(
                 icon: Icons.location_on_rounded,
                 label: l10n.ourAgencies,
-                onTap: () => Navigator.push(context, CustomRouteTransitions.slideRightRoute(page: const AgenciesScreen())),
+                onTap: _openAgencies,
               ),
             ),
             SizedBox(width: ResponsiveSize.getWidth(12)),
@@ -561,7 +697,13 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _buildUnifiedAction(
                 icon: Icons.speed_rounded,
                 label: l10n.speedTest,
-                onTap: () => Navigator.push(context, CustomRouteTransitions.slideRightRoute(page: const SpeedtestNativeScreen())),
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      CustomRouteTransitions.slideRightRoute(
+                        page: const SpeedtestNativeScreen(),
+                      ),
+                    ),
               ),
             ),
           ],
@@ -586,8 +728,8 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
-              icon, 
-              color: AppTheme.dtBlueDark, 
+              icon,
+              color: AppTheme.dtBlueDark,
               size: ResponsiveSize.getFontSize(24),
             ),
           ),
@@ -608,5 +750,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 }

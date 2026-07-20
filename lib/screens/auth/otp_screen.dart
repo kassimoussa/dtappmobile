@@ -1,4 +1,5 @@
 // lib/screens/auth/otp_screen.dart
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/widgets/dt_button.dart';
@@ -69,11 +70,23 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
     }
   }
 
-  // AJOUT - Initialiser l'écoute des SMS
+  // Initialise l'écoute du SMS OTP.
+  // On appelle listenForCode() DU MIXIN CodeAutoFill (avec parenthèses !) :
+  // il s'abonne au flux `code` ET arme l'API SMS Retriever d'Android.
+  // L'ancien `SmsAutoFill().listenForCode;` n'était qu'une référence de
+  // méthode jamais appelée → l'écoute ne démarrait jamais.
   void _initSmsListener() async {
     try {
-      SmsAutoFill().listenForCode;
+      listenForCode(smsCodeRegexPattern: r'\d{6}');
       debugPrint('Écoute des SMS activée');
+
+      // Android (SMS Retriever) : le SMS OTP doit se terminer par la signature
+      // d'app (hash de 11 caractères) sinon le SMS n'est jamais remis à l'app.
+      // On loggue ce hash en debug pour le communiquer au backend.
+      if (kDebugMode) {
+        final signature = await SmsAutoFill().getAppSignature;
+        debugPrint('🔑 App signature SMS (à inclure dans le SMS OTP): $signature');
+      }
     } catch (e) {
       debugPrint('Erreur lors de l\'initialisation de l\'auto-fill: $e');
     }
@@ -127,7 +140,8 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
       node.dispose();
     }
     _timer?.cancel();
-    SmsAutoFill().unregisterListener(); // AJOUT - Arrêter l'écoute des SMS
+    cancel(); // annule l'abonnement au flux du mixin CodeAutoFill
+    unregisterListener(); // arrête l'écoute native (SMS Retriever)
     super.dispose();
   }
 
@@ -157,7 +171,10 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
       );
       _startTimer();
       _clearAllFields();
-      SmsAutoFill().listenForCode;
+      // Ré-arme SMS Retriever pour le nouveau code (usage unique / expire
+      // après 5 min). L'abonnement du mixin reste actif : inutile de rappeler
+      // le listenForCode() du mixin (cela créerait un second abonnement).
+      SmsAutoFill().listenForCode(smsCodeRegexPattern: r'\d{6}');
     } else {
       final message = _rateLimitMessage(authProvider, l10n)
           ?? authProvider.errorMessage

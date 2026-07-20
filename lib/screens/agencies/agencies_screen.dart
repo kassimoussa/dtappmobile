@@ -9,7 +9,11 @@ import '../../utils/responsive_size.dart';
 import '../../generated/l10n/app_localizations.dart';
 
 class AgenciesScreen extends StatefulWidget {
-  const AgenciesScreen({super.key});
+  /// Appelé par le bouton retour quand l'écran est monté en overlay persistant
+  /// (au lieu d'être poussé comme une route). Si null, on fait un Navigator.pop.
+  final VoidCallback? onClose;
+
+  const AgenciesScreen({super.key, this.onClose});
 
   @override
   State<AgenciesScreen> createState() => _AgenciesScreenState();
@@ -41,14 +45,16 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
     super.dispose();
   }
 
-  Future<void> _loadAgencies() async {
+  Future<void> _loadAgencies({bool forceRefresh = false}) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final agencies = await AgencyService.getAgencies();
+      final agencies = await AgencyService.getAgencies(
+        forceRefresh: forceRefresh,
+      );
       setState(() {
         _agencies = agencies;
         _isLoading = false;
@@ -79,10 +85,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [
-                    AppTheme.dtBlueO08,
-                    Colors.transparent,
-                  ],
+                  colors: [AppTheme.dtBlueO08, Colors.transparent],
                   radius: 0.8,
                 ),
               ),
@@ -91,7 +94,16 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
           SafeArea(
             child: Column(
               children: [
-                GlassAppBar(title: l10n.agenciesTitle, actions: [GlassAppBarAction(icon: _showMap ? Icons.list : Icons.map, onTap: () => setState(() => _showMap = !_showMap))]),
+                GlassAppBar(
+                  title: l10n.agenciesTitle,
+                  onBack: widget.onClose,
+                  actions: [
+                    GlassAppBarAction(
+                      icon: _showMap ? Icons.list : Icons.map,
+                      onTap: () => setState(() => _showMap = !_showMap),
+                    ),
+                  ],
+                ),
                 Expanded(child: _buildBody()),
               ],
             ),
@@ -100,7 +112,6 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
       ),
     );
   }
-
 
   Widget _buildBody() {
     final l10n = AppLocalizations.of(context)!;
@@ -148,7 +159,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
               ),
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
               ElevatedButton.icon(
-                onPressed: _loadAgencies,
+                onPressed: () => _loadAgencies(forceRefresh: true),
                 icon: const Icon(Icons.refresh),
                 label: Text(l10n.retry),
                 style: ElevatedButton.styleFrom(
@@ -174,7 +185,12 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
       );
     }
 
-    return _showMap ? _buildMapView() : _buildListView();
+    // IndexedStack conserve les deux vues dans l'arbre : la carte Google Maps
+    // n'est donc pas détruite/réinitialisée à chaque bascule liste <-> carte.
+    return IndexedStack(
+      index: _showMap ? 0 : 1,
+      children: [_buildMapView(), _buildListView()],
+    );
   }
 
   Widget _buildListView() {
@@ -191,8 +207,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
     final Set<Marker> markers =
         _agencies!
             .where(
-              (agency) =>
-                  agency.latitude != null && agency.longitude != null,
+              (agency) => agency.latitude != null && agency.longitude != null,
             )
             .map(
               (agency) => Marker(
@@ -646,14 +661,22 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
 
   String _translateDay(String frenchDay, AppLocalizations l10n) {
     switch (frenchDay.toLowerCase().trim()) {
-      case 'dimanche': return l10n.daySunday;
-      case 'lundi':    return l10n.dayMonday;
-      case 'mardi':    return l10n.dayTuesday;
-      case 'mercredi': return l10n.dayWednesday;
-      case 'jeudi':    return l10n.dayThursday;
-      case 'vendredi': return l10n.dayFriday;
-      case 'samedi':   return l10n.daySaturday;
-      default:         return _capitalize(frenchDay);
+      case 'dimanche':
+        return l10n.daySunday;
+      case 'lundi':
+        return l10n.dayMonday;
+      case 'mardi':
+        return l10n.dayTuesday;
+      case 'mercredi':
+        return l10n.dayWednesday;
+      case 'jeudi':
+        return l10n.dayThursday;
+      case 'vendredi':
+        return l10n.dayFriday;
+      case 'samedi':
+        return l10n.daySaturday;
+      default:
+        return _capitalize(frenchDay);
     }
   }
 
