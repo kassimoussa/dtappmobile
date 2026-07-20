@@ -38,6 +38,22 @@
 	<string>Cette application utilise Face ID pour sécuriser vos achats et transferts.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>This app needs access to the local network for debugging.</string>
+	<!-- ⚠️ TEMPORAIRE : autorise le HTTP en clair vers l'IP du backend DT
+	     (le 443 vers cette IP est bloqué par le réseau mobile). À retirer dès
+	     que le firewall/DNS est corrigé. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>196.201.193.252</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<false/>
+			</dict>
+		</dict>
+	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

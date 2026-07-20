@@ -349,7 +349,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           },
         ),
-        // Notifications — masqué temporairement
+        // Notifications — masqué temporairement (pas encore prêt)
         /*
         SettingsTile(
           icon: Icons.notifications_none_rounded,

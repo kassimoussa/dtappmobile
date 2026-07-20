@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ⚠️ TEMPORAIRE : autorise le trafic en clair (HTTP) UNIQUEMENT vers l'IP du
+     backend DT (le 443 vers cette IP est bloqué par le réseau mobile — cf.
+     app_config.dart). Tout le reste de l'app reste en HTTPS. À retirer dès que
+     le firewall/DNS est corrigé. -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">196.201.193.252</domain>
+    </domain-config>
+</network-security-config>

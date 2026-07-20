@@ -3,6 +3,7 @@ import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/widgets/dt_button.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/services/refill_service.dart';
+import 'package:dtservices/services/user_session.dart';
 import 'package:dtservices/models/refill_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -346,11 +347,28 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
     });
 
     try {
-      // Appel API réel
-      final response = await RefillService.processRefillCode(
-        phoneNumber: widget.phoneNumber,
-        voucherCode: cleanCode,
-      );
+      // Deux endpoints distincts : /air/refill/gift pour un autre numéro
+      // (l'autorisation porte sur le payeur), /air/refill/voucher pour soi-même.
+      final RefillResponse response;
+      if (widget.isGift) {
+        final payer = await UserSession.getPhoneNumber();
+        if (payer == null || payer.isEmpty) {
+          throw RefillException(
+            code: -105,
+            message: 'Session expirée, veuillez vous reconnecter',
+          );
+        }
+        response = await RefillService.processGiftRefill(
+          payerMsisdn: payer,
+          beneficiaryMsisdn: widget.phoneNumber,
+          voucherCode: cleanCode,
+        );
+      } else {
+        response = await RefillService.processRefillCode(
+          phoneNumber: widget.phoneNumber,
+          voucherCode: cleanCode,
+        );
+      }
 
       if (!mounted) return;
 

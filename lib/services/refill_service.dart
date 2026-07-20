@@ -9,6 +9,7 @@ import 'package:dtservices/models/refill_models.dart';
 
 class RefillService {
   static const String _baseUrl = '${AppConfig.baseUrl}/air/refill/voucher';
+  static const String _giftUrl = '${AppConfig.baseUrl}/air/refill/gift';
   static const Duration _timeout = Duration(seconds: 30);
 
   /// Effectue une recharge avec un code voucher
@@ -22,41 +23,74 @@ class RefillService {
     required String phoneNumber,
     required String voucherCode,
   }) async {
+    final msisdn = _cleanPhoneNumber(phoneNumber);
+    final code = _cleanVoucherCode(voucherCode);
+    _validateInputs(msisdn, code);
+
+    return _send(_baseUrl, {
+      'msisdn': msisdn,
+      'voucher_code': code,
+      'request_details': true,
+      'request_account_before': true,
+      'request_account_after': true,
+    });
+  }
+
+  /// Recharge le numéro d'un AUTRE abonné (« recharge cadeau ») via un voucher.
+  ///
+  /// ⚠️ Ne pas utiliser [processRefillCode] pour un tiers : cet endpoint-là
+  /// applique un contrôle de propriété et renvoie un 403.
+  ///
+  /// [payerMsisdn] : titulaire du token (celui qui paye)
+  /// [beneficiaryMsisdn] : numéro rechargé (doit différer du payeur)
+  static Future<RefillResponse> processGiftRefill({
+    required String payerMsisdn,
+    required String beneficiaryMsisdn,
+    required String voucherCode,
+  }) async {
+    final payer = _cleanPhoneNumber(payerMsisdn);
+    final beneficiary = _cleanPhoneNumber(beneficiaryMsisdn);
+    final code = _cleanVoucherCode(voucherCode);
+
+    _validateInputs(payer, code);
+    _validateInputs(beneficiary, code);
+
+    // Le serveur impose `different:msisdn` : on vérifie avant l'appel pour un
+    // message clair (les formats 77XXXXXX et 25377XXXXXX sont normalisés).
+    if (_localPart(payer) == _localPart(beneficiary)) {
+      throw RefillException(
+        code: -104,
+        message: 'Le bénéficiaire doit être différent de votre numéro',
+      );
+    }
+
+    return _send(_giftUrl, {
+      'msisdn': payer,
+      'beneficiary_msisdn': beneficiary,
+      'voucher_code': code,
+      'refill_type': 2,
+      'selected_option': 1,
+      'request_details': true,
+      'request_account_before': true,
+      'request_account_after': true,
+    });
+  }
+
+  /// Envoi commun aux deux variantes (recharge perso / cadeau).
+  static Future<RefillResponse> _send(
+    String url,
+    Map<String, dynamic> requestBody,
+  ) async {
     try {
-      // Nettoyer le numéro et le code
-      final cleanPhoneNumber = _cleanPhoneNumber(phoneNumber);
-      final cleanVoucherCode = _cleanVoucherCode(voucherCode);
-
-      // Validation des paramètres
-      _validateInputs(cleanPhoneNumber, cleanVoucherCode);
-
-      // Debug des paramètres
-      print('=== PARAMETRES REQUETE ===');
-      print('Numéro original: $phoneNumber');
-      print('Numéro nettoyé: $cleanPhoneNumber');
-      print('Code voucher: $cleanVoucherCode');
-      print('==========================');
-
-      // Construire l'URL
-      final uri = Uri.parse(_baseUrl);
-      
-      print('URL de la requête: $_baseUrl');
-
-      // Préparer le body de la requête comme dans le fichier de test
-      final Map<String, dynamic> requestBody = {
-        'msisdn': cleanPhoneNumber,
-        'voucher_code': cleanVoucherCode,
-        'request_details': true,
-        'request_account_before': true,
-        'request_account_after': true,
-      };
-
-      print('Body de la requête: ${jsonEncode(requestBody)}');
+      print('=== REQUETE RECHARGE ===');
+      print('URL: $url');
+      print('Body: ${jsonEncode(requestBody)}');
+      print('========================');
 
       // Faire la requête HTTP POST
       final response = await http
           .post(
-            uri,
+            Uri.parse(url),
             headers: await ApiClient.authHeaders(),
             body: jsonEncode(requestBody),
           )
@@ -175,6 +209,11 @@ class RefillService {
     
     return cleaned;
   }
+
+  /// Partie locale du MSISDN (sans indicatif 253) — permet de comparer deux
+  /// numéros saisis dans des formats différents.
+  static String _localPart(String msisdn) =>
+      msisdn.startsWith('253') ? msisdn.substring(3) : msisdn;
 
   /// Nettoie le code voucher
   static String _cleanVoucherCode(String voucherCode) {

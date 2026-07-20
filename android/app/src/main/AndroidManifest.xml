@@ -11,7 +11,8 @@
     <application
         android:label="DJIBTEL"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/launcher_icon"
+        android:networkSecurityConfig="@xml/network_security_config">
 
         <!-- Google Maps API key (Maps SDK for Android), restricted by package
              name + SHA-1 in Google Cloud Console. -->
