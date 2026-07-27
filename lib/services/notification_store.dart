@@ -54,7 +54,8 @@ class NotificationStore extends ChangeNotifier {
         final data = Map<String, dynamic>.from(map['data'] as Map? ?? {});
         final type = data['type'] as String?;
         final notif = AppNotification(
-          id: '${DateTime.now().millisecondsSinceEpoch}_${raw.indexOf(item)}',
+          id: map['id'] as String? ??
+              '${DateTime.now().millisecondsSinceEpoch}_${raw.indexOf(item)}',
           title: map['title'] as String? ?? '',
           body: map['body'] as String? ?? '',
           channel: AppNotification.channelFromType(type),
@@ -90,6 +91,10 @@ class NotificationStore extends ChangeNotifier {
 
   Future<void> add(AppNotification notif) async {
     if (_phoneNumber.isEmpty) return;
+    // Une même notification FCM arrive par deux chemins : la file d'attente du
+    // background handler et le tap qui réveille l'app. L'id stable (messageId)
+    // évite de la stocker et de la compter deux fois.
+    if (_notifications.any((n) => n.id == notif.id)) return;
     _notifications.insert(0, notif);
     if (_notifications.length > _maxStored) {
       _notifications = _notifications.sublist(0, _maxStored);

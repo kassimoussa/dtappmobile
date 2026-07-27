@@ -38,6 +38,8 @@
 	<string>Cette application utilise Face ID pour sécuriser vos achats et transferts.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>This app needs access to the local network for debugging.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Votre position permet de vous situer sur la carte et de trouver les agences Djibouti Telecom les plus proches de vous.</string>
 	<!-- ⚠️ TEMPORAIRE : autorise le HTTP en clair vers l'IP du backend DT
 	     (le 443 vers cette IP est bloqué par le réseau mobile). À retirer dès
 	     que le firewall/DNS est corrigé. -->

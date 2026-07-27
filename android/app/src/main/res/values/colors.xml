@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Teinte de la petite icône de notification. On utilise le jaune DT plutôt
+         que le bleu #002464 : Android applique cette couleur telle quelle dans le
+         volet de notifications, et un bleu aussi sombre devient illisible sur le
+         fond sombre du thème nuit. Pour repasser au bleu de marque, remplacer
+         par #002464 ici et dans _notificationAccent (notification_service.dart). -->
+    <color name="notification_accent">#F8C02C</color>
+</resources>

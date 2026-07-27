@@ -20,6 +20,16 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCVxnQjI-xrrj6LOzMZtEFdWSdpdGhRR3o" />
 
+        <!-- Icône des notifications affichées automatiquement par FCM. Doit rester
+             alignée sur celle de AndroidInitializationSettings (notification_service.dart),
+             sinon les deux chemins d'affichage n'ont pas le même logo. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_accent" />
+
         <receiver android:name="com.jaumard.smsautofill.SmsAutoFillReceiver"
           android:exported="true">
             <intent-filter>

@@ -16,6 +16,11 @@ const _chTransactionsId = 'dtservices_transactions';
 const _chPromotionsId = 'dtservices_promotions';
 const _chSecurityId = 'dtservices_security';
 
+/// Teinte de la petite icône de notification. Doit rester alignée sur
+/// `notification_accent` dans android/app/src/main/res/values/colors.xml,
+/// sinon les notifs FCM et les notifs locales n'ont pas la même couleur.
+const _notificationAccent = Color(0xFFF8C02C);
+
 const _chTransactions = AndroidNotificationChannel(
   _chTransactionsId,
   'Transactions',
@@ -57,6 +62,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final prefs = await SharedPreferences.getInstance();
   final raw = prefs.getStringList(_kPendingQueue) ?? [];
   raw.add(jsonEncode({
+    // Id stable de FCM : permet de dédupliquer si l'utilisateur tape la notif,
+    // ce qui la fait aussi arriver par onMessageOpenedApp.
+    'id': message.messageId,
     'title': message.notification!.title ?? '',
     'body': message.notification!.body ?? '',
     'data': message.data,
@@ -124,6 +132,7 @@ class NotificationService {
       debugPrint('📩 Foreground: ${message.notification?.title}');
       if (message.notification != null) {
         _handleIncoming(
+          id: message.messageId,
           title: message.notification!.title ?? '',
           body: message.notification!.body ?? '',
           data: message.data,
@@ -137,6 +146,7 @@ class NotificationService {
       debugPrint('🔔 Tap depuis arrière-plan: ${message.data}');
       if (message.notification != null) {
         _handleIncoming(
+          id: message.messageId,
           title: message.notification!.title ?? '',
           body: message.notification!.body ?? '',
           data: message.data,
@@ -152,6 +162,7 @@ class NotificationService {
       debugPrint('🚀 Tap depuis app fermée: ${initialMessage.data}');
       if (initialMessage.notification != null) {
         await _handleIncoming(
+          id: initialMessage.messageId,
           title: initialMessage.notification!.title ?? '',
           body: initialMessage.notification!.body ?? '',
           data: initialMessage.data,
@@ -167,8 +178,10 @@ class NotificationService {
   // ─── Canaux locaux ────────────────────────────────────────────────────────
 
   Future<void> _initLocalNotifications() async {
+    // Silhouette blanche sur transparent : Android ne garde que le canal alpha
+    // de la petite icône. Un mipmap en couleur donnerait un carré blanc plein.
     const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@drawable/ic_notification');
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -193,11 +206,17 @@ class NotificationService {
 
   // ─── Réception unifiée ────────────────────────────────────────────────────
 
+  /// [foreground] : affiche la bannière in-app.
+  /// [showSystem] : affiche une notification système. À n'activer que pour les
+  /// notifications purement locales : quand le message vient de FCM, Android a
+  /// déjà affiché la notification tout seul et en réafficher une la duplique.
   Future<void> _handleIncoming({
+    String? id,
     required String title,
     required String body,
     required Map<String, dynamic> data,
     bool foreground = false,
+    bool showSystem = false,
   }) async {
     final type = data['type'] as String?;
     final channel = AppNotification.channelFromType(type);
@@ -217,7 +236,7 @@ class NotificationService {
 
     // Persistance et notif système en async
     final notif = AppNotification(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
       body: body,
       channel: channel,
@@ -226,7 +245,7 @@ class NotificationService {
     );
     await NotificationStore().add(notif);
 
-    if (!foreground) {
+    if (showSystem) {
       await _showSystemNotification(
         title: title,
         body: body,
@@ -269,6 +288,7 @@ class NotificationService {
       priority: priority,
       showWhen: true,
       number: badgeCount,
+      color: _notificationAccent,
     );
 
     final notificationDetails = NotificationDetails(
@@ -310,11 +330,15 @@ class NotificationService {
         'Votre solde est de ${balance.toStringAsFixed(0)} DJF. Pensez à recharger.';
     const data = <String, dynamic>{'type': 'low_balance'};
 
+    // Notification purement locale : Android n'en a affiché aucune de son côté,
+    // c'est donc à nous de le faire quand l'app n'est pas au premier plan.
+    final hasOverlay = navigatorKey.currentState?.overlay != null;
     await _handleIncoming(
       title: title,
       body: body,
       data: data,
-      foreground: navigatorKey.currentState?.overlay != null,
+      foreground: hasOverlay,
+      showSystem: !hasOverlay,
     );
   }
 
