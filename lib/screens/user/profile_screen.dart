@@ -7,7 +7,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 // import '../settings/notification_preferences_screen.dart'; // masqué temporairement
 // import '../settings/help_support_screen.dart'; // masqué temporairement
-import '../settings/terms_of_service_screen.dart';
+// Conditions d'utilisation et Politique de confidentialité sont regroupées
+// dans « À propos » : les lister aussi ici faisait doublon.
 import '../settings/about_screen.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
@@ -15,6 +16,7 @@ import '../../services/profile_service.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../settings/language_selection_screen.dart';
 import '../settings/connection_settings_screen.dart';
+import '../settings/payment_settings_screen.dart';
 import '../auth/pin/pin_management_screen.dart';
 import '../auth/pin/pin_setup_screen.dart';
 import 'edit_profile_screen.dart';
@@ -304,6 +306,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
         ),
         SettingsTile(
+          icon: Icons.payments_outlined,
+          label: l10n.paymentSettings,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PaymentSettingsScreen(),
+              ),
+            );
+          },
+        ),
+        SettingsTile(
           icon: authProvider.hasPin ? Icons.lock_outline : Icons.lock_open_rounded,
           label: authProvider.hasPin ? l10n.managePin : l10n.setupPinTitle,
           iconColor: authProvider.hasPin ? null : AppTheme.dtBlue,
@@ -383,14 +397,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         */
-        SettingsTile(
-          icon: Icons.description_outlined,
-          label: l10n.termsOfService,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const TermsOfServiceScreen()),
-          ),
-        ),
         SettingsTile(
           icon: Icons.info_outline_rounded,
           label: l10n.about,

@@ -96,11 +96,12 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
   @override
   void codeUpdated() {
     debugPrint('Code OTP détecté: $code');
-    if (code != null && code!.length == 6) {
+    final detected = code;
+    if (detected != null && detected.length == 6) {
       setState(() {
         // Remplir automatiquement les champs
         for (int i = 0; i < 6; i++) {
-          _controllers[i].text = code![i];
+          _setField(i, detected[i]);
         }
       });
 
@@ -109,6 +110,59 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
         if (mounted) {
           _onOTPSubmit();
         }
+      });
+    }
+  }
+
+  // Écrit un chiffre dans une case. On passe par `value` (et non `text`) pour
+  // laisser le curseur après le chiffre : sinon la saisie suivante s'insère
+  // avant lui. L'affectation programmatique ne déclenche pas `onChanged`.
+  void _setField(int index, String digit) {
+    _controllers[index].value = TextEditingValue(
+      text: digit,
+      selection: TextSelection.collapsed(offset: digit.length),
+    );
+  }
+
+  // Saisie utilisateur dans une case. Une valeur de plus d'un caractère vient
+  // d'un collage (ou d'une suggestion du clavier) : on répartit les chiffres
+  // sur les cases suivantes au lieu de n'en garder qu'un.
+  void _onFieldChanged(int index, String value) {
+    if (value.length > 1) {
+      _distributeDigits(value, index);
+      return;
+    }
+
+    if (value.isNotEmpty && index < 5) {
+      _focusNodes[index + 1].requestFocus();
+    }
+    if (value.isEmpty && index > 0) {
+      _focusNodes[index - 1].requestFocus();
+    }
+    if (index == 5 && value.isNotEmpty) {
+      Future.microtask(() {
+        if (mounted) _onOTPSubmit();
+      });
+    }
+  }
+
+  // Répartit une suite de chiffres à partir de `startIndex`. Un code complet
+  // (6 chiffres ou plus) repart toujours de la première case, quelle que soit
+  // celle dans laquelle il a été collé ; le surplus est ignoré.
+  void _distributeDigits(String digits, int startIndex) {
+    final start = digits.length >= 6 ? 0 : startIndex;
+    var lastFilled = start - 1;
+
+    for (var i = 0; i < digits.length && start + i < 6; i++) {
+      _setField(start + i, digits[i]);
+      lastFilled = start + i;
+    }
+
+    _focusNodes[(lastFilled + 1).clamp(0, 5)].requestFocus();
+
+    if (_controllers.every((c) => c.text.isNotEmpty)) {
+      Future.microtask(() {
+        if (mounted) _onOTPSubmit();
       });
     }
   }
@@ -415,23 +469,14 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                         ),
                         counterText: '',
                       ),
+                      // Pas de LengthLimitingTextInputFormatter(1) ici : il
+                      // tronquerait un code collé à son premier chiffre avant
+                      // même `onChanged`. C'est _onFieldChanged qui ramène
+                      // chaque case à un seul chiffre.
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(1),
                       ],
-                      onChanged: (value) {
-                        if (value.isNotEmpty && index < 5) {
-                          _focusNodes[index + 1].requestFocus();
-                        }
-                        if (value.isEmpty && index > 0) {
-                          _focusNodes[index - 1].requestFocus();
-                        }
-                        if (index == 5 && value.isNotEmpty) {
-                          Future.microtask(() {
-                            if (mounted) _onOTPSubmit();
-                          });
-                        }
-                      },
+                      onChanged: (value) => _onFieldChanged(index, value),
                     ),
                   ),
                 ),

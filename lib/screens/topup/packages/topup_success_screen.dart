@@ -232,11 +232,13 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
                                         AppLocalizations.of(context)!.packageLabel,
                                         widget.package.displayName,
                                       ),
-                                      _buildDivider(),
-                                      _buildDetailRow(
-                                        AppLocalizations.of(context)!.transactionId,
-                                        widget.transactionId,
-                                      ),
+                                      // Le n° de transaction n'est pas affiché ici :
+                                      // la réponse d'achat porte `transaction_id`
+                                      // (référence de requête « dtapp… »), alors que
+                                      // l'historique affiche `transaction_no`, le
+                                      // numéro connu de l'opérateur. Montrer le
+                                      // premier donnait au client une référence
+                                      // introuvable par le service client.
                                       _buildDivider(),
                                       _buildDetailRow(
                                         AppLocalizations.of(context)!.fixedLineLabel,
@@ -406,16 +408,19 @@ class _TopUpSuccessScreenState extends State<TopUpSuccessScreen>
           Text(
             label,
             style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(15),
+              fontSize: ResponsiveSize.getFontSize(13),
               color: Colors.grey[600],
             ),
           ),
+          // Sans cet écart, une valeur longue (le n° de transaction) vient
+          // coller son libellé.
+          SizedBox(width: ResponsiveSize.getWidth(12)),
           Flexible(
             child: Text(
               value,
               textAlign: TextAlign.end,
               style: TextStyle(
-                fontSize: ResponsiveSize.getFontSize(15),
+                fontSize: ResponsiveSize.getFontSize(14),
                 fontWeight: FontWeight.bold,
                 color: AppTheme.dtBlue,
               ),

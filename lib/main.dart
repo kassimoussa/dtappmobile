@@ -160,6 +160,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       routes: {
         '/login': (_) => const LoginScreen(),
       },
+      // Ferme le clavier dès qu'on tape en dehors d'un champ de saisie.
+      // Placé ici plutôt que dans chaque écran : le builder enveloppe toute
+      // l'app, y compris les routes poussées et les bottom sheets.
+      // translucent laisse passer les taps vers les widgets en dessous, donc
+      // boutons, listes et défilement continuent de fonctionner normalement.
+      builder: (context, child) => GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: child,
+      ),
       theme: ThemeData(
         primaryColor: AppTheme.dtBlue,
         colorScheme: ColorScheme.fromSeed(

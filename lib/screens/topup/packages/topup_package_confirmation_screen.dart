@@ -14,6 +14,7 @@ import '../../../exceptions/topup_exception.dart';
 import '../../../generated/l10n/app_localizations.dart';
 import '../../../providers/balance_provider.dart';
 import '../../../providers/transaction_provider.dart';
+import '../../../services/payment_auth_guard.dart';
 import 'topup_success_screen.dart';
 import '../subscription/topup_subscription_success_screen.dart';
 
@@ -79,18 +80,16 @@ bool _isSubscription() {
     return widget.packageType == 1 || widget.packageType == 2;
   }
 
-  String _getPackageSubTitle() {
-    final l10n = AppLocalizations.of(context)!;
-    if (widget.package.description.isNotEmpty) {
-      return widget.package.description;
-    }
-
-    final isDataPackage = widget.package.isDataPackage;
-    if (_isSubscription()) {
-      return isDataPackage ? l10n.dataSubscription : l10n.voiceSubscription;
-    } else {
-      return isDataPackage ? l10n.dataPackageAddon : l10n.voicePackageAddon;
-    }
+  /// Duree de validite en jours : `validity_days` quand l'API le renseigne,
+  /// sinon les chiffres extraits de `formatted_validity`, qui peut valoir
+  /// "Non specifiee".
+  int get _validityDays {
+    if (widget.package.validityDays > 0) return widget.package.validityDays;
+    final digits = widget.package.formattedValidity.replaceAll(
+      RegExp(r'[^0-9]'),
+      '',
+    );
+    return int.tryParse(digits) ?? 0;
   }
 
   Future<void> _confirmerAchat() async {
@@ -102,6 +101,16 @@ bool _isSubscription() {
       _showErrorMessage(l10n.insufficientBalanceError);
       return;
     }
+
+    // Authentification exigée avant tout débit, selon « Paramètres de paiement ».
+    final authorized = await PaymentAuthGuard.authorize(
+      context,
+      itemName: widget.package.displayName,
+      amount: widget.package.price.toDouble(),
+      currency: 'DJF',
+      pinTitle: l10n.enterPinForPurchase,
+    );
+    if (!authorized || !mounted) return;
 
     setState(() {
       _isLoading = true;
@@ -345,10 +354,12 @@ bool _isSubscription() {
 
         SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
 
-        // Titre et sous-titre
+        // Titre : le detail du package est porte par le tableau ci-dessous
         Text(
           widget.package.packageCode,
           textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: ResponsiveSize.getFontSize(24),
             fontWeight: FontWeight.bold,
@@ -356,16 +367,6 @@ bool _isSubscription() {
           ),
         ),
 
-        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-
-        Text(
-          _getPackageSubTitle(),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(16),
-            color: Colors.grey[600],
-          ),
-        ),
       ],
     );
   }
@@ -374,6 +375,18 @@ bool _isSubscription() {
     final l10n = AppLocalizations.of(context)!;
     final nouveauSolde = widget.soldeActuel - widget.package.price;
     final isLowBalance = nouveauSolde < 1000; // Seuil d'alerte
+
+    // Un package combo porte a la fois de la data et de la voix : les deux
+    // lignes doivent s'afficher, pas seulement la premiere.
+    final data = widget.package.formattedData;
+    final voice = widget.package.formattedVoice;
+    final showData =
+        (widget.package.isDataPackage || widget.package.dataUnlimited) &&
+        data.isNotEmpty;
+    final showVoice =
+        (widget.package.isVoicePackage || widget.package.voiceFixedUnlimited) &&
+        voice.isNotEmpty;
+    final validityDays = _validityDays;
 
     return Container(
       padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingM)),
@@ -386,40 +399,34 @@ bool _isSubscription() {
       ),
       child: Column(
         children: [
-          _buildDetailRow(l10n.packageCode, widget.package.packageCode),
-          _buildDivider(),
+          // Le code du package est deja affiche en entete, on ne le repete pas
+          // ici (meme structure que l'achat de forfait mobile).
           _buildDetailRow(l10n.price, widget.package.formattedPrice),
-          _buildDivider(),
 
-          // Afficher les détails selon le type
-          if (widget.package.isDataPackage) ...[
-            _buildDetailRow(l10n.dataType, widget.package.formattedData),
-            if (_isSubscription() &&
-                widget.package.formattedValidity.isNotEmpty) ...[
-              _buildDivider(),
-              _buildDetailRow(
-                l10n.validity,
-                '${widget.package.formattedValidity} ${l10n.days}',
-              ),
-            ],
-          ] else if (widget.package.isVoicePackage) ...[
-            _buildDetailRow(l10n.voiceType, widget.package.formattedVoice),
-            if (_isSubscription() &&
-                widget.package.formattedValidity.isNotEmpty) ...[
-              _buildDivider(),
-              _buildDetailRow(
-                l10n.validity,
-                '${widget.package.formattedValidity} ${l10n.days}',
-              ),
-            ],
-          ] else ...[
+          if (showData) ...[
+            _buildDivider(),
+            _buildDetailRow(l10n.dataType, data),
+          ],
+
+          if (showVoice) ...[
+            _buildDivider(),
+            _buildDetailRow(l10n.voiceType, voice),
+          ],
+
+          if (!showData && !showVoice) ...[
+            _buildDivider(),
             _buildDetailRow(l10n.content, widget.package.mainFeature),
           ],
 
+          if (validityDays > 0) ...[
+            _buildDivider(),
+            _buildDetailRow(l10n.validity, l10n.validityDays(validityDays)),
+          ],
+
           _buildDivider(),
-          _buildDetailRow(l10n.fixedLineRecipient, widget.fixedNumber),
+          _buildDetailRow(l10n.fixedLineLabel, widget.fixedNumber),
           _buildDivider(),
-          _buildDetailRow(l10n.fromMobile, widget.mobileNumber),
+          _buildDetailRow(l10n.mobileLineLabel, widget.mobileNumber),
 
           _buildDivider(),
           _buildDetailRow(
@@ -460,25 +467,39 @@ bool _isSubscription() {
     bool isWarning = false,
   }) {
     final valueColor = isWarning ? Colors.orange : AppTheme.dtBlue;
+    // Libelle et valeur partagent la largeur disponible : un libelle traduit
+    // trop long ou une valeur trop longue est tronque au lieu de deborder.
     return Padding(
       padding: EdgeInsets.symmetric(vertical: ResponsiveSize.getHeight(4)),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(16),
-              color: isTotal ? valueColor : Colors.grey[600],
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+          Expanded(
+            flex: 4,
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: ResponsiveSize.getFontSize(16),
+                color: isTotal ? valueColor : Colors.grey[600],
+                fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(16),
-              fontWeight: FontWeight.bold,
-              color: valueColor,
+          SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+          Expanded(
+            flex: 6,
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: ResponsiveSize.getFontSize(16),
+                fontWeight: FontWeight.bold,
+                color: valueColor,
+              ),
             ),
           ),
         ],
@@ -504,9 +525,10 @@ bool _isSubscription() {
           ),
         ),
 
-        SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
+        SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
 
         Expanded(
+          flex: 2,
           child: ElevatedButton(
             onPressed:
                 (_isLoading || widget.package.price > widget.soldeActuel)
@@ -539,12 +561,13 @@ bool _isSubscription() {
                     )
                     : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           Icons.check_circle_outline,
                           size: ResponsiveSize.getFontSize(18),
                         ),
-                        SizedBox(width: ResponsiveSize.getWidth(8)),
+                        SizedBox(width: ResponsiveSize.getWidth(6)),
                         Flexible(
                           child: Text(
                             l10n.confirmPurchaseAction,

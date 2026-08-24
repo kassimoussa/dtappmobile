@@ -180,7 +180,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectionSettings => 'Connection Settings';
 
   @override
-  String get biometricLogin => 'Fingerprint Login';
+  String get paymentSettings => 'Payment Settings';
+
+  @override
+  String get paymentAuthIntro =>
+      'Choose how to confirm your purchases and transfers.';
+
+  @override
+  String get paymentAuthBiometric => 'Biometrics';
+
+  @override
+  String get paymentAuthBiometricDesc =>
+      'Face ID, fingerprint or device passcode, falling back to your PIN code.';
+
+  @override
+  String get paymentAuthPin => 'App PIN code';
+
+  @override
+  String get paymentAuthPinDesc => 'Enter your PIN code for every payment.';
+
+  @override
+  String get paymentAuthPinUnavailable =>
+      'Set up a PIN code first to use this option.';
+
+  @override
+  String get biometricLogin => 'Biometric Login';
 
   @override
   String get pinLogin => 'PIN Code Login';
@@ -978,16 +1002,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get packageTopUpPurchase => 'TopUp Package Purchase';
 
   @override
-  String get dataSubscription => 'Data Subscription';
+  String get dataPackageAddon => 'Data Package';
 
   @override
-  String get voiceSubscription => 'Voice Subscription';
-
-  @override
-  String get dataPackageAddon => 'Data Package Add-on';
-
-  @override
-  String get voicePackageAddon => 'Voice Package Add-on';
+  String get voicePackageAddon => 'Voice Package';
 
   @override
   String get insufficientBalanceError =>
@@ -1006,9 +1024,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmPurchaseTitle => 'Confirm Purchase';
 
   @override
-  String get packageCode => 'Package Code';
-
-  @override
   String get price => 'Price';
 
   @override
@@ -1018,25 +1033,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get content => 'Content';
 
   @override
-  String get days => 'days';
+  String get currentBalance => 'Current balance';
 
   @override
-  String get currentBalance => 'Current Balance';
-
-  @override
-  String get balanceAfterPurchase => 'Balance after purchase';
-
-  @override
-  String get fixedLineRecipient => 'Recipient Landline';
-
-  @override
-  String get fromMobile => 'From your mobile';
+  String get balanceAfterPurchase => 'New balance';
 
   @override
   String get confirmPurchaseAction => 'Buy';
 
   @override
-  String get rechargeTitle => 'Refill Landline Account';
+  String get rechargeTitle => 'Top up my line';
 
   @override
   String get rechargeSubtitle => 'Account Refill';
@@ -1451,7 +1457,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smsCodeOtp => 'SMS Code (OTP)';
 
   @override
-  String get loginWithFingerprint => 'Log in with fingerprint';
+  String get loginWithFingerprint => 'Log in with biometrics';
 
   @override
   String get loginWithPin => 'Log in with PIN';
@@ -1741,7 +1747,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchBuySubscriptionSub => 'Subscribe to TopUp packages';
 
   @override
-  String get searchRechargeFixed => 'Refill landline account';
+  String get searchRechargeFixed => 'Top up my line';
 
   @override
   String get searchRechargeFixedSub => 'Transfer credit to landline';
@@ -1944,13 +1950,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterPinForTransfer => 'Enter your PIN to confirm transfer';
 
   @override
+  String get enterPinForRecharge => 'Enter your PIN to confirm the top-up';
+
+  @override
   String get connectionError2 => 'Connection error';
 
   @override
   String get privacyPolicyTitle => 'Privacy Policy';
 
   @override
-  String get privacyPolicyLastUpdated => 'Last updated: January 1, 2025';
+  String get privacyPolicyLastUpdated => 'Last updated: August 2, 2026';
 
   @override
   String get privacyPolicyScrollInfo =>

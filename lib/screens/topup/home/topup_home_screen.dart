@@ -171,15 +171,6 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     if (confirmed == true) {
       await topUpProvider.endSession();
       _fixedNumberController.clear();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.logoutTopUpSuccess),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
     }
   }
 

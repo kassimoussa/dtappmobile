@@ -100,6 +100,13 @@ class AuthProvider extends ChangeNotifier {
         _isAuthenticated = true;
         _lastActivityTime = DateTime.now();
 
+        // Indispensable : NotificationStore scope ses données par numéro et
+        // ignore silencieusement load(), add() et la file d'attente tant qu'il
+        // n'a pas de numéro. Sans cet appel, seule une connexion neuve
+        // (_createSession) l'initialise, et toute session restaurée au
+        // démarrage perd l'historique et les notifications reçues.
+        await NotificationStore().switchUser(_phoneNumber ?? '');
+
         debugPrint(
           'AuthProvider: Session existante chargée pour $_phoneNumber (PIN: $_hasPin)',
         );

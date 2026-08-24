@@ -189,16 +189,6 @@ class _TopUpContentState extends State<TopUpContent> {
         _errorMessage = null;
         _fixedNumberController.clear();
       });
-
-      // Afficher confirmation
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.logoutTopUpSuccess),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
     }
   }
 

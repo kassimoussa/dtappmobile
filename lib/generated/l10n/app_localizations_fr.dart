@@ -184,7 +184,31 @@ class AppLocalizationsFr extends AppLocalizations {
   String get connectionSettings => 'Paramètre de connexion';
 
   @override
-  String get biometricLogin => 'Connexion par empreinte digitale';
+  String get paymentSettings => 'Paramètres de paiement';
+
+  @override
+  String get paymentAuthIntro =>
+      'Choisissez comment valider vos achats et transferts.';
+
+  @override
+  String get paymentAuthBiometric => 'Biométrie';
+
+  @override
+  String get paymentAuthBiometricDesc =>
+      'Face ID, empreinte ou code de déverrouillage de l\'appareil, avec repli sur le code PIN.';
+
+  @override
+  String get paymentAuthPin => 'Code PIN de l\'application';
+
+  @override
+  String get paymentAuthPinDesc => 'Saisie du code PIN à chaque paiement.';
+
+  @override
+  String get paymentAuthPinUnavailable =>
+      'Configurez d\'abord un code PIN pour utiliser cette option.';
+
+  @override
+  String get biometricLogin => 'Connexion biométrique';
 
   @override
   String get pinLogin => 'Connexion par code PIN';
@@ -992,16 +1016,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get packageTopUpPurchase => 'Achat de package TopUp';
 
   @override
-  String get dataSubscription => 'Souscription données';
+  String get dataPackageAddon => 'Package données';
 
   @override
-  String get voiceSubscription => 'Souscription voix';
-
-  @override
-  String get dataPackageAddon => 'Package données additionnel';
-
-  @override
-  String get voicePackageAddon => 'Package voix additionnel';
+  String get voicePackageAddon => 'Package voix';
 
   @override
   String get insufficientBalanceError => 'Solde insuffisant pour cet achat.';
@@ -1019,9 +1037,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirmPurchaseTitle => 'Confirmation d\'achat';
 
   @override
-  String get packageCode => 'Code du package';
-
-  @override
   String get price => 'Prix';
 
   @override
@@ -1031,25 +1046,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get content => 'Contenu';
 
   @override
-  String get days => 'jours';
-
-  @override
   String get currentBalance => 'Solde actuel';
 
   @override
-  String get balanceAfterPurchase => 'Solde après achat';
-
-  @override
-  String get fixedLineRecipient => 'Ligne fixe destinataire';
-
-  @override
-  String get fromMobile => 'Depuis votre mobile';
+  String get balanceAfterPurchase => 'Nouveau solde';
 
   @override
   String get confirmPurchaseAction => 'Acheter';
 
   @override
-  String get rechargeTitle => 'Recharger compte fixe';
+  String get rechargeTitle => 'Recharger ma ligne';
 
   @override
   String get rechargeSubtitle => 'Recharge de compte';
@@ -1467,7 +1473,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get smsCodeOtp => 'Code SMS (OTP)';
 
   @override
-  String get loginWithFingerprint => 'Se connecter avec empreinte';
+  String get loginWithFingerprint => 'Se connecter par biométrie';
 
   @override
   String get loginWithPin => 'Se connecter avec PIN';
@@ -1768,7 +1774,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get searchBuySubscriptionSub => 'Souscrire à des packages TopUp';
 
   @override
-  String get searchRechargeFixed => 'Recharger compte fixe';
+  String get searchRechargeFixed => 'Recharger ma ligne';
 
   @override
   String get searchRechargeFixedSub => 'Transférer crédit vers ligne fixe';
@@ -1979,14 +1985,17 @@ class AppLocalizationsFr extends AppLocalizations {
       'Entrez votre code PIN pour valider le transfert';
 
   @override
+  String get enterPinForRecharge =>
+      'Entrez votre code PIN pour valider la recharge';
+
+  @override
   String get connectionError2 => 'Erreur de connexion';
 
   @override
   String get privacyPolicyTitle => 'Politique de confidentialité';
 
   @override
-  String get privacyPolicyLastUpdated =>
-      'Dernière mise à jour : 1er janvier 2025';
+  String get privacyPolicyLastUpdated => 'Dernière mise à jour : 2 août 2026';
 
   @override
   String get privacyPolicyScrollInfo =>

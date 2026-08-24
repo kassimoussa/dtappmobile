@@ -11,6 +11,7 @@ import 'package:dtservices/services/biometric_auth_service.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/utils/validity_translator.dart';
 import 'package:dtservices/enums/purchase_enums.dart';
+import 'package:dtservices/enums/payment_auth_method.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'forfait_success_screen.dart';
@@ -107,41 +108,60 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
   Future<void> _confirmerAchat() async {
     if (_isLoading) return;
 
-    // Demander l'authentification biométrique avant de procéder
-    final authResult = await BiometricAuthService.authenticateForPurchase(
-      itemName: widget.forfait.nom,
-      amount: widget.forfait.prix.toDouble(),
-      currency: 'DJF',
-    );
+    final authProvider = context.read<AuthProvider>();
+    final phoneNumber = authProvider.phoneNumber;
 
-    if (!authResult.success) {
-      if (!mounted) return;
-      // Authentification biométrique échouée ou annulée
-      final authProvider = context.read<AuthProvider>();
+    // Le réglage « Paramètres de paiement » décide de la méthode exigée. Sans
+    // numéro connu on ne peut pas le lire : on garde la biométrie, qui est la
+    // valeur par défaut et le comportement historique.
+    final method = phoneNumber == null
+        ? PaymentAuthMethod.biometric
+        : await UserSession.getPaymentAuthMethod(phoneNumber);
+    if (!mounted) return;
 
-      // Si on n'a pas de PIN configuré, on bloque l'achat si l'erreur n'est pas "userCancel"
-      if (!authProvider.hasPin) {
-        if (authResult.errorType != BiometricAuthErrorType.userCancel) {
-          _showErrorMessage(
-            authResult.errorMessage ?? AppLocalizations.of(context)!.authFailed,
-          );
-        }
-        return;
-      }
-
-      // Fallback: Demander le code PIN
-      final phoneNumber = authProvider.phoneNumber;
-      if (phoneNumber == null) return;
-
+    if (method == PaymentAuthMethod.pin && phoneNumber != null) {
+      // PIN exigé directement, sans passer par la boîte de dialogue système.
       final pinVerified = await PinVerificationBottomSheet.show(
         context,
         phoneNumber: phoneNumber,
         title: AppLocalizations.of(context)!.enterPinForPurchase,
       );
+      if (!pinVerified) return;
+    } else {
+      // Demander l'authentification biométrique avant de procéder
+      final authResult = await BiometricAuthService.authenticateForPurchase(
+        itemName: widget.forfait.nom,
+        amount: widget.forfait.prix.toDouble(),
+        currency: 'DJF',
+      );
 
-      // Si le code PIN n'a pas été validé (BottomSheet fermé ou erreur), on annule l'achat
-      if (!pinVerified) {
-        return;
+      if (!authResult.success) {
+        if (!mounted) return;
+
+        // Si on n'a pas de PIN configuré, on bloque l'achat si l'erreur n'est pas "userCancel"
+        if (!authProvider.hasPin) {
+          if (authResult.errorType != BiometricAuthErrorType.userCancel) {
+            _showErrorMessage(
+              authResult.errorMessage ??
+                  AppLocalizations.of(context)!.authFailed,
+            );
+          }
+          return;
+        }
+
+        // Fallback: Demander le code PIN
+        if (phoneNumber == null) return;
+
+        final pinVerified = await PinVerificationBottomSheet.show(
+          context,
+          phoneNumber: phoneNumber,
+          title: AppLocalizations.of(context)!.enterPinForPurchase,
+        );
+
+        // Si le code PIN n'a pas été validé (BottomSheet fermé ou erreur), on annule l'achat
+        if (!pinVerified) {
+          return;
+        }
       }
     }
 

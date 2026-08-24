@@ -57,6 +57,10 @@ class GlassAppBar extends StatelessWidget {
               ),
             ),
           ),
+          // Sans cet écart, un titre long vient coller la première action :
+          // l'Expanded occupe toute la largeur restante jusqu'à elle.
+          if (actions.isNotEmpty)
+            SizedBox(width: ResponsiveSize.getWidth(12)),
           ...actions,
         ],
       ),

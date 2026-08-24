@@ -14,6 +14,7 @@ import '../../../extensions/color_extensions.dart';
 import '../../../generated/l10n/app_localizations.dart';
 import '../../../providers/balance_provider.dart';
 import '../../../providers/transaction_provider.dart';
+import '../../../services/payment_auth_guard.dart';
 import 'topup_recharge_success_screen.dart';
 
 class TopUpRechargeScreen extends StatefulWidget {
@@ -84,6 +85,16 @@ class _TopUpRechargeScreenState extends State<TopUpRechargeScreen>
       );
       return;
     }
+
+    // Authentification exigée avant tout débit, selon « Paramètres de paiement ».
+    final authorized = await PaymentAuthGuard.authorize(
+      context,
+      itemName: AppLocalizations.of(context)!.rechargeTitle,
+      amount: amount,
+      currency: 'DJF',
+      pinTitle: AppLocalizations.of(context)!.enterPinForRecharge,
+    );
+    if (!authorized || !mounted) return;
 
     setState(() {
       _isLoading = true;

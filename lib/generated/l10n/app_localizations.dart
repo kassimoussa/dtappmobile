@@ -428,10 +428,52 @@ abstract class AppLocalizations {
   /// **'Paramètre de connexion'**
   String get connectionSettings;
 
+  /// No description provided for @paymentSettings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres de paiement'**
+  String get paymentSettings;
+
+  /// No description provided for @paymentAuthIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez comment valider vos achats et transferts.'**
+  String get paymentAuthIntro;
+
+  /// No description provided for @paymentAuthBiometric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Biométrie'**
+  String get paymentAuthBiometric;
+
+  /// No description provided for @paymentAuthBiometricDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Face ID, empreinte ou code de déverrouillage de l\'appareil, avec repli sur le code PIN.'**
+  String get paymentAuthBiometricDesc;
+
+  /// No description provided for @paymentAuthPin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code PIN de l\'application'**
+  String get paymentAuthPin;
+
+  /// No description provided for @paymentAuthPinDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisie du code PIN à chaque paiement.'**
+  String get paymentAuthPinDesc;
+
+  /// No description provided for @paymentAuthPinUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Configurez d\'abord un code PIN pour utiliser cette option.'**
+  String get paymentAuthPinUnavailable;
+
   /// No description provided for @biometricLogin.
   ///
   /// In fr, this message translates to:
-  /// **'Connexion par empreinte digitale'**
+  /// **'Connexion biométrique'**
   String get biometricLogin;
 
   /// No description provided for @pinLogin.
@@ -1820,28 +1862,16 @@ abstract class AppLocalizations {
   /// **'Achat de package TopUp'**
   String get packageTopUpPurchase;
 
-  /// No description provided for @dataSubscription.
-  ///
-  /// In fr, this message translates to:
-  /// **'Souscription données'**
-  String get dataSubscription;
-
-  /// No description provided for @voiceSubscription.
-  ///
-  /// In fr, this message translates to:
-  /// **'Souscription voix'**
-  String get voiceSubscription;
-
   /// No description provided for @dataPackageAddon.
   ///
   /// In fr, this message translates to:
-  /// **'Package données additionnel'**
+  /// **'Package données'**
   String get dataPackageAddon;
 
   /// No description provided for @voicePackageAddon.
   ///
   /// In fr, this message translates to:
-  /// **'Package voix additionnel'**
+  /// **'Package voix'**
   String get voicePackageAddon;
 
   /// No description provided for @insufficientBalanceError.
@@ -1874,12 +1904,6 @@ abstract class AppLocalizations {
   /// **'Confirmation d\'achat'**
   String get confirmPurchaseTitle;
 
-  /// No description provided for @packageCode.
-  ///
-  /// In fr, this message translates to:
-  /// **'Code du package'**
-  String get packageCode;
-
   /// No description provided for @price.
   ///
   /// In fr, this message translates to:
@@ -1898,12 +1922,6 @@ abstract class AppLocalizations {
   /// **'Contenu'**
   String get content;
 
-  /// No description provided for @days.
-  ///
-  /// In fr, this message translates to:
-  /// **'jours'**
-  String get days;
-
   /// No description provided for @currentBalance.
   ///
   /// In fr, this message translates to:
@@ -1913,20 +1931,8 @@ abstract class AppLocalizations {
   /// No description provided for @balanceAfterPurchase.
   ///
   /// In fr, this message translates to:
-  /// **'Solde après achat'**
+  /// **'Nouveau solde'**
   String get balanceAfterPurchase;
-
-  /// No description provided for @fixedLineRecipient.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ligne fixe destinataire'**
-  String get fixedLineRecipient;
-
-  /// No description provided for @fromMobile.
-  ///
-  /// In fr, this message translates to:
-  /// **'Depuis votre mobile'**
-  String get fromMobile;
 
   /// No description provided for @confirmPurchaseAction.
   ///
@@ -1937,7 +1943,7 @@ abstract class AppLocalizations {
   /// No description provided for @rechargeTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Recharger compte fixe'**
+  /// **'Recharger ma ligne'**
   String get rechargeTitle;
 
   /// No description provided for @rechargeSubtitle.
@@ -2699,7 +2705,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginWithFingerprint.
   ///
   /// In fr, this message translates to:
-  /// **'Se connecter avec empreinte'**
+  /// **'Se connecter par biométrie'**
   String get loginWithFingerprint;
 
   /// No description provided for @loginWithPin.
@@ -3221,7 +3227,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchRechargeFixed.
   ///
   /// In fr, this message translates to:
-  /// **'Recharger compte fixe'**
+  /// **'Recharger ma ligne'**
   String get searchRechargeFixed;
 
   /// No description provided for @searchRechargeFixedSub.
@@ -3602,6 +3608,12 @@ abstract class AppLocalizations {
   /// **'Entrez votre code PIN pour valider le transfert'**
   String get enterPinForTransfer;
 
+  /// No description provided for @enterPinForRecharge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez votre code PIN pour valider la recharge'**
+  String get enterPinForRecharge;
+
   /// No description provided for @connectionError2.
   ///
   /// In fr, this message translates to:
@@ -3617,7 +3629,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyPolicyLastUpdated.
   ///
   /// In fr, this message translates to:
-  /// **'Dernière mise à jour : 1er janvier 2025'**
+  /// **'Dernière mise à jour : 2 août 2026'**
   String get privacyPolicyLastUpdated;
 
   /// No description provided for @privacyPolicyScrollInfo.

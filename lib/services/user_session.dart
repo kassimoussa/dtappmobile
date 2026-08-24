@@ -2,6 +2,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../enums/payment_auth_method.dart';
 
 /// Service pour gérer la session utilisateur
 /// La session expire après 5 minutes d'inactivité (persiste entre les fermetures d'app)
@@ -314,6 +315,33 @@ class UserSession {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('$_isBiometricEnabledPrefix$phoneNumber', enabled);
     debugPrint('Biométrie ${enabled ? "activée" : "désactivée"} pour $phoneNumber');
+  }
+
+  static const String _paymentAuthMethodPrefix = 'payment_auth_method_';
+
+  /// Méthode d'authentification exigée pour valider les paiements de CE numéro.
+  /// Scopée par numéro comme la biométrie. Par défaut : biométrie, ce qui
+  /// reproduit le comportement d'avant l'introduction du réglage.
+  static Future<PaymentAuthMethod> getPaymentAuthMethod(
+    String phoneNumber,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    return PaymentAuthMethod.fromStorage(
+      prefs.getString('$_paymentAuthMethodPrefix$phoneNumber'),
+    );
+  }
+
+  /// Enregistre la méthode d'authentification des paiements pour CE numéro
+  static Future<void> setPaymentAuthMethod(
+    String phoneNumber,
+    PaymentAuthMethod method,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      '$_paymentAuthMethodPrefix$phoneNumber',
+      method.storageValue,
+    );
+    debugPrint('Paiement : ${method.storageValue} pour $phoneNumber');
   }
 
   /// Vérifie si l'OTP est activé (par défaut true)

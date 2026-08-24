@@ -5,6 +5,8 @@ import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_success_screen.dart';
 import 'package:dtservices/services/transfer_credit_service.dart';
 import 'package:dtservices/services/biometric_auth_service.dart';
+import 'package:dtservices/services/user_session.dart';
+import 'package:dtservices/enums/payment_auth_method.dart';
 import 'package:dtservices/utils/responsive_size.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -276,48 +278,66 @@ class _TransferConfirmationScreenState
   void _processTransfer() async {
     if (_isLoading) return;
 
-    // Demander l'authentification biométrique avant de procéder
-    final authResult = await BiometricAuthService.authenticateForTransfer(
-      amount: widget.amount,
-      currency: 'DJF',
-      recipient: widget.recipient,
-    );
+    final authProvider = context.read<AuthProvider>();
+    final phoneNumber = authProvider.phoneNumber;
 
-    if (!authResult.success) {
-      if (!mounted) return;
-      // Authentification biométrique échouée ou annulée
-      final authProvider = context.read<AuthProvider>();
+    // Le réglage « Paramètres de paiement » décide de la méthode exigée. Sans
+    // numéro connu on ne peut pas le lire : on garde la biométrie, qui est la
+    // valeur par défaut et le comportement historique.
+    final method = phoneNumber == null
+        ? PaymentAuthMethod.biometric
+        : await UserSession.getPaymentAuthMethod(phoneNumber);
+    if (!mounted) return;
 
-      // Si on n'a pas de PIN configuré, on bloque le transfert si l'erreur n'est pas "userCancel"
-      if (!authProvider.hasPin) {
-        if (authResult.errorType != BiometricAuthErrorType.userCancel) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                authResult.errorMessage ??
-                    AppLocalizations.of(context)!.authFailed,
-              ),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 4),
-            ),
-          );
-        }
-        return;
-      }
-
-      // Fallback: Demander le code PIN
-      final phoneNumber = authProvider.phoneNumber;
-      if (phoneNumber == null) return;
-
+    if (method == PaymentAuthMethod.pin && phoneNumber != null) {
+      // PIN exigé directement, sans passer par la boîte de dialogue système.
       final pinVerified = await PinVerificationBottomSheet.show(
         context,
         phoneNumber: phoneNumber,
         title: AppLocalizations.of(context)!.enterPinForTransfer,
       );
+      if (!pinVerified) return;
+    } else {
+      // Demander l'authentification biométrique avant de procéder
+      final authResult = await BiometricAuthService.authenticateForTransfer(
+        amount: widget.amount,
+        currency: 'DJF',
+        recipient: widget.recipient,
+      );
 
-      // Si le code PIN n'a pas été validé (BottomSheet fermé ou erreur), on annule le transfert
-      if (!pinVerified) {
-        return;
+      if (!authResult.success) {
+        if (!mounted) return;
+
+        // Si on n'a pas de PIN configuré, on bloque le transfert si l'erreur n'est pas "userCancel"
+        if (!authProvider.hasPin) {
+          if (authResult.errorType != BiometricAuthErrorType.userCancel) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  authResult.errorMessage ??
+                      AppLocalizations.of(context)!.authFailed,
+                ),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+          return;
+        }
+
+        // Fallback: Demander le code PIN
+        if (phoneNumber == null) return;
+
+        final pinVerified = await PinVerificationBottomSheet.show(
+          context,
+          phoneNumber: phoneNumber,
+          title: AppLocalizations.of(context)!.enterPinForTransfer,
+        );
+
+        // Si le code PIN n'a pas été validé (BottomSheet fermé ou erreur), on annule le transfert
+        if (!pinVerified) {
+          return;
+        }
       }
     }
 
