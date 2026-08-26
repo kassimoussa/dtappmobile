@@ -1466,6 +1466,48 @@ abstract class AppLocalizations {
   /// **'Date d\'expiration:'**
   String get expirationDate;
 
+  /// No description provided for @purchaseDateShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat'**
+  String get purchaseDateShort;
+
+  /// No description provided for @expirationDateShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expiration'**
+  String get expirationDateShort;
+
+  /// No description provided for @forfaitStateActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activé'**
+  String get forfaitStateActive;
+
+  /// No description provided for @forfaitStateSuspended.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suspendu'**
+  String get forfaitStateSuspended;
+
+  /// No description provided for @forfaitStateExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expiré'**
+  String get forfaitStateExpired;
+
+  /// No description provided for @forfaitStateInactive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivé'**
+  String get forfaitStateInactive;
+
+  /// No description provided for @forfaitStatePending.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get forfaitStatePending;
+
   /// No description provided for @remainingOf.
   ///
   /// In fr, this message translates to:

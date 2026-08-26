@@ -1,5 +1,6 @@
 // lib/screens/core/home_screen.dart
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:dtservices/screens/achat_forfait/forfait_recipient_screen.dart';
@@ -473,6 +474,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // La date de supervision renvoyee par l'API est au format "15/08/2026"
+  bool _isDateExpired(String dateString) {
+    try {
+      final date = DateFormat('dd/MM/yyyy').parseStrict(dateString);
+      final now = DateTime.now();
+      return date.isBefore(DateTime(now.year, now.month, now.day));
+    } catch (e) {
+      // Format inattendu : on n'affiche pas d'alerte plutot qu'une fausse
+      return false;
+    }
+  }
+
   Widget _buildCreditCard({
     required String title,
     required String amount,
@@ -487,6 +500,17 @@ class _HomeScreenState extends State<HomeScreen> {
     required VoidCallback onToggleVisibility,
   }) {
     final textColor = textDark ? AppTheme.textPrimary : Colors.white;
+
+    // 'N/A' est la valeur par defaut du provider quand l'API ne renvoie rien
+    final String? expiry =
+        (dateExp != null && dateExp.isNotEmpty && dateExp != 'N/A')
+            ? dateExp
+            : null;
+    final bool isExpired = expiry != null && _isDateExpired(expiry);
+    final Color expiryColor =
+        isExpired
+            ? (textDark ? Colors.red.shade700 : Colors.red.shade200)
+            : textColor.withValues(alpha: 0.8);
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(8)),
@@ -579,24 +603,34 @@ class _HomeScreenState extends State<HomeScreen> {
                           letterSpacing: isVisible ? 0 : 4.0,
                         ),
                       ),
-                    if (dateExp != null &&
-                        dateExp.isNotEmpty &&
-                        !isLoading) ...[
+                    if (expiry != null && !isLoading) ...[
                       SizedBox(height: ResponsiveSize.getHeight(6)),
                       Row(
                         children: [
                           Icon(
-                            Icons.schedule_rounded,
+                            isExpired
+                                ? Icons.warning_amber_rounded
+                                : Icons.schedule_rounded,
                             size: 14,
-                            color: textColor.withValues(alpha: 0.7),
+                            color: expiryColor,
                           ),
                           SizedBox(width: ResponsiveSize.getWidth(6)),
-                          Text(
-                            l10n.expiresOn(dateExp),
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              color: textColor.withValues(alpha: 0.8),
-                              fontSize: ResponsiveSize.getFontSize(12),
+                          Flexible(
+                            child: Text(
+                              isExpired
+                                  ? l10n.expiredOn(expiry)
+                                  : l10n.expiresOn(expiry),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                color: expiryColor,
+                                fontSize: ResponsiveSize.getFontSize(12),
+                                fontWeight:
+                                    isExpired
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                              ),
                             ),
                           ),
                         ],

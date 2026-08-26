@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../constants/app_theme.dart';
+import '../../utils/forfait_state_translator.dart';
 import '../../utils/responsive_size.dart';
 import '../../generated/l10n/app_localizations.dart';
 
@@ -68,22 +69,31 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
     }
   }
 
-  // Fonction pour formater la date de l'API
-  String _formatDate(String dateString) {
+  // Parse le format de l'API: "15/05/2025 19:04:28"
+  DateTime? _parseDate(String dateString) {
     try {
-      // Format d'entrée: "15/05/2025 19:04:28"
-      final inputFormat = DateFormat("dd/MM/yyyy HH:mm:ss");
-      final date = inputFormat.parse(dateString);
-
-      // Format de sortie: "15 mai 2025 à 19:04"
-      // Use current locale for date formatting
-      final locale = Localizations.localeOf(context).toString();
-      final outputFormat = DateFormat("d MMMM yyyy 'à' HH:mm", locale);
-      return outputFormat.format(date);
+      return DateFormat("dd/MM/yyyy HH:mm:ss").parse(dateString);
     } catch (e) {
-      // Fallback si le format n'est pas reconnu
-      return dateString;
+      // Format non reconnu
+      return null;
     }
+  }
+
+  // Format de sortie: "15 mai 2025"
+  String _formatDay(String dateString) {
+    final date = _parseDate(dateString);
+    if (date == null) return dateString;
+
+    // Use current locale for date formatting
+    final locale = Localizations.localeOf(context).toString();
+    return DateFormat("d MMM yyyy", locale).format(date);
+  }
+
+  // Format de sortie: "19:04"
+  String _formatTime(String dateString) {
+    final date = _parseDate(dateString);
+    if (date == null) return '';
+    return DateFormat("HH:mm").format(date);
   }
 
   @override
@@ -103,10 +113,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [
-                    AppTheme.dtBlueO08,
-                    Colors.transparent,
-                  ],
+                  colors: [AppTheme.dtBlueO08, Colors.transparent],
                   radius: 0.8,
                 ),
               ),
@@ -115,7 +122,23 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
           SafeArea(
             child: Column(
               children: [
-                GlassAppBar(title: _forfait.nom, actions: [GlassAppBarAction(icon: Icons.refresh_rounded, onTap: _isLoading ? null : _refreshForfaitDetails), SizedBox(width: ResponsiveSize.getWidth(8)), GlassAppBarAction(icon: Icons.close, onTap: () => Navigator.of(context).popUntil((route) => route.isFirst))]),
+                GlassAppBar(
+                  title: _forfait.nom,
+                  actions: [
+                    GlassAppBarAction(
+                      icon: Icons.refresh_rounded,
+                      onTap: _isLoading ? null : _refreshForfaitDetails,
+                    ),
+                    SizedBox(width: ResponsiveSize.getWidth(8)),
+                    GlassAppBarAction(
+                      icon: Icons.close,
+                      onTap:
+                          () => Navigator.of(
+                            context,
+                          ).popUntil((route) => route.isFirst),
+                    ),
+                  ],
+                ),
                 Expanded(child: _buildBody()),
               ],
             ),
@@ -124,7 +147,6 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
       ),
     );
   }
-
 
   Widget _buildBody() {
     if (_isLoading) {
@@ -162,8 +184,6 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
       ),
     );
   }
-
-
 
   Widget _buildForfaitDetails() {
     final forfait = _forfait;
@@ -225,6 +245,8 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
                     children: [
                       Text(
                         forfait.nom,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(20),
                           fontWeight: FontWeight.bold,
@@ -258,7 +280,10 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
                     ),
                   ),
                   child: Text(
-                    forfait.etatTexte,
+                    translateForfaitState(
+                      forfait.etatTexte,
+                      AppLocalizations.of(context)!,
+                    ),
                     style: TextStyle(
                       color: Colors.green,
                       fontSize: ResponsiveSize.getFontSize(12),
@@ -270,55 +295,29 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
 
-            // Validité
-            _buildInfoRow(
-              AppLocalizations.of(context)!.purchaseDate,
-              _formatDate(forfait.dateDebut),
-              Icons.calendar_today,
+            // Validité : les compteurs sont détaillés dans la carte Consommation
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: _buildDateBlock(
+                      AppLocalizations.of(context)!.purchaseDateShort,
+                      forfait.dateDebut,
+                      Icons.calendar_today,
+                    ),
+                  ),
+                  SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+                  Expanded(
+                    child: _buildDateBlock(
+                      AppLocalizations.of(context)!.expirationDateShort,
+                      forfait.dateFin,
+                      Icons.event,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-            _buildInfoRow(
-              AppLocalizations.of(context)!.expirationDate,
-              _formatDate(forfait.dateFin),
-              Icons.event,
-            ),
-
-            // Afficher les compteurs résumés
-            if (forfait.dataCompteur != null) ...[
-              Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              _buildInfoRow(
-                AppLocalizations.of(context)!.internetData,
-                AppLocalizations.of(context)!.remainingOf(
-                  forfait.dataCompteur!.vrLisible,
-                  forfait.dataCompteur!.seuilsLisible,
-                ),
-                Icons.data_usage,
-              ),
-            ],
-
-            if (forfait.minutesCompteur != null) ...[
-              Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              _buildInfoRow(
-                AppLocalizations.of(context)!.minutesLabel,
-                AppLocalizations.of(context)!.remainingOfMinutes(
-                  forfait.minutesCompteur!.vrLisibleSansSecondes,
-                  forfait.minutesCompteur!.seuilsLisibleSansSecondes,
-                ),
-                Icons.phone,
-              ),
-            ],
-
-            if (forfait.smsCompteur != null) ...[
-              Divider(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              _buildInfoRow(
-                AppLocalizations.of(context)!.smsLabel,
-                AppLocalizations.of(context)!.remainingOf(
-                  forfait.smsCompteur!.vrLisible,
-                  forfait.smsCompteur!.seuilsLisible,
-                ),
-                Icons.message,
-              ),
-            ],
           ],
         ),
       ),
@@ -327,6 +326,37 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
 
   // Carte de consommation
   Widget _buildConsommationCard(ForfaitActif2 forfait) {
+    final l10n = AppLocalizations.of(context)!;
+    final sections = <Widget>[
+      if (forfait.dataCompteur != null)
+        _buildCounterSection(
+          label: l10n.internetData,
+          used: forfait.dataCompteur!.vuLisible,
+          remaining: forfait.dataCompteur!.vrLisible,
+          total: forfait.dataCompteur!.seuilsLisible,
+          percentage: forfait.dataCompteur!.pourcentageUtilisation,
+          color: AppTheme.dtBlue,
+        ),
+      if (forfait.minutesCompteur != null)
+        _buildCounterSection(
+          label: l10n.minutesLabel,
+          used: forfait.minutesCompteur!.vuLisibleSansSecondes,
+          remaining: forfait.minutesCompteur!.vrLisibleSansSecondes,
+          total: forfait.minutesCompteur!.seuilsLisibleSansSecondes,
+          percentage: forfait.minutesCompteur!.pourcentageUtilisation,
+          color: Colors.green,
+        ),
+      if (forfait.smsCompteur != null)
+        _buildCounterSection(
+          label: l10n.smsLabel,
+          used: forfait.smsCompteur!.vuLisible,
+          remaining: forfait.smsCompteur!.vrLisible,
+          total: forfait.smsCompteur!.seuilsLisible,
+          percentage: forfait.smsCompteur!.pourcentageUtilisation,
+          color: Colors.orange,
+        ),
+    ];
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -340,7 +370,7 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)!.consumption,
+              l10n.consumption,
               style: TextStyle(
                 fontSize: ResponsiveSize.getFontSize(18),
                 fontWeight: FontWeight.bold,
@@ -348,102 +378,10 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
               ),
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-
-            // Données Internet
-            if (forfait.dataCompteur != null) ...[
-              ProgressBar(
-                label: AppLocalizations.of(context)!.internetData,
-                value:
-                    '${forfait.dataCompteur!.vrLisible} / ${forfait.dataCompteur!.seuilsLisible}',
-                percentage: forfait.dataCompteur!.pourcentageUtilisation,
-              ),
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildDataInfoContainer(
-                    AppLocalizations.of(context)!.used,
-                    forfait.dataCompteur!.vuLisible,
-                    Colors.orange,
-                  ),
-                  _buildDataInfoContainer(
-                    AppLocalizations.of(context)!.remaining,
-                    forfait.dataCompteur!.vrLisible,
-                    Colors.green,
-                  ),
-                  _buildDataInfoContainer(
-                    AppLocalizations.of(context)!.total,
-                    forfait.dataCompteur!.seuilsLisible,
-                    AppTheme.dtBlue,
-                  ),
-                ],
-              ),
-            ],
-
-            // Minutes d'appel
-            if (forfait.minutesCompteur != null) ...[
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              ProgressBar(
-                label: AppLocalizations.of(context)!.minutesLabel,
-                value:
-                    '${forfait.minutesCompteur!.vrLisibleSansSecondes} / ${forfait.minutesCompteur!.seuilsLisibleSansSecondes}',
-                percentage: forfait.minutesCompteur!.pourcentageUtilisation,
-                color: Colors.green,
-              ),
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildDataInfoContainer(
-                    AppLocalizations.of(context)!.used,
-                    forfait.minutesCompteur!.vuLisibleSansSecondes,
-                    Colors.orange,
-                  ),
-                  _buildDataInfoContainer(
-                    AppLocalizations.of(context)!.remaining,
-                    forfait.minutesCompteur!.vrLisibleSansSecondes,
-                    Colors.green,
-                  ),
-                  _buildDataInfoContainer(
-                    AppLocalizations.of(context)!.total,
-                    forfait.minutesCompteur!.seuilsLisibleSansSecondes,
-                    AppTheme.dtBlue,
-                  ),
-                ],
-              ),
-            ],
-
-            // SMS
-            if (forfait.smsCompteur != null) ...[
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
-              ProgressBar(
-                label: AppLocalizations.of(context)!.smsLabel,
-                value:
-                    '${forfait.smsCompteur!.vrLisible} / ${forfait.smsCompteur!.seuilsLisible}',
-                percentage: forfait.smsCompteur!.pourcentageUtilisation,
-                color: Colors.orange,
-              ),
-              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildDataInfoContainer(
-                    AppLocalizations.of(context)!.used,
-                    forfait.smsCompteur!.vuLisible,
-                    Colors.orange,
-                  ),
-                  _buildDataInfoContainer(
-                    AppLocalizations.of(context)!.remaining,
-                    forfait.smsCompteur!.vrLisible,
-                    Colors.green,
-                  ),
-                  _buildDataInfoContainer(
-                    AppLocalizations.of(context)!.total,
-                    forfait.smsCompteur!.seuilsLisible,
-                    AppTheme.dtBlue,
-                  ),
-                ],
-              ),
+            for (int i = 0; i < sections.length; i++) ...[
+              if (i > 0)
+                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+              sections[i],
             ],
           ],
         ),
@@ -451,36 +389,115 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
     );
   }
 
-  // Widget pour une ligne d'information
-  Widget _buildInfoRow(String label, String value, IconData icon) {
-    return Row(
+  // Une ligne de consommation: barre de progression + répartition utilisé /
+  // restant / total
+  Widget _buildCounterSection({
+    required String label,
+    required String used,
+    required String remaining,
+    required String total,
+    required double percentage,
+    required Color color,
+  }) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          size: ResponsiveSize.getFontSize(20),
-          color: AppTheme.dtBlue,
+        ProgressBar(
+          label: label,
+          value: '$remaining / $total',
+          percentage: percentage,
+          color: color,
         ),
-        SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: ResponsiveSize.getFontSize(14),
-            color: AppTheme.textSecondary,
-          ),
-        ),
-        const Spacer(),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(14),
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
-            ),
+        SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _buildDataInfoContainer(l10n.used, used, Colors.orange),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+              Expanded(
+                child: _buildDataInfoContainer(
+                  l10n.remaining,
+                  remaining,
+                  Colors.green,
+                ),
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+              Expanded(
+                child: _buildDataInfoContainer(
+                  l10n.total,
+                  total,
+                  AppTheme.dtBlue,
+                ),
+              ),
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  // Bloc date (achat / expiration)
+  Widget _buildDateBlock(String label, String dateString, IconData icon) {
+    return Container(
+      padding: EdgeInsets.all(ResponsiveSize.getWidth(AppTheme.spacingS)),
+      decoration: BoxDecoration(
+        color: AppTheme.dtBlueO05,
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusS),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                size: ResponsiveSize.getFontSize(14),
+                color: AppTheme.dtBlue,
+              ),
+              SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingXS)),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: ResponsiveSize.getFontSize(12),
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              _formatDay(dateString),
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: ResponsiveSize.getFontSize(15),
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ),
+          Text(
+            _formatTime(dateString),
+            style: TextStyle(
+              fontSize: ResponsiveSize.getFontSize(12),
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -488,8 +505,8 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
   Widget _buildDataInfoContainer(String label, String value, Color color) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: ResponsiveSize.getWidth(AppTheme.spacingS),
-        vertical: ResponsiveSize.getHeight(AppTheme.spacingXS),
+        horizontal: ResponsiveSize.getWidth(AppTheme.spacingXS),
+        vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
@@ -501,18 +518,25 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
         children: [
           Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: ResponsiveSize.getFontSize(12),
               color: color,
             ),
           ),
           SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingXS)),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: ResponsiveSize.getFontSize(14),
-              fontWeight: FontWeight.bold,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: ResponsiveSize.getFontSize(14),
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ),
         ],

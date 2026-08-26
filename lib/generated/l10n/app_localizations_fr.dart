@@ -796,6 +796,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get expirationDate => 'Date d\'expiration:';
 
   @override
+  String get purchaseDateShort => 'Achat';
+
+  @override
+  String get expirationDateShort => 'Expiration';
+
+  @override
+  String get forfaitStateActive => 'Activé';
+
+  @override
+  String get forfaitStateSuspended => 'Suspendu';
+
+  @override
+  String get forfaitStateExpired => 'Expiré';
+
+  @override
+  String get forfaitStateInactive => 'Désactivé';
+
+  @override
+  String get forfaitStatePending => 'En attente';
+
+  @override
   String remainingOf(Object remaining, Object total) {
     return '$remaining restants / $total';
   }

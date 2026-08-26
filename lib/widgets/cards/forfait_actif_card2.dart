@@ -19,8 +19,8 @@ class ForfaitActifCard2 extends StatelessWidget {
       final inputFormat = DateFormat("dd/MM/yyyy HH:mm:ss");
       final date = inputFormat.parse(dateString);
 
-      // Format de sortie: "15/05/2025"
-      final outputFormat = DateFormat("dd/MM/yyyy");
+      // Format de sortie: "15/05/2025 19:04"
+      final outputFormat = DateFormat("dd/MM/yyyy HH:mm");
       return outputFormat.format(date);
     } catch (e) {
       // Fallback si le format n'est pas reconnu
@@ -49,17 +49,20 @@ class ForfaitActifCard2 extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        forfait.nom,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          forfait.nom,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      /* const SizedBox(height: 4),
+                        /* const SizedBox(height: 4),
                       Text(
                         'Acheté le ${_formatDate(forfait.dateDebut)}',
                         style: TextStyle(
@@ -67,8 +70,10 @@ class ForfaitActifCard2 extends StatelessWidget {
                           color: Colors.grey[600],
                         ),
                       ), */
-                    ],
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
