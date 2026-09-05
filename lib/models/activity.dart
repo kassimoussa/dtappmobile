@@ -124,16 +124,66 @@ class Activity {
     }
   }
 
-  /// Formate le montant avec la devise
-  String get formattedAmount {
-    if (amount == null) return '';
-    final curr = currency ?? 'DJF';
-    return '${amount!.toStringAsFixed(0)} $curr';
+  // Clés possibles pour les frais selon le type d'opération (transfert de
+  // crédit notamment) — la première trouvée dans metadata est utilisée.
+  static const List<String> _feeKeys = [
+    'fee',
+    'frais',
+    'frais_appliques',
+    'transfer_fee',
+  ];
+
+  /// Frais appliqués à l'opération, quand l'API les expose.
+  double? get feeValue {
+    final meta = metadata;
+    if (meta != null) {
+      for (final key in _feeKeys) {
+        final value = meta[key];
+        if (value == null) continue;
+        final parsed = double.tryParse(value.toString());
+        if (parsed != null) return parsed;
+      }
+    }
+
+    // Repli : les frais ne sont parfois exposés que dans la description
+    // ("... (frais 3 DJF)") et absents des métadonnées.
+    final match = RegExp(
+      r'frais\s+(\d+(?:[.,]\d+)?)',
+      caseSensitive: false,
+    ).firstMatch(description ?? '');
+    if (match == null) return null;
+    return double.tryParse(match.group(1)!.replaceAll(',', '.'));
   }
 
-  /// Formate la date pour l'affichage
+  /// Montant réellement prélevé sur le solde : les frais (5 % pour un
+  /// transfert de crédit) s'ajoutent au montant envoyé, ils ne sont pas
+  /// prélevés dessus — cf. le calcul de validation dans TransferInputScreen.
+  /// Vaut [amount] quand il n'y a pas de frais ou pour un crédit reçu.
+  double? get totalAmount {
+    final base = amount;
+    if (base == null) return null;
+
+    final fee = feeValue;
+    if (fee == null || !isDebit) return base;
+
+    // Le signe est porté par le préfixe à l'affichage, pas par la valeur
+    final total = base.abs() + fee;
+    return base.isNegative ? -total : total;
+  }
+
+  /// Formate le montant prélevé (frais inclus) avec la devise
+  String get formattedAmount {
+    final total = totalAmount;
+    if (total == null) return '';
+    final curr = currency ?? 'DJF';
+    return '${total.toStringAsFixed(0)} $curr';
+  }
+
+  /// Formate la date pour l'affichage : "30/08/2026 08:24"
   String get formattedDate {
-    return '${createdAt.day}/${createdAt.month}/${createdAt.year} à ${createdAt.hour}:${createdAt.minute.toString().padLeft(2, '0')}';
+    String two(int value) => value.toString().padLeft(2, '0');
+    return '${two(createdAt.day)}/${two(createdAt.month)}/${createdAt.year} '
+        '${two(createdAt.hour)}:${two(createdAt.minute)}';
   }
 
   static const _debitActionTypes = {
@@ -148,8 +198,7 @@ class Activity {
   /// Indique si l'opération a déduit de l'argent du solde (achat, transfert
   /// envoyé, recharge payée...) plutôt qu'en avoir ajouté.
   bool get isDebit =>
-      _debitActionTypes.contains(actionType) ||
-      (amount != null && amount! < 0);
+      _debitActionTypes.contains(actionType) || (amount != null && amount! < 0);
 
   /// Titre affiché à l'utilisateur : remplace le libellé technique générique
   /// (ex. "Souscription package TopUp") par le nom réel de l'offre/package

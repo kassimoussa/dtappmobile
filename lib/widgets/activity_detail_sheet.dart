@@ -120,16 +120,8 @@ class ActivityDetailSheet extends StatelessWidget {
     return value;
   }
 
-  // Clés possibles pour les frais selon le type d'opération (transfert de
-  // crédit notamment) — la première trouvée dans metadata est utilisée.
-  static const List<String> _feeKeys = [
-    'fee',
-    'frais',
-    'frais_appliques',
-    'transfer_fee',
-  ];
-
-  String? get _fixedLineNumber => activity.metadata?['fixed_line_number']?.toString();
+  String? get _fixedLineNumber =>
+      activity.metadata?['fixed_line_number']?.toString();
 
   static const Set<String> _typesWithSender = {
     'credit_received',
@@ -149,11 +141,14 @@ class ActivityDetailSheet extends StatelessWidget {
       return _cleanPhoneNumber(metaSender);
     }
 
-    if (activity.beneficiaryMsisdn != null && activity.beneficiaryMsisdn!.isNotEmpty) {
+    if (activity.beneficiaryMsisdn != null &&
+        activity.beneficiaryMsisdn!.isNotEmpty) {
       return _cleanPhoneNumber(activity.beneficiaryMsisdn!);
     }
 
-    final match = RegExp(r'\bde\s+(\d{8,15})\b').firstMatch(activity.description ?? '');
+    final match = RegExp(
+      r'\bde\s+(\d{8,15})\b',
+    ).firstMatch(activity.description ?? '');
     return match != null ? _cleanPhoneNumber(match.group(1)!) : null;
   }
 
@@ -162,25 +157,8 @@ class ActivityDetailSheet extends StatelessWidget {
       activity.metadata?['package_id']?.toString();
 
   String? get _feeAmount {
-    final metadata = activity.metadata;
-    if (metadata != null) {
-      for (final key in _feeKeys) {
-        final value = metadata[key];
-        if (value == null) continue;
-        final parsed = double.tryParse(value.toString());
-        if (parsed != null) return '${parsed.toStringAsFixed(0)} DJF';
-      }
-    }
-
-    // Repli : les frais ne sont parfois exposés que dans la description
-    // ("... (frais 3 DJF)") et absents des métadonnées.
-    final match = RegExp(
-      r'frais\s+(\d+(?:[.,]\d+)?)',
-      caseSensitive: false,
-    ).firstMatch(activity.description ?? '');
-    if (match == null) return null;
-    final parsed = double.tryParse(match.group(1)!.replaceAll(',', '.'));
-    return parsed != null ? '${parsed.toStringAsFixed(0)} DJF' : null;
+    final fee = activity.feeValue;
+    return fee != null ? '${fee.toStringAsFixed(0)} DJF' : null;
   }
 
   @override
@@ -330,7 +308,9 @@ class ActivityDetailSheet extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        isNegative ? l10n.amountDebitedLabel : l10n.amountCreditedLabel,
+                        isNegative
+                            ? l10n.amountDebitedLabel
+                            : l10n.amountCreditedLabel,
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(12),
                           fontWeight: FontWeight.w600,
@@ -340,7 +320,7 @@ class ActivityDetailSheet extends StatelessWidget {
                       ),
                       SizedBox(height: ResponsiveSize.getHeight(4)),
                       Text(
-                        "$amountPrefix${activity.amount!.toStringAsFixed(0)} DJF",
+                        "$amountPrefix${activity.totalAmount!.abs().toStringAsFixed(0)} DJF",
                         style: TextStyle(
                           fontSize: ResponsiveSize.getFontSize(32),
                           fontWeight: FontWeight.bold,
@@ -363,7 +343,8 @@ class ActivityDetailSheet extends StatelessWidget {
                 if (_senderMsisdn != null) ...[
                   _buildDivider(),
                   _buildInfoRow(l10n.fromLabel, _senderMsisdn!),
-                ] else if (_fixedLineNumber != null && _fixedLineNumber!.isNotEmpty) ...[
+                ] else if (_fixedLineNumber != null &&
+                    _fixedLineNumber!.isNotEmpty) ...[
                   _buildDivider(),
                   _buildInfoRow(l10n.rechargedLineLabel, _fixedLineNumber!),
                 ] else if (activity.beneficiaryMsisdn != null &&
@@ -379,6 +360,14 @@ class ActivityDetailSheet extends StatelessWidget {
                   _buildInfoRow(l10n.packageCodeLabel, _packageCode!),
                 ],
                 if (_feeAmount != null) ...[
+                  // Sans frais, cette ligne ferait doublon avec le total
+                  if (activity.amount != null) ...[
+                    _buildDivider(),
+                    _buildInfoRow(
+                      l10n.amountKey,
+                      '${activity.amount!.abs().toStringAsFixed(0)} DJF',
+                    ),
+                  ],
                   _buildDivider(),
                   _buildInfoRow(l10n.feeLabel, _feeAmount!),
                 ],
@@ -386,11 +375,11 @@ class ActivityDetailSheet extends StatelessWidget {
                   _buildDivider(),
                   _buildInfoRow(l10n.descriptionLabel, activity.description!),
                 ],
-                if (activity.amount != null) ...[
+                if (activity.totalAmount != null) ...[
                   _buildDivider(),
                   _buildInfoRow(
                     l10n.totalAmountLabel,
-                    "$amountPrefix${activity.amount!.toStringAsFixed(0)} DJF",
+                    "$amountPrefix${activity.totalAmount!.abs().toStringAsFixed(0)} DJF",
                   ),
                 ],
               ]),

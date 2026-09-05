@@ -128,7 +128,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
           SafeArea(
             child: Column(
               children: [
-                GlassAppBar(title: l10n.historyTitle, showBack: false, actions: [GlassAppBarAction(icon: Icons.bar_chart_rounded, label: 'Stats', onTap: () => Navigator.push(context, CustomRouteTransitions.slideRightRoute(page: const StatisticsScreen())))]),
+                GlassAppBar(
+                  title: l10n.historyTitle,
+                  showBack: false,
+                  actions: [
+                    GlassAppBarAction(
+                      icon: Icons.bar_chart_rounded,
+                      label: 'Stats',
+                      onTap:
+                          () => Navigator.push(
+                            context,
+                            CustomRouteTransitions.slideRightRoute(
+                              page: const StatisticsScreen(),
+                            ),
+                          ),
+                    ),
+                  ],
+                ),
                 _buildFiltersSection(transactionProvider, l10n),
                 Expanded(child: _buildBodyContent(transactionProvider)),
               ],
@@ -139,8 +155,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-
-  Widget _buildFiltersSection(TransactionProvider provider, AppLocalizations l10n) {
+  Widget _buildFiltersSection(
+    TransactionProvider provider,
+    AppLocalizations l10n,
+  ) {
     return Container(
       width: double.infinity,
       color: Colors.transparent,
@@ -225,7 +243,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(color: AppTheme.dtBlueDark, strokeWidth: 3),
+          const CircularProgressIndicator(
+            color: AppTheme.dtBlueDark,
+            strokeWidth: 3,
+          ),
           SizedBox(height: ResponsiveSize.getHeight(16)),
           Text(
             l10n.historyLoading,
@@ -351,9 +372,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     String? lastDate;
 
     // On masque les opérations échouées de l'historique affiché
-    final visibleActivities = provider.activities
-        .where((a) => a.status.toLowerCase() != 'failed' && a.status.toLowerCase() != 'error')
-        .toList();
+    final visibleActivities =
+        provider.activities
+            .where(
+              (a) =>
+                  a.status.toLowerCase() != 'failed' &&
+                  a.status.toLowerCase() != 'error',
+            )
+            .toList();
 
     if (visibleActivities.isEmpty) {
       return _buildEmptyState();
@@ -544,7 +570,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      "$amountPrefix${activity.amount!.toStringAsFixed(0)} DJF",
+                      "$amountPrefix${activity.totalAmount!.abs().toStringAsFixed(0)} DJF",
                       style: TextStyle(
                         fontSize: ResponsiveSize.getFontSize(16),
                         fontWeight: FontWeight.bold,

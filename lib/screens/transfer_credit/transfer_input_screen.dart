@@ -22,13 +22,26 @@ class TransferInputScreen extends StatefulWidget {
 class _TransferInputScreenState extends State<TransferInputScreen> {
   final TextEditingController _recipientController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
+  final FocusNode _amountFocusNode = FocusNode();
   String? _recipientError;
   String? _amountError;
+
+  @override
+  void initState() {
+    super.initState();
+    // Validation complete du montant seulement quand le champ perd le focus
+    _amountFocusNode.addListener(() {
+      if (mounted && !_amountFocusNode.hasFocus) {
+        _validateAmount(_amountController.text, complete: true);
+      }
+    });
+  }
 
   @override
   void dispose() {
     _recipientController.dispose();
     _amountController.dispose();
+    _amountFocusNode.dispose();
     super.dispose();
   }
 
@@ -100,8 +113,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
               const SizedBox(height: 24),
 
               // Information importante
-              //_buildInfoBox(),
-              const SizedBox(height: 32),
+              _buildInfoBox(),
 
               const SizedBox(height: 24),
             ],
@@ -148,6 +160,7 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
           ),
           child: TextFormField(
             controller: _amountController,
+            focusNode: _amountFocusNode,
             decoration: InputDecoration(
               hintText: AppLocalizations.of(context)!.amountHint,
               suffixText: 'DJF',
@@ -194,6 +207,68 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
   }
 
   // Widget pour la boîte d'information
+  Widget _buildInfoBox() {
+    final l10n = AppLocalizations.of(context)!;
+    final solde = context.watch<BalanceProvider>().solde;
+
+    final lines = [
+      l10n.transferMinAmountParams,
+      l10n.transferCurrentBalance(solde.toStringAsFixed(0)),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.dtBlueO10,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.dtBlueO30),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.info_outline, color: AppTheme.dtBlue, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                l10n.transferImportantInfo,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.dtBlue,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Une ligne par regle, avec indentation suspendue sous la puce
+          ...lines.map(
+            (line) => Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '•',
+                    style: TextStyle(color: AppTheme.dtBlue, fontSize: 14),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      line.replaceFirst(RegExp(r'^•\s*'), ''),
+                      style: const TextStyle(
+                        color: AppTheme.dtBlue,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   // Widget pour le bouton de confirmation
   Widget _buildConfirmButton() {
@@ -238,45 +313,49 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
     setState(() => _recipientError = null);
   }
 
-  // Validation du montant en temps réel
-  void _validateAmount(String value) {
-    final balanceProvider = context.read<BalanceProvider>();
+  // Validation du montant.
+  // Pendant la saisie (complete = false), on n'affiche pas les erreurs que
+  // l'utilisateur est justement en train de corriger en tapant les chiffres
+  // suivants (montant minimum, montant nul) : elles ne sont verifiees que
+  // lorsque le champ perd le focus ou a la confirmation.
+  void _validateAmount(String value, {bool complete = false}) {
+    final error = _amountErrorFor(value, complete: complete);
+    if (error != _amountError) {
+      setState(() => _amountError = error);
+    }
+  }
 
-    setState(() {
-      if (value.isEmpty) {
-        _amountError = null;
-        return;
-      }
+  String? _amountErrorFor(String value, {required bool complete}) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      return null;
+    }
 
-      final amount = double.tryParse(value);
-      if (amount == null) {
-        _amountError = AppLocalizations.of(context)!.amountInvalid;
-        return;
-      }
+    final amount = double.tryParse(trimmed);
+    if (amount == null) {
+      return AppLocalizations.of(context)!.amountInvalid;
+    }
 
+    if (complete) {
       if (amount <= 0) {
-        _amountError = AppLocalizations.of(context)!.amountPositive;
-        return;
+        return AppLocalizations.of(context)!.amountPositive;
       }
 
       if (amount < 50) {
-        _amountError = AppLocalizations.of(context)!.amountMinimum;
-        return;
+        return AppLocalizations.of(context)!.amountMinimum;
       }
+    }
 
-      // Calculer le total avec frais (5%)
-      final transferFee = amount * 0.05;
-      final totalAmount = amount + transferFee;
+    // Le solde insuffisant ne peut pas se corriger en tapant d'autres
+    // chiffres (le montant ne fait qu'augmenter) : on l'affiche des la saisie.
+    final totalAmount = amount + amount * 0.05;
+    if (totalAmount > context.read<BalanceProvider>().solde) {
+      return AppLocalizations.of(
+        context,
+      )!.insufficientBalance(totalAmount.toStringAsFixed(0));
+    }
 
-      if (totalAmount > balanceProvider.solde) {
-        _amountError = AppLocalizations.of(
-          context,
-        )!.insufficientBalance(totalAmount.toStringAsFixed(0));
-        return;
-      }
-
-      _amountError = null;
-    });
+    return null;
   }
 
   void _validateAndSendTransfer() {
@@ -309,14 +388,17 @@ class _TransferInputScreenState extends State<TransferInputScreen> {
       return;
     }
 
-    // Validation finale du montant
-    final amount = double.tryParse(_amountController.text.trim());
-    if (amount == null || amount <= 0) {
+    // Validation finale du montant (minimum, solde, format)
+    final amountText = _amountController.text.trim();
+    final amountError = _amountErrorFor(amountText, complete: true);
+    if (amountError != null) {
       setState(() {
-        _amountError = AppLocalizations.of(context)!.amountInvalid;
+        _amountError = amountError;
       });
       return;
     }
+
+    final amount = double.parse(amountText);
 
     // Si tout est valide, naviguer vers l'écran de confirmation
     final transferFee = amount * 0.05;
