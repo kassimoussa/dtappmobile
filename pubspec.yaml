@@ -57,6 +57,7 @@ dependencies:
   cached_network_image: ^3.4.1
   connectivity_plus: ^7.1.1
   share_plus: ^12.0.2
+  firebase_remote_config: ^6.6.0
 
 dev_dependencies:
   flutter_test:

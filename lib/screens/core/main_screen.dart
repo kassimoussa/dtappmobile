@@ -1,7 +1,11 @@
 // lib/screens/core/main_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../constants/app_theme.dart';
+import '../../providers/auth_provider.dart';
+import '../auth/consent_gate.dart';
+import '../auth/login_screen.dart';
 import '../../utils/responsive_size.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../widgets/promo_popup_dialog.dart';
@@ -34,8 +38,35 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         .drive(Tween<double>(begin: 1.0, end: 1.2));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      PromoPopupDialog.showIfAvailable(context);
+      _enforceConsent();
     });
+  }
+
+  /// Portillon de consentement, placé ici plutôt que sur chaque écran
+  /// d'authentification : quatre chemins mènent à MainScreen (PIN, OTP,
+  /// création de PIN, réinitialisation) et les futurs seraient à instrumenter
+  /// un par un. Ici, tout passage par l'accueil est couvert.
+  ///
+  /// La promo n'est proposée qu'une fois le consentement en règle : elle n'a
+  /// rien à faire par-dessus un écran juridique bloquant.
+  Future<void> _enforceConsent() async {
+    final accepted = await ConsentGate.enforce(context);
+    if (!mounted) return;
+
+    if (!accepted) {
+      // Refus d'un document devenu obligatoire : on ferme la session. Un
+      // utilisateur qui change d'avis accepte à la reconnexion.
+      await context.read<AuthProvider>().logout();
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    PromoPopupDialog.showIfAvailable(context);
   }
 
   @override

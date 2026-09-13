@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 /// Service pour gérer l'authentification par PIN
 /// Fournit les méthodes pour login, configuration, modification et réinitialisation du PIN
 class PinService {
-  static const String baseUrl = AppConfig.baseUrl;
+  static String get baseUrl => AppConfig.baseUrl;
 
   /// Connexion avec PIN
   ///

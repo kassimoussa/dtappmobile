@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/banner.dart';
 
 class BannerService {
-  static const String baseUrl = AppConfig.baseUrl;
+  static String get baseUrl => AppConfig.baseUrl;
 
   /// Cache statique des bannières
   static List<PromoBanner>? _cachedBanners;

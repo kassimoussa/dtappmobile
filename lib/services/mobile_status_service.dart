@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 /// Service pour vérifier le statut d'un numéro mobile
 /// Utilise l'endpoint /api/mobile/check-status
 class MobileStatusService {
-  static const String baseUrl = AppConfig.baseUrl;
+  static String get baseUrl => AppConfig.baseUrl;
   static const String checkStatusEndpoint = '/mobile/check-status';
 
   /// Vérifie le statut complet d'un numéro mobile

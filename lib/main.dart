@@ -1,9 +1,13 @@
-import 'dart:io';
+import 'dart:async';
 import 'package:dtservices/config/api_client.dart';
+import 'package:dtservices/config/app_config.dart';
+import 'package:dtservices/config/failover_http_client.dart';
+import 'package:dtservices/config/remote_config_service.dart';
 import 'package:dtservices/firebase/notification_service.dart';
 import 'package:dtservices/services/fcm_token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -22,18 +26,20 @@ import 'providers/language_provider.dart';
 import 'services/user_session.dart';
 import 'package:dtservices/constants/app_theme.dart';
 
-// Contourne la vérification SSL (chaîne intermédiaire manquante côté serveur).
-class _TrustAllCerts extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback = (cert, host, port) => true;
-  }
-} 
-
 Future<void> main() async {
-  HttpOverrides.global = _TrustAllCerts();
+  // Tous les appels HTTP de l'app (ApiClient comme http.get/post directs)
+  // passent par le client à bascule : si le domaine devient injoignable, les
+  // requêtes repartent sur l'IP du même backend, toujours en HTTPS.
+  await http.runWithClient(_startApp, () => BackendFailoverClient());
+}
+
+Future<void> _startApp() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Restaure l'adresse du backend (base publiée par Remote Config lors d'un
+  // lancement précédent + dernier hôte joignable) et relance une sonde en
+  // arrière-plan. Purement local : marche hors ligne.
+  await AppConfig.init();
 
   // Corrige une faille de sécurité : purge le flag biométrique global
   // hérité et les PIN mis en cache par erreur (voir user_session.dart)
@@ -41,6 +47,10 @@ Future<void> main() async {
 
   // Brancher le navigatorKey partagé pour l'intercepteur 401
   ApiClient.navigatorKey = NotificationService.navigatorKey;
+
+  // Version d'app et plateforme envoyées en en-tête : le backend s'en sert
+  // pour qualifier les consentements sans faire confiance au corps.
+  unawaited(ApiClient.initClientHeaders());
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -75,6 +85,15 @@ Future<void> main() async {
       debugPrint('⚠️ Erreur notifications: $error');
     });
     FCMTokenService.listenToTokenRefresh();
+
+    // Adresse du backend pilotée depuis la console Firebase : permet de
+    // déplacer le serveur sans republier l'app. Non bloquant — l'app tourne
+    // déjà sur la base restaurée par AppConfig.init().
+    unawaited(RemoteConfigService.init(
+      // Nouvelle adresse : on resonde, l'hôte appris précédemment ne vaut
+      // plus pour cette base.
+      onBaseChanged: () => unawaited(AppConfig.probe()),
+    ));
   } catch (e) {
     debugPrint('⚠️ Erreur Firebase: $e');
   }

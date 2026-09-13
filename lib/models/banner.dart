@@ -1,6 +1,6 @@
 import 'package:dtservices/config/app_config.dart';
 class PromoBanner {
-  static const String _serverBase = AppConfig.serverBase;
+  static String get _serverBase => AppConfig.serverBase;
 
   final int id;
   final String title;

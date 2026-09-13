@@ -9,7 +9,7 @@ import 'user_session.dart';
 import '../widgets/promo_popup_dialog.dart';
 
 class LogoutService {
-  static const String logoutUrl = '${AppConfig.baseUrl}/mobile/logout';
+  static String get logoutUrl => '${AppConfig.baseUrl}/mobile/logout';
 
   /// Effectue la déconnexion complète (API + local)
   /// NOTE: Le token FCM n'est PAS supprimé pour permettre les notifications

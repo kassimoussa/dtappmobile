@@ -9,7 +9,7 @@ import 'user_session.dart';
 /// Service pour l'achat d'offres
 class PurchaseOfferService {
   // URL de l'API d'achat d'offres
-  static const String baseUrl = '${AppConfig.baseUrl}/air';
+  static String get baseUrl => '${AppConfig.baseUrl}/air';
   
   /// Achète une offre pour l'utilisateur actuellement connecté
   /// [offerId] : ID de l'offre à acheter (10, 11, 12, 13, 15, 16, 17, 29)

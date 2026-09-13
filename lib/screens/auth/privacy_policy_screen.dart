@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dtservices/widgets/glass_app_bar.dart';
 import '../../constants/app_theme.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../utils/responsive_size.dart';
@@ -46,70 +47,100 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     final l10n = AppLocalizations.of(context)!;
     final isEn = Localizations.localeOf(context).languageCode == 'en';
 
+    // Même structure que TermsOfServiceScreen : halo de fond, GlassAppBar,
+    // contenu dans une carte — les deux documents juridiques se ressemblent.
+    // Le SafeArea couvre aussi le bas : depuis Android 15+ l'app dessine en
+    // bord-à-bord, sans quoi le texte passe sous la barre de navigation.
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: AppTheme.dtBlue,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          l10n.privacyPolicyTitle,
-          style: const TextStyle(
-            fontFamily: 'Outfit',
-            fontWeight: FontWeight.w600,
-            fontSize: 17,
-          ),
-        ),
-        automaticallyImplyLeading: !widget.mustAccept,
-      ),
-      body: Column(
+      backgroundColor: AppTheme.backgroundGrey,
+      body: Stack(
         children: [
-          if (widget.mustAccept)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: AppTheme.dtBlue.withValues(alpha: 0.08),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline_rounded,
-                      size: 16, color: AppTheme.dtBlue),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l10n.privacyPolicyScrollInfo,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: ResponsiveSize.getFontSize(12),
-                        color: AppTheme.dtBlue,
-                      ),
+          _bgGlow(),
+          SafeArea(
+            child: Column(
+              children: [
+                GlassAppBar(
+                  title: l10n.privacyPolicyTitle,
+                  // En acceptation obligatoire, pas d'échappatoire par le
+                  // retour : on répond par Accepter ou Refuser.
+                  showBack: !widget.mustAccept,
+                ),
+                if (widget.mustAccept)
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.symmetric(
+                        horizontal: ResponsiveSize.getWidth(AppTheme.spacingL)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppTheme.dtBlue.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusS),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline_rounded,
+                            size: 16, color: AppTheme.dtBlue),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            l10n.privacyPolicyScrollInfo,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: ResponsiveSize.getFontSize(12),
+                              color: AppTheme.dtBlue,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          Expanded(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              padding: EdgeInsets.symmetric(
-                horizontal: ResponsiveSize.getWidth(20),
-                vertical: ResponsiveSize.getHeight(20),
-              ),
-              child: isEn
-                  ? _PolicyContentEn(lastUpdated: l10n.privacyPolicyLastUpdated)
-                  : _PolicyContentFr(lastUpdated: l10n.privacyPolicyLastUpdated),
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    padding: EdgeInsets.all(
+                        ResponsiveSize.getWidth(AppTheme.spacingL)),
+                    child: Container(
+                      padding: EdgeInsets.all(
+                          ResponsiveSize.getWidth(AppTheme.spacingL)),
+                      decoration: AppTheme.cardDecoration,
+                      child: isEn
+                          ? _PolicyContentEn(
+                              lastUpdated: l10n.privacyPolicyLastUpdated)
+                          : _PolicyContentFr(
+                              lastUpdated: l10n.privacyPolicyLastUpdated),
+                    ),
+                  ),
+                ),
+                if (widget.mustAccept)
+                  _AcceptBar(
+                    l10n: l10n,
+                    enabled: _hasScrolledToBottom,
+                    onAccept: () => Navigator.of(context).pop(true),
+                    onDecline: () => Navigator.of(context).pop(false),
+                  ),
+              ],
             ),
           ),
-          if (widget.mustAccept)
-            _AcceptBar(
-              l10n: l10n,
-              enabled: _hasScrolledToBottom,
-              onAccept: () => Navigator.of(context).pop(true),
-              onDecline: () => Navigator.of(context).pop(false),
-            ),
         ],
       ),
     );
   }
+
+  Widget _bgGlow() => Positioned(
+        top: -100,
+        left: -100,
+        right: -100,
+        child: Container(
+          height: 350,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [AppTheme.dtBlueO08, Colors.transparent],
+              radius: 0.8,
+            ),
+          ),
+        ),
+      );
 }
 
 // ─── Barre d'acceptation ──────────────────────────────────────────────────────
@@ -130,8 +161,8 @@ class _AcceptBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-          16, 12, 16, MediaQuery.of(context).padding.bottom + 12),
+      // L'inset système est déjà pris par le SafeArea de l'écran.
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [

@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import '../models/forfait.dart';
 
 class OffersService {
-  static const _url = '${AppConfig.baseUrl}/offers';
+  static String get _url => '${AppConfig.baseUrl}/offers';
   static const _cacheTtl = Duration(hours: 1);
 
   static Map<String, List<Forfait>>? _cache;

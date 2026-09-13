@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/agency.dart';
 
 class AgencyService {
-  static const String baseUrl = AppConfig.baseUrl;
+  static String get baseUrl => AppConfig.baseUrl;
 
   // Cache mémoire pour éviter de rappeler l'API à chaque ouverture de l'écran.
   static const Duration _cacheTtl = Duration(minutes: 30);

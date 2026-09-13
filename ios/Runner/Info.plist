@@ -40,14 +40,27 @@
 	<string>This app needs access to the local network for debugging.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Votre position permet de vous situer sur la carte et de trouver les agences Djibouti Telecom les plus proches de vous.</string>
-	<!-- ⚠️ TEMPORAIRE : autorise le HTTP en clair vers l'IP du backend DT
-	     (le 443 vers cette IP est bloqué par le réseau mobile). À retirer dès
-	     que le firewall/DNS est corrigé. -->
+	<!-- SOUPAPE DORMANTE : l'app parle exclusivement HTTPS (domaine et IP ont
+	     chacun un certificat valide, et le repli du client HTTP change d'hôte,
+	     jamais de schéma). Cette exception n'est empruntée que si un opérateur
+	     publie délibérément `http://196.201.193.252` dans Firebase Remote
+	     Config, un jour où le 443 serait de nouveau bloqué par le réseau
+	     mobile. À retirer une fois le réseau stable dans la durée. -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>196.201.193.252</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<false/>
+			</dict>
+			<!-- Serveur de test de débit DT : octets aléatoires uniquement,
+			     aucune donnée personnelle. À retirer au renouvellement de son
+			     certificat. -->
+			<key>ookla.djiboutitelecom.dj</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>

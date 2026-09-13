@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'user_session.dart';
 
 class ProfileService {
-  static const String profileUrl = '${AppConfig.baseUrl}/mobile/profile';
-  static const String updateProfileUrl = '${AppConfig.baseUrl}/mobile/update-profile';
+  static String get profileUrl => '${AppConfig.baseUrl}/mobile/profile';
+  static String get updateProfileUrl => '${AppConfig.baseUrl}/mobile/update-profile';
 
   /// Cache en mémoire du dernier profil chargé, pour éviter d'afficher
   /// l'écran de chargement à chaque ouverture de l'écran profil.

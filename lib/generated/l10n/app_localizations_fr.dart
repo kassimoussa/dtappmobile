@@ -2036,6 +2036,26 @@ class AppLocalizationsFr extends AppLocalizations {
   String get iAcceptThe => 'J\'accepte la ';
 
   @override
+  String get consentAndThe => ' et les ';
+
+  @override
+  String get consentUpdatedTitle => 'Documents mis à jour';
+
+  @override
+  String get consentUpdatedIntro =>
+      'Nos documents juridiques ont été révisés. Merci d\'en prendre connaissance et de les accepter pour continuer à utiliser DJIBTEL.';
+
+  @override
+  String get consentReadDocument => 'Lire le document';
+
+  @override
+  String get consentDeclineNotice =>
+      'Refuser vous déconnectera de l\'application. Vous pourrez accepter plus tard en vous reconnectant.';
+
+  @override
+  String get consentCheckboxBoth => 'J\'ai lu et j\'accepte ces deux documents';
+
+  @override
   String get privacyPolicyLinkText => 'Politique de confidentialité';
 
   @override

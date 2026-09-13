@@ -8,7 +8,7 @@ import '../models/activity.dart';
 import 'user_session.dart';
 
 class ActivityService {
-  static const String baseUrl = '${AppConfig.baseUrl}/activity';
+  static String get baseUrl => '${AppConfig.baseUrl}/activity';
 
   /// Récupère l'historique des activités d'un utilisateur
   static Future<ActivityHistoryResponse?> getHistory({

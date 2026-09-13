@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'user_session.dart';
 
 class FCMTokenService {
-  static const String _baseUrl = AppConfig.baseUrl;
+  static String get _baseUrl => AppConfig.baseUrl;
   static const String _registerEndpoint = '/mobile/fcm/register-token';
   static const String _updateEndpoint = '/mobile/fcm/update-token';
   static const String _clearEndpoint = '/mobile/fcm/clear-token';

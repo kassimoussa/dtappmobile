@@ -3704,6 +3704,42 @@ abstract class AppLocalizations {
   /// **'J\'accepte la '**
   String get iAcceptThe;
 
+  /// No description provided for @consentAndThe.
+  ///
+  /// In fr, this message translates to:
+  /// **' et les '**
+  String get consentAndThe;
+
+  /// No description provided for @consentUpdatedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Documents mis à jour'**
+  String get consentUpdatedTitle;
+
+  /// No description provided for @consentUpdatedIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nos documents juridiques ont été révisés. Merci d\'en prendre connaissance et de les accepter pour continuer à utiliser DJIBTEL.'**
+  String get consentUpdatedIntro;
+
+  /// No description provided for @consentReadDocument.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire le document'**
+  String get consentReadDocument;
+
+  /// No description provided for @consentDeclineNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser vous déconnectera de l\'application. Vous pourrez accepter plus tard en vous reconnectant.'**
+  String get consentDeclineNotice;
+
+  /// No description provided for @consentCheckboxBoth.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai lu et j\'accepte ces deux documents'**
+  String get consentCheckboxBoth;
+
   /// No description provided for @privacyPolicyLinkText.
   ///
   /// In fr, this message translates to:

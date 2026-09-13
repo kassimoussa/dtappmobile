@@ -8,8 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:dtservices/models/refill_models.dart';
 
 class RefillService {
-  static const String _baseUrl = '${AppConfig.baseUrl}/air/refill/voucher';
-  static const String _giftUrl = '${AppConfig.baseUrl}/air/refill/gift';
+  static String get _baseUrl => '${AppConfig.baseUrl}/air/refill/voucher';
+  static String get _giftUrl => '${AppConfig.baseUrl}/air/refill/gift';
   static const Duration _timeout = Duration(seconds: 30);
 
   /// Effectue une recharge avec un code voucher

@@ -84,7 +84,12 @@ Custom responsive sizing system in `ResponsiveSize` (`lib/utils/responsive_size.
 - **Font Scaling**: Intelligent font size scaling based on screen width
 
 #### API Integration Architecture
-- **Base URL Configuration**: `https://196.201.193.252/api` — public IP, temporarily hardcoded in `lib/config/app_config.dart` (domain `https://mydtapp.djiboutitelecom.dj/` pending DNS fix)
+- **Base URL Configuration**: l'adresse du backend est résolue **à l'exécution**, jamais figée à la compilation. `AppConfig.baseUrl` (`lib/config/app_config.dart`) est un getter ; ne jamais redéclarer une URL backend en `static const`. Trois niveaux, du plus prioritaire au plus faible :
+  1. **Firebase Remote Config** — paramètre `api_base_url` (origine sans `/api`), lu par `RemoteConfigService` (`lib/config/remote_config_service.dart`) après l'init Firebase dans `main.dart`. Permet de déplacer le backend **sans republier l'app** ; la valeur est persistée en `SharedPreferences` donc elle survit à un démarrage hors ligne, et une valeur invalide est ignorée. Mises à jour temps réel activées (Android/iOS).
+  2. **Hôte appris** — `AppConfig.init()` restaure le dernier hôte joignable puis sonde ; `BackendFailoverClient` (`lib/config/failover_http_client.dart`, branché via `runWithClient` dans `main.dart`) aligne chaque requête backend sur l'origine active et la rejoue sur l'hôte de secours en cas d'échec réseau. La bascule se fait **entre `mydtapp.djiboutitelecom.dj` et `196.201.193.252`, toujours en HTTPS** : elle contourne une panne DNS, jamais le chiffrement.
+  3. **Valeurs compilées** — `https://mydtapp.djiboutitelecom.dj` par défaut, `https://196.201.193.252` en secours (les deux servent le même backend, chacun avec un certificat valide).
+  ⚠️ **Échéances de certificats** — depuis le retrait de `_TrustAllCerts`, l'app valide réellement les certificats : le domaine expire le **30/01/2027**, et l'IP porte un Let's Encrypt **de 6 jours** dépendant de son renouvellement automatique. Une expiration casse l'app ou fait disparaître le filet de secours.
+  ⚠️ **HTTP en clair** — plus aucun chemin de code ne l'emprunte. Les exceptions cleartext (`android/app/src/main/res/xml/network_security_config.xml`, `ios/Runner/Info.plist`) restent ouvertes vers l'IP seule comme **soupape manuelle** : publier `http://196.201.193.252` dans Remote Config si le 443 était de nouveau bloqué par le réseau mobile. À retirer une fois le réseau stable dans la durée.
 - **RESTful Services**: HTTP-based API calls with proper error handling
 - **Phone Number Formatting**: Automatic formatting to include country code (253)
 - **Request/Response Patterns**: Consistent error handling and response parsing

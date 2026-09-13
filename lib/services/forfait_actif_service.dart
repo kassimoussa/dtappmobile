@@ -12,7 +12,7 @@ import 'user_session.dart';
 
 class ForfaitActifService {
   // URL de base de l'API
-  static const String baseUrl = AppConfig.baseUrl;
+  static String get baseUrl => AppConfig.baseUrl;
   
   // Préfixes pour le cache
   static const String _cachePrefix = 'api_cache_';

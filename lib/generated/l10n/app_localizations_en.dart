@@ -2000,6 +2000,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iAcceptThe => 'I accept the ';
 
   @override
+  String get consentAndThe => ' and the ';
+
+  @override
+  String get consentUpdatedTitle => 'Updated documents';
+
+  @override
+  String get consentUpdatedIntro =>
+      'Our legal documents have been revised. Please review and accept them to keep using DJIBTEL.';
+
+  @override
+  String get consentReadDocument => 'Read the document';
+
+  @override
+  String get consentDeclineNotice =>
+      'Declining will sign you out. You can accept later by signing in again.';
+
+  @override
+  String get consentCheckboxBoth => 'I have read and accept both documents';
+
+  @override
   String get privacyPolicyLinkText => 'Privacy Policy';
 
   @override

@@ -2,14 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../widgets/dt_button.dart';
+import '../../services/consent_service.dart';
 import '../../services/user_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../generated/l10n/app_localizations.dart';
+import '../settings/terms_of_service_screen.dart';
 import 'connection_method_screen.dart';
 import 'privacy_policy_screen.dart';
 
@@ -22,8 +23,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  static const _keyPrivacyAccepted = 'privacy_policy_accepted';
-
   final _phoneController = TextEditingController();
   final _focusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
@@ -56,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen>
     WidgetsBinding.instance.addObserver(this);
 
     _checkSavedPhoneNumber();
-    _loadPrivacyAccepted();
+    _warmUpConsentVersions();
 
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) _animationController.forward();
@@ -77,19 +76,36 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  Future<void> _loadPrivacyAccepted() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() {
-        _privacyAccepted = prefs.getBool(_keyPrivacyAccepted) ?? false;
-      });
-    }
+  /// La case reste **toujours décochée à l'ouverture** : cocher est une action
+  /// que l'utilisateur doit poser lui-même, jamais un état hérité d'une session
+  /// précédente. Un consentement déjà enregistré n'est pas redemandé pour
+  /// autant — il n'est simplement pas réaffiché comme acquis.
+  ///
+  /// Cet appel ne sert donc qu'à charger les versions en vigueur pendant que
+  /// l'utilisateur saisit son numéro, pour que [_handleLogin] n'ait plus à
+  /// attendre le réseau au moment de valider.
+  Future<void> _warmUpConsentVersions() => ConsentService.pendingDocuments();
+
+  /// Simple état d'écran : le consentement n'est enregistré qu'au moment où
+  /// l'utilisateur continue, pas à chaque clic sur la case.
+  void _setPrivacyAccepted(bool value) {
+    if (mounted) setState(() => _privacyAccepted = value);
   }
 
-  Future<void> _setPrivacyAccepted(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_keyPrivacyAccepted, value);
-    if (mounted) setState(() => _privacyAccepted = value);
+  TextStyle get _legalLinkStyle => TextStyle(
+        fontFamily: 'Inter',
+        fontSize: ResponsiveSize.getFontSize(13),
+        color: AppTheme.dtBlue,
+        fontWeight: FontWeight.w600,
+        decoration: TextDecoration.underline,
+        decorationColor: AppTheme.dtBlue,
+      );
+
+  Future<void> _openTermsOfService() {
+    return Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TermsOfServiceScreen()),
+    );
   }
 
   Future<void> _openPrivacyPolicyReadOnly() {
@@ -103,6 +119,25 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Le consentement est daté et versionné ici, à l'instant où l'utilisateur
+    // valide. Aucune session n'existe encore : ConsentService le met en file et
+    // le transmettra à la première authentification réussie.
+    //
+    // La liste est relue plutôt que reprise de l'état de l'écran : si les
+    // versions n'étaient pas encore chargées quand l'utilisateur a coché,
+    // `_pendingDocuments` serait vide et le consentement se perdrait sans
+    // bruit. La lecture est mémorisée côté service, elle ne coûte rien.
+    final locale = Localizations.localeOf(context).languageCode;
+    final pending = await ConsentService.pendingDocuments();
+    if (pending.isNotEmpty) {
+      await ConsentService.record(
+        docs: pending,
+        action: ConsentService.actionAccepted,
+        locale: locale,
+      );
+      if (!mounted) return;
+    }
 
     final phoneNumber = _phoneController.text;
     await UserService.savePhoneNumber(phoneNumber);
@@ -371,86 +406,100 @@ class _LoginScreenState extends State<LoginScreen>
           ),
 
           // ── Zone fixe en bas : checkbox + bouton + footer ─────────────
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              ResponsiveSize.getWidth(28),
-              ResponsiveSize.getHeight(12),
-              ResponsiveSize.getWidth(28),
-              ResponsiveSize.getHeight(24),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Checkbox
-                GestureDetector(
-                  onTap: () => _setPrivacyAccepted(!_privacyAccepted),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Checkbox(
-                          value: _privacyAccepted,
-                          onChanged: (v) =>
-                              _setPrivacyAccepted(v ?? false),
-                          activeColor: AppTheme.dtBlue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
+          // SafeArea (bas uniquement) : depuis Android 15+ le bord-à-bord est
+          // imposé, l'app dessine sous la barre de navigation et doit ajouter
+          // l'inset elle-même, sinon le bouton passe dessous. `top: false`
+          // laisse la zone bleue déborder sous la barre d'état, comme voulu.
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                ResponsiveSize.getWidth(28),
+                ResponsiveSize.getHeight(12),
+                ResponsiveSize.getWidth(28),
+                ResponsiveSize.getHeight(24),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Checkbox
+                  GestureDetector(
+                    onTap: () => _setPrivacyAccepted(!_privacyAccepted),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: Checkbox(
+                            value: _privacyAccepted,
+                            onChanged: (v) =>
+                                _setPrivacyAccepted(v ?? false),
+                            activeColor: AppTheme.dtBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: ResponsiveSize.getWidth(10)),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: ResponsiveSize.getFontSize(13),
-                              color: AppTheme.textSecondary,
-                            ),
-                            children: [
-                              TextSpan(text: l10n.iAcceptThe),
-                              WidgetSpan(
-                                alignment: PlaceholderAlignment.middle,
-                                child: GestureDetector(
-                                  onTap: _openPrivacyPolicyReadOnly,
-                                  child: Text(
-                                    l10n.privacyPolicyLinkText,
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: ResponsiveSize.getFontSize(13),
-                                      color: AppTheme.dtBlue,
-                                      fontWeight: FontWeight.w600,
-                                      decoration: TextDecoration.underline,
-                                      decorationColor: AppTheme.dtBlue,
+                        SizedBox(width: ResponsiveSize.getWidth(10)),
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: ResponsiveSize.getFontSize(13),
+                                color: AppTheme.textSecondary,
+                              ),
+                              children: [
+                                TextSpan(text: l10n.iAcceptThe),
+                                // Les deux documents sont couverts par une
+                                // acceptation unique : la case ne peut pas
+                                // n'en mentionner qu'un seul.
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: GestureDetector(
+                                    onTap: _openPrivacyPolicyReadOnly,
+                                    child: Text(
+                                      l10n.privacyPolicyLinkText,
+                                      style: _legalLinkStyle,
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                                TextSpan(text: l10n.consentAndThe),
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: GestureDetector(
+                                    onTap: _openTermsOfService,
+                                    child: Text(
+                                      l10n.termsOfService,
+                                      style: _legalLinkStyle,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: ResponsiveSize.getHeight(16)),
-                // Bouton Continuer
-                DtButton.primary(
-                  label: l10n.continueAction,
-                  loading: authProvider.isLoading,
-                  onPressed: _privacyAccepted ? _handleLogin : null,
-                ),
-                SizedBox(height: ResponsiveSize.getHeight(16)),
-                /* Text(
-                  '© Djibouti Telecom',
-                  style: TextStyle(
-                    color: Colors.grey[350],
-                    fontSize: ResponsiveSize.getFontSize(12),
+                  SizedBox(height: ResponsiveSize.getHeight(16)),
+                  // Bouton Continuer
+                  DtButton.primary(
+                    label: l10n.continueAction,
+                    loading: authProvider.isLoading,
+                    onPressed: _privacyAccepted ? _handleLogin : null,
                   ),
-                ), */
-              ],
+                  SizedBox(height: ResponsiveSize.getHeight(16)),
+                  /* Text(
+                    '© Djibouti Telecom',
+                    style: TextStyle(
+                      color: Colors.grey[350],
+                      fontSize: ResponsiveSize.getFontSize(12),
+                    ),
+                  ), */
+                ],
+              ),
             ),
           ),
         ],

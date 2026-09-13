@@ -852,6 +852,12 @@
     "privacyPolicyDeclineBtn": "Refuser",
     "privacyPolicyScrollToAccept": "Faites défiler jusqu'en bas pour activer le bouton",
     "iAcceptThe": "J'accepte la ",
+    "consentAndThe": " et les ",
+    "consentUpdatedTitle": "Documents mis à jour",
+    "consentUpdatedIntro": "Nos documents juridiques ont été révisés. Merci d'en prendre connaissance et de les accepter pour continuer à utiliser DJIBTEL.",
+    "consentReadDocument": "Lire le document",
+    "consentDeclineNotice": "Refuser vous déconnectera de l'application. Vous pourrez accepter plus tard en vous reconnectant.",
+    "consentCheckboxBoth": "J'ai lu et j'accepte ces deux documents",
     "privacyPolicyLinkText": "Politique de confidentialité",
     "balanceDisplay": "Solde: {amount} {currency}",
     "@balanceDisplay": {

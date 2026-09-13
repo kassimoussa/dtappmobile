@@ -12,7 +12,7 @@ import '../exceptions/topup_exception.dart';
 
 class TopUpApiService {
   // Configuration de l'API
-  static const String baseUrl = '${AppConfig.baseUrl}/topup';
+  static String get baseUrl => '${AppConfig.baseUrl}/topup';
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
   static const Duration _retryDelay = Duration(seconds: 1);

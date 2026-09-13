@@ -834,6 +834,12 @@
     "privacyPolicyDeclineBtn": "Decline",
     "privacyPolicyScrollToAccept": "Scroll to the bottom to activate the button",
     "iAcceptThe": "I accept the ",
+    "consentAndThe": " and the ",
+    "consentUpdatedTitle": "Updated documents",
+    "consentUpdatedIntro": "Our legal documents have been revised. Please review and accept them to keep using DJIBTEL.",
+    "consentReadDocument": "Read the document",
+    "consentDeclineNotice": "Declining will sign you out. You can accept later by signing in again.",
+    "consentCheckboxBoth": "I have read and accept both documents",
     "privacyPolicyLinkText": "Privacy Policy",
     "balanceDisplay": "Balance: {amount} {currency}",
     "@balanceDisplay": {

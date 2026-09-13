@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
+
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../services/notification_store.dart';
@@ -21,13 +24,45 @@ class ApiClient {
   /// Permet la navigation sans BuildContext.
   static GlobalKey<NavigatorState>? navigatorKey;
 
+  /// Version de l'app et plateforme, envoyées à chaque requête. Le backend s'en
+  /// sert notamment pour horodater les consentements (X-App-Version /
+  /// X-Platform) : ces métadonnées sont lues dans les en-têtes, jamais dans le
+  /// corps, qu'un client pourrait falsifier.
+  static String? _appVersion;
+  static String? _platform;
+
+  /// À appeler une fois au démarrage. Silencieux en cas d'échec : les en-têtes
+  /// sont un confort, leur absence ne doit bloquer aucun appel (le backend
+  /// retombe alors sur les infos de session).
+  static Future<void> initClientHeaders() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      _appVersion = '${info.version}+${info.buildNumber}';
+      _platform = Platform.isAndroid
+          ? 'android'
+          : Platform.isIOS
+              ? 'ios'
+              : Platform.operatingSystem;
+    } catch (e) {
+      debugPrint('⚠️ ApiClient: en-têtes client indisponibles ($e)');
+    }
+  }
+
   // ─── Headers ──────────────────────────────────────────────────────────────
 
-  static Map<String, String> get publicHeaders => Map.from(_baseHeaders);
+  static Map<String, String> get _clientHeaders => {
+        if (_appVersion != null) 'X-App-Version': _appVersion!,
+        if (_platform != null) 'X-Platform': _platform!,
+      };
+
+  static Map<String, String> get publicHeaders => {
+        ..._baseHeaders,
+        ..._clientHeaders,
+      };
 
   static Future<Map<String, String>> authHeaders() async {
     final token = await UserSession.getSessionToken();
-    final headers = Map<String, String>.from(_baseHeaders);
+    final headers = {..._baseHeaders, ..._clientHeaders};
     if (token != null && token.isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
     } else {

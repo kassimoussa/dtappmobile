@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- ⚠️ TEMPORAIRE : autorise le trafic en clair (HTTP) UNIQUEMENT vers l'IP du
-     backend DT (le 443 vers cette IP est bloqué par le réseau mobile — cf.
-     app_config.dart). Tout le reste de l'app reste en HTTPS. À retirer dès que
-     le firewall/DNS est corrigé. -->
+<!-- Le trafic de l'app passe entièrement en HTTPS : le domaine et l'IP du
+     backend présentent chacun un certificat valide, et aucun chemin de code ne
+     retombe en clair (le repli du client HTTP change d'hôte, jamais de schéma
+     — cf. lib/config/failover_http_client.dart).
+
+     L'exception ci-dessous est une SOUPAPE DORMANTE : elle n'est empruntée que
+     si un opérateur publie délibérément `http://196.201.193.252` dans Firebase
+     Remote Config, un jour où le 443 serait de nouveau bloqué par le réseau
+     mobile. Sans elle, un tel incident ne serait rattrapable que par une
+     nouvelle version sur les stores.
+
+     À retirer une fois le réseau mobile stable dans la durée. -->
 <network-security-config>
+    <!-- Soupape dormante décrite ci-dessus : l'IP du backend. -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="false">196.201.193.252</domain>
+    </domain-config>
+
+    <!-- Serveur de test de débit de Djibouti Telecom (OoklaServer, port 8080
+         en clair, certificat expiré sur 443). Ce qui transite n'est que des
+         octets aléatoires : ni identifiant, ni solde, ni donnée personnelle.
+         Le seul risque est qu'un tiers sur le chemin fausse la mesure affichée.
+         À retirer quand le certificat de cet hôte sera renouvelé — voir
+         lib/services/speedtest_service.dart. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">ookla.djiboutitelecom.dj</domain>
     </domain-config>
 </network-security-config>

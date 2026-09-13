@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/popup.dart';
 
 class PopupService {
-  static const String baseUrl = AppConfig.baseUrl;
+  static String get baseUrl => AppConfig.baseUrl;
 
   /// Cache statique du popup
   static PromoPopup? _cachedPopup;
