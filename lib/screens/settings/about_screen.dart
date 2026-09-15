@@ -65,7 +65,7 @@ class _AboutScreenState extends State<AboutScreen> {
                                 ResponsiveSize.getHeight(AppTheme.spacingM)),
                         Center(
                           child: Text(
-                            'DT Mobile',
+                            l10n.appTitle,
                             style: AppTheme.subheadingStyle.copyWith(
                               fontSize: ResponsiveSize.getFontSize(20),
                             ),

@@ -44,6 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Key _bannerSliderKey = UniqueKey();
   final _notifStore = NotificationStore();
 
+  /// Recalculé à chaque mise en page d'après la hauteur disponible
+  _HomeMetrics _metrics = const _HomeMetrics(0);
+
   // Écran « Nos agences » monté en overlay persistant : la carte Google Maps
   // est ainsi construite une seule fois (au premier affichage) puis conservée,
   // au lieu d'être recréée à chaque ouverture via un Navigator.push.
@@ -145,66 +148,75 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: AppTheme.backgroundGrey,
         body: Stack(
           children: [
-            RefreshIndicator(
-              onRefresh: _handleRefresh,
-              color: AppTheme.dtBlue,
-              backgroundColor: Colors.white,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Premium Header with Swipable Cards
-                    RepaintBoundary(
-                      child: Consumer<BalanceProvider>(
-                        builder:
-                            (context, balanceProvider, _) =>
-                                _buildHeroCard(balanceProvider, l10n),
-                      ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                _metrics = _HomeMetrics.fit(
+                  viewportHeight: constraints.maxHeight,
+                  topInset: MediaQuery.paddingOf(context).top,
+                );
+
+                return RefreshIndicator(
+                  onRefresh: _handleRefresh,
+                  color: AppTheme.dtBlue,
+                  backgroundColor: Colors.white,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
                     ),
-
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: ResponsiveSize.getWidth(20),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: ResponsiveSize.getHeight(10)),
-
-                          // Titre section actions
-                          Text(
-                            l10n.quickActions,
-                            style: AppTheme.subheadingStyle,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Premium Header with Swipable Cards
+                        RepaintBoundary(
+                          child: Consumer<BalanceProvider>(
+                            builder:
+                                (context, balanceProvider, _) =>
+                                    _buildHeroCard(balanceProvider, l10n),
                           ),
+                        ),
 
-                          SizedBox(height: ResponsiveSize.getHeight(16)),
-
-                          // Actions rapides
-                          _buildQuickActions(l10n),
-
-                          SizedBox(height: ResponsiveSize.getHeight(32)),
-
-                          // Bannières
-                          Container(
-                            decoration: AppTheme.cardDecoration.copyWith(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: BannerSlider(key: _bannerSliderKey),
-                            ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: ResponsiveSize.getWidth(20),
                           ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: _metrics.beforeTitle),
 
-                          SizedBox(height: ResponsiveSize.getHeight(32)),
-                        ],
-                      ),
+                              // Titre section actions
+                              Text(
+                                l10n.quickActions,
+                                style: AppTheme.subheadingStyle,
+                              ),
+
+                              SizedBox(height: _metrics.afterTitle),
+
+                              // Actions rapides
+                              _buildQuickActions(l10n),
+
+                              SizedBox(height: _metrics.beforeBanner),
+
+                              // Bannières
+                              Container(
+                                decoration: AppTheme.cardDecoration.copyWith(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: BannerSlider(key: _bannerSliderKey),
+                                ),
+                              ),
+
+                              SizedBox(height: _metrics.bottomGap),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
             // Overlay « Nos agences » : monté au premier affichage puis conservé
             // vivant (Offstage quand fermé) → la carte Google Maps n'est plus
@@ -231,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         // Background Gradient that spans top half organically
         Container(
-          height: ResponsiveSize.getHeight(230),
+          height: _metrics.heroBackground,
           width: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -251,9 +263,9 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: ResponsiveSize.getHeight(12)),
+              SizedBox(height: _metrics.topGap),
               _buildGlassAppBar(l10n),
-              SizedBox(height: ResponsiveSize.getHeight(24)),
+              SizedBox(height: _metrics.afterAppBar),
 
               // Swipeable Cards
               RepaintBoundary(
@@ -276,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: ResponsiveSize.getWidth(16),
-          vertical: ResponsiveSize.getHeight(12),
+          vertical: _metrics.appBarPadding,
         ),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.08),
@@ -404,7 +416,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       children: [
         SizedBox(
-          height: ResponsiveSize.getHeight(140),
+          height: _metrics.cards,
           child: PageView(
             controller: _balancePageController,
             onPageChanged: (int page) {
@@ -445,7 +457,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        SizedBox(height: ResponsiveSize.getHeight(16)),
+        SizedBox(height: _metrics.beforeDots),
         // Dots indicator
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -514,7 +526,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(8)),
-      padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveSize.getWidth(16),
+        vertical: _metrics.cardPadding,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -699,7 +714,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        SizedBox(height: ResponsiveSize.getHeight(20)),
+        SizedBox(height: _metrics.actionRowGap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -757,7 +772,7 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
+            padding: EdgeInsets.all(_metrics.actionIconPadding),
             decoration: AppTheme.cardDecoration.copyWith(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -767,7 +782,7 @@ class _HomeScreenState extends State<HomeScreen> {
               size: ResponsiveSize.getFontSize(24),
             ),
           ),
-          SizedBox(height: ResponsiveSize.getHeight(6)),
+          SizedBox(height: _metrics.actionLabelGap),
           Text(
             label,
             textAlign: TextAlign.center,
@@ -784,4 +799,59 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+/// Dimensions verticales de l'accueil
+///
+/// ResponsiveSize dérive toutes les hauteurs de la largeur : sur un écran
+/// court pour sa largeur (16:9 comme 360x640 ou 411x731, iPhone SE…), le
+/// contenu dépassait et la bannière passait sous la barre de navigation.
+/// Les espacements et les cartes sont alors resserrés juste de ce qu'il faut,
+/// de la maquette d'origine ([tightness] = 0) au plus serré (1). Les textes et
+/// les icônes gardent leur taille ; les écrans assez hauts ne changent pas.
+class _HomeMetrics {
+  const _HomeMetrics(this.tightness);
+
+  /// Hauteur du contenu sous la barre d'état jusqu'au bas de la bannière,
+  /// petite marge comprise, en unités de maquette (375 de large)
+  static const double _designContentHeight = 646;
+
+  /// Hauteur récupérable en resserrant au maximum, en unités de maquette :
+  /// somme des écarts entre valeurs d'origine et valeurs serrées ci-dessous,
+  /// comptés autant de fois qu'ils apparaissent au-dessus de la bannière
+  static const double _designCompressible = 110;
+
+  factory _HomeMetrics.fit({
+    required double viewportHeight,
+    required double topInset,
+  }) {
+    final missing =
+        topInset +
+        ResponsiveSize.getHeight(_designContentHeight) -
+        viewportHeight;
+    return _HomeMetrics(
+      (missing / ResponsiveSize.getHeight(_designCompressible)).clamp(0.0, 1.0),
+    );
+  }
+
+  final double tightness;
+
+  double _v(double roomy, double tight) =>
+      ResponsiveSize.getHeight(roomy + (tight - roomy) * tightness);
+
+  /// Fond bleu : suit tout ce qui rétrécit au-dessus du bas des cartes
+  double get heroBackground => _v(230, 182);
+  double get topGap => _v(12, 4);
+  double get appBarPadding => _v(12, 6);
+  double get afterAppBar => _v(24, 12);
+  double get cards => _v(140, 124);
+  double get cardPadding => _v(16, 12);
+  double get beforeDots => _v(16, 8);
+  double get beforeTitle => _v(10, 6);
+  double get afterTitle => _v(16, 10);
+  double get actionIconPadding => _v(12, 9);
+  double get actionLabelGap => _v(6, 4);
+  double get actionRowGap => _v(20, 10);
+  double get beforeBanner => _v(32, 14);
+  double get bottomGap => _v(32, 16);
 }

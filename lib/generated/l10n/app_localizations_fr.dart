@@ -154,7 +154,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get shareAppMessage =>
-      'Découvrez DT Mobile, l\'application de Djibouti Telecom :';
+      'Découvrez DJIBTEL, l\'application de Djibouti Telecom :';
 
   @override
   String get faqTitle => 'Questions fréquentes';

@@ -150,7 +150,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rateApp => 'Rate the app';
 
   @override
-  String get shareAppMessage => 'Discover DT Mobile, the Djibouti Telecom app:';
+  String get shareAppMessage => 'Discover DJIBTEL, the Djibouti Telecom app:';
 
   @override
   String get faqTitle => 'Frequently asked questions';

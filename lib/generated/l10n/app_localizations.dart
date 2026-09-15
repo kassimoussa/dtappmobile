@@ -371,7 +371,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareAppMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Découvrez DT Mobile, l\'application de Djibouti Telecom :'**
+  /// **'Découvrez DJIBTEL, l\'application de Djibouti Telecom :'**
   String get shareAppMessage;
 
   /// No description provided for @faqTitle.

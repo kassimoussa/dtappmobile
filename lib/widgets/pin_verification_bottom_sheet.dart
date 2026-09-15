@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_theme.dart';
@@ -32,20 +34,23 @@ class PinVerificationBottomSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => PinVerificationBottomSheet(
-        phoneNumber: phoneNumber,
-        customTitle: title,
-        customMessage: message,
-      ),
+      builder:
+          (context) => PinVerificationBottomSheet(
+            phoneNumber: phoneNumber,
+            customTitle: title,
+            customMessage: message,
+          ),
     );
     return result ?? false;
   }
 
   @override
-  State<PinVerificationBottomSheet> createState() => _PinVerificationBottomSheetState();
+  State<PinVerificationBottomSheet> createState() =>
+      _PinVerificationBottomSheetState();
 }
 
-class _PinVerificationBottomSheetState extends State<PinVerificationBottomSheet> {
+class _PinVerificationBottomSheetState
+    extends State<PinVerificationBottomSheet> {
   String _pin = '';
   bool _isLoading = false;
   String? _errorMessage;
@@ -83,7 +88,7 @@ class _PinVerificationBottomSheetState extends State<PinVerificationBottomSheet>
     // Test du login local avec le PIN via PinService
     // On utilise PinService directement pour ne pas altérer le status d'activité / session de l'AuthProvider
     // sauf si vous voulez que ça reset l'inactivité, utiliser authProvider.loginWithPin
-    
+
     // Vu que l'utilisateur est déjà connecté, on va juste valider le PIN
     final success = await authProvider.loginWithPin(widget.phoneNumber, _pin);
 
@@ -100,7 +105,9 @@ class _PinVerificationBottomSheetState extends State<PinVerificationBottomSheet>
       setState(() {
         _isLoading = false;
         _pin = '';
-        _errorMessage = authProvider.errorMessage ?? AppLocalizations.of(context)!.authFailed;
+        _errorMessage =
+            authProvider.errorMessage ??
+            AppLocalizations.of(context)!.authFailed;
       });
     }
   }
@@ -111,6 +118,13 @@ class _PinVerificationBottomSheetState extends State<PinVerificationBottomSheet>
     final l10n = AppLocalizations.of(context)!;
     final title = widget.customTitle ?? l10n.pleaseReenterPin;
     final message = widget.customMessage ?? '';
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    // Écran bas : espacements réduits pour laisser la place au clavier
+    final compact = screenHeight < 700;
+    final keyboardHeight = math.min(
+      PinKeyboard.preferredHeight,
+      math.max(screenHeight * 0.4, PinKeyboard.minHeight),
+    );
 
     return Container(
       decoration: BoxDecoration(
@@ -133,95 +147,128 @@ class _PinVerificationBottomSheetState extends State<PinVerificationBottomSheet>
               height: ResponsiveSize.getHeight(5),
               decoration: BoxDecoration(
                 color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(ResponsiveSize.getWidth(10)),
-              ),
-            ),
-
-            SizedBox(height: ResponsiveSize.getHeight(24)),
-            
-            // Icon
-            Container(
-              padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
-              decoration: const BoxDecoration(
-                color: AppTheme.dtBlueO10,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.lock_outline,
-                color: AppTheme.dtBlue,
-                size: ResponsiveSize.getFontSize(32),
-              ),
-            ),
-            
-            SizedBox(height: ResponsiveSize.getHeight(16)),
-
-            // Title
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(AppTheme.spacingL)),
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(20),
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.dtBlue,
+                borderRadius: BorderRadius.circular(
+                  ResponsiveSize.getWidth(10),
                 ),
               ),
             ),
 
-            if (message.isNotEmpty) ...[
-              SizedBox(height: ResponsiveSize.getHeight(8)),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(AppTheme.spacingL)),
-                child: Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(14),
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ),
-            ],
-
-            SizedBox(height: ResponsiveSize.getHeight(24)),
-
-            // Loading / Dots / Error
-            if (_isLoading)
-               SizedBox(
-                height: ResponsiveSize.getHeight(24),
-                width: ResponsiveSize.getHeight(24),
-                child: const CircularProgressIndicator(color: AppTheme.dtBlue, strokeWidth: 3),
-              )
-            else ...[
-              PinDots(pinLength: _pin.length, maxLength: 4),
-
-              if (_errorMessage != null) ...[
-                SizedBox(height: ResponsiveSize.getHeight(16)),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: ResponsiveSize.getWidth(AppTheme.spacingL)),
-                  child: Text(
-                    _errorMessage!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.red[700],
-                      fontSize: ResponsiveSize.getFontSize(14),
-                      fontWeight: FontWeight.w500,
+            // L'en-tête défile s'il ne tient pas ; le clavier reste visible
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: ResponsiveSize.getHeight(compact ? 12 : 24),
                     ),
-                  ),
-                ),
-              ],
-            ],
 
-            SizedBox(height: ResponsiveSize.getHeight(32)),
+                    // Icon
+                    Container(
+                      padding: EdgeInsets.all(ResponsiveSize.getWidth(16)),
+                      decoration: const BoxDecoration(
+                        color: AppTheme.dtBlueO10,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.lock_outline,
+                        color: AppTheme.dtBlue,
+                        size: ResponsiveSize.getFontSize(32),
+                      ),
+                    ),
+
+                    SizedBox(height: ResponsiveSize.getHeight(16)),
+
+                    // Title
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
+                      ),
+                      child: Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(20),
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.dtBlue,
+                        ),
+                      ),
+                    ),
+
+                    if (message.isNotEmpty) ...[
+                      SizedBox(height: ResponsiveSize.getHeight(8)),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: ResponsiveSize.getWidth(
+                            AppTheme.spacingL,
+                          ),
+                        ),
+                        child: Text(
+                          message,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(14),
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                    ],
+
+                    SizedBox(
+                      height: ResponsiveSize.getHeight(compact ? 16 : 24),
+                    ),
+
+                    // Loading / Dots / Error
+                    if (_isLoading)
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(24),
+                        width: ResponsiveSize.getHeight(24),
+                        child: const CircularProgressIndicator(
+                          color: AppTheme.dtBlue,
+                          strokeWidth: 3,
+                        ),
+                      )
+                    else ...[
+                      PinDots(pinLength: _pin.length, maxLength: 4),
+
+                      if (_errorMessage != null) ...[
+                        SizedBox(height: ResponsiveSize.getHeight(16)),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: ResponsiveSize.getWidth(
+                              AppTheme.spacingL,
+                            ),
+                          ),
+                          child: Text(
+                            _errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.red[700],
+                              fontSize: ResponsiveSize.getFontSize(14),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+
+                    SizedBox(
+                      height: ResponsiveSize.getHeight(compact ? 16 : 32),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
             // Custom Keyboard
-            PinKeyboard(
-              onNumberPressed: _handleNumberPressed,
-              onDeletePressed: _handleDeletePressed,
+            SizedBox(
+              height: keyboardHeight,
+              child: PinKeyboard(
+                onNumberPressed: _handleNumberPressed,
+                onDeletePressed: _handleDeletePressed,
+              ),
             ),
-            
-            SizedBox(height: ResponsiveSize.getHeight(24)),
+
+            SizedBox(height: ResponsiveSize.getHeight(compact ? 16 : 24)),
           ],
         ),
       ),

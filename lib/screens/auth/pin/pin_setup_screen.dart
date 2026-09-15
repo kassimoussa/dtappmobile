@@ -6,6 +6,8 @@ import '../../../utils/responsive_size.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../widgets/pin_keyboard.dart';
 import '../../../widgets/pin_dots.dart';
+import '../../../widgets/pin_entry_layout.dart';
+import '../../../widgets/glass_app_bar.dart';
 import '../../../services/pin_service.dart';
 import '../../../services/user_session.dart';
 import '../connection_method_screen.dart';
@@ -48,183 +50,190 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    // Écran bas : icône et espacements réduits pour laisser la place au clavier
+    final compact = MediaQuery.sizeOf(context).height < 700;
 
     return PopScope(
       canPop: !widget.isMandatory,
       child: Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: !widget.isMandatory,
-        leading: widget.isMandatory
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.close, color: AppTheme.dtBlue),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-        actions: [
-          if (widget.onSkip != null)
-            TextButton(
-              onPressed: authProvider.isLoading ? null : widget.onSkip,
-              child: Text(
-                AppLocalizations.of(context)!.skip,
-                style: TextStyle(
-                  fontSize: ResponsiveSize.getFontSize(16),
-                  color: AppTheme.dtBlue,
+        backgroundColor: AppTheme.backgroundGrey,
+        body: Stack(
+          children: [
+            Positioned(
+              top: -100,
+              left: -100,
+              right: -100,
+              child: Container(
+                height: 350,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [AppTheme.dtBlueO08, Colors.transparent],
+                    radius: 0.8,
+                  ),
                 ),
               ),
             ),
-        ],
-      ),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(height: ResponsiveSize.getHeight(20)),
+            SafeArea(
+              child: Column(
+                children: [
+                  GlassAppBar(
+                    title:
+                        widget.isResetting
+                            ? AppLocalizations.of(context)!.resetPinTitle
+                            : AppLocalizations.of(context)!.setupPinTitle,
+                    // Configuration obligatoire après l'OTP : pas de retour
+                    showBack: !widget.isMandatory,
+                    actions: [
+                      if (widget.onSkip != null)
+                        GlassAppBarAction(
+                          label: AppLocalizations.of(context)!.skip,
+                          onTap: authProvider.isLoading ? null : widget.onSkip,
+                        ),
+                    ],
+                  ),
+                  Expanded(
+                    child: PinEntryLayout(
+                      header: [
+                        // Icône
+                        Container(
+                          padding: EdgeInsets.all(
+                            ResponsiveSize.getWidth(compact ? 12 : 20),
+                          ),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.dtBlueO10,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.lock_outline,
+                            size: ResponsiveSize.getWidth(compact ? 36 : 60),
+                            color: AppTheme.dtBlue,
+                          ),
+                        ),
 
-                    // Icône
-                    Container(
-                      padding: EdgeInsets.all(ResponsiveSize.getWidth(20)),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.dtBlueO10,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.lock_outline,
-                        size: ResponsiveSize.getWidth(60),
-                        color: AppTheme.dtBlue,
-                      ),
-                    ),
+                        SizedBox(
+                          height: ResponsiveSize.getHeight(compact ? 12 : 24),
+                        ),
 
-                    SizedBox(height: ResponsiveSize.getHeight(24)),
+                        // Titre
+                        Text(
+                          _isConfirmingPin
+                              ? AppLocalizations.of(context)!.confirmPinTitle
+                              : AppLocalizations.of(context)!.createPinTitle,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(24),
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
 
-                    // Titre
-                    Text(
-                      _isConfirmingPin
-                          ? AppLocalizations.of(context)!.confirmPinTitle
-                          : AppLocalizations.of(context)!.createPinTitle,
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(24),
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
+                        SizedBox(height: ResponsiveSize.getHeight(8)),
 
-                    SizedBox(height: ResponsiveSize.getHeight(8)),
+                        // Description
+                        Text(
+                          _isConfirmingPin
+                              ? AppLocalizations.of(context)!.confirmPinMessage
+                              : AppLocalizations.of(context)!.createPinMessage,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: ResponsiveSize.getFontSize(14),
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
 
-                    // Description
-                    Text(
-                      _isConfirmingPin
-                          ? AppLocalizations.of(context)!.confirmPinMessage
-                          : AppLocalizations.of(context)!.createPinMessage,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(14),
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
+                        SizedBox(
+                          height: ResponsiveSize.getHeight(compact ? 20 : 40),
+                        ),
 
-                    SizedBox(height: ResponsiveSize.getHeight(40)),
+                        // Affichage PIN (4 cercles)
+                        PinDots(
+                          pinLength:
+                              _isConfirmingPin
+                                  ? _confirmPin.length
+                                  : _pin.length,
+                          maxLength: 4,
+                        ),
 
-                    // Affichage PIN (4 cercles)
-                    PinDots(
-                      pinLength:
-                          _isConfirmingPin ? _confirmPin.length : _pin.length,
-                      maxLength: 4,
-                    ),
+                        // Avertissement PIN faible
+                        if (_weakPinWarning != null && !_isConfirmingPin)
+                          _buildWeakPinWarning(),
 
-                    SizedBox(height: ResponsiveSize.getHeight(16)),
+                        // Message d'erreur
+                        if (authProvider.errorMessage != null)
+                          _buildErrorMessage(authProvider.errorMessage!),
+                      ],
 
-                    // Avertissement PIN faible
-                    if (_weakPinWarning != null && !_isConfirmingPin)
-                      _buildWeakPinWarning(),
+                      // Clavier numérique
+                      keyboard: PinKeyboard(
+                        onNumberPressed: (number) {
+                          if (_isConfirmingPin) {
+                            if (_confirmPin.length < 4) {
+                              setState(() {
+                                _confirmPin += number;
+                              });
 
-                    // Message d'erreur
-                    if (authProvider.errorMessage != null)
-                      _buildErrorMessage(authProvider.errorMessage!),
-
-                    const Spacer(),
-
-                    // Clavier numérique
-                    PinKeyboard(
-                      onNumberPressed: (number) {
-                        if (_isConfirmingPin) {
-                          if (_confirmPin.length < 4) {
-                            setState(() {
-                              _confirmPin += number;
-                            });
-
-                            if (_confirmPin.length == 4) {
-                              _submitPin();
+                              if (_confirmPin.length == 4) {
+                                _submitPin();
+                              }
                             }
-                          }
-                        } else {
-                          if (_pin.length < 4) {
-                            setState(() {
-                              _pin += number;
-                              _weakPinWarning = null;
-                            });
-
-                            if (_pin.length == 4) {
-                              _checkWeakPin();
-                              Future.delayed(
-                                const Duration(milliseconds: 300),
-                                () {
-                                  if (mounted) {
-                                    setState(() {
-                                      _isConfirmingPin = true;
-                                    });
-                                  }
-                                },
-                              );
-                            }
-                          }
-                        }
-                      },
-                      onDeletePressed: () {
-                        if (_isConfirmingPin) {
-                          if (_confirmPin.isNotEmpty) {
-                            setState(() {
-                              _confirmPin = _confirmPin.substring(
-                                0,
-                                _confirmPin.length - 1,
-                              );
-                            });
                           } else {
-                            // Retour à la saisie du PIN
-                            setState(() {
-                              _isConfirmingPin = false;
-                              _pin = '';
-                              _weakPinWarning = null;
-                            });
-                          }
-                        } else {
-                          if (_pin.isNotEmpty) {
-                            setState(() {
-                              _pin = _pin.substring(0, _pin.length - 1);
-                              _weakPinWarning = null;
-                            });
-                          }
-                        }
-                      },
-                    ),
+                            if (_pin.length < 4) {
+                              setState(() {
+                                _pin += number;
+                                _weakPinWarning = null;
+                              });
 
-                    SizedBox(height: ResponsiveSize.getHeight(40)),
-                  ],
-                ),
+                              if (_pin.length == 4) {
+                                _checkWeakPin();
+                                Future.delayed(
+                                  const Duration(milliseconds: 300),
+                                  () {
+                                    if (mounted) {
+                                      setState(() {
+                                        _isConfirmingPin = true;
+                                      });
+                                    }
+                                  },
+                                );
+                              }
+                            }
+                          }
+                        },
+                        onDeletePressed: () {
+                          if (_isConfirmingPin) {
+                            if (_confirmPin.isNotEmpty) {
+                              setState(() {
+                                _confirmPin = _confirmPin.substring(
+                                  0,
+                                  _confirmPin.length - 1,
+                                );
+                              });
+                            } else {
+                              // Retour à la saisie du PIN
+                              setState(() {
+                                _isConfirmingPin = false;
+                                _pin = '';
+                                _weakPinWarning = null;
+                              });
+                            }
+                          } else {
+                            if (_pin.isNotEmpty) {
+                              setState(() {
+                                _pin = _pin.substring(0, _pin.length - 1);
+                                _weakPinWarning = null;
+                              });
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
-      ),
       ),
     );
   }
@@ -353,8 +362,9 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
       // Sauvegarder le PIN de manière sécurisée si biométrie activée
       final phoneNumber = widget.phoneNumber ?? authProvider.phoneNumber;
       if (phoneNumber != null) {
-        final isBiometricEnabled =
-            await UserSession.isBiometricEnabled(phoneNumber);
+        final isBiometricEnabled = await UserSession.isBiometricEnabled(
+          phoneNumber,
+        );
         if (isBiometricEnabled) {
           await UserSession.saveSecurePin(phoneNumber, _pin);
           debugPrint('✅ PIN sauvegardé pour authentification biométrique');

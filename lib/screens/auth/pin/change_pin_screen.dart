@@ -6,6 +6,7 @@ import '../../../utils/responsive_size.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../widgets/pin_keyboard.dart';
 import '../../../widgets/pin_dots.dart';
+import '../../../widgets/pin_entry_layout.dart';
 import '../../../services/pin_service.dart';
 import '../../../services/user_session.dart';
 import '../../../../generated/l10n/app_localizations.dart';
@@ -31,6 +32,8 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
     final authProvider = context.watch<AuthProvider>();
+    // Écran bas : espacements réduits pour laisser la place au clavier
+    final compact = MediaQuery.sizeOf(context).height < 700;
 
     String title;
     String description;
@@ -71,10 +74,7 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [
-                    AppTheme.dtBlueO08,
-                    Colors.transparent,
-                  ],
+                  colors: [AppTheme.dtBlueO08, Colors.transparent],
                   radius: 0.8,
                 ),
               ),
@@ -83,61 +83,53 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
           SafeArea(
             child: Column(
               children: [
-                GlassAppBar(title: AppLocalizations.of(context)!.changePinTitle),
-                Expanded(
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
+                GlassAppBar(
+                  title: AppLocalizations.of(context)!.changePinTitle,
                 ),
-                child: Column(
-                  children: [
-                    SizedBox(height: ResponsiveSize.getHeight(20)),
-
-                    // Titre de l'étape
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(24),
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+                Expanded(
+                  child: PinEntryLayout(
+                    header: [
+                      // Titre de l'étape
+                      Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(24),
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
                       ),
-                    ),
 
-                    SizedBox(height: ResponsiveSize.getHeight(8)),
+                      SizedBox(height: ResponsiveSize.getHeight(8)),
 
-                    // Description
-                    Text(
-                      description,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: ResponsiveSize.getFontSize(14),
-                        color: AppTheme.textSecondary,
+                      // Description
+                      Text(
+                        description,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: ResponsiveSize.getFontSize(14),
+                          color: AppTheme.textSecondary,
+                        ),
                       ),
-                    ),
 
-                    SizedBox(height: ResponsiveSize.getHeight(40)),
+                      SizedBox(
+                        height: ResponsiveSize.getHeight(compact ? 20 : 40),
+                      ),
 
-                    // Affichage PIN (4 cercles)
-                    PinDots(pinLength: currentPin.length, maxLength: 4),
+                      // Affichage PIN (4 cercles)
+                      PinDots(pinLength: currentPin.length, maxLength: 4),
 
-                    SizedBox(height: ResponsiveSize.getHeight(16)),
+                      // Avertissement PIN faible (seulement pour le nouveau PIN)
+                      if (_weakPinWarning != null && _stage == 1)
+                        _buildWeakPinWarning(),
 
-                    // Avertissement PIN faible (seulement pour le nouveau PIN)
-                    if (_weakPinWarning != null && _stage == 1)
-                      _buildWeakPinWarning(),
-
-                    // Message d'erreur
-                    if (authProvider.errorMessage != null)
-                      _buildErrorMessage(authProvider.errorMessage!),
-
-                    const Spacer(),
+                      // Message d'erreur
+                      if (authProvider.errorMessage != null)
+                        _buildErrorMessage(authProvider.errorMessage!),
+                    ],
 
                     // Clavier numérique
-                    PinKeyboard(
+                    keyboard: PinKeyboard(
                       onNumberPressed: (number) {
                         _handleNumberPressed(number);
                       },
@@ -145,15 +137,8 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
                         _handleDeletePressed();
                       },
                     ),
-
-                    SizedBox(height: ResponsiveSize.getHeight(40)),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
               ],
             ),
           ),
@@ -161,7 +146,6 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
       ),
     );
   }
-
 
   void _handleNumberPressed(String number) {
     String currentPin = _getCurrentPin();
@@ -322,11 +306,14 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
       // Mettre à jour le PIN stocké de manière sécurisée si biométrie activée
       final phoneNumber = authProvider.phoneNumber;
       if (phoneNumber != null) {
-        final isBiometricEnabled =
-            await UserSession.isBiometricEnabled(phoneNumber);
+        final isBiometricEnabled = await UserSession.isBiometricEnabled(
+          phoneNumber,
+        );
         if (isBiometricEnabled) {
           await UserSession.saveSecurePin(phoneNumber, _newPin);
-          debugPrint('✅ Nouveau PIN sauvegardé pour authentification biométrique');
+          debugPrint(
+            '✅ Nouveau PIN sauvegardé pour authentification biométrique',
+          );
         }
       }
 
