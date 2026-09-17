@@ -5,6 +5,7 @@ import 'package:dtservices/config/failover_http_client.dart';
 import 'package:dtservices/config/remote_config_service.dart';
 import 'package:dtservices/firebase/notification_service.dart';
 import 'package:dtservices/services/fcm_token_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -16,6 +17,7 @@ import 'screens/auth/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'widgets/connectivity_banner.dart';
 import 'utils/responsive_size.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'providers/balance_provider.dart';
@@ -81,6 +83,31 @@ Future<void> _startApp() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    // App Check atteste que les requêtes Firebase (FCM, Remote Config)
+    // viennent d'une installation authentique de l'app. Les clés du projet
+    // sont publiques par nature — elles partent dans l'APK et l'IPA — donc
+    // c'est cette attestation, et non leur secret, qui protège le projet.
+    //
+    // Try séparé : tant que la contrainte n'est pas activée dans la console
+    // Firebase, un échec d'attestation ne bloque aucun appel, et il ne doit
+    // surtout pas empêcher les notifications et Remote Config de démarrer.
+    try {
+      await FirebaseAppCheck.instance.activate(
+        // En debug : un jeton s'affiche dans les logs au premier lancement,
+        // à enregistrer dans la console pour tester l'attestation.
+        providerAndroid:
+            kDebugMode
+                ? const AndroidDebugProvider()
+                : const AndroidPlayIntegrityProvider(),
+        providerApple:
+            kDebugMode
+                ? const AppleDebugProvider()
+                : const AppleAppAttestProvider(),
+      );
+    } catch (e) {
+      debugPrint('⚠️ App Check indisponible: $e');
+    }
+
     NotificationService().initNotifications().catchError((error) {
       debugPrint('⚠️ Erreur notifications: $error');
     });
@@ -89,11 +116,13 @@ Future<void> _startApp() async {
     // Adresse du backend pilotée depuis la console Firebase : permet de
     // déplacer le serveur sans republier l'app. Non bloquant — l'app tourne
     // déjà sur la base restaurée par AppConfig.init().
-    unawaited(RemoteConfigService.init(
-      // Nouvelle adresse : on resonde, l'hôte appris précédemment ne vaut
-      // plus pour cette base.
-      onBaseChanged: () => unawaited(AppConfig.probe()),
-    ));
+    unawaited(
+      RemoteConfigService.init(
+        // Nouvelle adresse : on resonde, l'hôte appris précédemment ne vaut
+        // plus pour cette base.
+        onBaseChanged: () => unawaited(AppConfig.probe()),
+      ),
+    );
   } catch (e) {
     debugPrint('⚠️ Erreur Firebase: $e');
   }
@@ -172,49 +201,49 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
 
-    return ConnectivityBanner(child: MaterialApp(
-      title: 'DJIBTEL',
-      debugShowCheckedModeBanner: false,
-      navigatorKey: NotificationService.navigatorKey,
-      routes: {
-        '/login': (_) => const LoginScreen(),
-      },
-      // Ferme le clavier dès qu'on tape en dehors d'un champ de saisie.
-      // Placé ici plutôt que dans chaque écran : le builder enveloppe toute
-      // l'app, y compris les routes poussées et les bottom sheets.
-      // translucent laisse passer les taps vers les widgets en dessous, donc
-      // boutons, listes et défilement continuent de fonctionner normalement.
-      builder: (context, child) => GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        behavior: HitTestBehavior.translucent,
-        child: child,
-      ),
-      theme: ThemeData(
-        primaryColor: AppTheme.dtBlue,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppTheme.dtBlue,
-          primary: AppTheme.dtBlue,
-          secondary: AppTheme.dtYellow,
+    return ConnectivityBanner(
+      child: MaterialApp(
+        title: 'DJIBTEL',
+        debugShowCheckedModeBanner: false,
+        navigatorKey: NotificationService.navigatorKey,
+        routes: {'/login': (_) => const LoginScreen()},
+        // Ferme le clavier dès qu'on tape en dehors d'un champ de saisie.
+        // Placé ici plutôt que dans chaque écran : le builder enveloppe toute
+        // l'app, y compris les routes poussées et les bottom sheets.
+        // translucent laisse passer les taps vers les widgets en dessous, donc
+        // boutons, listes et défilement continuent de fonctionner normalement.
+        builder:
+            (context, child) => GestureDetector(
+              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+              behavior: HitTestBehavior.translucent,
+              child: child,
+            ),
+        theme: ThemeData(
+          primaryColor: AppTheme.dtBlue,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: AppTheme.dtBlue,
+            primary: AppTheme.dtBlue,
+            secondary: AppTheme.dtYellow,
+          ),
+          scaffoldBackgroundColor: Colors.white,
+          fontFamily: 'Inter',
         ),
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Inter',
+        locale: languageProvider.currentLocale,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (context) {
+            // Initialiser le responsive size
+            ResponsiveSize.init(context);
+            return const SplashScreen();
+          },
+        ),
       ),
-      locale: languageProvider.currentLocale,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Builder(
-        builder: (context) {
-          // Initialiser le responsive size
-          ResponsiveSize.init(context);
-          return const SplashScreen();
-        },
-      ),
-    ));
+    );
   }
 }
- 

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Refuse un commit qui embarque un secret. Activation, une fois par clone :
+#   git config core.hooksPath githooks
+exec "$(git rev-parse --show-toplevel)/tool/check_secrets.sh"
