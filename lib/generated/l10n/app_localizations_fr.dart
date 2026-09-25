@@ -1690,7 +1690,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get fixedNumberFormatError =>
-      'Le numéro doit commencer par 21 ou 25321 et contenir 8 ou 11 chiffres';
+      'Le numéro doit commencer par 21 ou 27 (ou 25321, 25327) et contenir 8 ou 11 chiffres';
 
   @override
   String get fixedHistory => 'Historique\nFixe';

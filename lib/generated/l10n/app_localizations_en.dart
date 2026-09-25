@@ -1670,7 +1670,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fixedNumberFormatError =>
-      'Number must start with 21 or 25321 and contain 8 or 11 digits';
+      'Number must start with 21 or 27 (or 25321, 25327) and contain 8 or 11 digits';
 
   @override
   String get fixedHistory => 'Landline\nHistory';

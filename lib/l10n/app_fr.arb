@@ -688,7 +688,7 @@
     "topupHistory": "Historique\nTopUp",
     "logoutTopUp": "Déconnexion TopUp",
     "fixedNumberRequired": "Veuillez entrer un numéro de téléphone fixe",
-    "fixedNumberFormatError": "Le numéro doit commencer par 21 ou 25321 et contenir 8 ou 11 chiffres",
+    "fixedNumberFormatError": "Le numéro doit commencer par 21 ou 27 (ou 25321, 25327) et contenir 8 ou 11 chiffres",
     "fixedHistory": "Historique\nFixe",
     "confirm": "Confirmer",
     "purchaseConfirmQuestion": "Voulez-vous acheter le {name} ?",

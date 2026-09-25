@@ -117,7 +117,7 @@ class TopUpException implements Exception {
 // Validation des numéros de téléphone
 class TopUpValidator {
   static const String _mobileRegex = r'^(77|25377)[0-9]{6}$';
-  static const String _fixedRegex = r'^(21|25321)[0-9]{6}$';
+  static const String _fixedRegex = r'^(253)?(21|27)[0-9]{6}$';
   static const String _pinRegex = r'^[0-9]{4}$';
   
   static bool isValidMobile(String msisdn) {
@@ -143,7 +143,7 @@ class TopUpValidator {
   static void validateFixed(String isdn) {
     if (!isValidFixed(isdn)) {
       throw TopUpException.validationError(
-        'Le numéro fixe doit commencer par 21 ou 25321 et contenir 8 ou 11 chiffres'
+        'Le numéro fixe doit commencer par 21 ou 27 (ou 25321, 25327) et contenir 8 ou 11 chiffres'
       );
     }
   }

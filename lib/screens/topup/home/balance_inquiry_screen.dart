@@ -84,7 +84,7 @@ class _BalanceInquiryScreenState extends State<BalanceInquiryScreen> {
     }
     
     if (!TopUpValidator.isValidFixed(value.trim())) {
-      return 'Le numéro doit commencer par 21 ou 25321 et contenir 8 ou 11 chiffres';
+      return 'Le numéro doit commencer par 21 ou 27 (ou 25321, 25327) et contenir 8 ou 11 chiffres';
     }
     
     return null;
