@@ -59,6 +59,7 @@ dependencies:
   share_plus: ^12.0.2
   firebase_remote_config: ^6.6.0
   firebase_app_check: ^0.4.8
+  maplibre_gl: ^0.27.1
 
 dev_dependencies:
   flutter_test:

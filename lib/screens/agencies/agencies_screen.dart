@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -7,6 +8,7 @@ import '../../models/agency.dart';
 import '../../services/agency_service.dart';
 import '../../utils/responsive_size.dart';
 import '../../generated/l10n/app_localizations.dart';
+import 'maplibre_agencies_map.dart';
 
 class AgenciesScreen extends StatefulWidget {
   /// Appelé par le bouton retour quand l'écran est monté en overlay persistant
@@ -24,6 +26,8 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   bool _showMap = true;
+  // Évaluation MapLibre : bascule Google Maps <-> MapLibre, debug uniquement.
+  bool _useMapLibre = false;
   GoogleMapController? _mapController;
 
   // Centre de Djibouti comme position par défaut
@@ -98,6 +102,15 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                   title: l10n.agenciesTitle,
                   onBack: widget.onClose,
                   actions: [
+                    if (kDebugMode && _showMap)
+                      GlassAppBarAction(
+                        icon: _useMapLibre ? Icons.map_outlined : Icons.layers,
+                        onTap:
+                            () => setState(() {
+                              _useMapLibre = !_useMapLibre;
+                              _mapController = null;
+                            }),
+                      ),
                     GlassAppBarAction(
                       icon: _showMap ? Icons.list : Icons.map,
                       onTap: () => setState(() => _showMap = !_showMap),
@@ -189,7 +202,15 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
     // n'est donc pas détruite/réinitialisée à chaque bascule liste <-> carte.
     return IndexedStack(
       index: _showMap ? 0 : 1,
-      children: [_buildMapView(), _buildListView()],
+      children: [
+        _useMapLibre
+            ? MapLibreAgenciesMap(
+              agencies: _agencies!,
+              onAgencyTap: _showAgencyDetails,
+            )
+            : _buildMapView(),
+        _buildListView(),
+      ],
     );
   }
 
@@ -333,10 +354,11 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                         ),
                         Expanded(
                           child: Text(
-                            l10n.call,
+                            agency.name,
                             style: TextStyle(
-                              fontSize: ResponsiveSize.getFontSize(14),
-                              color: AppTheme.textPrimary,
+                              fontSize: ResponsiveSize.getFontSize(18),
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.dtBlue,
                             ),
                           ),
                         ),
@@ -345,20 +367,6 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                     SizedBox(
                       height: ResponsiveSize.getHeight(AppTheme.spacingM),
                     ),
-                    if (agency.description != null &&
-                        agency.description!.isNotEmpty)
-                      Padding(
-                        padding: EdgeInsets.only(
-                          bottom: ResponsiveSize.getHeight(AppTheme.spacingM),
-                        ),
-                        child: Text(
-                          agency.description!,
-                          style: TextStyle(
-                            fontSize: ResponsiveSize.getFontSize(14),
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                      ),
                     if (agency.address != null && agency.address!.isNotEmpty)
                       Padding(
                         padding: EdgeInsets.only(
@@ -376,35 +384,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                         ),
                         child: _buildInfoRow(Icons.phone, agency.phone!),
                       ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        if (agency.phone != null && agency.phone!.isNotEmpty)
-                          ElevatedButton.icon(
-                            onPressed: () => _launchPhoneCall(agency.phone!),
-                            icon: const Icon(Icons.phone),
-                            label: Text(l10n.call),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.dtBlue,
-                              foregroundColor: Colors.white,
-                            ),
-                          ),
-                        if (agency.latitude != null && agency.longitude != null)
-                          ElevatedButton.icon(
-                            onPressed:
-                                () => _launchDirections(
-                                  agency.latitude!,
-                                  agency.longitude!,
-                                ),
-                            icon: const Icon(Icons.directions),
-                            label: Text(l10n.directions),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.dtBlue,
-                              foregroundColor: Colors.white,
-                            ),
-                          ),
-                      ],
-                    ),
+                    _buildActionButtons(agency),
                     SizedBox(
                       height: ResponsiveSize.getHeight(AppTheme.spacingM),
                     ),
@@ -419,34 +399,9 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                     SizedBox(
                       height: ResponsiveSize.getHeight(AppTheme.spacingS),
                     ),
-                    ...agency.openingHours.entries.map((entry) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: ResponsiveSize.getHeight(
-                            AppTheme.spacingXS,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              _translateDay(entry.key, l10n),
-                              style: TextStyle(
-                                fontSize: ResponsiveSize.getFontSize(13),
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            Text(
-                              _translateHours(entry.value, l10n),
-                              style: TextStyle(
-                                fontSize: ResponsiveSize.getFontSize(13),
-                                color: AppTheme.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
+                    ..._weekOpeningHours(
+                      agency,
+                    ).map((entry) => _buildHoursRow(entry, l10n)),
                   ],
                 ),
               );
@@ -506,21 +461,6 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
 
-            // Description
-            if (agency.description != null && agency.description!.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.only(
-                  bottom: ResponsiveSize.getHeight(AppTheme.spacingM),
-                ),
-                child: Text(
-                  agency.description!,
-                  style: TextStyle(
-                    fontSize: ResponsiveSize.getFontSize(14),
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ),
-
             // Adresse
             if (agency.address != null && agency.address!.isNotEmpty)
               Padding(
@@ -540,50 +480,7 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
               ),
 
             // Boutons d'action
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                if (agency.phone != null && agency.phone!.isNotEmpty)
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _launchPhoneCall(agency.phone!),
-                      icon: const Icon(Icons.phone, size: 18),
-                      label: Text(l10n.call),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.dtBlue,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
-                        ),
-                      ),
-                    ),
-                  ),
-                if (agency.phone != null &&
-                    agency.phone!.isNotEmpty &&
-                    agency.latitude != null &&
-                    agency.longitude != null)
-                  SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
-                if (agency.latitude != null && agency.longitude != null)
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed:
-                          () => _launchDirections(
-                            agency.latitude!,
-                            agency.longitude!,
-                          ),
-                      icon: const Icon(Icons.directions, size: 18),
-                      label: Text(l10n.directions),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.dtBlue,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+            _buildActionButtons(agency),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
 
             // Horaires d'ouverture
@@ -598,37 +495,58 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                 ),
               ),
               children:
-                  agency.openingHours.entries.map((entry) {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: ResponsiveSize.getWidth(AppTheme.spacingM),
-                        vertical: ResponsiveSize.getHeight(AppTheme.spacingXS),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _translateDay(entry.key, l10n),
-                            style: TextStyle(
-                              fontSize: ResponsiveSize.getFontSize(13),
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            _translateHours(entry.value, l10n),
-                            style: TextStyle(
-                              fontSize: ResponsiveSize.getFontSize(13),
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                  _weekOpeningHours(
+                    agency,
+                  ).map((entry) => _buildHoursRow(entry, l10n)).toList(),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildActionButtons(Agency agency) {
+    final l10n = AppLocalizations.of(context)!;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        if (agency.phone != null && agency.phone!.isNotEmpty)
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () => _launchPhoneCall(agency.phone!),
+              icon: const Icon(Icons.phone, size: 18),
+              label: Text(l10n.call),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.dtBlue,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(
+                  vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+                ),
+              ),
+            ),
+          ),
+        if (agency.phone != null &&
+            agency.phone!.isNotEmpty &&
+            agency.latitude != null &&
+            agency.longitude != null)
+          SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingS)),
+        if (agency.latitude != null && agency.longitude != null)
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed:
+                  () => _launchDirections(agency.latitude!, agency.longitude!),
+              icon: const Icon(Icons.directions, size: 18),
+              label: Text(l10n.directions),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.dtBlue,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(
+                  vertical: ResponsiveSize.getHeight(AppTheme.spacingS),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -651,6 +569,72 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  static const List<String> _weekDays = [
+    'dimanche',
+    'lundi',
+    'mardi',
+    'mercredi',
+    'jeudi',
+    'vendredi',
+    'samedi',
+  ];
+
+  /// Horaires sur la semaine complète, du dimanche au samedi. Le backend omet
+  /// parfois un jour (le vendredi notamment) : on l'affiche alors fermé.
+  /// Si les clés ne sont pas des jours en français, on les garde telles quelles.
+  List<MapEntry<String, String>> _weekOpeningHours(Agency agency) {
+    final byDay = {
+      for (final entry in agency.openingHours.entries)
+        entry.key.toLowerCase().trim(): entry.value,
+    };
+    if (!byDay.keys.any(_weekDays.contains)) {
+      return agency.openingHours.entries.toList();
+    }
+    return [for (final day in _weekDays) MapEntry(day, byDay[day] ?? 'fermé')];
+  }
+
+  /// Une ligne jour / horaires ; le jour courant est surligné en bleu DT.
+  Widget _buildHoursRow(MapEntry<String, String> entry, AppLocalizations l10n) {
+    final today = _weekDays[DateTime.now().weekday % 7];
+    final isToday = entry.key.toLowerCase().trim() == today;
+    return Container(
+      margin: EdgeInsets.symmetric(
+        vertical: ResponsiveSize.getHeight(AppTheme.spacingXS) / 2,
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveSize.getWidth(AppTheme.spacingS),
+        vertical: ResponsiveSize.getHeight(AppTheme.spacingXS),
+      ),
+      decoration: BoxDecoration(
+        color: isToday ? AppTheme.dtBlueO10 : Colors.transparent,
+        borderRadius: BorderRadius.circular(
+          ResponsiveSize.getWidth(AppTheme.radiusS),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            _translateDay(entry.key, l10n),
+            style: TextStyle(
+              fontSize: ResponsiveSize.getFontSize(13),
+              fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+              color: isToday ? AppTheme.dtBlue : AppTheme.textPrimary,
+            ),
+          ),
+          Text(
+            _translateHours(entry.value, l10n),
+            style: TextStyle(
+              fontSize: ResponsiveSize.getFontSize(13),
+              fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+              color: isToday ? AppTheme.dtBlue : AppTheme.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
