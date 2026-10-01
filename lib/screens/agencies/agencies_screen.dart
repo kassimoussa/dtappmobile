@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -26,8 +25,9 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   bool _showMap = true;
-  // Évaluation MapLibre : bascule Google Maps <-> MapLibre, debug uniquement.
-  bool _useMapLibre = false;
+  // MapLibre est la carte affichée. Le code Google Maps (_buildMapView) est
+  // conservé : repasser à false pour la réactiver.
+  static const bool _useMapLibre = true;
   GoogleMapController? _mapController;
 
   // Centre de Djibouti comme position par défaut
@@ -102,15 +102,6 @@ class _AgenciesScreenState extends State<AgenciesScreen> {
                   title: l10n.agenciesTitle,
                   onBack: widget.onClose,
                   actions: [
-                    if (kDebugMode && _showMap)
-                      GlassAppBarAction(
-                        icon: _useMapLibre ? Icons.map_outlined : Icons.layers,
-                        onTap:
-                            () => setState(() {
-                              _useMapLibre = !_useMapLibre;
-                              _mapController = null;
-                            }),
-                      ),
                     GlassAppBarAction(
                       icon: _showMap ? Icons.list : Icons.map,
                       onTap: () => setState(() => _showMap = !_showMap),
