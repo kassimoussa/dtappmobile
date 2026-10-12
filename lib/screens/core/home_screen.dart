@@ -23,6 +23,7 @@ import '../../utils/responsive_size.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../widgets/banner_slider.dart';
+import '../../widgets/seasonal_animation.dart';
 import '../../services/banner_service.dart';
 import '../../providers/topup_provider.dart';
 
@@ -46,6 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Recalculé à chaque mise en page d'après la hauteur disponible
   _HomeMetrics _metrics = const _HomeMetrics(0);
+
+  /// TEST (Aïd) : hauteur réservée aux décors animés, sous la barre d'état.
+  double get _eventStrip => ResponsiveSize.getHeight(56);
 
   // Écran « Nos agences » monté en overlay persistant : la carte Google Maps
   // est ainsi construite une seule fois (au premier affichage) puis conservée,
@@ -152,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context, constraints) {
                 _metrics = _HomeMetrics.fit(
                   viewportHeight: constraints.maxHeight,
-                  topInset: MediaQuery.paddingOf(context).top,
+                  topInset: MediaQuery.paddingOf(context).top + _eventStrip,
                 );
 
                 return RefreshIndicator(
@@ -243,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         // Background Gradient that spans top half organically
         Container(
-          height: _metrics.heroBackground,
+          height: _metrics.heroBackground + _eventStrip,
           width: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -258,11 +262,36 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
 
+        // TEST (Aïd) : décors animés dans l'espace réservé sous la barre d'état,
+        // derrière le contenu. La zone dépasse un peu de l'espace pour laisser
+        // les animations garder leurs proportions.
+        Positioned(
+          top: MediaQuery.paddingOf(context).top,
+          left: 0,
+          right: 0,
+          height: _eventStrip + ResponsiveSize.getHeight(40),
+          child: const Stack(
+            children: [
+              SeasonalAnimation(
+                asset: 'assets/lottie/dt-aid-lanterne.json',
+                alignment: Alignment(0.9, -1),
+                widthFraction: 0.18,
+              ),
+              SeasonalAnimation(
+                asset: 'assets/lottie/dt-aid-croissant.json',
+                alignment: Alignment(-0.9, -1),
+                widthFraction: 0.2,
+              ),
+            ],
+          ),
+        ),
+
         SafeArea(
           bottom: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: _eventStrip),
               SizedBox(height: _metrics.topGap),
               _buildGlassAppBar(l10n),
               SizedBox(height: _metrics.afterAppBar),
