@@ -8,7 +8,9 @@ import '../auth/consent_gate.dart';
 import '../auth/login_screen.dart';
 import '../../utils/responsive_size.dart';
 import '../../generated/l10n/app_localizations.dart';
+import '../../models/seasonal_event.dart';
 import '../../widgets/promo_popup_dialog.dart';
+import '../../widgets/seasonal_animation.dart';
 import 'home_screen.dart';
 import '../topup/home/topup_home_screen.dart';
 import '../user/history_screen.dart';
@@ -86,17 +88,26 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: IndexedStack(
-        index: _currentNavIndex,
-        children: const [
-          HomeScreen(),
-          HistoryScreen(),
-          TopUpHomeScreen(),
-        ],
-      ),
-      bottomNavigationBar: RepaintBoundary(child: _buildAnimatedBottomNavigationBar()),
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.white,
+          body: IndexedStack(
+            index: _currentNavIndex,
+            children: const [
+              HomeScreen(),
+              HistoryScreen(),
+              TopUpHomeScreen(),
+            ],
+          ),
+          bottomNavigationBar: RepaintBoundary(child: _buildAnimatedBottomNavigationBar()),
+        ),
+        // Emplacement `overlay` : effet plein écran (confettis, feux d'artifice)
+        // par-dessus tout, barre du bas comprise, sans bloquer les touches.
+        const Positioned.fill(
+          child: SeasonalSlot(SeasonalPlacement.overlay),
+        ),
+      ],
     );
   }
 

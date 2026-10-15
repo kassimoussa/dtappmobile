@@ -23,7 +23,10 @@ import '../../utils/responsive_size.dart';
 import '../../routes/custom_route_transitions.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../widgets/banner_slider.dart';
+import '../../models/seasonal_event.dart';
+import '../../services/seasonal_event_service.dart';
 import '../../widgets/seasonal_animation.dart';
+import '../../widgets/seasonal_banner_strip.dart';
 import '../../services/banner_service.dart';
 import '../../providers/topup_provider.dart';
 
@@ -48,8 +51,12 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Recalculé à chaque mise en page d'après la hauteur disponible
   _HomeMetrics _metrics = const _HomeMetrics(0);
 
-  /// TEST (Aïd) : hauteur réservée aux décors animés, sous la barre d'état.
-  double get _eventStrip => ResponsiveSize.getHeight(56);
+  /// Hauteur réservée sous la barre d'état aux décors d'événement
+  /// (emplacement `header_strip`) : 0 tant qu'aucun événement ne l'utilise.
+  double get _eventStrip =>
+      SeasonalEventService.has(SeasonalPlacement.headerStrip)
+          ? ResponsiveSize.getHeight(56)
+          : 0;
 
   // Écran « Nos agences » monté en overlay persistant : la carte Google Maps
   // est ainsi construite une seule fois (au premier affichage) puis conservée,
@@ -72,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _notifStore.addListener(_onNotifChanged);
+    SeasonalEventService.active.addListener(_onNotifChanged);
     _loadUserData();
   }
 
@@ -82,6 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _notifStore.removeListener(_onNotifChanged);
+    SeasonalEventService.active.removeListener(_onNotifChanged);
     _balancePageController.dispose();
     super.dispose();
   }
@@ -116,6 +125,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _handleRefresh() async {
     // Invalider le cache pour forcer le rechargement des bannières
     BannerService.clearCache();
+
+    // Relire l'événement saisonnier sans faire attendre l'indicateur : il se
+    // met à jour tout seul à l'arrivée de la réponse.
+    SeasonalEventService.refresh();
 
     // Lancer les rafraîchissements en parallèle
     final futures = <Future>[context.read<BalanceProvider>().refreshBalance()];
@@ -156,7 +169,10 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context, constraints) {
                 _metrics = _HomeMetrics.fit(
                   viewportHeight: constraints.maxHeight,
-                  topInset: MediaQuery.paddingOf(context).top + _eventStrip,
+                  topInset:
+                      MediaQuery.paddingOf(context).top +
+                      _eventStrip +
+                      SeasonalBannerStrip.extraHeight,
                 );
 
                 return RefreshIndicator(
@@ -200,6 +216,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               _buildQuickActions(l10n),
 
                               SizedBox(height: _metrics.beforeBanner),
+
+                              // Bandeau d'événement (vide hors événement)
+                              const SeasonalBannerStrip(),
 
                               // Bannières
                               Container(
@@ -262,29 +281,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
 
-        // TEST (Aïd) : décors animés dans l'espace réservé sous la barre d'état,
-        // derrière le contenu. La zone dépasse un peu de l'espace pour laisser
-        // les animations garder leurs proportions.
-        Positioned(
-          top: MediaQuery.paddingOf(context).top,
-          left: 0,
-          right: 0,
-          height: _eventStrip + ResponsiveSize.getHeight(40),
-          child: const Stack(
-            children: [
-              SeasonalAnimation(
-                asset: 'assets/lottie/dt-aid-lanterne.json',
-                alignment: Alignment(0.9, -1),
-                widthFraction: 0.18,
-              ),
-              SeasonalAnimation(
-                asset: 'assets/lottie/dt-aid-croissant.json',
-                alignment: Alignment(-0.9, -1),
-                widthFraction: 0.2,
-              ),
-            ],
+        // Emplacement `header_strip` : décors d'événement (lanternes, croissant)
+        // dans la bande réservée sous la barre d'état, derrière le contenu.
+        if (_eventStrip > 0)
+          Positioned(
+            top: MediaQuery.paddingOf(context).top,
+            left: 0,
+            right: 0,
+            height: _eventStrip,
+            child: const SeasonalSlot(SeasonalPlacement.headerStrip),
           ),
-        ),
 
         SafeArea(
           bottom: false,
@@ -577,16 +583,23 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Stack(
         children: [
-          // Decorative background icon
-          Positioned(
-            right: -20,
-            bottom: -20,
-            child: Icon(
-              icon,
-              size: ResponsiveSize.getHeight(90),
-              color: textColor.withValues(alpha: 0.1),
+          // Emplacement `card_corner` : pendant un événement, l'animation prend
+          // la place de l'icône décorative grisée.
+          if (SeasonalEventService.has(SeasonalPlacement.cardCorner))
+            const Positioned.fill(
+              child: SeasonalSlot(SeasonalPlacement.cardCorner),
+            )
+          else
+            // Decorative background icon
+            Positioned(
+              right: -20,
+              bottom: -20,
+              child: Icon(
+                icon,
+                size: ResponsiveSize.getHeight(90),
+                color: textColor.withValues(alpha: 0.1),
+              ),
             ),
-          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

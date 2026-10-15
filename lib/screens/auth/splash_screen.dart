@@ -11,7 +11,10 @@ import '../../providers/auth_provider.dart';
 import '../../models/banner.dart';
 import '../../models/popup.dart';
 import '../../services/banner_service.dart';
+import '../../models/seasonal_event.dart';
 import '../../services/popup_service.dart';
+import '../../services/seasonal_event_service.dart';
+import '../../widgets/seasonal_animation.dart';
 import '../../widgets/staggered_text.dart';
 import 'login_screen.dart';
 import '../../generated/l10n/app_localizations.dart';
@@ -112,6 +115,9 @@ class _SplashScreenState extends State<SplashScreen>
     // l'accueil sait les afficher quand elles arrivent. Lancé après les premiers
     // frames pour ne pas les concurrencer.
     _preloadImages();
+    // Animations d'événement : appel en parallèle, jamais bloquant. Si la
+    // réponse arrive pendant le splash, l'emplacement `splash` s'anime.
+    SeasonalEventService.load();
 
     setState(() {
       _composition = composition;
@@ -225,14 +231,23 @@ class _SplashScreenState extends State<SplashScreen>
                       // bouge quand l'animation démarre.
                       SizedBox.square(
                         dimension: ResponsiveSize.getWidth(_logoSize),
-                        child:
-                            _composition == null
-                                ? null
-                                : Lottie(
+                        child: Stack(
+                          children: [
+                            if (_composition != null)
+                              Positioned.fill(
+                                child: Lottie(
                                   composition: _composition,
                                   controller: _lottieProgress,
                                   fit: BoxFit.contain,
                                 ),
+                              ),
+                            // Emplacement `splash` : décor d'événement posé sur
+                            // le logo, même canevas que le logo.
+                            const Positioned.fill(
+                              child: SeasonalSlot(SeasonalPlacement.splash),
+                            ),
+                          ],
+                        ),
                       ),
 
                       SizedBox(

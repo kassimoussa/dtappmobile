@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "DT Mobile",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            // Animations de fêtes : affiche un événement d'essai aux cinq
+            // emplacements, même si le serveur n'en a aucun d'actif
+            // (SeasonalEventService, debug uniquement).
+            "name": "DT Mobile (animations d'essai)",
+            "request": "launch",
+            "type": "dart",
+            "toolArgs": ["--dart-define=SEASONAL_FIXTURE=true"]
+        }
+    ]
+}
