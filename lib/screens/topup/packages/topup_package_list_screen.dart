@@ -366,41 +366,15 @@ class _TopUpPackageListScreenState extends State<TopUpPackageListScreen> {
                         ),
                       ),
                     ),
-                    child:
-                        package.price > widget.soldeActuel
-                            ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.warning_amber_rounded,
-                                  size: ResponsiveSize.getFontSize(16),
-                                ),
-                                SizedBox(
-                                  width: ResponsiveSize.getWidth(
-                                    AppTheme.spacingXS,
-                                  ),
-                                ),
-                                Flexible(
-                                  child: Text(
-                                    l10n.insufficientBalanceSimple,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: ResponsiveSize.getFontSize(13),
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
-                                ),
-                              ],
-                            )
-                            : Text(
-                              l10n.buyAction,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: ResponsiveSize.getFontSize(16),
-                              ),
-                            ),
+                    // Même libellé quand le solde est insuffisant : le bouton
+                    // est simplement désactivé (onPressed: null, grisé).
+                    child: Text(
+                      l10n.buyAction,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: ResponsiveSize.getFontSize(16),
+                      ),
+                    ),
                   ),
                 ),
               ],
