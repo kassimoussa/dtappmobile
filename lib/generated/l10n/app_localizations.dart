@@ -2798,6 +2798,42 @@ abstract class AppLocalizations {
   /// **'Plus tard'**
   String get later;
 
+  /// No description provided for @updateNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre à jour'**
+  String get updateNow;
+
+  /// No description provided for @updateRequiredTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise à jour requise'**
+  String get updateRequiredTitle;
+
+  /// No description provided for @updateRequiredMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette version de l\'application n\'est plus prise en charge. Mettez-la à jour pour continuer.'**
+  String get updateRequiredMessage;
+
+  /// No description provided for @updateAvailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle version disponible'**
+  String get updateAvailableTitle;
+
+  /// No description provided for @updateAvailableMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une nouvelle version de l\'application est disponible. Mettez-la à jour pour profiter des dernières améliorations.'**
+  String get updateAvailableMessage;
+
+  /// No description provided for @updateWhatsNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveautés'**
+  String get updateWhatsNew;
+
   /// No description provided for @setup.
   ///
   /// In fr, this message translates to:

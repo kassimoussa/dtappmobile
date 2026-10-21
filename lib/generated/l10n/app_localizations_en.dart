@@ -1506,6 +1506,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get later => 'Later';
 
   @override
+  String get updateNow => 'Update';
+
+  @override
+  String get updateRequiredTitle => 'Update required';
+
+  @override
+  String get updateRequiredMessage =>
+      'This version of the app is no longer supported. Please update it to continue.';
+
+  @override
+  String get updateAvailableTitle => 'New version available';
+
+  @override
+  String get updateAvailableMessage =>
+      'A new version of the app is available. Update it to get the latest improvements.';
+
+  @override
+  String get updateWhatsNew => 'What\'s new';
+
+  @override
   String get setup => 'Setup';
 
   @override

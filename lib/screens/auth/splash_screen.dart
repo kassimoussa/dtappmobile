@@ -12,8 +12,10 @@ import '../../models/banner.dart';
 import '../../models/popup.dart';
 import '../../services/banner_service.dart';
 import '../../models/seasonal_event.dart';
+import '../../services/app_update_service.dart';
 import '../../services/popup_service.dart';
 import '../../services/seasonal_event_service.dart';
+import '../../widgets/dialogs/app_update_dialog.dart';
 import '../../widgets/seasonal_animation.dart';
 import '../../widgets/staggered_text.dart';
 import 'login_screen.dart';
@@ -137,11 +139,23 @@ class _SplashScreenState extends State<SplashScreen>
     // l'animation, la durée de 5 s est un minimum.
     await minimumDuration;
 
-    _goNext();
+    await _goNext();
   }
 
-  void _goNext() {
+  Future<void> _goNext() async {
     if (!mounted) return;
+
+    // Avant de laisser entrer : une version trop ancienne bloque ici (la
+    // future ne se termine jamais), une version proposée peut être repoussée.
+    // En cas de doute la vérification renvoie null et l'on passe.
+    final update = await AppUpdateService.check(
+      languageCode: Localizations.localeOf(context).languageCode,
+    );
+    if (!mounted) return;
+    if (update != null) {
+      await AppUpdateDialog.show(context, update);
+      if (!mounted) return;
+    }
 
     final authProvider = context.read<AuthProvider>();
     if (authProvider.isAuthenticated && authProvider.phoneNumber != null) {

@@ -1522,6 +1522,26 @@ class AppLocalizationsFr extends AppLocalizations {
   String get later => 'Plus tard';
 
   @override
+  String get updateNow => 'Mettre à jour';
+
+  @override
+  String get updateRequiredTitle => 'Mise à jour requise';
+
+  @override
+  String get updateRequiredMessage =>
+      'Cette version de l\'application n\'est plus prise en charge. Mettez-la à jour pour continuer.';
+
+  @override
+  String get updateAvailableTitle => 'Nouvelle version disponible';
+
+  @override
+  String get updateAvailableMessage =>
+      'Une nouvelle version de l\'application est disponible. Mettez-la à jour pour profiter des dernières améliorations.';
+
+  @override
+  String get updateWhatsNew => 'Nouveautés';
+
+  @override
   String get setup => 'Configurer';
 
   @override
