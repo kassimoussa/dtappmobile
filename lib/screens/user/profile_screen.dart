@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 // Conditions d'utilisation et Politique de confidentialité sont regroupées
 // dans « À propos » : les lister aussi ici faisait doublon.
 import '../settings/about_screen.dart';
+import '../../config/remote_config_service.dart';
 import '../../constants/app_theme.dart';
 import '../../utils/responsive_size.dart';
 import '../../services/profile_service.dart';
@@ -117,10 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [
-                    AppTheme.dtBlueO08,
-                    Colors.transparent,
-                  ],
+                  colors: [AppTheme.dtBlueO08, Colors.transparent],
                   radius: 0.8,
                 ),
               ),
@@ -131,29 +129,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 GlassAppBar(title: l10n.myProfile),
                 Expanded(
-                  child: _isLoading
-                      ? _buildLoadingState()
-                      : SingleChildScrollView(
-                          padding: EdgeInsets.all(
-                            ResponsiveSize.getWidth(AppTheme.spacingL),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _buildProfileHeader(),
-                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                              _buildPreferencesSection(l10n, authProvider),
-                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                              _buildSupportSection(l10n),
-                              SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                              _buildLogoutButton(l10n),
-                              if (_errorMessage != null) ...[
-                                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
-                                _buildErrorMessage(),
+                  child:
+                      _isLoading
+                          ? _buildLoadingState()
+                          : SingleChildScrollView(
+                            padding: EdgeInsets.all(
+                              ResponsiveSize.getWidth(AppTheme.spacingL),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _buildProfileHeader(),
+                                SizedBox(
+                                  height: ResponsiveSize.getHeight(
+                                    AppTheme.spacingM,
+                                  ),
+                                ),
+                                _buildPreferencesSection(l10n, authProvider),
+                                SizedBox(
+                                  height: ResponsiveSize.getHeight(
+                                    AppTheme.spacingM,
+                                  ),
+                                ),
+                                _buildSupportSection(l10n),
+                                SizedBox(
+                                  height: ResponsiveSize.getHeight(
+                                    AppTheme.spacingM,
+                                  ),
+                                ),
+                                _buildLogoutButton(l10n),
+                                if (_errorMessage != null) ...[
+                                  SizedBox(
+                                    height: ResponsiveSize.getHeight(
+                                      AppTheme.spacingM,
+                                    ),
+                                  ),
+                                  _buildErrorMessage(),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
-                        ),
                 ),
               ],
             ),
@@ -162,7 +177,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-
 
   Widget _buildLoadingState() {
     return Center(
@@ -277,10 +291,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditProfileScreen(
-          initialName: _currentName,
-          initialEmail: _currentEmail,
-        ),
+        builder:
+            (context) => EditProfileScreen(
+              initialName: _currentName,
+              initialEmail: _currentEmail,
+            ),
       ),
     );
 
@@ -289,7 +304,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Widget _buildPreferencesSection(AppLocalizations l10n, AuthProvider authProvider) {
+  Widget _buildPreferencesSection(
+    AppLocalizations l10n,
+    AuthProvider authProvider,
+  ) {
     return SettingsCard(
       // title: l10n.preferences, // masqué temporairement
       children: [
@@ -318,7 +336,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
         ),
         SettingsTile(
-          icon: authProvider.hasPin ? Icons.lock_outline : Icons.lock_open_rounded,
+          icon:
+              authProvider.hasPin
+                  ? Icons.lock_outline
+                  : Icons.lock_open_rounded,
           label: authProvider.hasPin ? l10n.managePin : l10n.setupPinTitle,
           iconColor: authProvider.hasPin ? null : AppTheme.dtBlue,
           labelColor: authProvider.hasPin ? null : AppTheme.dtBlue,
@@ -335,17 +356,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PinSetupScreen(
-                    onPinSet: () {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.pinSetupSuccess),
-                          backgroundColor: Colors.green[700],
-                        ),
-                      );
-                    },
-                  ),
+                  builder:
+                      (context) => PinSetupScreen(
+                        onPinSet: () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(l10n.pinSetupSuccess),
+                              backgroundColor: Colors.green[700],
+                            ),
+                          );
+                        },
+                      ),
                 ),
               );
             }
@@ -383,6 +405,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildSupportSection(AppLocalizations l10n) {
+    // Lien du store pilotée par Remote Config : tant que l'app n'est pas
+    // publiée sur la plateforme, on masque « Partager » et « Noter ».
+    final storeUrl = RemoteConfigService.storeUrl;
     return SettingsCard(
       // title: l10n.supportSection, // masqué temporairement
       children: [
@@ -400,53 +425,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SettingsTile(
           icon: Icons.info_outline_rounded,
           label: l10n.about,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AboutScreen()),
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AboutScreen()),
+              ),
+        ),
+        if (storeUrl != null) ...[
+          SettingsTile(
+            icon: Icons.share_outlined,
+            label: l10n.shareApp,
+            onTap: () => _shareApp(l10n, storeUrl),
           ),
-        ),
-        SettingsTile(
-          icon: Icons.share_outlined,
-          label: l10n.shareApp,
-          onTap: () => _shareApp(l10n),
-        ),
-        SettingsTile(
-          icon: Icons.star_outline_rounded,
-          label: l10n.rateApp,
-          onTap: () => _rateApp(l10n),
-        ),
+          SettingsTile(
+            icon: Icons.star_outline_rounded,
+            label: l10n.rateApp,
+            onTap: () => _rateApp(l10n),
+          ),
+        ],
       ],
     );
   }
 
-  static const String _playStoreUrl =
-      'https://play.google.com/store/apps/details?id=com.djiboutitelecom.dtappmobile';
-
-  Future<void> _shareApp(AppLocalizations l10n) async {
+  Future<void> _shareApp(AppLocalizations l10n, String storeUrl) async {
     try {
       await SharePlus.instance.share(
-        ShareParams(text: '${l10n.shareAppMessage} $_playStoreUrl'),
+        ShareParams(text: '${l10n.shareAppMessage} $storeUrl'),
       );
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.linkError)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.linkError)));
       }
     }
   }
 
   Future<void> _rateApp(AppLocalizations l10n) async {
-    final uri = Uri.parse(_playStoreUrl);
+    final reviewUrl = RemoteConfigService.reviewUrl;
+    if (reviewUrl == null) return;
+    final uri = Uri.parse(reviewUrl);
     try {
       final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!ok && mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.linkError)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.linkError)));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.linkError)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.linkError)));
       }
     }
   }
@@ -571,7 +601,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator(color: AppTheme.dtBlue)),
+      builder:
+          (_) => const Center(
+            child: CircularProgressIndicator(color: AppTheme.dtBlue),
+          ),
     );
 
     try {
@@ -600,9 +633,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       debugPrint('Erreur déconnexion: $e');
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.logoutError)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.logoutError)));
       }
     }
   }
