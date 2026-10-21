@@ -113,7 +113,7 @@ class TermsOfServiceScreen extends StatelessWidget {
         _p('Vous pouvez cesser d’utiliser l’application et la désinstaller à tout moment. La désinstallation n’entraîne pas la résiliation de votre abonnement Djibouti Telecom.'),
         _h('13. Droit applicable et contact'),
         _p('Les présentes conditions sont régies par le droit djiboutien ; tout litige relève de la compétence des tribunaux de Djibouti.'),
-        _p('Djibouti Telecom — Boulevard de la République, Djibouti\nTél. : +253 21 35 07 90 — developer@djibtel.dj'),
+        _p('Djibouti Telecom — Boulevard de la République, Djibouti\nTél. : +253 21 35 07 90\nEmail : developer@djibtel.dj'),
       ];
 
   List<Widget> _english() => [
@@ -152,7 +152,7 @@ class TermsOfServiceScreen extends StatelessWidget {
         _p('You may stop using the application and uninstall it at any time. Uninstalling does not terminate your Djibouti Telecom subscription.'),
         _h('13. Governing law and contact'),
         _p('These terms are governed by Djiboutian law; any dispute falls within the jurisdiction of the courts of Djibouti.'),
-        _p('Djibouti Telecom — Boulevard de la République, Djibouti\nTel: +253 21 35 07 90 — developer@djibtel.dj'),
+        _p('Djibouti Telecom — Boulevard de la République, Djibouti\nTel: +253 21 35 07 90\nEmail: developer@djibtel.dj'),
       ];
 
   Widget _h(String text) => Padding(
