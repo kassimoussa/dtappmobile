@@ -3,13 +3,16 @@ import 'dart:async';
 import 'package:dtservices/widgets/dt_button.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../constants/app_theme.dart';
 import '../../../extensions/color_extensions.dart';
+import '../../../providers/balance_provider.dart';
 import '../../../routes/custom_route_transitions.dart';
 import '../../../utils/responsive_size.dart';
 import '../../core/main_screen.dart';
 import '../../../generated/l10n/app_localizations.dart';
+import 'topup_recharge_screen.dart';
 
 class TopUpRechargeSuccessScreen extends StatefulWidget {
   final double amount;
@@ -85,6 +88,32 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
         (route) => false,
       );
     }
+  }
+
+  /// Solde mobile à jour pour la recharge suivante : celui renvoyé par le
+  /// serveur dans `account_impact`, sinon celui du [BalanceProvider] (dont le
+  /// rafraîchissement a été lancé à la fin de la recharge).
+  double _currentMobileBalance() {
+    final after = widget.accountImpact?['mobile_balance_after'];
+    if (after is num) return after.toDouble();
+    return context.read<BalanceProvider>().solde;
+  }
+
+  /// Rouvre le formulaire de recharge pour les mêmes numéros. L'écran de
+  /// succès avait remplacé celui de la recharge : on le remplace à son tour,
+  /// le retour ramène donc à l'accueil Fixe.
+  void _startNewRecharge() {
+    _redirectTimer.cancel();
+    Navigator.pushReplacement(
+      context,
+      CustomRouteTransitions.slideRightRoute(
+        page: TopUpRechargeScreen(
+          fixedNumber: widget.fixedNumber,
+          mobileNumber: widget.mobileNumber,
+          soldeActuel: _currentMobileBalance(),
+        ),
+      ),
+    );
   }
 
   @override
@@ -323,10 +352,7 @@ class _TopUpRechargeSuccessScreenState extends State<TopUpRechargeSuccessScreen>
         SizedBox(width: ResponsiveSize.getWidth(AppTheme.spacingM)),
         Expanded(
           child: ElevatedButton(
-            onPressed: () {
-              // TODO: Implémenter nouvelle recharge
-              _navigateToHome();
-            },
+            onPressed: _startNewRecharge,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.dtBlue,
               foregroundColor: Colors.white,
