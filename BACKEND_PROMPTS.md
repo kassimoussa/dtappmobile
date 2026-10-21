@@ -12,7 +12,7 @@ Conventions communes de l'API :
 
 | # | Endpoint | Auth | Statut app |
 |---|----------|------|-----------|
-| 1 | `GET /api/mobile/app-version` | Public | Client à brancher |
+| 1 | `GET /api/mobile/app-version` | Public | En ligne ; client branché (`AppUpdateService`) |
 | 2 | `GET`/`PUT /api/mobile/notification-preferences` | Session token | `TODO(backend)` déjà en place |
 
 ---
@@ -200,7 +200,12 @@ Dès qu'un endpoint est en ligne, le branchement client est rapide :
 - **Préférences de notification** — le point d'accroche existe déjà :
   `TODO(backend)` dans `lib/services/notification_preferences_service.dart`
   (méthodes `load()` / `save()` à faire pointer vers l'endpoint).
-- **Version applicative** — à implémenter côté app : un `AppUpdateService`
-  (fetch + comparaison semver), un dialogue de MAJ conforme à la charte
-  (`Dialog` + `DtButton` ; obligatoire = non-fermable), déclenché au Splash,
-  avec règle **fail-open** et throttling du rappel « recommandé ».
+- **Version applicative** — branché : `AppUpdateService` (`lib/services/app_update_service.dart`)
+  appelle l'endpoint au démarrage, en parallèle du splash, et `AppUpdateDialog` affiche
+  le dialogue (obligatoire = non fermable ; proposé = « Plus tard », non redemandé
+  pendant 3 jours pour une même version). Règle **fail-open**. Précisions de contrat :
+  - `force_update` rend obligatoire une mise à jour **disponible** (installée < `latest_version`) ;
+    une app déjà à jour n'est jamais bloquée.
+  - `store_url` : tant que l'app n'est pas publiée sur l'App Store, renvoyer une chaîne vide
+    pour iOS. Le gabarit `https://apps.apple.com/app/id000000000` est ignoré côté app
+    (repli sur le paramètre Remote Config `store_url_ios`, sinon aucun dialogue).

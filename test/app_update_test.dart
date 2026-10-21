@@ -189,6 +189,145 @@ void main() {
     });
   });
 
+  group('force_update', () {
+    AppUpdateKind decide(String installed, {bool force = false}) =>
+        AppUpdateService.decide(
+          installed: installed,
+          min: '1.0.0',
+          latest: '1.2.0',
+          force: force,
+        );
+
+    test('rend obligatoire une mise à jour qui n\'était que proposée', () {
+      expect(decide('1.1.0'), AppUpdateKind.recommended);
+      expect(decide('1.1.0', force: true), AppUpdateKind.mandatory);
+    });
+
+    test('ne bloque jamais une version déjà à jour', () {
+      expect(decide('1.2.0', force: true), AppUpdateKind.none);
+      expect(decide('1.3.0', force: true), AppUpdateKind.none);
+    });
+  });
+
+  group('usableStoreUrl', () {
+    test('garde un lien https valide', () {
+      expect(AppUpdateService.usableStoreUrl(_store), _store);
+      expect(
+        AppUpdateService.usableStoreUrl(' https://apps.apple.com/app/id1234567 '),
+        'https://apps.apple.com/app/id1234567',
+      );
+    });
+
+    test('rejette le gabarit « id000000000 » de l\'App Store', () {
+      expect(
+        AppUpdateService.usableStoreUrl('https://apps.apple.com/app/id000000000'),
+        isNull,
+      );
+      expect(
+        AppUpdateService.usableStoreUrl('https://apps.apple.com/app/id0/'),
+        isNull,
+      );
+    });
+
+    test('rejette le vide, le http et ce qui n\'est pas un lien', () {
+      for (final raw in [null, '', '  ', 'pas un lien', 'http://exemple.dj/app']) {
+        expect(AppUpdateService.usableStoreUrl(raw), isNull, reason: '$raw');
+      }
+    });
+  });
+
+  group('parseResponse (réponses réelles du serveur)', () {
+    // Relevées sur /api/mobile/app-version?platform=… (21/10/2026).
+    Map<String, dynamic> body({
+      Object? latest = '1.0.0',
+      Object? min = '1.0.0',
+      Object? force = false,
+      Object? storeUrl = _store,
+      Object? notes = '',
+    }) => {
+      'success': true,
+      'data': {
+        'latest_version': latest,
+        'min_version': min,
+        'force_update': force,
+        'store_url': storeUrl,
+        'release_notes': notes,
+      },
+    };
+
+    AppUpdate? parse(Object? decoded, {String? fallback}) =>
+        AppUpdateService.parseResponse(
+          decoded,
+          installed: '1.0.0',
+          fallbackStoreUrl: fallback,
+          now: _now,
+        );
+
+    test('Android à jour (1.0.0 = 1.0.0) : rien à afficher', () {
+      expect(parse(body()), isNull);
+    });
+
+    test('Android : nouvelle version proposée avec ses nouveautés', () {
+      final update = parse(body(latest: '1.1.0', notes: 'Corrections.'));
+      expect(update?.kind, AppUpdateKind.recommended);
+      expect(update?.storeUrl, _store);
+      expect(update?.notes, 'Corrections.');
+    });
+
+    test('minimum relevé : obligatoire', () {
+      expect(
+        parse(body(latest: '1.1.0', min: '1.1.0'))?.kind,
+        AppUpdateKind.mandatory,
+      );
+    });
+
+    test('force_update : obligatoire', () {
+      expect(
+        parse(body(latest: '1.1.0', force: true))?.kind,
+        AppUpdateKind.mandatory,
+      );
+    });
+
+    test('iOS avec le lien factice : on retombe sur Remote Config', () {
+      const placeholder = 'https://apps.apple.com/app/id000000000';
+      const fromRemoteConfig = 'https://apps.apple.com/app/id1234567';
+
+      expect(
+        parse(
+          body(latest: '1.1.0', storeUrl: placeholder),
+          fallback: fromRemoteConfig,
+        )?.storeUrl,
+        fromRemoteConfig,
+      );
+    });
+
+    test('iOS avec le lien factice et rien dans Remote Config : pas de dialogue',
+        () {
+      expect(
+        parse(
+          body(
+            latest: '1.1.0',
+            min: '1.1.0',
+            storeUrl: 'https://apps.apple.com/app/id000000000',
+          ),
+        ),
+        isNull,
+      );
+    });
+
+    test('toute réponse inattendue laisse passer (fail-open)', () {
+      expect(parse(null), isNull);
+      expect(parse('texte'), isNull);
+      expect(parse(<String, dynamic>{'success': false}), isNull);
+      expect(parse(<String, dynamic>{'success': true}), isNull);
+      expect(parse(<String, dynamic>{'success': true, 'data': []}), isNull);
+      expect(
+        parse(body(latest: 12, min: null, force: 'oui', notes: 5)),
+        isNull,
+      );
+    });
+  });
+
   group('dialogue', () {
     late _FakeLauncher launcher;
 

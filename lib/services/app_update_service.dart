@@ -1,15 +1,16 @@
+import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../config/api_client.dart';
 import '../config/remote_config_service.dart';
 
 /// Ce que l'app doit faire de la version installée.
 enum AppUpdateKind {
-  /// À jour, ou rien d'exploitable dans la configuration.
+  /// À jour, ou rien d'exploitable dans la réponse du serveur.
   none,
 
   /// Une version plus récente existe : on la propose, l'utilisateur peut
@@ -30,7 +31,7 @@ class AppUpdate {
   /// Fiche de l'app sur le store de la plateforme.
   final String storeUrl;
 
-  /// Nouveautés, dans la langue de l'utilisateur ; vide si non renseignées.
+  /// Nouveautés (`release_notes`) ; vide si non renseignées.
   final String notes;
 
   const AppUpdate({
@@ -41,70 +42,64 @@ class AppUpdate {
   });
 }
 
-/// Décide si l'utilisateur doit mettre l'app à jour, d'après Firebase Remote
-/// Config : même canal que l'adresse du backend, donc ça fonctionne aussi
-/// quand le backend est injoignable.
+/// Décide si l'utilisateur doit mettre l'app à jour, d'après
+/// `GET /api/mobile/app-version?platform=android|ios` (public, appelé avant la
+/// connexion ; contrat dans BACKEND_PROMPTS.md).
 ///
-/// Paramètres à publier dans la console Firebase (un jeu par plateforme) :
-///  - `min_app_version_android` / `min_app_version_ios` : version minimale.
-///    En dessous, mise à jour **obligatoire** (dialogue bloquant).
-///  - `latest_app_version_android` / `latest_app_version_ios` : dernière
-///    version publiée sur le store. En dessous, mise à jour **proposée**.
-///  - `update_notes_fr` / `update_notes_en` : nouveautés affichées (facultatif).
+/// Réponse : `latest_version`, `min_version`, `force_update`, `store_url`,
+/// `release_notes`. Versions au format `MAJEUR.MINEUR.CORRECTIF` (le numéro de
+/// build, après `+`, est ignoré).
 ///
-/// Versions au format `MAJEUR.MINEUR.CORRECTIF` (le numéro de build, après
-/// `+`, est ignoré). Une valeur vide ou illisible est ignorée. Pour forcer tout
-/// le monde à mettre à jour, il suffit que `min` soit égal à `latest`.
+///  - installée < `min_version` → mise à jour **obligatoire** (bloquante) ;
+///  - installée < `latest_version` → **proposée**, ou obligatoire si
+///    `force_update` est vrai (interrupteur pour forcer sans toucher au
+///    minimum). Une version déjà à jour n'est jamais bloquée : elle n'aurait
+///    aucune mise à jour à installer.
 ///
-/// Règle « fail-open » : en cas de doute (Remote Config indisponible, valeur
-/// invalide, aucun lien de store), on laisse passer plutôt que de bloquer.
+/// Règle « fail-open » : en cas de doute (serveur injoignable, réponse
+/// invalide, aucun lien de store utilisable), on laisse passer plutôt que de
+/// bloquer l'utilisateur.
 class AppUpdateService {
   AppUpdateService._();
 
-  static const String minVersionKey = 'min_app_version';
-  static const String latestVersionKey = 'latest_app_version';
-  static const String notesKey = 'update_notes';
+  static const String _path = '/mobile/app-version';
 
   /// Une mise à jour proposée, repoussée, n'est pas redemandée avant ce délai
   /// (sauf si une version encore plus récente sort entre-temps).
   static const Duration reminderInterval = Duration(days: 3);
 
-  /// Attente maximale du premier fetch Remote Config au démarrage.
-  static const Duration readyTimeout = Duration(seconds: 3);
+  /// Le Splash est déjà long : sans réponse à temps, on laisse passer.
+  static const Duration requestTimeout = Duration(seconds: 4);
 
   static const String _dismissedVersionPref = 'app_update_dismissed_version';
   static const String _dismissedAtPref = 'app_update_dismissed_at';
 
-  /// Lit la configuration et renvoie la mise à jour à présenter, ou `null`.
+  /// Interroge le serveur et renvoie la mise à jour à présenter, ou `null`.
   /// Ne lève jamais.
-  static Future<AppUpdate?> check({String languageCode = 'fr'}) async {
+  static Future<AppUpdate?> check() async {
     try {
-      final suffix = switch (defaultTargetPlatform) {
+      final platform = switch (defaultTargetPlatform) {
         TargetPlatform.android => 'android',
         TargetPlatform.iOS => 'ios',
         _ => null,
       };
-      if (suffix == null) return null;
+      if (platform == null) return null;
 
-      // Le premier fetch peut ne pas être terminé au bout du splash ; on
-      // l'attend un court instant, sinon on décide avec les valeurs déjà
-      // activées lors d'un lancement précédent.
-      await RemoteConfigService.ready.timeout(readyTimeout, onTimeout: () {});
-
-      final remoteConfig = FirebaseRemoteConfig.instance;
-      final notesLanguage = languageCode == 'en' ? 'en' : 'fr';
-      var notes = remoteConfig.getString('${notesKey}_$notesLanguage');
-      if (notes.trim().isEmpty) notes = remoteConfig.getString('${notesKey}_fr');
+      final response = await ApiClient.getPublic(
+        '$_path?platform=$platform',
+      ).timeout(requestTimeout);
+      if (response.statusCode != 200) {
+        debugPrint('⚠️ AppUpdate: HTTP ${response.statusCode}');
+        return null;
+      }
 
       final prefs = await SharedPreferences.getInstance();
       final dismissedAtMs = prefs.getInt(_dismissedAtPref);
 
-      return evaluate(
+      return parseResponse(
+        jsonDecode(utf8.decode(response.bodyBytes)),
         installed: (await PackageInfo.fromPlatform()).version,
-        min: remoteConfig.getString('${minVersionKey}_$suffix'),
-        latest: remoteConfig.getString('${latestVersionKey}_$suffix'),
-        storeUrl: RemoteConfigService.storeUrl,
-        notes: notes,
+        fallbackStoreUrl: RemoteConfigService.storeUrl,
         dismissedVersion: prefs.getString(_dismissedVersionPref),
         dismissedAt:
             dismissedAtMs == null
@@ -132,12 +127,61 @@ class AppUpdateService {
     }
   }
 
-  /// Logique de décision, sans accès à Firebase ni au disque.
+  /// Lit la réponse JSON du serveur, sans accès au réseau ni au disque. Toute
+  /// forme inattendue donne `null` (fail-open).
+  ///
+  /// [fallbackStoreUrl] sert quand `store_url` est absent ou inutilisable.
+  @visibleForTesting
+  static AppUpdate? parseResponse(
+    Object? decoded, {
+    required String installed,
+    required String? fallbackStoreUrl,
+    String? dismissedVersion,
+    DateTime? dismissedAt,
+    required DateTime now,
+  }) {
+    if (decoded is! Map || decoded['success'] != true) return null;
+    final data = decoded['data'];
+    if (data is! Map) return null;
+
+    String? text(String key) {
+      final value = data[key];
+      return value is String ? value : null;
+    }
+
+    return evaluate(
+      installed: installed,
+      min: text('min_version'),
+      latest: text('latest_version'),
+      force: data['force_update'] == true,
+      storeUrl: usableStoreUrl(text('store_url')) ?? fallbackStoreUrl,
+      notes: text('release_notes') ?? '',
+      dismissedVersion: dismissedVersion,
+      dismissedAt: dismissedAt,
+      now: now,
+    );
+  }
+
+  /// Le lien tel qu'il est publié par le serveur, s'il est exploitable : une
+  /// URL `https` avec un hôte, et pas le gabarit « id000000000 » que le
+  /// serveur renvoie pour l'App Store tant que l'app n'y est pas publiée (il
+  /// ouvrirait une page inexistante).
+  @visibleForTesting
+  static String? usableStoreUrl(String? raw) {
+    final url = (raw ?? '').trim();
+    final uri = Uri.tryParse(url);
+    if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) return null;
+    if (RegExp(r'/id0+/?$').hasMatch(uri.path)) return null;
+    return url;
+  }
+
+  /// Logique de décision et de report, sur des valeurs déjà lues.
   @visibleForTesting
   static AppUpdate? evaluate({
     required String installed,
     required String? min,
     required String? latest,
+    bool force = false,
     required String? storeUrl,
     String notes = '',
     String? dismissedVersion,
@@ -148,7 +192,12 @@ class AppUpdateService {
     // dialogue bloquant n'enverrait l'utilisateur nulle part.
     if (storeUrl == null) return null;
 
-    final kind = decide(installed: installed, min: min, latest: latest);
+    final kind = decide(
+      installed: installed,
+      min: min,
+      latest: latest,
+      force: force,
+    );
     if (kind == AppUpdateKind.none) return null;
 
     final latestVersion = (latest ?? '').trim();
@@ -173,6 +222,7 @@ class AppUpdateService {
     required String installed,
     required String? min,
     required String? latest,
+    bool force = false,
   }) {
     final current = parseVersion(installed);
     if (current == null) return AppUpdateKind.none;
@@ -183,7 +233,7 @@ class AppUpdateService {
     }
     final newest = parseVersion(latest);
     if (newest != null && _compare(current, newest) < 0) {
-      return AppUpdateKind.recommended;
+      return force ? AppUpdateKind.mandatory : AppUpdateKind.recommended;
     }
     return AppUpdateKind.none;
   }

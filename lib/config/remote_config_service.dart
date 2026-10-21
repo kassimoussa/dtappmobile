@@ -97,13 +97,6 @@ class RemoteConfigService {
 
   static StreamSubscription<RemoteConfigUpdate>? _updates;
 
-  static final Completer<void> _ready = Completer<void>();
-
-  /// Se termine quand [init] a fini son premier fetch, réussi ou non. Ne se
-  /// termine jamais si Firebase n'a pas pu démarrer : borner l'attente avec un
-  /// `timeout`.
-  static Future<void> get ready => _ready.future;
-
   /// À appeler une fois Firebase initialisé. Ne lève jamais : un échec laisse
   /// l'app sur sa configuration locale.
   ///
@@ -130,8 +123,6 @@ class RemoteConfigService {
       _listenForUpdates(remoteConfig, onBaseChanged);
     } catch (e) {
       debugPrint('⚠️ RemoteConfig: initialisation impossible ($e)');
-    } finally {
-      if (!_ready.isCompleted) _ready.complete();
     }
   }
 

@@ -76,6 +76,9 @@ class _SplashScreenState extends State<SplashScreen>
   LottieComposition? _composition;
   Animation<double>? _lottieProgress;
 
+  /// Vérification de la version installée, en cours pendant l'animation.
+  Future<AppUpdate?>? _updateCheck;
+
   @override
   void initState() {
     super.initState();
@@ -120,6 +123,9 @@ class _SplashScreenState extends State<SplashScreen>
     // Animations d'événement : appel en parallèle, jamais bloquant. Si la
     // réponse arrive pendant le splash, l'emplacement `splash` s'anime.
     SeasonalEventService.load();
+    // Version minimale / dernière version : lancée tout de suite pour que la
+    // réponse soit là quand le splash se termine (voir _goNext).
+    _updateCheck = AppUpdateService.check();
 
     setState(() {
       _composition = composition;
@@ -148,9 +154,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Avant de laisser entrer : une version trop ancienne bloque ici (la
     // future ne se termine jamais), une version proposée peut être repoussée.
     // En cas de doute la vérification renvoie null et l'on passe.
-    final update = await AppUpdateService.check(
-      languageCode: Localizations.localeOf(context).languageCode,
-    );
+    final update = await (_updateCheck ?? AppUpdateService.check());
     if (!mounted) return;
     if (update != null) {
       await AppUpdateDialog.show(context, update);
