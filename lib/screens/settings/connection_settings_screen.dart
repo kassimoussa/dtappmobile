@@ -35,9 +35,10 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
     final isDeviceSupported = await localAuth.isDeviceSupported();
 
     final phoneNumber = await UserSession.getPhoneNumber();
-    final biometricEnabled = phoneNumber == null
-        ? false
-        : await UserSession.isBiometricEnabled(phoneNumber);
+    final biometricEnabled =
+        phoneNumber == null
+            ? false
+            : await UserSession.isBiometricEnabled(phoneNumber);
     final pinEnabled = await UserSession.isPinEnabled();
     final otpEnabled = await UserSession.isOtpEnabled();
 
@@ -97,10 +98,7 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [
-                    AppTheme.dtBlueO08,
-                    Colors.transparent,
-                  ],
+                  colors: [AppTheme.dtBlueO08, Colors.transparent],
                   radius: 0.8,
                 ),
               ),
@@ -111,33 +109,34 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
               children: [
                 GlassAppBar(title: l10n.connectionSettings),
                 Expanded(
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : SingleChildScrollView(
-                          padding: EdgeInsets.all(
-                            ResponsiveSize.getWidth(AppTheme.spacingL),
-                          ),
-                          child: SettingsCard(
-                            children: [
-                              if (_isBiometricSupported)
+                  child:
+                      _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : SingleChildScrollView(
+                            padding: EdgeInsets.all(
+                              ResponsiveSize.getWidth(AppTheme.spacingL),
+                            ),
+                            child: SettingsCard(
+                              children: [
+                                if (_isBiometricSupported)
+                                  _buildSwitchOption(
+                                    title: l10n.biometricLogin,
+                                    value: _isBiometricEnabled,
+                                    onChanged: _toggleBiometric,
+                                  ),
                                 _buildSwitchOption(
-                                  title: l10n.biometricLogin,
-                                  value: _isBiometricEnabled,
-                                  onChanged: _toggleBiometric,
+                                  title: l10n.pinLogin,
+                                  value: _isPinEnabled,
+                                  onChanged: _togglePin,
                                 ),
-                              _buildSwitchOption(
-                                title: l10n.pinLogin,
-                                value: _isPinEnabled,
-                                onChanged: _togglePin,
-                              ),
-                              _buildSwitchOption(
-                                title: l10n.otpLogin,
-                                value: _isOtpEnabled,
-                                onChanged: _toggleOtp,
-                              ),
-                            ],
+                                _buildSwitchOption(
+                                  title: l10n.otpLogin,
+                                  value: _isOtpEnabled,
+                                  onChanged: _toggleOtp,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
                 ),
               ],
             ),
@@ -147,7 +146,6 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
     );
   }
 
-
   Widget _buildSwitchOption({
     required String title,
     required bool value,
@@ -156,10 +154,19 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
     return SettingsTile(
       label: title,
       onTap: () => onChanged(!value),
-      trailing: Switch.adaptive(
-        value: value,
-        onChanged: onChanged,
-        activeThumbColor: AppTheme.dtBlue,
+      // Le Switch (40 dp avec sa zone tactile) gonflerait la ligne bien au-delà
+      // des autres cartes de réglages. Il ne réserve que la moitié de sa
+      // hauteur et déborde dans le padding vertical de la ligne, ce qui lui
+      // garde sa taille réelle. Toute la ligne reste cliquable (InkWell du
+      // SettingsTile).
+      trailing: Align(
+        heightFactor: 0.5,
+        child: Switch.adaptive(
+          value: value,
+          onChanged: onChanged,
+          activeThumbColor: AppTheme.dtBlue,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
       ),
     );
   }
