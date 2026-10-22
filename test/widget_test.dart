@@ -1,30 +1,80 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-
 import 'package:dtservices/main.dart';
+import 'package:dtservices/providers/auth_provider.dart';
+import 'package:dtservices/providers/balance_provider.dart';
+import 'package:dtservices/providers/language_provider.dart';
+import 'package:dtservices/providers/topup_provider.dart';
+import 'package:dtservices/providers/transaction_provider.dart';
+import 'package:dtservices/screens/auth/splash_screen.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Remplace les plugins que MyApp touche au démarrage : sans eux, leurs appels
+/// natifs lèvent MissingPluginException dans l'environnement de test.
+void _mockStartupPlugins() {
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+
+  // permission_handler : MyApp demande téléphone et SMS au démarrage.
+  messenger.setMockMethodCallHandler(
+    const MethodChannel('flutter.baseflow.com/permissions/methods'),
+    (call) async => <int, int>{},
+  );
+  // connectivity_plus : état initial « wifi » puis flux sans événement.
+  messenger.setMockMethodCallHandler(
+    const MethodChannel('dev.fluttercommunity.plus/connectivity'),
+    (call) async => ['wifi'],
+  );
+  messenger.setMockMethodCallHandler(
+    const MethodChannel('dev.fluttercommunity.plus/connectivity_status'),
+    (call) async => null,
+  );
+
+  addTearDown(() {
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('flutter.baseflow.com/permissions/methods'),
+      null,
+    );
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('dev.fluttercommunity.plus/connectivity'),
+      null,
+    );
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('dev.fluttercommunity.plus/connectivity_status'),
+      null,
+    );
+  });
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('l\'app démarre sur le splash', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    _mockStartupPlugins();
+    // L'app est en portrait uniquement : la fenêtre de test par défaut
+    // (800x600, paysage) ferait déborder le splash.
+    tester.view.devicePixelRatio = 2.0;
+    tester.view.physicalSize = const Size(412, 915) * 2.0;
+    addTearDown(tester.view.reset);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ChangeNotifierProvider(create: (_) => BalanceProvider()),
+          ChangeNotifierProvider(create: (_) => TopUpProvider()),
+          ChangeNotifierProvider(create: (_) => TransactionProvider()),
+          ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ],
+        child: const MyApp(),
+      ),
+    );
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(SplashScreen), findsOneWidget);
+
+    // Le splash programme des délais (jusqu'à 5 s) : on les laisse expirer,
+    // un timer encore en attente à la fin ferait échouer le test.
+    await tester.pump(const Duration(seconds: 6));
   });
 }
