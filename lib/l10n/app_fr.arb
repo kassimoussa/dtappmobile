@@ -380,14 +380,10 @@
     "emptyHistoryTitle": "Aucune activité",
     "emptyHistoryMessage": "Aucune activité trouvée pour la période sélectionnée",
     
-    "toggleHideDetails": "Masquer les détails",
-    "toggleShowDetails": "Afficher plus de détails",
     "descriptionLabel": "Détails",
     "navHome": "Accueil",
     "navHistory": "Historique",
     "navMyLine": "Ma ligne",
-    "historyTransactions": "Historique des transactions",
-    "comingSoonMessage": "Cette fonctionnalité sera bientôt disponible.",
     "ok": "OK",
     
     "packageSubscriptionPurchase": "Achat de souscription TopUp",
@@ -679,26 +675,6 @@
     "fixedNumberFormatError": "Le numéro doit commencer par 21 ou 27 (ou 25321, 25327) et contenir 8 ou 11 chiffres",
     "fixedHistory": "Historique\nFixe",
     "confirm": "Confirmer",
-    "purchaseConfirmQuestion": "Voulez-vous acheter le {name} ?",
-    "@purchaseConfirmQuestion": {
-      "placeholders": {
-        "name": {
-          "type": "String"
-        }
-      }
-    },
-    "balanceAfterPurchaseAmount": "Solde après achat: {amount} FDJ",
-    "@balanceAfterPurchaseAmount": {
-      "placeholders": {
-        "amount": {
-          "type": "String"
-        }
-      }
-    },
-    "priceRow": "Prix:",
-    "dataRow": "Data:",
-    "minutesRow": "Minutes:",
-    "validityRow": "Validité:",
     "searchActionHint": "Rechercher une action...",
     "searchActionsAvailable": "{count} actions disponibles",
     "@searchActionsAvailable": {
@@ -778,45 +754,6 @@
     "buyPackagesTitle": "Acheter des packages",
     "unlimitedDataTitle": "Données illimitées",
     "unlimitedDataMessage": "Votre ligne bénéficie déjà de données illimitées. Vous n'avez pas besoin d'acheter des données supplémentaires.",
-    "dataForBrowsing": "Données pour votre navigation",
-    "voicePackage": "Forfait Appels",
-    "minutesForCalls": "Minutes pour vos appels",
-    "internetPackages": "Forfaits Internet",
-    "voicePackages": "Forfaits Appels",
-    "packageSummary": "Résumé du forfait",
-    "packageRow": "Forfait:",
-    "rechargeYourAccount": "Recharger votre compte",
-    "amountToRecharge": "Montant à recharger (DJF)",
-    "paymentMethod": "Méthode de paiement",
-    "dmoneyPaymentDesc": "Paiement via votre compte D-Money",
-    "mobileMainAccount": "Compte principal mobile",
-    "mobileTransferDesc": "Transfert depuis votre compte mobile",
-    "pleaseEnterRechargeAmount": "Veuillez saisir un montant à recharger",
-    "requestSent": "Demande envoyée",
-    "rechargeRequestDmoney": "Votre demande de rechargement de {amount} DJF via D-Money a été envoyée. Veuillez suivre les instructions sur votre téléphone pour finaliser la transaction.",
-    "@rechargeRequestDmoney": {
-      "placeholders": {
-        "amount": {
-          "type": "String"
-        }
-      }
-    },
-    "rechargeRequestMobile": "Votre demande de transfert de {amount} DJF depuis votre compte principal mobile a été traitée avec succès. Le montant a été ajouté à votre solde fixe.",
-    "@rechargeRequestMobile": {
-      "placeholders": {
-        "amount": {
-          "type": "String"
-        }
-      }
-    },
-    "payBill": "Payer la facture",
-    "processingPayment": "Traitement du paiement...",
-    "pleaseWaitPayment": "Veuillez patienter pendant que nous traitons votre paiement.",
-    "choosePaymentMethod": "Choisissez une méthode de paiement:",
-    "mobileLinePayment": "Paiement via le crédit de votre ligne mobile",
-    "payNow": "Payer maintenant",
-    "invoiceLabel": "Facture:",
-    "dueDateLabel": "Date d'échéance:",
     "typeLabel": "Type:",
     "otpCooldown": "Veuillez patienter {seconds}s avant de redemander un code.",
     "@otpCooldown": {

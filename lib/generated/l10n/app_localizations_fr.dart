@@ -1000,12 +1000,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucune activité trouvée pour la période sélectionnée';
 
   @override
-  String get toggleHideDetails => 'Masquer les détails';
-
-  @override
-  String get toggleShowDetails => 'Afficher plus de détails';
-
-  @override
   String get descriptionLabel => 'Détails';
 
   @override
@@ -1016,13 +1010,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get navMyLine => 'Ma ligne';
-
-  @override
-  String get historyTransactions => 'Historique des transactions';
-
-  @override
-  String get comingSoonMessage =>
-      'Cette fonctionnalité sera bientôt disponible.';
 
   @override
   String get ok => 'OK';
@@ -1684,28 +1671,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirm => 'Confirmer';
 
   @override
-  String purchaseConfirmQuestion(String name) {
-    return 'Voulez-vous acheter le $name ?';
-  }
-
-  @override
-  String balanceAfterPurchaseAmount(String amount) {
-    return 'Solde après achat: $amount FDJ';
-  }
-
-  @override
-  String get priceRow => 'Prix:';
-
-  @override
-  String get dataRow => 'Data:';
-
-  @override
-  String get minutesRow => 'Minutes:';
-
-  @override
-  String get validityRow => 'Validité:';
-
-  @override
   String get searchActionHint => 'Rechercher une action...';
 
   @override
@@ -1880,88 +1845,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get unlimitedDataMessage =>
       'Votre ligne bénéficie déjà de données illimitées. Vous n\'avez pas besoin d\'acheter des données supplémentaires.';
-
-  @override
-  String get dataForBrowsing => 'Données pour votre navigation';
-
-  @override
-  String get voicePackage => 'Forfait Appels';
-
-  @override
-  String get minutesForCalls => 'Minutes pour vos appels';
-
-  @override
-  String get internetPackages => 'Forfaits Internet';
-
-  @override
-  String get voicePackages => 'Forfaits Appels';
-
-  @override
-  String get packageSummary => 'Résumé du forfait';
-
-  @override
-  String get packageRow => 'Forfait:';
-
-  @override
-  String get rechargeYourAccount => 'Recharger votre compte';
-
-  @override
-  String get amountToRecharge => 'Montant à recharger (DJF)';
-
-  @override
-  String get paymentMethod => 'Méthode de paiement';
-
-  @override
-  String get dmoneyPaymentDesc => 'Paiement via votre compte D-Money';
-
-  @override
-  String get mobileMainAccount => 'Compte principal mobile';
-
-  @override
-  String get mobileTransferDesc => 'Transfert depuis votre compte mobile';
-
-  @override
-  String get pleaseEnterRechargeAmount =>
-      'Veuillez saisir un montant à recharger';
-
-  @override
-  String get requestSent => 'Demande envoyée';
-
-  @override
-  String rechargeRequestDmoney(String amount) {
-    return 'Votre demande de rechargement de $amount DJF via D-Money a été envoyée. Veuillez suivre les instructions sur votre téléphone pour finaliser la transaction.';
-  }
-
-  @override
-  String rechargeRequestMobile(String amount) {
-    return 'Votre demande de transfert de $amount DJF depuis votre compte principal mobile a été traitée avec succès. Le montant a été ajouté à votre solde fixe.';
-  }
-
-  @override
-  String get payBill => 'Payer la facture';
-
-  @override
-  String get processingPayment => 'Traitement du paiement...';
-
-  @override
-  String get pleaseWaitPayment =>
-      'Veuillez patienter pendant que nous traitons votre paiement.';
-
-  @override
-  String get choosePaymentMethod => 'Choisissez une méthode de paiement:';
-
-  @override
-  String get mobileLinePayment =>
-      'Paiement via le crédit de votre ligne mobile';
-
-  @override
-  String get payNow => 'Payer maintenant';
-
-  @override
-  String get invoiceLabel => 'Facture:';
-
-  @override
-  String get dueDateLabel => 'Date d\'échéance:';
 
   @override
   String get typeLabel => 'Type:';

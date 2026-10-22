@@ -1832,18 +1832,6 @@ abstract class AppLocalizations {
   /// **'Aucune activité trouvée pour la période sélectionnée'**
   String get emptyHistoryMessage;
 
-  /// No description provided for @toggleHideDetails.
-  ///
-  /// In fr, this message translates to:
-  /// **'Masquer les détails'**
-  String get toggleHideDetails;
-
-  /// No description provided for @toggleShowDetails.
-  ///
-  /// In fr, this message translates to:
-  /// **'Afficher plus de détails'**
-  String get toggleShowDetails;
-
   /// No description provided for @descriptionLabel.
   ///
   /// In fr, this message translates to:
@@ -1867,18 +1855,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Ma ligne'**
   String get navMyLine;
-
-  /// No description provided for @historyTransactions.
-  ///
-  /// In fr, this message translates to:
-  /// **'Historique des transactions'**
-  String get historyTransactions;
-
-  /// No description provided for @comingSoonMessage.
-  ///
-  /// In fr, this message translates to:
-  /// **'Cette fonctionnalité sera bientôt disponible.'**
-  String get comingSoonMessage;
 
   /// No description provided for @ok.
   ///
@@ -3092,42 +3068,6 @@ abstract class AppLocalizations {
   /// **'Confirmer'**
   String get confirm;
 
-  /// No description provided for @purchaseConfirmQuestion.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voulez-vous acheter le {name} ?'**
-  String purchaseConfirmQuestion(String name);
-
-  /// No description provided for @balanceAfterPurchaseAmount.
-  ///
-  /// In fr, this message translates to:
-  /// **'Solde après achat: {amount} FDJ'**
-  String balanceAfterPurchaseAmount(String amount);
-
-  /// No description provided for @priceRow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Prix:'**
-  String get priceRow;
-
-  /// No description provided for @dataRow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Data:'**
-  String get dataRow;
-
-  /// No description provided for @minutesRow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Minutes:'**
-  String get minutesRow;
-
-  /// No description provided for @validityRow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Validité:'**
-  String get validityRow;
-
   /// No description provided for @searchActionHint.
   ///
   /// In fr, this message translates to:
@@ -3427,156 +3367,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Votre ligne bénéficie déjà de données illimitées. Vous n\'avez pas besoin d\'acheter des données supplémentaires.'**
   String get unlimitedDataMessage;
-
-  /// No description provided for @dataForBrowsing.
-  ///
-  /// In fr, this message translates to:
-  /// **'Données pour votre navigation'**
-  String get dataForBrowsing;
-
-  /// No description provided for @voicePackage.
-  ///
-  /// In fr, this message translates to:
-  /// **'Forfait Appels'**
-  String get voicePackage;
-
-  /// No description provided for @minutesForCalls.
-  ///
-  /// In fr, this message translates to:
-  /// **'Minutes pour vos appels'**
-  String get minutesForCalls;
-
-  /// No description provided for @internetPackages.
-  ///
-  /// In fr, this message translates to:
-  /// **'Forfaits Internet'**
-  String get internetPackages;
-
-  /// No description provided for @voicePackages.
-  ///
-  /// In fr, this message translates to:
-  /// **'Forfaits Appels'**
-  String get voicePackages;
-
-  /// No description provided for @packageSummary.
-  ///
-  /// In fr, this message translates to:
-  /// **'Résumé du forfait'**
-  String get packageSummary;
-
-  /// No description provided for @packageRow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Forfait:'**
-  String get packageRow;
-
-  /// No description provided for @rechargeYourAccount.
-  ///
-  /// In fr, this message translates to:
-  /// **'Recharger votre compte'**
-  String get rechargeYourAccount;
-
-  /// No description provided for @amountToRecharge.
-  ///
-  /// In fr, this message translates to:
-  /// **'Montant à recharger (DJF)'**
-  String get amountToRecharge;
-
-  /// No description provided for @paymentMethod.
-  ///
-  /// In fr, this message translates to:
-  /// **'Méthode de paiement'**
-  String get paymentMethod;
-
-  /// No description provided for @dmoneyPaymentDesc.
-  ///
-  /// In fr, this message translates to:
-  /// **'Paiement via votre compte D-Money'**
-  String get dmoneyPaymentDesc;
-
-  /// No description provided for @mobileMainAccount.
-  ///
-  /// In fr, this message translates to:
-  /// **'Compte principal mobile'**
-  String get mobileMainAccount;
-
-  /// No description provided for @mobileTransferDesc.
-  ///
-  /// In fr, this message translates to:
-  /// **'Transfert depuis votre compte mobile'**
-  String get mobileTransferDesc;
-
-  /// No description provided for @pleaseEnterRechargeAmount.
-  ///
-  /// In fr, this message translates to:
-  /// **'Veuillez saisir un montant à recharger'**
-  String get pleaseEnterRechargeAmount;
-
-  /// No description provided for @requestSent.
-  ///
-  /// In fr, this message translates to:
-  /// **'Demande envoyée'**
-  String get requestSent;
-
-  /// No description provided for @rechargeRequestDmoney.
-  ///
-  /// In fr, this message translates to:
-  /// **'Votre demande de rechargement de {amount} DJF via D-Money a été envoyée. Veuillez suivre les instructions sur votre téléphone pour finaliser la transaction.'**
-  String rechargeRequestDmoney(String amount);
-
-  /// No description provided for @rechargeRequestMobile.
-  ///
-  /// In fr, this message translates to:
-  /// **'Votre demande de transfert de {amount} DJF depuis votre compte principal mobile a été traitée avec succès. Le montant a été ajouté à votre solde fixe.'**
-  String rechargeRequestMobile(String amount);
-
-  /// No description provided for @payBill.
-  ///
-  /// In fr, this message translates to:
-  /// **'Payer la facture'**
-  String get payBill;
-
-  /// No description provided for @processingPayment.
-  ///
-  /// In fr, this message translates to:
-  /// **'Traitement du paiement...'**
-  String get processingPayment;
-
-  /// No description provided for @pleaseWaitPayment.
-  ///
-  /// In fr, this message translates to:
-  /// **'Veuillez patienter pendant que nous traitons votre paiement.'**
-  String get pleaseWaitPayment;
-
-  /// No description provided for @choosePaymentMethod.
-  ///
-  /// In fr, this message translates to:
-  /// **'Choisissez une méthode de paiement:'**
-  String get choosePaymentMethod;
-
-  /// No description provided for @mobileLinePayment.
-  ///
-  /// In fr, this message translates to:
-  /// **'Paiement via le crédit de votre ligne mobile'**
-  String get mobileLinePayment;
-
-  /// No description provided for @payNow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Payer maintenant'**
-  String get payNow;
-
-  /// No description provided for @invoiceLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Facture:'**
-  String get invoiceLabel;
-
-  /// No description provided for @dueDateLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Date d\'échéance:'**
-  String get dueDateLabel;
 
   /// No description provided for @typeLabel.
   ///

@@ -363,14 +363,10 @@
     "emptyHistoryTitle": "No activity",
     "emptyHistoryMessage": "No activity found for the selected period",
     
-    "toggleHideDetails": "Hide details",
-    "toggleShowDetails": "Show details",
     "descriptionLabel": "Details",
     "navHome": "Home",
     "navHistory": "History",
     "navMyLine": "My Line",
-    "historyTransactions": "Transaction History",
-    "comingSoonMessage": "This feature will be available soon.",
     "ok": "OK",
     
     "packageSubscriptionPurchase": "TopUp Subscription Purchase",
@@ -661,26 +657,6 @@
     "fixedNumberFormatError": "Number must start with 21 or 27 (or 25321, 25327) and contain 8 or 11 digits",
     "fixedHistory": "Landline\nHistory",
     "confirm": "Confirm",
-    "purchaseConfirmQuestion": "Do you want to buy {name}?",
-    "@purchaseConfirmQuestion": {
-      "placeholders": {
-        "name": {
-          "type": "String"
-        }
-      }
-    },
-    "balanceAfterPurchaseAmount": "Balance after purchase: {amount} DJF",
-    "@balanceAfterPurchaseAmount": {
-      "placeholders": {
-        "amount": {
-          "type": "String"
-        }
-      }
-    },
-    "priceRow": "Price:",
-    "dataRow": "Data:",
-    "minutesRow": "Minutes:",
-    "validityRow": "Validity:",
     "searchActionHint": "Search for an action...",
     "searchActionsAvailable": "{count} actions available",
     "@searchActionsAvailable": {
@@ -760,45 +736,6 @@
     "buyPackagesTitle": "Buy packages",
     "unlimitedDataTitle": "Unlimited Data",
     "unlimitedDataMessage": "Your line already has unlimited data. You do not need to purchase additional data.",
-    "dataForBrowsing": "Data for your browsing",
-    "voicePackage": "Voice Package",
-    "minutesForCalls": "Minutes for your calls",
-    "internetPackages": "Internet Packages",
-    "voicePackages": "Voice Packages",
-    "packageSummary": "Package summary",
-    "packageRow": "Package:",
-    "rechargeYourAccount": "Refill your account",
-    "amountToRecharge": "Amount to refill (DJF)",
-    "paymentMethod": "Payment method",
-    "dmoneyPaymentDesc": "Payment via your D-Money account",
-    "mobileMainAccount": "Mobile main account",
-    "mobileTransferDesc": "Transfer from your mobile account",
-    "pleaseEnterRechargeAmount": "Please enter an amount to refill",
-    "requestSent": "Request sent",
-    "rechargeRequestDmoney": "Your request to refill {amount} DJF via D-Money has been sent. Please follow the instructions on your phone to finalize the transaction.",
-    "@rechargeRequestDmoney": {
-      "placeholders": {
-        "amount": {
-          "type": "String"
-        }
-      }
-    },
-    "rechargeRequestMobile": "Your request to transfer {amount} DJF from your main mobile account has been processed successfully. The amount has been added to your landline balance.",
-    "@rechargeRequestMobile": {
-      "placeholders": {
-        "amount": {
-          "type": "String"
-        }
-      }
-    },
-    "payBill": "Pay the bill",
-    "processingPayment": "Processing payment...",
-    "pleaseWaitPayment": "Please wait while we process your payment.",
-    "choosePaymentMethod": "Choose a payment method:",
-    "mobileLinePayment": "Payment via your mobile line credit",
-    "payNow": "Pay now",
-    "invoiceLabel": "Invoice:",
-    "dueDateLabel": "Due date:",
     "typeLabel": "Type:",
     "otpCooldown": "Please wait {seconds}s before requesting a new code.",
     "@otpCooldown": {

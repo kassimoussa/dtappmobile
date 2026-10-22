@@ -987,12 +987,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emptyHistoryMessage => 'No activity found for the selected period';
 
   @override
-  String get toggleHideDetails => 'Hide details';
-
-  @override
-  String get toggleShowDetails => 'Show details';
-
-  @override
   String get descriptionLabel => 'Details';
 
   @override
@@ -1003,12 +997,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navMyLine => 'My Line';
-
-  @override
-  String get historyTransactions => 'Transaction History';
-
-  @override
-  String get comingSoonMessage => 'This feature will be available soon.';
 
   @override
   String get ok => 'OK';
@@ -1664,28 +1652,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm => 'Confirm';
 
   @override
-  String purchaseConfirmQuestion(String name) {
-    return 'Do you want to buy $name?';
-  }
-
-  @override
-  String balanceAfterPurchaseAmount(String amount) {
-    return 'Balance after purchase: $amount DJF';
-  }
-
-  @override
-  String get priceRow => 'Price:';
-
-  @override
-  String get dataRow => 'Data:';
-
-  @override
-  String get minutesRow => 'Minutes:';
-
-  @override
-  String get validityRow => 'Validity:';
-
-  @override
   String get searchActionHint => 'Search for an action...';
 
   @override
@@ -1850,85 +1816,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get unlimitedDataMessage =>
       'Your line already has unlimited data. You do not need to purchase additional data.';
-
-  @override
-  String get dataForBrowsing => 'Data for your browsing';
-
-  @override
-  String get voicePackage => 'Voice Package';
-
-  @override
-  String get minutesForCalls => 'Minutes for your calls';
-
-  @override
-  String get internetPackages => 'Internet Packages';
-
-  @override
-  String get voicePackages => 'Voice Packages';
-
-  @override
-  String get packageSummary => 'Package summary';
-
-  @override
-  String get packageRow => 'Package:';
-
-  @override
-  String get rechargeYourAccount => 'Refill your account';
-
-  @override
-  String get amountToRecharge => 'Amount to refill (DJF)';
-
-  @override
-  String get paymentMethod => 'Payment method';
-
-  @override
-  String get dmoneyPaymentDesc => 'Payment via your D-Money account';
-
-  @override
-  String get mobileMainAccount => 'Mobile main account';
-
-  @override
-  String get mobileTransferDesc => 'Transfer from your mobile account';
-
-  @override
-  String get pleaseEnterRechargeAmount => 'Please enter an amount to refill';
-
-  @override
-  String get requestSent => 'Request sent';
-
-  @override
-  String rechargeRequestDmoney(String amount) {
-    return 'Your request to refill $amount DJF via D-Money has been sent. Please follow the instructions on your phone to finalize the transaction.';
-  }
-
-  @override
-  String rechargeRequestMobile(String amount) {
-    return 'Your request to transfer $amount DJF from your main mobile account has been processed successfully. The amount has been added to your landline balance.';
-  }
-
-  @override
-  String get payBill => 'Pay the bill';
-
-  @override
-  String get processingPayment => 'Processing payment...';
-
-  @override
-  String get pleaseWaitPayment => 'Please wait while we process your payment.';
-
-  @override
-  String get choosePaymentMethod => 'Choose a payment method:';
-
-  @override
-  String get mobileLinePayment => 'Payment via your mobile line credit';
-
-  @override
-  String get payNow => 'Pay now';
-
-  @override
-  String get invoiceLabel => 'Invoice:';
-
-  @override
-  String get dueDateLabel => 'Due date:';
 
   @override
   String get typeLabel => 'Type:';
