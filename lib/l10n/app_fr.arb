@@ -264,7 +264,6 @@
     "refillForMyNumberMessage": "Recharge pour mon numéro: {phone}",
 
     "buyAction": "Acheter",
-    "insufficientBalanceSimple": "Solde insuffisant",
     "insufficientBalanceForPurchase": "Solde insuffisant pour cet achat.",
     "popularBadge": "Populaire",
     "noData": "Aucune data",
@@ -489,7 +488,6 @@
     "fixedLineNumberHint": "Ex: 21XXXXXX",
     "fixedBalances": "Soldes Fixes",
     "consult": "Consulter",
-    "consulting": "Consultation...",
     "consultingInProgress": "Consultation des soldes en cours...",
     "numberSuspended": "Numéro suspendu",
     "numberSuspendedInfo": "Ce numéro est temporairement suspendu.",
@@ -676,23 +674,7 @@
     "forgotPinOption": "Code PIN oublié",
     "phoneNotFound": "Numéro de téléphone introuvable",
 
-    "topupFixedBalances": "TopUp - Soldes Fixes",
-    "detailedConsultation": "Consultation détaillée",
-    "dataExpireOn": "Données expirent le {date}",
-    "@dataExpireOn": {
-      "placeholders": {
-        "date": {
-          "type": "String"
-        }
-      }
-    },
     "quickActions": "Actions rapides",
-    "topupActions": "Actions TopUp",
-    "topupRecharge": "Recharge\nTopUp",
-    "fixedPackage": "Forfait\nFixe",
-    "transferToFixed": "Transfert\nvers Fixe",
-    "topupHistory": "Historique\nTopUp",
-    "logoutTopUp": "Déconnexion TopUp",
     "fixedNumberRequired": "Veuillez entrer un numéro de téléphone fixe",
     "fixedNumberFormatError": "Le numéro doit commencer par 21 ou 27 (ou 25321, 25327) et contenir 8 ou 11 chiffres",
     "fixedHistory": "Historique\nFixe",
@@ -780,7 +762,6 @@
     "buySubscriptionBtn": "Souscrire",
     "buyPackagesBtn": "Acheter\npackages",
     "rechargeAccountBtn": "Recharger\ncompte",
-    "fixedHistoryComingSoon": "Historique Fixe - Bientôt disponible",
 
     "selectContact": "Sélectionner un contact",
     "searchContact": "Rechercher un contact...",

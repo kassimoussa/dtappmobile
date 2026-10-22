@@ -657,9 +657,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get buyAction => 'Acheter';
 
   @override
-  String get insufficientBalanceSimple => 'Solde insuffisant';
-
-  @override
   String get insufficientBalanceForPurchase =>
       'Solde insuffisant pour cet achat.';
 
@@ -1241,9 +1238,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get consult => 'Consulter';
 
   @override
-  String get consulting => 'Consultation...';
-
-  @override
   String get consultingInProgress => 'Consultation des soldes en cours...';
 
   @override
@@ -1673,36 +1667,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get phoneNotFound => 'Numéro de téléphone introuvable';
 
   @override
-  String get topupFixedBalances => 'TopUp - Soldes Fixes';
-
-  @override
-  String get detailedConsultation => 'Consultation détaillée';
-
-  @override
-  String dataExpireOn(String date) {
-    return 'Données expirent le $date';
-  }
-
-  @override
   String get quickActions => 'Actions rapides';
-
-  @override
-  String get topupActions => 'Actions TopUp';
-
-  @override
-  String get topupRecharge => 'Recharge\nTopUp';
-
-  @override
-  String get fixedPackage => 'Forfait\nFixe';
-
-  @override
-  String get transferToFixed => 'Transfert\nvers Fixe';
-
-  @override
-  String get topupHistory => 'Historique\nTopUp';
-
-  @override
-  String get logoutTopUp => 'Déconnexion TopUp';
 
   @override
   String get fixedNumberRequired =>
@@ -1866,9 +1831,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get rechargeAccountBtn => 'Recharger\ncompte';
-
-  @override
-  String get fixedHistoryComingSoon => 'Historique Fixe - Bientôt disponible';
 
   @override
   String get selectContact => 'Sélectionner un contact';

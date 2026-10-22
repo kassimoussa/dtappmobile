@@ -247,7 +247,6 @@
     "refillForMyNumberMessage": "Refill for my number: {phone}",
 
     "buyAction": "Buy",
-    "insufficientBalanceSimple": "Insufficient Balance",
     "insufficientBalanceForPurchase": "Insufficient balance for this purchase.",
     "popularBadge": "Popular",
     "noData": "No data",
@@ -471,7 +470,6 @@
     "fixedLineNumberHint": "Ex: 21XXXXXX",
     "fixedBalances": "Landline Balances",
     "consult": "Check",
-    "consulting": "Checking...",
     "consultingInProgress": "Checking balances...",
     "numberSuspended": "Number Suspended",
     "numberSuspendedInfo": "This number is temporarily suspended.",
@@ -658,23 +656,7 @@
     "forgotPinOption": "Forgot PIN code",
     "phoneNotFound": "Phone number not found",
 
-    "topupFixedBalances": "TopUp - Landline Balances",
-    "detailedConsultation": "Detailed consultation",
-    "dataExpireOn": "Data expires on {date}",
-    "@dataExpireOn": {
-      "placeholders": {
-        "date": {
-          "type": "String"
-        }
-      }
-    },
     "quickActions": "Quick Actions",
-    "topupActions": "TopUp Actions",
-    "topupRecharge": "TopUp\nRefill",
-    "fixedPackage": "Landline\nPackage",
-    "transferToFixed": "Transfer\nto Landline",
-    "topupHistory": "TopUp\nHistory",
-    "logoutTopUp": "TopUp Logout",
     "fixedNumberRequired": "Please enter a landline number",
     "fixedNumberFormatError": "Number must start with 21 or 27 (or 25321, 25327) and contain 8 or 11 digits",
     "fixedHistory": "Landline\nHistory",
@@ -762,7 +744,6 @@
     "buySubscriptionBtn": "Subscribe",
     "buyPackagesBtn": "Buy\npackages",
     "rechargeAccountBtn": "Refill\naccount",
-    "fixedHistoryComingSoon": "Landline History - Coming soon",
 
     "selectContact": "Select a contact",
     "searchContact": "Search for a contact...",

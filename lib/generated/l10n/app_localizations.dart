@@ -1274,12 +1274,6 @@ abstract class AppLocalizations {
   /// **'Acheter'**
   String get buyAction;
 
-  /// No description provided for @insufficientBalanceSimple.
-  ///
-  /// In fr, this message translates to:
-  /// **'Solde insuffisant'**
-  String get insufficientBalanceSimple;
-
   /// No description provided for @insufficientBalanceForPurchase.
   ///
   /// In fr, this message translates to:
@@ -2288,12 +2282,6 @@ abstract class AppLocalizations {
   /// **'Consulter'**
   String get consult;
 
-  /// No description provided for @consulting.
-  ///
-  /// In fr, this message translates to:
-  /// **'Consultation...'**
-  String get consulting;
-
   /// No description provided for @consultingInProgress.
   ///
   /// In fr, this message translates to:
@@ -3074,65 +3062,11 @@ abstract class AppLocalizations {
   /// **'Numéro de téléphone introuvable'**
   String get phoneNotFound;
 
-  /// No description provided for @topupFixedBalances.
-  ///
-  /// In fr, this message translates to:
-  /// **'TopUp - Soldes Fixes'**
-  String get topupFixedBalances;
-
-  /// No description provided for @detailedConsultation.
-  ///
-  /// In fr, this message translates to:
-  /// **'Consultation détaillée'**
-  String get detailedConsultation;
-
-  /// No description provided for @dataExpireOn.
-  ///
-  /// In fr, this message translates to:
-  /// **'Données expirent le {date}'**
-  String dataExpireOn(String date);
-
   /// No description provided for @quickActions.
   ///
   /// In fr, this message translates to:
   /// **'Actions rapides'**
   String get quickActions;
-
-  /// No description provided for @topupActions.
-  ///
-  /// In fr, this message translates to:
-  /// **'Actions TopUp'**
-  String get topupActions;
-
-  /// No description provided for @topupRecharge.
-  ///
-  /// In fr, this message translates to:
-  /// **'Recharge\nTopUp'**
-  String get topupRecharge;
-
-  /// No description provided for @fixedPackage.
-  ///
-  /// In fr, this message translates to:
-  /// **'Forfait\nFixe'**
-  String get fixedPackage;
-
-  /// No description provided for @transferToFixed.
-  ///
-  /// In fr, this message translates to:
-  /// **'Transfert\nvers Fixe'**
-  String get transferToFixed;
-
-  /// No description provided for @topupHistory.
-  ///
-  /// In fr, this message translates to:
-  /// **'Historique\nTopUp'**
-  String get topupHistory;
-
-  /// No description provided for @logoutTopUp.
-  ///
-  /// In fr, this message translates to:
-  /// **'Déconnexion TopUp'**
-  String get logoutTopUp;
 
   /// No description provided for @fixedNumberRequired.
   ///
@@ -3403,12 +3337,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Recharger\ncompte'**
   String get rechargeAccountBtn;
-
-  /// No description provided for @fixedHistoryComingSoon.
-  ///
-  /// In fr, this message translates to:
-  /// **'Historique Fixe - Bientôt disponible'**
-  String get fixedHistoryComingSoon;
 
   /// No description provided for @selectContact.
   ///

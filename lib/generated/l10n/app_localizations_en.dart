@@ -648,9 +648,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get buyAction => 'Buy';
 
   @override
-  String get insufficientBalanceSimple => 'Insufficient Balance';
-
-  @override
   String get insufficientBalanceForPurchase =>
       'Insufficient balance for this purchase.';
 
@@ -1226,9 +1223,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consult => 'Check';
 
   @override
-  String get consulting => 'Checking...';
-
-  @override
   String get consultingInProgress => 'Checking balances...';
 
   @override
@@ -1654,36 +1648,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneNotFound => 'Phone number not found';
 
   @override
-  String get topupFixedBalances => 'TopUp - Landline Balances';
-
-  @override
-  String get detailedConsultation => 'Detailed consultation';
-
-  @override
-  String dataExpireOn(String date) {
-    return 'Data expires on $date';
-  }
-
-  @override
   String get quickActions => 'Quick Actions';
-
-  @override
-  String get topupActions => 'TopUp Actions';
-
-  @override
-  String get topupRecharge => 'TopUp\nRefill';
-
-  @override
-  String get fixedPackage => 'Landline\nPackage';
-
-  @override
-  String get transferToFixed => 'Transfer\nto Landline';
-
-  @override
-  String get topupHistory => 'TopUp\nHistory';
-
-  @override
-  String get logoutTopUp => 'TopUp Logout';
 
   @override
   String get fixedNumberRequired => 'Please enter a landline number';
@@ -1839,9 +1804,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rechargeAccountBtn => 'Refill\naccount';
-
-  @override
-  String get fixedHistoryComingSoon => 'Landline History - Coming soon';
 
   @override
   String get selectContact => 'Select a contact';
