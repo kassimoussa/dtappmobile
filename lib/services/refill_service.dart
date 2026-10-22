@@ -4,6 +4,7 @@ import 'package:dtservices/config/app_config.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:dtservices/models/refill_models.dart';
 
@@ -82,10 +83,14 @@ class RefillService {
     Map<String, dynamic> requestBody,
   ) async {
     try {
-      print('=== REQUETE RECHARGE ===');
-      print('URL: $url');
-      print('Body: ${jsonEncode(requestBody)}');
-      print('========================');
+      if (kDebugMode) {
+        // Le code de recharge vaut de l'argent : jamais en clair, et rien de
+        // ceci n'est écrit dans les journaux d'une version release.
+        debugPrint(
+          'Recharge → $url '
+          '${jsonEncode({...requestBody, 'voucher_code': '***'})}',
+        );
+      }
 
       // Faire la requête HTTP POST
       final response = await http
@@ -96,9 +101,9 @@ class RefillService {
           )
           .timeout(_timeout);
 
-      print('Status code: ${response.statusCode}');
-      print('Response headers: ${response.headers}');
-      print('Response body: ${response.body}');
+      if (kDebugMode) {
+        debugPrint('Recharge ← HTTP ${response.statusCode} ${response.body}');
+      }
 
       // Vérifier le status code
       if (response.statusCode == 404) {
@@ -133,12 +138,7 @@ class RefillService {
 
       // Parser la réponse
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
-      
-      // Debug: afficher la réponse brute
-      print('=== REPONSE API BRUTE ===');
-      print(jsonEncode(responseData));
-      print('=========================');
-      
+
       final refillResponse = RefillResponse.fromJson(responseData);
 
       // Vérifier si la requête a réussi
@@ -155,32 +155,32 @@ class RefillService {
       // Re-lancer les exceptions de recharge
       rethrow;
     } on SocketException catch (e) {
-      print('SocketException: ${e.message}');
+      debugPrint('SocketException: ${e.message}');
       throw RefillException(
         code: -1,
         message: 'Impossible de se connecter au serveur',
       );
     } on TimeoutException catch (e) {
-      print('TimeoutException: ${e.message}');
+      debugPrint('TimeoutException: ${e.message}');
       throw RefillException(
         code: -1,
         message: 'Délai d\'attente dépassé',
       );
     } on http.ClientException catch (e) {
-      print('ClientException: ${e.message}');
+      debugPrint('ClientException: ${e.message}');
       throw RefillException(
         code: -1,
         message: 'Erreur de connexion: ${e.message}',
       );
     } on FormatException catch (e) {
-      print('FormatException: ${e.message}');
+      debugPrint('FormatException: ${e.message}');
       throw RefillException(
         code: -2,
         message: 'Erreur de format de réponse',
       );
     } catch (e, stackTrace) {
-      print('Exception générale: $e');
-      print('StackTrace: $stackTrace');
+      debugPrint('Exception générale: $e');
+      debugPrint('StackTrace: $stackTrace');
       throw RefillException(
         code: -3,
         message: 'Erreur inattendue: $e',
@@ -251,24 +251,6 @@ class RefillService {
         code: -103,
         message: 'Le code de recharge doit contenir exactement 12 chiffres',
       );
-    }
-  }
-
-  /// Teste si le serveur API est accessible
-  static Future<void> testApiServer() async {
-    try {
-      print('=== TEST SERVEUR API ===');
-      
-      final response = await http.get(
-        Uri.parse('${AppConfig.baseUrl}/air/refill/types'),
-        headers: {'Accept': 'application/json'},
-      ).timeout(const Duration(seconds: 10));
-      
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
-      
-    } catch (e) {
-      print('Erreur test serveur: $e');
     }
   }
 

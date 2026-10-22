@@ -3,6 +3,7 @@
 import '../models/forfait.dart';
 import 'config_service.dart';
 import 'ussd_service.dart';
+import 'package:flutter/foundation.dart';
 
 class ForfaitManager {
   final ConfigService _configService = ConfigService();
@@ -28,7 +29,7 @@ class ForfaitManager {
         return !response.contains('Erreur') && 
                (response.contains('succès') || response.contains('activé'));
       } catch (e) {
-        print('Erreur lors de l\'achat du forfait: $e');
+        debugPrint('Erreur lors de l\'achat du forfait: $e');
         return false;
       }
     }

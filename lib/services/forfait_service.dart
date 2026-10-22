@@ -1,6 +1,7 @@
 // lib/services/forfait_service.dart
 
 import '../models/forfait.dart';
+import 'package:flutter/foundation.dart';
 
 class ForfaitService {
   static Future<bool> acheterForfait(Forfait forfait, double soldeActuel) async {
@@ -15,7 +16,7 @@ class ForfaitService {
       await Future.delayed(const Duration(seconds: 1));
       return true;
     } catch (e) {
-      print('Erreur lors de l\'achat: $e');
+      debugPrint('Erreur lors de l\'achat: $e');
       return false;
     }
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 // Une classe simple pour gérer les appels USSD
 class UssdService {
@@ -81,7 +82,7 @@ class UssdService {
       }
       
     } catch (e) {
-      print('Erreur lors de l\'analyse de la réponse: $e');
+      debugPrint('Erreur lors de l\'analyse de la réponse: $e');
     }
     
     return result;

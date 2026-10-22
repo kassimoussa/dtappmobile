@@ -1,5 +1,6 @@
 // lib/services/user_service.dart
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
 class UserService {
   // Utilise la même clé que UserSession pour le dernier numéro utilisé
@@ -11,7 +12,7 @@ class UserService {
       final prefs = await SharedPreferences.getInstance();
       return await prefs.setString(_lastUsedPhoneKey, phoneNumber);
     } catch (e) {
-      print('Erreur lors de l\'enregistrement du numéro: $e');
+      debugPrint('Erreur lors de l\'enregistrement du numéro: $e');
       return false;
     }
   }
@@ -22,7 +23,7 @@ class UserService {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getString(_lastUsedPhoneKey);
     } catch (e) {
-      print('Erreur lors de la récupération du numéro: $e');
+      debugPrint('Erreur lors de la récupération du numéro: $e');
       return null;
     }
   }
@@ -33,7 +34,7 @@ class UserService {
       final prefs = await SharedPreferences.getInstance();
       return prefs.containsKey(_lastUsedPhoneKey);
     } catch (e) {
-      print('Erreur lors de la vérification du numéro: $e');
+      debugPrint('Erreur lors de la vérification du numéro: $e');
       return false;
     }
   }
@@ -44,7 +45,7 @@ class UserService {
       final prefs = await SharedPreferences.getInstance();
       return await prefs.remove(_lastUsedPhoneKey);
     } catch (e) {
-      print('Erreur lors de la suppression du numéro: $e');
+      debugPrint('Erreur lors de la suppression du numéro: $e');
       return false;
     }
   }
