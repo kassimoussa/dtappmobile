@@ -9,7 +9,6 @@ This is a Flutter mobile application for DT Mobile (Djibouti Telecom) that provi
 - Balance checking and management
 - Forfait (package) purchasing and management
 - Money transfers and credit transfers
-- USSD code integration for telecom operations
 - Refill services via voucher codes
 
 The app is built for the Djibouti telecommunications market with specific integrations for Djibouti Telecom's backend systems.
@@ -111,24 +110,11 @@ Handles balance checking and management:
 - **Phone Number Processing**: Automatically formats numbers with country code
 - **Error Handling**: Comprehensive error handling with user-friendly messages
 
-### UssdService (`lib/services/ussd_service.dart`)
-Manages USSD code communication with native platform:
-- **Platform Channel**: Uses method channel `com.example.dtapp2/ussd`
-- **Balance Checking**: Specific USSD codes for Djibouti Telecom (*168#)
-- **Response Parsing**: Extracts balance, expiration dates, and bonus information
-- **Cross-Platform**: Works on both Android and iOS with native implementations
-
 ### OtpService (`lib/services/otp_service.dart`)
 Handles OTP verification for authentication:
 - **SMS Integration**: Works with `sms_autofill` package for automatic OTP detection
 - **API Integration**: Connects to backend OTP verification endpoints
 - **Session Integration**: Creates user sessions upon successful verification
-
-### ForfaitService (`lib/services/forfait_service.dart`)
-Manages package purchasing and management:
-- **Purchase Logic**: Handles forfait purchasing with balance validation
-- **API Integration**: Connects to backend for package operations
-- **Error Handling**: Validates sufficient balance before purchases
 
 ## Theme and Design System
 
@@ -161,7 +147,6 @@ Primary colors are defined in `AppTheme` (`lib/constants/app_theme.dart`):
 - **http**: HTTP client for API communication
 - **flutter_contacts**: Contact access for phone number selection
 - **sms_autofill**: Automatic OTP detection and filling
-- **percent_indicator**: Progress indicators for data usage and loading states
 
 ### Phone Number Validation
 The app includes sophisticated phone number validation in `PhoneNumberValidator`:
@@ -225,12 +210,10 @@ The app includes sophisticated phone number validation in `PhoneNumberValidator`
 ## Platform-Specific Considerations
 
 ### Android
-- **USSD Integration**: Native Android implementation required for USSD functionality
 - **SMS Permissions**: Required for OTP auto-fill
 - **Phone State Permissions**: For phone number detection
 
 ### iOS
-- **USSD Limitations**: iOS has restricted USSD access
 - **SMS Integration**: Uses native iOS SMS handling
 - **Privacy Permissions**: Proper permission handling for contacts and SMS
 
