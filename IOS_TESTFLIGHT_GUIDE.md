@@ -116,8 +116,21 @@ Les builds TestFlight expirent après 90 jours.
 
 ## Avant l'App Store (pas bloquant pour TestFlight interne)
 
-- Retirer le bypass SSL `_TrustAllCerts` dans `lib/main.dart` (motif de rejet + faille) —
-  le bon correctif est la chaîne de certificats côté serveur
-- Vérifier que l'app pointe vers l'API publique (pas l'IP privée `10.39.230.106`)
+- ✅ Bypass SSL `_TrustAllCerts` retiré : l'app valide désormais les certificats
+  (domaine et IP de secours, toujours en HTTPS).
+- ✅ Plus aucune IP privée dans le code (le backend est le domaine public).
+- ✅ `NSBonjourServices` et `NSLocalNetworkUsageDescription` retirés d'`Info.plist` : le script
+  de build de Flutter les ajoute lui-même, en debug et profile seulement.
+- **Exceptions HTTP en clair (ATS)** dans `Info.plist` : `196.201.193.252` (soupape dormante
+  du backend) et `ookla.djiboutitelecom.dj` (test de débit, certificat expiré). Apple peut
+  demander une justification : soit les retirer (renouveler le certificat du serveur de test
+  de débit, puis supprimer les deux exceptions), soit les expliquer dans les notes de review.
+- **Politique de confidentialité** : URL publique exigée dans App Store Connect, ainsi que le
+  questionnaire « App Privacy » (numéro de téléphone, contacts, position, jeton de notification).
+- **Suppression de compte** : Apple (règle 5.1.1(v)) l'exige pour les apps qui permettent de
+  créer un compte. À valider avec Djibouti Telecom (connexion par numéro + OTP, profil, PIN).
+- **App Check** : `Runner.entitlements` n'a pas l'entitlement App Attest
+  (`com.apple.developer.devicecheck.appattest-environment`). Sans conséquence tant que
+  l'application d'App Check n'est pas activée dans la console Firebase ; à ajouter avant.
 - TestFlight utilise l'environnement APNs **production** : un token FCM obtenu en
   build debug ne recevra pas les push d'un build TestFlight (re-tester avec le build TestFlight)
