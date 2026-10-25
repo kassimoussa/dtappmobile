@@ -28,16 +28,10 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSBonjourServices</key>
-	<array>
-		<string>_dartobservatory._tcp</string>
-	</array>
 	<key>NSContactsUsageDescription</key>
 	<string>Cette application a besoin d'accéder à vos contacts pour vous permettre de sélectionner un destinataire.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Cette application utilise Face ID pour sécuriser vos achats et transferts.</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>This app needs access to the local network for debugging.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Votre position permet de vous situer sur la carte et de trouver les agences Djibouti Telecom les plus proches de vous.</string>
 	<!-- SOUPAPE DORMANTE : l'app parle exclusivement HTTPS (domaine et IP ont
