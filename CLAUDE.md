@@ -210,8 +210,8 @@ The app includes sophisticated phone number validation in `PhoneNumberValidator`
 ## Platform-Specific Considerations
 
 ### Android
-- **SMS Permissions**: Required for OTP auto-fill
-- **Phone State Permissions**: For phone number detection
+- **OTP auto-fill**: uses the SMS Retriever API (`sms_autofill`), which needs **no** SMS permission. Do not add `READ_SMS` / `RECEIVE_SMS` back: Google Play reserves them for default SMS apps. The SMS must end with the app signature hash, which depends on the signing key (see `ANDROID_PLAY_STORE_GUIDE.md`).
+- **Release signing**: `android/key.properties` (git-ignored) is required; without it the release build falls back to the debug key, which Google Play rejects.
 
 ### iOS
 - **SMS Integration**: Uses native iOS SMS handling

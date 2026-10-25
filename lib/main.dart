@@ -9,7 +9,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'generated/l10n/app_localizations.dart';
@@ -139,7 +138,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    _requestPermissions();
 
     // Ajouter l'observateur pour le cycle de vie de l'application
     WidgetsBinding.instance.addObserver(this);
@@ -191,10 +189,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       default:
         break;
     }
-  }
-
-  Future<void> _requestPermissions() async {
-    await [Permission.phone, Permission.sms].request();
   }
 
   @override

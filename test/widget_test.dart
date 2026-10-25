@@ -12,15 +12,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Remplace les plugins que MyApp touche au démarrage : sans eux, leurs appels
 /// natifs lèvent MissingPluginException dans l'environnement de test.
+///
+/// permission_handler n'est volontairement pas simulé : l'app ne demande
+/// aucune permission au démarrage (l'OTP passe par SMS Retriever, sans
+/// permission). Si un appel y était réintroduit, MissingPluginException ferait
+/// échouer ce test.
 void _mockStartupPlugins() {
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
-  // permission_handler : MyApp demande téléphone et SMS au démarrage.
-  messenger.setMockMethodCallHandler(
-    const MethodChannel('flutter.baseflow.com/permissions/methods'),
-    (call) async => <int, int>{},
-  );
   // connectivity_plus : état initial « wifi » puis flux sans événement.
   messenger.setMockMethodCallHandler(
     const MethodChannel('dev.fluttercommunity.plus/connectivity'),
@@ -32,10 +32,6 @@ void _mockStartupPlugins() {
   );
 
   addTearDown(() {
-    messenger.setMockMethodCallHandler(
-      const MethodChannel('flutter.baseflow.com/permissions/methods'),
-      null,
-    );
     messenger.setMockMethodCallHandler(
       const MethodChannel('dev.fluttercommunity.plus/connectivity'),
       null,
