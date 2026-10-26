@@ -27,7 +27,13 @@ keytool -genkeypair -v \
   -alias upload
 ```
 
-- Choisir deux mots de passe solides (magasin et clé) et les mettre dans un gestionnaire de mots de passe.
+- Choisir **un seul** mot de passe solide et le mettre dans un gestionnaire de mots de passe.
+  `keytool` crée un trousseau au format PKCS12, qui n'admet pas de mot de passe de clé distinct :
+  un second mot de passe est ignoré (vérifié avec Java 24 : « les mots de passe de clé et de banque
+  distincts ne sont pas pris en charge pour les fichiers de clés d'accès PKCS12 »). Le renseigner
+  donc **deux fois à l'identique** dans `key.properties`.
+- Les questions d'identité (nom, organisation, pays) ne sont pas affichées aux utilisateurs :
+  mettre par exemple `Djibouti Telecom` / `DT` / `DJ`.
 - **Garder le `.jks` hors du dépôt** et en **sauvegarder une copie** ailleurs (autre disque,
   coffre). Avec Play App Signing, une clé d'envoi perdue se réinitialise via le support
   Google, mais c'est lent : mieux vaut ne pas la perdre.
@@ -35,10 +41,16 @@ keytool -genkeypair -v \
 Créer `android/key.properties` (le fichier est déjà dans `android/.gitignore`, ne pas le commiter) :
 
 ```properties
-storePassword=<mot de passe du magasin>
-keyPassword=<mot de passe de la clé>
+storePassword=<le mot de passe choisi>
+keyPassword=<le même mot de passe>
 keyAlias=upload
 storeFile=/Users/<votre-utilisateur>/keystores/dtappmobile-upload.jks
+```
+
+Noter dès maintenant les empreintes de la clé d'envoi (utiles à l'étape 5 pour tester une release en local) :
+
+```bash
+keytool -list -v -keystore ~/keystores/dtappmobile-upload.jks -alias upload | grep -i "SHA"
 ```
 
 ## Étape 2 — Construire le bundle signé
