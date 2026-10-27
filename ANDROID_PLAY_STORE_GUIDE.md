@@ -50,7 +50,7 @@ storeFile=/Users/<votre-utilisateur>/keystores/dtappmobile-upload.jks
 Noter dès maintenant les empreintes de la clé d'envoi (utiles à l'étape 5 pour tester une release en local) :
 
 ```bash
-keytool -list -v -keystore ~/keystores/dtappmobile-upload.jks -alias upload | grep -i "SHA"
+keytool -J-Duser.language=en -list -v -keystore ~/keystores/dtappmobile-upload.jks -alias upload | grep -E "SHA|Owner"
 ```
 
 ## Étape 2 — Construire le bundle signé
@@ -61,10 +61,12 @@ flutter build appbundle --release
 
 Résultat : `build/app/outputs/bundle/release/app-release.aab`.
 
-**Vérifier la signature avant d'envoyer** — le propriétaire ne doit PAS être « Android Debug » :
+**Vérifier la signature avant d'envoyer** — le propriétaire (`Owner`) ne doit PAS être « Android Debug » :
+(`-J-Duser.language=en` est nécessaire : avec Java 24 et un système en français, `keytool` plante à
+l'affichage d'un certificat avec `MissingFormatArgumentException`.)
 
 ```bash
-keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab | head -5
+keytool -J-Duser.language=en -printcert -jarfile build/app/outputs/bundle/release/app-release.aab | head -6
 ```
 
 ⚠️ Incrémenter le numéro de build dans `pubspec.yaml` à **chaque** envoi
