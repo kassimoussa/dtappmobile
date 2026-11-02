@@ -11,6 +11,30 @@ import '../widgets/promo_popup_dialog.dart';
 class LogoutService {
   static String get logoutUrl => '${AppConfig.baseUrl}/mobile/logout';
 
+  /// Révoque côté serveur un jeton déjà retiré de l'appareil. Ne lève jamais :
+  /// sans réseau, la session locale est de toute façon terminée.
+  ///
+  /// Reçoit le jeton en paramètre plutôt que de le lire dans [UserSession] :
+  /// l'appelant a déjà nettoyé la session locale, et une réponse tardive ne
+  /// doit pas pouvoir effacer une session créée entre-temps.
+  static Future<void> revokeToken(String sessionToken) async {
+    try {
+      final response = await http
+          .post(
+            Uri.parse(logoutUrl),
+            headers: {
+              ...ApiClient.publicHeaders,
+              'Authorization': 'Bearer $sessionToken',
+            },
+            body: jsonEncode({'session_token': sessionToken}),
+          )
+          .timeout(const Duration(seconds: 10));
+      debugPrint('Logout (révocation) API: ${response.statusCode}');
+    } catch (e) {
+      debugPrint('⚠️ Révocation du jeton impossible: $e');
+    }
+  }
+
   /// Effectue la déconnexion complète (API + local)
   /// NOTE: Le token FCM n'est PAS supprimé pour permettre les notifications
   /// même après déconnexion
@@ -26,7 +50,9 @@ class LogoutService {
         return true;
       }
 
-      debugPrint('Logout: Appel API avec token: ${sessionToken.substring(0, 10)}...');
+      debugPrint(
+        'Logout: Appel API avec token: ${sessionToken.substring(0, 10)}...',
+      );
 
       // Le token FCM est conservé volontairement pour continuer à recevoir
       // les notifications même après déconnexion (transferts, cadeaux, etc.)
@@ -36,9 +62,7 @@ class LogoutService {
       final response = await http.post(
         Uri.parse(logoutUrl),
         headers: await ApiClient.authHeaders(),
-        body: jsonEncode({
-          'session_token': sessionToken,
-        }),
+        body: jsonEncode({'session_token': sessionToken}),
       );
 
       debugPrint('Logout API: ${response.statusCode} - ${response.body}');

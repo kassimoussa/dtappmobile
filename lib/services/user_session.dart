@@ -3,9 +3,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../enums/payment_auth_method.dart';
+import 'profile_cache.dart';
 
 /// Service pour gérer la session utilisateur
-/// La session expire après 5 minutes d'inactivité (persiste entre les fermetures d'app)
+/// La session expire après 5 minutes d'inactivité. Elle survit à une mise en
+/// arrière-plan, pas à une fermeture de l'app : au démarrage à froid,
+/// `AuthProvider` termine la session encore présente sur le disque.
 class UserSession {
   /// Durée d'inactivité avant expiration de session
   static const Duration _inactivityTimeout = Duration(minutes: 5);
@@ -122,9 +125,11 @@ class UserSession {
     debugPrint('Application passée en arrière-plan à: $now');
   }
 
-  /// Doit être appelé quand l'application est complètement fermée
-  /// Le timestamp de dernière activité est déjà persisté — la session
-  /// expirera naturellement si l'inactivité dépasse 5 minutes
+  /// Appelé quand l'application est complètement fermée.
+  ///
+  /// Sur mobile ce rappel n'est pas fiable (un balayage dans les apps récentes
+  /// tue le processus sans le prévenir) : la fin de session ne repose donc pas
+  /// dessus mais sur le démarrage à froid suivant, voir `AuthProvider`.
   static Future<void> appTerminated() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_isAppRunningKey, false);
@@ -265,8 +270,11 @@ class UserSession {
     _cachedIsAuthenticated = false;
     _cachedSessionToken = null;
     _cachedHasPin = null;
+    ProfileCache.clear();
 
-    debugPrint('Session utilisateur terminée - Numéro conservé pour réutilisation');
+    debugPrint(
+      'Session utilisateur terminée - Numéro conservé pour réutilisation',
+    );
   }
 
   /// Supprime toutes les données, y compris le dernier numéro utilisé
@@ -290,6 +298,7 @@ class UserSession {
     _cachedLastUsedPhone = null;
     _cachedSessionToken = null;
     _cachedHasPin = null;
+    ProfileCache.clear();
 
     debugPrint('Toutes les données utilisateur supprimées');
   }
@@ -314,7 +323,9 @@ class UserSession {
   ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('$_isBiometricEnabledPrefix$phoneNumber', enabled);
-    debugPrint('Biométrie ${enabled ? "activée" : "désactivée"} pour $phoneNumber');
+    debugPrint(
+      'Biométrie ${enabled ? "activée" : "désactivée"} pour $phoneNumber',
+    );
   }
 
   static const String _paymentAuthMethodPrefix = 'payment_auth_method_';
@@ -375,9 +386,7 @@ class UserSession {
   // ==================== Stockage sécurisé du PIN pour biométrie ====================
 
   static const _secureStorage = FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true,
-    ),
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
 
   static const String _securePinPrefix = 'secure_pin_';
@@ -424,7 +433,8 @@ class UserSession {
 
   // ==================== Migration : correction faille biométrie ====================
 
-  static const String _biometricMigrationDoneKey = 'biometric_scope_migration_v1_done';
+  static const String _biometricMigrationDoneKey =
+      'biometric_scope_migration_v1_done';
 
   /// Corrige une faille où l'activation de la biométrie sur un compte
   /// s'appliquait à tous les numéros utilisés sur l'appareil : l'ancien

@@ -13,7 +13,7 @@
     "cancel": "Cancel",
     "logoutAction": "Log out",
     "logoutError": "Error during logout",
-    "welcomeMessage": "Welcome, {phoneNumber}",
+    "welcomeMessage": "Welcome, {name}",
     "mainAccount": "Main Account",
     "bonusBalance": "Bonus Balance",
     "expiresOn": "Expires on {date}",

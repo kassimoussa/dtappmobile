@@ -4,15 +4,20 @@ import 'package:dtservices/config/app_config.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'profile_cache.dart';
 import 'user_session.dart';
 
 class ProfileService {
   static String get profileUrl => '${AppConfig.baseUrl}/mobile/profile';
-  static String get updateProfileUrl => '${AppConfig.baseUrl}/mobile/update-profile';
+  static String get updateProfileUrl =>
+      '${AppConfig.baseUrl}/mobile/update-profile';
 
   /// Cache en mémoire du dernier profil chargé, pour éviter d'afficher
-  /// l'écran de chargement à chaque ouverture de l'écran profil.
-  static Map<String, dynamic>? cachedProfile;
+  /// l'écran de chargement à chaque ouverture de l'écran profil. Il vit dans
+  /// [ProfileCache], que l'accueil écoute pour afficher le prénom.
+  static Map<String, dynamic>? get cachedProfile => ProfileCache.profile.value;
+  static set cachedProfile(Map<String, dynamic>? value) =>
+      ProfileCache.profile.value = value;
 
   /// Récupère le profil utilisateur complet
   static Future<Map<String, dynamic>?> getUserProfile() async {
@@ -24,22 +29,22 @@ class ProfileService {
         return null;
       }
 
-      debugPrint('Profile Service: Récupération profil avec token: ${sessionToken.substring(0, 10)}...');
+      debugPrint(
+        'Profile Service: Récupération profil avec token: ${sessionToken.substring(0, 10)}...',
+      );
 
       // Appeler l'API
       final response = await http.post(
         Uri.parse(profileUrl),
         headers: await ApiClient.authHeaders(),
-        body: jsonEncode({
-          'session_token': sessionToken,
-        }),
+        body: jsonEncode({'session_token': sessionToken}),
       );
 
       debugPrint('Profile API: ${response.statusCode} - ${response.body}');
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        
+
         if (responseData['status'] == 'success') {
           cachedProfile = responseData['data'];
           return cachedProfile;
@@ -70,12 +75,12 @@ class ProfileService {
         return false;
       }
 
-      debugPrint('Update Profile: Mise à jour avec token: ${sessionToken.substring(0, 10)}...');
+      debugPrint(
+        'Update Profile: Mise à jour avec token: ${sessionToken.substring(0, 10)}...',
+      );
 
       // Préparer les données
-      final payload = {
-        'session_token': sessionToken,
-      };
+      final payload = {'session_token': sessionToken};
 
       // Ajouter seulement les champs non vides
       if (name.isNotEmpty) {
@@ -94,7 +99,9 @@ class ProfileService {
         body: jsonEncode(payload),
       );
 
-      debugPrint('Update Profile API: ${response.statusCode} - ${response.body}');
+      debugPrint(
+        'Update Profile API: ${response.statusCode} - ${response.body}',
+      );
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);

@@ -16,10 +16,10 @@
     "cancel": "Annuler",
     "logoutAction": "Déconnecter",
     "logoutError": "Erreur lors de la déconnexion",
-    "welcomeMessage": "Bienvenue, {phoneNumber}",
+    "welcomeMessage": "Bienvenue, {name}",
     "@welcomeMessage": {
       "placeholders": {
-        "phoneNumber": {
+        "name": {
           "type": "String"
         }
       }

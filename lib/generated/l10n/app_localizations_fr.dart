@@ -49,8 +49,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get logoutError => 'Erreur lors de la déconnexion';
 
   @override
-  String welcomeMessage(String phoneNumber) {
-    return 'Bienvenue, $phoneNumber';
+  String welcomeMessage(String name) {
+    return 'Bienvenue, $name';
   }
 
   @override

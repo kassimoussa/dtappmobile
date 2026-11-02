@@ -179,8 +179,8 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Bienvenue, {phoneNumber}'**
-  String welcomeMessage(String phoneNumber);
+  /// **'Bienvenue, {name}'**
+  String welcomeMessage(String name);
 
   /// No description provided for @mainAccount.
   ///

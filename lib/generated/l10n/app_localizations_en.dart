@@ -48,8 +48,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logoutError => 'Error during logout';
 
   @override
-  String welcomeMessage(String phoneNumber) {
-    return 'Welcome, $phoneNumber';
+  String welcomeMessage(String name) {
+    return 'Welcome, $name';
   }
 
   @override

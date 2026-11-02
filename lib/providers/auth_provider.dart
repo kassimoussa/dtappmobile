@@ -1,4 +1,6 @@
 // lib/providers/auth_provider.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../services/notification_store.dart';
 import '../services/otp_rate_limiter.dart';
@@ -88,34 +90,32 @@ class AuthProvider extends ChangeNotifier {
     _sessionExpiredWhileAway = false;
   }
 
-  /// Charge la session existante depuis SharedPreferences
-  Future<void> _loadExistingSession() async {
+  /// Termine la session laissée par l'exécution précédente.
+  ///
+  /// Ce constructeur ne tourne qu'au démarrage du processus. Une session
+  /// encore valide sur le disque signifie donc que l'app a été fermée (ou tuée
+  /// par le système) : si elle n'avait fait que passer en arrière-plan, le
+  /// processus aurait survécu et on ne passerait pas ici. Mettre l'app en
+  /// arrière-plan garde la session (5 min, voir [appResumed]), la fermer la
+  /// termine : l'utilisateur se reconnecte, au PIN ou à la biométrie s'il en a.
+  Future<void> _endSessionLeftByPreviousRun() async {
     try {
-      final isAuth = await UserSession.isAuthenticated();
-
-      if (isAuth) {
-        _phoneNumber = await UserSession.getPhoneNumber();
-        _sessionToken = await UserSession.getSessionToken();
-        _hasPin = await UserSession.hasPin(); // Charger l'état du PIN
-        _isAuthenticated = true;
-        _lastActivityTime = DateTime.now();
-
-        // Indispensable : NotificationStore scope ses données par numéro et
-        // ignore silencieusement load(), add() et la file d'attente tant qu'il
-        // n'a pas de numéro. Sans cet appel, seule une connexion neuve
-        // (_createSession) l'initialise, et toute session restaurée au
-        // démarrage perd l'historique et les notifications reçues.
-        await NotificationStore().switchUser(_phoneNumber ?? '');
-
-        debugPrint(
-          'AuthProvider: Session existante chargée pour $_phoneNumber (PIN: $_hasPin)',
-        );
-        notifyListeners();
-      } else {
+      if (!await UserSession.isAuthenticated()) {
         debugPrint('AuthProvider: Aucune session active');
+        return;
+      }
+
+      final token = await UserSession.getSessionToken();
+      // Local d'abord : la révocation serveur est lente et facultative.
+      await UserSession.clearSession();
+      await TopUpSession.clearSession();
+      debugPrint('AuthProvider: Session de l\'exécution précédente terminée');
+
+      if (token != null && token.isNotEmpty) {
+        unawaited(LogoutService.revokeToken(token));
       }
     } catch (e) {
-      debugPrint('AuthProvider: Erreur chargement session: $e');
+      debugPrint('AuthProvider: Erreur fin de session précédente: $e');
     }
   }
 
@@ -318,9 +318,9 @@ class AuthProvider extends ChangeNotifier {
 
   // ==================== Initialisation ====================
 
-  /// Constructeur - Charge la session existante si disponible
+  /// Constructeur - Termine la session d'une exécution précédente, s'il y en a
   AuthProvider() {
-    _loadExistingSession();
+    _endSessionLeftByPreviousRun();
   }
 
   // ==================== Opérations d'authentification ====================

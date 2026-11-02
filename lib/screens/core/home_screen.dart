@@ -15,6 +15,8 @@ import 'package:dtservices/services/user_session.dart';
 import '../../providers/balance_provider.dart';
 import '../../services/notification_store.dart';
 import '../../services/offers_service.dart';
+import '../../services/profile_cache.dart';
+import '../../services/profile_service.dart';
 import '../notifications/notifications_screen.dart';
 import '../user/profile_screen.dart';
 
@@ -80,6 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _notifStore.addListener(_onNotifChanged);
     SeasonalEventService.active.addListener(_onNotifChanged);
+    // Le prénom de l'en-tête suit le profil (chargé ci-dessous, ou modifié
+    // depuis l'onglet profil).
+    ProfileCache.profile.addListener(_onNotifChanged);
     _loadUserData();
   }
 
@@ -91,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _notifStore.removeListener(_onNotifChanged);
     SeasonalEventService.active.removeListener(_onNotifChanged);
+    ProfileCache.profile.removeListener(_onNotifChanged);
     _balancePageController.dispose();
     super.dispose();
   }
@@ -101,6 +107,9 @@ class _HomeScreenState extends State<HomeScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<BalanceProvider>().loadBalance();
         OffersService.prefetch();
+        // Sans attendre : l'en-tête affiche le numéro jusqu'à l'arrivée du
+        // prénom, et reste sur le numéro si le profil n'en a pas.
+        ProfileService.getUserProfile();
       });
     }
   }
@@ -131,7 +140,10 @@ class _HomeScreenState extends State<HomeScreen> {
     SeasonalEventService.refresh();
 
     // Lancer les rafraîchissements en parallèle
-    final futures = <Future>[context.read<BalanceProvider>().refreshBalance()];
+    final futures = <Future>[
+      context.read<BalanceProvider>().refreshBalance(),
+      ProfileService.getUserProfile(),
+    ];
 
     // Rafraîchir TopUp si une session est active
     final topUpProvider = context.read<TopUpProvider>();
@@ -353,7 +365,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 horizontal: ResponsiveSize.getWidth(8),
               ),
               child: Text(
-                l10n.welcomeMessage(_normalPhoneNumber),
+                l10n.welcomeMessage(
+                  ProfileCache.firstName(ProfileCache.profile.value) ??
+                      _normalPhoneNumber,
+                ),
                 style: TextStyle(
                   fontFamily: 'Outfit',
                   color: Colors.white,

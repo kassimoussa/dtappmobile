@@ -46,7 +46,7 @@ The project uses `flutter_lints` for code analysis. Configuration is in `analysi
 
 ### Core Architecture Patterns
 - **Service Layer Pattern**: Business logic is separated into service classes in `lib/services/`
-- **Session Management**: Sophisticated user session handling with automatic expiration (10 minutes of inactivity)
+- **Session Management**: Sophisticated user session handling with automatic expiration (5 minutes of inactivity)
 - **Responsive Design**: Custom responsive sizing system that adapts to different screen sizes
 - **State Management**: Built-in Flutter state management with StatefulWidget pattern
 - **API Integration**: HTTP-based API calls to backend services with proper error handling
@@ -70,7 +70,8 @@ lib/
 
 #### Session Management System
 The app implements a sophisticated session management system in `UserSession` (`lib/services/user_session.dart`):
-- **Automatic Expiration**: Sessions expire after 10 minutes of inactivity
+- **Automatic Expiration**: Sessions expire after 5 minutes of inactivity
+- **Background vs closed**: putting the app in the background keeps the session (resume within 5 min); closing the app ends it. A valid session found on disk at process start (cold start) means the app was closed or killed, so `AuthProvider` clears it locally and revokes the token server-side (`LogoutService.revokeToken`). The user logs in again (PIN/biometrics if set up). Android killing a background app looks the same and also ends the session.
 - **App Lifecycle Integration**: Tracks when app goes to background/foreground
 - **Cached Data**: Uses in-memory caching for performance optimization
 - **SharedPreferences**: Persistent storage for session data
@@ -188,7 +189,7 @@ The app includes sophisticated phone number validation in `PhoneNumberValidator`
 ## Security Considerations
 
 - **OTP-Based Authentication**: Secure phone number verification
-- **Session Timeout**: Automatic logout after 10 minutes of inactivity
+- **Session Timeout**: Automatic logout after 5 minutes of inactivity, and on app closure
 - **Data Validation**: Input validation for all user inputs
 - **API Security**: Proper error handling without exposing sensitive information
 - **Local Storage**: Secure storage of user session data
