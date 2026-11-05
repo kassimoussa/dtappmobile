@@ -64,6 +64,45 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get forfaitReminderTitle => 'Your package is about to expire';
+
+  @override
+  String get forfaitReminderTitleFinal => 'Your package expires in a few hours';
+
+  @override
+  String forfaitReminderEarly(String name, String date) {
+    return '$name expires on $date. Remember to renew it.';
+  }
+
+  @override
+  String forfaitReminderEarlyData(String name, String date, String left) {
+    return '$name expires on $date. You have $left left: remember to renew it.';
+  }
+
+  @override
+  String forfaitReminderFinal(String name, String date) {
+    return '$name expires on $date. Remember to renew it.';
+  }
+
+  @override
+  String forfaitReminderFinalData(String name, String date) {
+    return '$name expires on $date. Without a new package, your mobile internet will be charged to your credit.';
+  }
+
+  @override
+  String get forfaitReminderToggle => 'Expiry reminder';
+
+  @override
+  String forfaitReminderOnSnack(String name) {
+    return 'Reminder on for $name';
+  }
+
+  @override
+  String forfaitReminderOffSnack(String name) {
+    return 'Reminder off for $name';
+  }
+
+  @override
   String get buyPackage => 'Buy\nPackage';
 
   @override

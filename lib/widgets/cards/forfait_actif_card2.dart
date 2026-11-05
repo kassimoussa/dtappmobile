@@ -10,7 +10,17 @@ import '../../generated/l10n/app_localizations.dart';
 class ForfaitActifCard2 extends StatelessWidget {
   final ForfaitActif2 forfait;
 
-  const ForfaitActifCard2({super.key, required this.forfait});
+  /// Rappel d'expiration actif pour ce forfait. La cloche n'apparaît que si
+  /// [onReminderToggle] est fourni.
+  final bool reminderOn;
+  final VoidCallback? onReminderToggle;
+
+  const ForfaitActifCard2({
+    super.key,
+    required this.forfait,
+    this.reminderOn = false,
+    this.onReminderToggle,
+  });
 
   // Fonction pour formater la date de l'API
   String _formatDate(String dateString) {
@@ -55,7 +65,9 @@ class ForfaitActifCard2 extends StatelessWidget {
                       children: [
                         Text(
                           forfait.nom,
-                          maxLines: 1,
+                          // Deux lignes : la date et la cloche laissent peu de
+                          // place au nom sur un petit écran.
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 18,
@@ -94,6 +106,22 @@ class ForfaitActifCard2 extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (onReminderToggle != null)
+                    IconButton(
+                      onPressed: onReminderToggle,
+                      tooltip:
+                          AppLocalizations.of(context)!.forfaitReminderToggle,
+                      visualDensity: VisualDensity.compact,
+                      padding: const EdgeInsets.only(left: 6),
+                      constraints: const BoxConstraints(),
+                      icon: Icon(
+                        reminderOn
+                            ? Icons.notifications_active_rounded
+                            : Icons.notifications_off_outlined,
+                        size: 22,
+                        color: reminderOn ? AppTheme.dtBlue : Colors.grey,
+                      ),
+                    ),
                 ],
               ),
               const SizedBox(height: 16),

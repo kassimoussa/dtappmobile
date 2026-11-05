@@ -2,6 +2,8 @@
 import 'package:dtservices/models/forfait_actif2.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/services/forfait_actif_service.dart';
+import 'package:dtservices/services/forfait_reminder_planner.dart';
+import 'package:dtservices/services/forfait_reminder_service.dart';
 import 'package:dtservices/widgets/cards/forfait_actif_card2.dart';
 import 'package:flutter/material.dart';
 
@@ -22,10 +24,50 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
   String? _errorMessage;
   DateTime? _lastUpdate;
 
+  /// Choix de rappel d'expiration de l'utilisateur, par produit.
+  Map<int, bool> _reminderOverrides = {};
+
   @override
   void initState() {
     super.initState();
     _loadForfaitsActifs();
+    _loadReminderOverrides();
+  }
+
+  Future<void> _loadReminderOverrides() async {
+    final overrides = await ForfaitReminderService.loadOverrides();
+    if (!mounted) return;
+    setState(() => _reminderOverrides = overrides);
+  }
+
+  Future<void> _toggleReminder(ForfaitActif2 forfait) async {
+    final enabled = !ForfaitReminderPlanner.isEnabled(
+      forfait,
+      _reminderOverrides,
+    );
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+
+    setState(() {
+      _reminderOverrides = {..._reminderOverrides, forfait.produitId: enabled};
+    });
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          enabled
+              ? l10n.forfaitReminderOnSnack(forfait.nom)
+              : l10n.forfaitReminderOffSnack(forfait.nom),
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    await ForfaitReminderService.setOverride(
+      forfait.produitId,
+      enabled,
+      _forfaitsActifs,
+    );
   }
 
   Future<void> _loadForfaitsActifs() async {
@@ -311,7 +353,15 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
                   padding: EdgeInsets.only(
                     bottom: ResponsiveSize.getHeight(AppTheme.spacingM),
                   ),
-                  child: ForfaitActifCard2(forfait: _forfaitsActifs[index]),
+                  child: ForfaitActifCard2(
+                    forfait: _forfaitsActifs[index],
+                    reminderOn: ForfaitReminderPlanner.isEnabled(
+                      _forfaitsActifs[index],
+                      _reminderOverrides,
+                    ),
+                    onReminderToggle: () =>
+                        _toggleReminder(_forfaitsActifs[index]),
+                  ),
                 );
               }, childCount: _forfaitsActifs.length),
             ),
@@ -407,26 +457,23 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
 
             // Progression totale des données - CORRIGÉE pour afficher le DISPONIBLE
-            Directionality(
-              textDirection: TextDirection.rtl,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                  ResponsiveSize.getWidth(AppTheme.radiusXS),
-                ),
-                child: LinearProgressIndicator(
-                  value:
-                      totalDataAvailableGo > 0
-                          ? totalDataRemainingGo /
-                              totalDataAvailableGo // Pourcentage RESTANT (sera pleine si tout est dispo)
-                          : 0,
-                  backgroundColor: Colors.grey.withValues(
-                    alpha: 0.2,
-                  ), // Fond gris = consommé
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    AppTheme.dtBlue,
-                  ), // Bleu = disponible
-                  minHeight: ResponsiveSize.getHeight(10),
-                ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(
+                ResponsiveSize.getWidth(AppTheme.radiusXS),
+              ),
+              child: LinearProgressIndicator(
+                value:
+                    totalDataAvailableGo > 0
+                        ? totalDataRemainingGo /
+                            totalDataAvailableGo // Pourcentage RESTANT (sera pleine si tout est dispo)
+                        : 0,
+                backgroundColor: Colors.grey.withValues(
+                  alpha: 0.2,
+                ), // Fond gris = consommé
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppTheme.dtBlue,
+                ), // Bleu = disponible
+                minHeight: ResponsiveSize.getHeight(10),
               ),
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),

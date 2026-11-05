@@ -13,6 +13,7 @@ import 'package:dtservices/screens/speedtest/speedtest_native_screen.dart';
 import 'package:dtservices/services/user_session.dart';
 
 import '../../providers/balance_provider.dart';
+import '../../services/forfait_actif_service.dart';
 import '../../services/notification_store.dart';
 import '../../services/offers_service.dart';
 import '../../services/profile_cache.dart';
@@ -110,6 +111,9 @@ class _HomeScreenState extends State<HomeScreen> {
         // Sans attendre : l'en-tête affiche le numéro jusqu'à l'arrivée du
         // prénom, et reste sur le numéro si le profil n'en a pas.
         ProfileService.getUserProfile();
+        // Garde les rappels d'expiration des forfaits à jour sans que
+        // l'utilisateur ouvre « Mes forfaits » (au plus une requête / 6 h).
+        ForfaitActifService.refreshRemindersIfStale();
       });
     }
   }

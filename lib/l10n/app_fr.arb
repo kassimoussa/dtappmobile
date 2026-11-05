@@ -34,6 +34,72 @@
         }
       }
     },
+    "forfaitReminderTitle": "Votre forfait expire bientôt",
+    "forfaitReminderTitleFinal": "Votre forfait expire dans quelques heures",
+    "forfaitReminderEarly": "{name} expire le {date}. Pensez à le renouveler.",
+    "@forfaitReminderEarly": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "forfaitReminderEarlyData": "{name} expire le {date}. Il vous reste {left} : pensez à le renouveler.",
+    "@forfaitReminderEarlyData": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "date": {
+          "type": "String"
+        },
+        "left": {
+          "type": "String"
+        }
+      }
+    },
+    "forfaitReminderFinal": "{name} expire le {date}. Pensez à le renouveler.",
+    "@forfaitReminderFinal": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "forfaitReminderFinalData": "{name} expire le {date}. Sans nouveau forfait, votre internet mobile sera décompté de votre crédit.",
+    "@forfaitReminderFinalData": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "forfaitReminderToggle": "Rappel d'expiration",
+    "forfaitReminderOnSnack": "Rappel activé pour {name}",
+    "@forfaitReminderOnSnack": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "forfaitReminderOffSnack": "Rappel désactivé pour {name}",
+    "@forfaitReminderOffSnack": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
     "buyPackage": "Achat de\nforfait",
     "creditRefill": "Recharge\nde crédit",
     "myPackages": "Mes\nforfaits",

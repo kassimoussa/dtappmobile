@@ -7,14 +7,22 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 import '../screens/core/main_screen.dart';
+import '../screens/forfaits_actifs/forfaits_actifs_screen.dart';
 import '../screens/notifications/notifications_screen.dart';
+import '../services/forfait_reminder_planner.dart';
 
 // ─── Canaux Android ──────────────────────────────────────────────────────────
 
 const _chTransactionsId = 'dtservices_transactions';
 const _chPromotionsId = 'dtservices_promotions';
 const _chSecurityId = 'dtservices_security';
+const _chForfaitExpiryId = 'dtservices_forfait_expiry';
+
+/// `type` du payload des rappels d'expiration : le toucher ouvre « Mes
+/// forfaits » plutôt que la liste des notifications.
+const _forfaitExpiryType = 'forfait_expiry';
 
 /// Teinte de la petite icône de notification. Doit rester alignée sur
 /// `notification_accent` dans android/app/src/main/res/values/colors.xml,
@@ -44,6 +52,15 @@ const _chSecurity = AndroidNotificationChannel(
   'Sécurité',
   description: 'OTP et alertes de sécurité',
   importance: Importance.max,
+  playSound: true,
+  enableVibration: true,
+);
+
+const _chForfaitExpiry = AndroidNotificationChannel(
+  _chForfaitExpiryId,
+  'Expiration des forfaits',
+  description: "Rappels avant l'expiration d'un forfait",
+  importance: Importance.high,
   playSound: true,
   enableVibration: true,
 );
@@ -122,7 +139,7 @@ class NotificationService {
       debugPrint('⚠️ Token FCM indisponible: $e');
     }
 
-    await _initLocalNotifications();
+    await _ensureLocalInit();
     await NotificationStore().load();
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -177,6 +194,18 @@ class NotificationService {
 
   // ─── Canaux locaux ────────────────────────────────────────────────────────
 
+  Future<void>? _localInit;
+
+  /// Initialise le plugin une seule fois. Les rappels d'expiration n'ont pas
+  /// besoin de FCM : ils passent par ici sans attendre [initNotifications],
+  /// qui s'arrête tôt sur un appareil sans services Google.
+  Future<void> _ensureLocalInit() {
+    return _localInit ??= _initLocalNotifications().catchError((Object e) {
+      _localInit = null;
+      throw e;
+    });
+  }
+
   Future<void> _initLocalNotifications() async {
     // Silhouette blanche sur transparent : Android ne garde que le canal alpha
     // de la petite icône. Un mipmap en couleur donnerait un carré blanc plein.
@@ -191,7 +220,11 @@ class NotificationService {
     await _localNotifications.initialize(
       const InitializationSettings(android: androidSettings, iOS: iosSettings),
       onDidReceiveNotificationResponse: (details) {
-        _goToNotifications();
+        if (_isForfaitExpiry(details.payload)) {
+          _goToForfaits();
+        } else {
+          _goToNotifications();
+        }
       },
     );
 
@@ -202,6 +235,17 @@ class NotificationService {
     await androidPlugin?.createNotificationChannel(_chTransactions);
     await androidPlugin?.createNotificationChannel(_chPromotions);
     await androidPlugin?.createNotificationChannel(_chSecurity);
+    await androidPlugin?.createNotificationChannel(_chForfaitExpiry);
+  }
+
+  bool _isForfaitExpiry(String? payload) {
+    if (payload == null || payload.isEmpty) return false;
+    try {
+      final data = jsonDecode(payload);
+      return data is Map && data['type'] == _forfaitExpiryType;
+    } catch (_) {
+      return false;
+    }
   }
 
   // ─── Réception unifiée ────────────────────────────────────────────────────
@@ -342,6 +386,73 @@ class NotificationService {
     );
   }
 
+  // ─── Rappels d'expiration des forfaits (locaux, programmés) ───────────────
+
+  /// Remplace tous les rappels d'expiration en attente par [reminders]. Renvoie
+  /// false si la programmation a échoué : l'appelant retentera plus tard.
+  ///
+  /// Les rappels sont inexacts (`inexactAllowWhileIdle`) : Android peut les
+  /// décaler de quelques minutes, sans permission d'alarme exacte.
+  Future<bool> replaceForfaitReminders(
+    List<({int id, tz.TZDateTime at, String title, String body})> reminders,
+  ) async {
+    try {
+      await _ensureLocalInit();
+      await _cancelPendingForfaitReminders();
+
+      const details = NotificationDetails(
+        android: AndroidNotificationDetails(
+          _chForfaitExpiryId,
+          'Expiration des forfaits',
+          importance: Importance.high,
+          priority: Priority.high,
+          color: _notificationAccent,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: false,
+          presentSound: true,
+        ),
+      );
+      final payload = jsonEncode({'type': _forfaitExpiryType});
+
+      for (final r in reminders) {
+        await _localNotifications.zonedSchedule(
+          r.id,
+          r.title,
+          r.body,
+          r.at,
+          details,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          payload: payload,
+        );
+      }
+      return true;
+    } catch (e) {
+      debugPrint("⚠️ Rappels d'expiration non programmés: $e");
+      return false;
+    }
+  }
+
+  Future<void> cancelForfaitReminders() async {
+    try {
+      await _ensureLocalInit();
+      await _cancelPendingForfaitReminders();
+    } catch (e) {
+      debugPrint("⚠️ Rappels d'expiration non annulés: $e");
+    }
+  }
+
+  Future<void> _cancelPendingForfaitReminders() async {
+    final pending = await _localNotifications.pendingNotificationRequests();
+    for (final p in pending) {
+      if (p.id >= ForfaitReminderPlanner.idBase &&
+          p.id < ForfaitReminderPlanner.idEnd) {
+        await _localNotifications.cancel(p.id);
+      }
+    }
+  }
+
   void _goToNotifications() {
     final nav = navigatorKey.currentState;
     if (nav == null) return;
@@ -351,6 +462,18 @@ class NotificationService {
     );
     nav.push(
       MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+    );
+  }
+
+  void _goToForfaits() {
+    final nav = navigatorKey.currentState;
+    if (nav == null) return;
+    nav.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const MainScreen()),
+      (route) => false,
+    );
+    nav.push(
+      MaterialPageRoute(builder: (_) => const ForfaitsActifsScreen()),
     );
   }
 }

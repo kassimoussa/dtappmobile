@@ -200,6 +200,60 @@ abstract class AppLocalizations {
   /// **'Expire le {date}'**
   String expiresOn(String date);
 
+  /// No description provided for @forfaitReminderTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre forfait expire bientôt'**
+  String get forfaitReminderTitle;
+
+  /// No description provided for @forfaitReminderTitleFinal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre forfait expire dans quelques heures'**
+  String get forfaitReminderTitleFinal;
+
+  /// No description provided for @forfaitReminderEarly.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} expire le {date}. Pensez à le renouveler.'**
+  String forfaitReminderEarly(String name, String date);
+
+  /// No description provided for @forfaitReminderEarlyData.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} expire le {date}. Il vous reste {left} : pensez à le renouveler.'**
+  String forfaitReminderEarlyData(String name, String date, String left);
+
+  /// No description provided for @forfaitReminderFinal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} expire le {date}. Pensez à le renouveler.'**
+  String forfaitReminderFinal(String name, String date);
+
+  /// No description provided for @forfaitReminderFinalData.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} expire le {date}. Sans nouveau forfait, votre internet mobile sera décompté de votre crédit.'**
+  String forfaitReminderFinalData(String name, String date);
+
+  /// No description provided for @forfaitReminderToggle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel d\'expiration'**
+  String get forfaitReminderToggle;
+
+  /// No description provided for @forfaitReminderOnSnack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel activé pour {name}'**
+  String forfaitReminderOnSnack(String name);
+
+  /// No description provided for @forfaitReminderOffSnack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel désactivé pour {name}'**
+  String forfaitReminderOffSnack(String name);
+
   /// No description provided for @buyPackage.
   ///
   /// In fr, this message translates to:

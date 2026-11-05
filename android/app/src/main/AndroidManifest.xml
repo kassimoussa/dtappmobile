@@ -8,6 +8,11 @@
          deux permissions aux applications SMS par défaut. -->
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <!-- Rappels d'expiration des forfaits (notifications locales programmées) :
+         le plugin les reprogramme après un redémarrage du téléphone. Pas de
+         SCHEDULE_EXACT_ALARM : les rappels sont inexacts à dessein, Google Play
+         réserve les alarmes exactes aux applications de réveil et d'agenda. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:label="DJIBTEL"
@@ -35,6 +40,22 @@
           android:exported="true">
             <intent-filter>
                 <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Sans ces deux récepteurs, flutter_local_notifications n'affiche
+             jamais une notification programmée. -->
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+            android:exported="false" />
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
 

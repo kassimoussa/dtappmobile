@@ -6,8 +6,9 @@ import 'dart:async';
 import 'package:dtservices/models/forfait_actif2.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; 
-import 'package:shared_preferences/shared_preferences.dart'; 
- 
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'forfait_reminder_service.dart';
 import 'user_session.dart';
 
 class ForfaitActifService {
@@ -26,8 +27,16 @@ class ForfaitActifService {
   static const int maxRetries = 2;
   static const Duration retryDelay = Duration(seconds: 1);
   
-  /// Récupère la liste des forfaits actifs pour l'utilisateur connecté
-  static Future<List<ForfaitActif2>> getForfaitsActifs({bool useCache = false}) async {
+  /// Récupère la liste des forfaits actifs pour l'utilisateur connecté.
+  ///
+  /// Une réponse du serveur resynchronise les rappels d'expiration. Un échec
+  /// renvoie une liste vide sans y toucher : « aucune réponse » ne doit pas
+  /// effacer des rappels valides. [recordTimeout] à false pour un appel de
+  /// fond, qui ne doit pas bloquer l'écran « Mes forfaits » pendant 5 minutes.
+  static Future<List<ForfaitActif2>> getForfaitsActifs({
+    bool useCache = false,
+    bool recordTimeout = true,
+  }) async {
     try {
       // Récupérer le numéro de téléphone depuis la session
       final phoneNumber = await UserSession.getPhoneNumber();
@@ -91,7 +100,10 @@ class ForfaitActifService {
               
               // Extraire et retourner les forfaits
               final List<dynamic> offres = responseData['offres'] ?? [];
-              return offres.map((offre) => ForfaitActif2.fromJson(offre)).toList();
+              final forfaits =
+                  offres.map((offre) => ForfaitActif2.fromJson(offre)).toList();
+              unawaited(ForfaitReminderService.sync(forfaits));
+              return forfaits;
             } else {
               throw Exception('Erreur API: ${responseData['message_reponse']}');
             }
@@ -109,7 +121,7 @@ class ForfaitActifService {
       }
       
       // Si toutes les tentatives ont échoué
-      await recordApiTimeout();
+      if (recordTimeout) await recordApiTimeout();
       throw lastError ?? Exception('Échec de connexion à l\'API');
     } catch (e) {
       debugPrint('Erreur lors de la récupération des forfaits: $e');
@@ -119,6 +131,14 @@ class ForfaitActifService {
     }
   }
   
+  /// Resynchronise les rappels d'expiration sans attendre que l'utilisateur
+  /// ouvre « Mes forfaits » : au plus une requête par
+  /// [ForfaitReminderService.refreshEvery].
+  static Future<void> refreshRemindersIfStale() async {
+    if (!await ForfaitReminderService.isStale()) return;
+    await getForfaitsActifs(recordTimeout: false);
+  }
+
   /// Récupère les détails d'un forfait spécifique par son ID
   static Future<ForfaitActif2?> getForfaitById(int forfaitId) async {
     try {

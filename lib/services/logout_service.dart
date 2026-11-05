@@ -4,6 +4,7 @@ import 'package:dtservices/config/app_config.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'forfait_reminder_service.dart';
 import 'notification_store.dart';
 import 'user_session.dart';
 import '../widgets/promo_popup_dialog.dart';
@@ -39,6 +40,11 @@ class LogoutService {
   /// NOTE: Le token FCM n'est PAS supprimé pour permettre les notifications
   /// même après déconnexion
   static Future<bool> logout() async {
+    // Déconnexion voulue : les rappels d'expiration de ce compte s'arrêtent.
+    // La fin d'une session (app fermée, inactivité) ne passe pas par ici et les
+    // garde, c'est leur raison d'être.
+    await ForfaitReminderService.cancelAll();
+
     try {
       // Récupérer le session token
       final sessionToken = await UserSession.getSessionToken();
