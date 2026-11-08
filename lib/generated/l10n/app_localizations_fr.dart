@@ -655,7 +655,33 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get refillInstructions =>
-      '• Grattez la carte pour révéler le code à 12 chiffres\n• Saisissez le code complet sans espaces ni tirets\n• Le crédit sera ajouté immédiatement après validation\n• Chaque code ne peut être utilisé qu\'une seule fois';
+      '• Grattez la carte pour révéler le code à 12 chiffres, ou scannez le QR code de votre ticket\n• Saisissez le code complet sans espaces ni tirets\n• Le crédit sera ajouté immédiatement après validation\n• Chaque code ne peut être utilisé qu\'une seule fois';
+
+  @override
+  String get refillScanButton => 'Scanner le ticket';
+
+  @override
+  String get refillScanTitle => 'Scanner le ticket';
+
+  @override
+  String get refillScanHint => 'Placez le QR code du ticket dans le cadre';
+
+  @override
+  String get refillScanInvalid => 'Ce QR code n\'est pas un code de recharge';
+
+  @override
+  String get refillScanTorch => 'Lampe torche';
+
+  @override
+  String get refillScanPermissionDenied =>
+      'L\'accès à la caméra est refusé. Autorisez-le dans les réglages, ou saisissez le code à la main.';
+
+  @override
+  String get refillScanOpenSettings => 'Ouvrir les réglages';
+
+  @override
+  String get refillScanUnavailable =>
+      'La caméra n\'est pas disponible. Saisissez le code à la main.';
 
   @override
   String get confirmRefill => 'Confirmer la recharge';

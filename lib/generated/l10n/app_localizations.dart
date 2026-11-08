@@ -1265,8 +1265,56 @@ abstract class AppLocalizations {
   /// No description provided for @refillInstructions.
   ///
   /// In fr, this message translates to:
-  /// **'• Grattez la carte pour révéler le code à 12 chiffres\n• Saisissez le code complet sans espaces ni tirets\n• Le crédit sera ajouté immédiatement après validation\n• Chaque code ne peut être utilisé qu\'une seule fois'**
+  /// **'• Grattez la carte pour révéler le code à 12 chiffres, ou scannez le QR code de votre ticket\n• Saisissez le code complet sans espaces ni tirets\n• Le crédit sera ajouté immédiatement après validation\n• Chaque code ne peut être utilisé qu\'une seule fois'**
   String get refillInstructions;
+
+  /// No description provided for @refillScanButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner le ticket'**
+  String get refillScanButton;
+
+  /// No description provided for @refillScanTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner le ticket'**
+  String get refillScanTitle;
+
+  /// No description provided for @refillScanHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Placez le QR code du ticket dans le cadre'**
+  String get refillScanHint;
+
+  /// No description provided for @refillScanInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce QR code n\'est pas un code de recharge'**
+  String get refillScanInvalid;
+
+  /// No description provided for @refillScanTorch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lampe torche'**
+  String get refillScanTorch;
+
+  /// No description provided for @refillScanPermissionDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'accès à la caméra est refusé. Autorisez-le dans les réglages, ou saisissez le code à la main.'**
+  String get refillScanPermissionDenied;
+
+  /// No description provided for @refillScanOpenSettings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir les réglages'**
+  String get refillScanOpenSettings;
+
+  /// No description provided for @refillScanUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'La caméra n\'est pas disponible. Saisissez le code à la main.'**
+  String get refillScanUnavailable;
 
   /// No description provided for @confirmRefill.
   ///

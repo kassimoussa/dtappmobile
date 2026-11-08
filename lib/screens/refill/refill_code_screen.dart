@@ -5,8 +5,9 @@ import 'package:dtservices/utils/responsive_size.dart';
 import 'package:dtservices/services/refill_service.dart';
 import 'package:dtservices/services/user_session.dart';
 import 'package:dtservices/models/refill_models.dart';
+import 'package:dtservices/screens/refill/refill_scan_screen.dart';
+import 'package:dtservices/utils/refill_code_input_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../providers/balance_provider.dart';
@@ -63,10 +64,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [
-                    AppTheme.dtBlueO08,
-                    Colors.transparent,
-                  ],
+                  colors: [AppTheme.dtBlueO08, Colors.transparent],
                   radius: 0.8,
                 ),
               ),
@@ -112,6 +110,18 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
                               const SizedBox(height: 8),
                               _buildErrorMessage(_codeError!),
                             ],
+
+                            const SizedBox(height: 16),
+
+                            // Ticket (voucher) : le QR code donne le code
+                            DtButton.secondary(
+                              label:
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.refillScanButton,
+                              icon: Icons.qr_code_scanner,
+                              onPressed: _isLoading ? null : _scanVoucher,
+                            ),
 
                             const SizedBox(height: 24),
 
@@ -164,8 +174,8 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
                 _codeError != null
                     ? Border.all(color: Colors.red[300]!, width: 1.5)
                     : _codeFocusNode.hasFocus
-                        ? Border.all(color: AppTheme.dtBlue, width: 1.5)
-                        : null,
+                    ? Border.all(color: AppTheme.dtBlue, width: 1.5)
+                    : null,
           ),
           child: TextFormField(
             controller: _codeController,
@@ -191,32 +201,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
               fontWeight: FontWeight.bold,
               letterSpacing: 2,
             ),
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(12),
-              // Formater le code avec des espaces pour la lisibilité
-              TextInputFormatter.withFunction((oldValue, newValue) {
-                String newText = newValue.text.replaceAll(' ', '');
-                if (newText.length <= 12) {
-                  // Ajouter des espaces tous les 4 chiffres
-                  String formatted = '';
-                  for (int i = 0; i < newText.length; i += 4) {
-                    if (i > 0) formatted += ' ';
-                    formatted += newText.substring(
-                      i,
-                      i + 4 > newText.length ? newText.length : i + 4,
-                    );
-                  }
-                  return TextEditingValue(
-                    text: formatted,
-                    selection: TextSelection.collapsed(
-                      offset: formatted.length,
-                    ),
-                  );
-                }
-                return oldValue;
-              }),
-            ],
+            inputFormatters: const [RefillCodeInputFormatter()],
             onChanged: (value) {
               _validateCode(value);
             },
@@ -279,25 +264,30 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
           // Une ligne par consigne, avec indentation suspendue sous la puce
           ...AppLocalizations.of(context)!.refillInstructions
               .split('\n')
-              .map((line) => Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('•',
-                            style: TextStyle(
-                                color: AppTheme.dtBlue, fontSize: 14)),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            line.replaceFirst(RegExp(r'^•\s*'), ''),
-                            style: const TextStyle(
-                                color: AppTheme.dtBlue, fontSize: 14),
+              .map(
+                (line) => Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '•',
+                        style: TextStyle(color: AppTheme.dtBlue, fontSize: 14),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          line.replaceFirst(RegExp(r'^•\s*'), ''),
+                          style: const TextStyle(
+                            color: AppTheme.dtBlue,
+                            fontSize: 14,
                           ),
                         ),
-                      ],
-                    ),
-                  )),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
         ],
       ),
     );
@@ -313,6 +303,29 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
       loading: _isLoading,
       onPressed: isFormValid ? _validateAndProcessRefill : null,
     );
+  }
+
+  Future<void> _scanVoucher() async {
+    FocusScope.of(context).unfocus();
+    final code = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => const RefillScanScreen(),
+      ),
+    );
+    if (code == null || !mounted) return;
+
+    // Le code est saisi mais pas envoyé : l'utilisateur confirme lui-même.
+    final formatted = [
+      for (var i = 0; i < code.length; i += 4) code.substring(i, i + 4),
+    ].join(' ');
+    setState(() {
+      _codeController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+      _codeError = null;
+    });
   }
 
   // Pendant la frappe : on efface seulement l'erreur (la validation
@@ -504,5 +517,4 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
       },
     );
   }
-
 }

@@ -645,7 +645,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refillInstructions =>
-      '• Scratch the card to reveal the 12-digit code\n• Enter the full code without spaces or dashes\n• Credit will be added immediately after validation\n• Each code can only be used once';
+      '• Scratch the card to reveal the 12-digit code, or scan the QR code on your voucher\n• Enter the full code without spaces or dashes\n• Credit will be added immediately after validation\n• Each code can only be used once';
+
+  @override
+  String get refillScanButton => 'Scan the voucher';
+
+  @override
+  String get refillScanTitle => 'Scan the voucher';
+
+  @override
+  String get refillScanHint => 'Place the voucher\'s QR code inside the frame';
+
+  @override
+  String get refillScanInvalid => 'This QR code is not a refill code';
+
+  @override
+  String get refillScanTorch => 'Flashlight';
+
+  @override
+  String get refillScanPermissionDenied =>
+      'Camera access is denied. Allow it in settings, or enter the code by hand.';
+
+  @override
+  String get refillScanOpenSettings => 'Open settings';
+
+  @override
+  String get refillScanUnavailable =>
+      'The camera is not available. Enter the code by hand.';
 
   @override
   String get confirmRefill => 'Confirm Refill';

@@ -93,7 +93,6 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
           ),
         ),
       );
-
     }
   }
 
@@ -125,10 +124,7 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [
-                    AppTheme.dtBlueO08,
-                    Colors.transparent,
-                  ],
+                  colors: [AppTheme.dtBlueO08, Colors.transparent],
                   radius: 0.8,
                 ),
               ),
@@ -157,7 +153,9 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
                               children: [
                                 // Titre principal
                                 Text(
-                                  AppLocalizations.of(context)!.recipientSelectionTitle,
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.recipientSelectionTitle,
                                   style: TextStyle(
                                     fontSize: ResponsiveSize.getFontSize(20),
                                     fontWeight: FontWeight.bold,
@@ -165,26 +163,33 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
                                   ),
                                 ),
                                 SizedBox(height: ResponsiveSize.getHeight(24)),
-            
+
                                 // Options de destinataire
                                 IntrinsicHeight(
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
                                     children: [
                                       Expanded(
                                         child: _buildOptionCard(
                                           context,
-                                          AppLocalizations.of(context)!.myNumber,
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.myNumber,
                                           AppTheme.dtBlue2,
                                           Icons.arrow_upward,
                                           onTap: _navigateToMyNumber,
                                         ),
                                       ),
-                                      SizedBox(width: ResponsiveSize.getWidth(16)),
+                                      SizedBox(
+                                        width: ResponsiveSize.getWidth(16),
+                                      ),
                                       Expanded(
                                         child: _buildOptionCard(
                                           context,
-                                          AppLocalizations.of(context)!.otherNumber,
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.otherNumber,
                                           AppTheme.dtBlue2,
                                           Icons.arrow_outward,
                                           onTap: _showPhoneInputSection,
@@ -196,7 +201,7 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
                               ],
                             ),
                           ),
-            
+
                           // Section de saisie du numéro en bas (animée)
                           AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
@@ -223,7 +228,9 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
                                           color: Colors.white,
                                           boxShadow: [
                                             BoxShadow(
-                                              color: Colors.black.withValues(alpha: 0.1),
+                                              color: Colors.black.withValues(
+                                                alpha: 0.1,
+                                              ),
                                               blurRadius: 10,
                                               offset: const Offset(0, -2),
                                             ),
@@ -245,29 +252,43 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
                                             ),
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 // Handle bar pour indiquer que c'est draggable
                                                 Center(
                                                   child: Container(
-                                                    width: ResponsiveSize.getWidth(40),
-                                                    height: ResponsiveSize.getHeight(4),
+                                                    width:
+                                                        ResponsiveSize.getWidth(
+                                                          40,
+                                                        ),
+                                                    height:
+                                                        ResponsiveSize.getHeight(
+                                                          4,
+                                                        ),
                                                     decoration: BoxDecoration(
                                                       color: Colors.grey[300],
-                                                      borderRadius: BorderRadius.circular(
-                                                        ResponsiveSize.getWidth(2),
-                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            ResponsiveSize.getWidth(
+                                                              2,
+                                                            ),
+                                                          ),
                                                     ),
                                                   ),
                                                 ),
                                                 SizedBox(
-                                                  height: ResponsiveSize.getHeight(16),
+                                                  height:
+                                                      ResponsiveSize.getHeight(
+                                                        16,
+                                                      ),
                                                 ),
-            
+
                                                 // Titre avec bouton fermer
                                                 Row(
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment.spaceBetween,
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
                                                   children: [
                                                     Text(
                                                       AppLocalizations.of(
@@ -275,27 +296,35 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
                                                       )!.enterNumberTitle,
                                                       style: TextStyle(
                                                         fontSize:
-                                                            ResponsiveSize.getFontSize(18),
-                                                        fontWeight: FontWeight.bold,
+                                                            ResponsiveSize.getFontSize(
+                                                              18,
+                                                            ),
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                         color: AppTheme.dtBlue,
                                                       ),
                                                     ),
                                                     IconButton(
-                                                      onPressed: _hidePhoneInputSection,
+                                                      onPressed:
+                                                          _hidePhoneInputSection,
                                                       icon: Icon(
                                                         Icons.close,
                                                         color: Colors.grey[600],
-                                                        size: ResponsiveSize.getFontSize(
-                                                          24,
-                                                        ),
+                                                        size:
+                                                            ResponsiveSize.getFontSize(
+                                                              24,
+                                                            ),
                                                       ),
                                                     ),
                                                   ],
                                                 ),
                                                 SizedBox(
-                                                  height: ResponsiveSize.getHeight(8),
+                                                  height:
+                                                      ResponsiveSize.getHeight(
+                                                        8,
+                                                      ),
                                                 ),
-            
+
                                                 // Widget sélecteur de numéro
                                                 PhoneNumberSelector(
                                                   controller: _phoneController,
@@ -311,11 +340,14 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
                                                     setState(() {});
                                                   },
                                                 ),
-            
+
                                                 SizedBox(
-                                                  height: ResponsiveSize.getHeight(12),
+                                                  height:
+                                                      ResponsiveSize.getHeight(
+                                                        12,
+                                                      ),
                                                 ),
-            
+
                                                 // Note d'information
                                                 Container(
                                                   padding: EdgeInsets.all(
@@ -323,13 +355,17 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
                                                   ),
                                                   decoration: BoxDecoration(
                                                     color: AppTheme.dtBlueO10,
-                                                    borderRadius: BorderRadius.circular(
-                                                      ResponsiveSize.getWidth(8),
-                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          ResponsiveSize.getWidth(
+                                                            8,
+                                                          ),
+                                                        ),
                                                     border: Border.all(
-                                                      color: AppTheme.dtBlue.withValues(
-                                                        alpha: 0.3,
-                                                      ),
+                                                      color: AppTheme.dtBlue
+                                                          .withValues(
+                                                            alpha: 0.3,
+                                                          ),
                                                     ),
                                                   ),
                                                   child: Row(
@@ -337,12 +373,16 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
                                                       Icon(
                                                         Icons.info_outline,
                                                         color: AppTheme.dtBlue,
-                                                        size: ResponsiveSize.getFontSize(
-                                                          16,
-                                                        ),
+                                                        size:
+                                                            ResponsiveSize.getFontSize(
+                                                              16,
+                                                            ),
                                                       ),
                                                       SizedBox(
-                                                        width: ResponsiveSize.getWidth(8),
+                                                        width:
+                                                            ResponsiveSize.getWidth(
+                                                              8,
+                                                            ),
                                                       ),
                                                       Expanded(
                                                         child: Text(
@@ -354,25 +394,37 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
                                                                 ResponsiveSize.getFontSize(
                                                                   12,
                                                                 ),
-                                                            color: AppTheme.dtBlue,
+                                                            color:
+                                                                AppTheme.dtBlue,
                                                           ),
                                                         ),
                                                       ),
                                                     ],
                                                   ),
                                                 ),
-            
+
                                                 SizedBox(
-                                                  height: ResponsiveSize.getHeight(24),
+                                                  height:
+                                                      ResponsiveSize.getHeight(
+                                                        24,
+                                                      ),
                                                 ),
-            
+
                                                 // Bouton de continuation
                                                 DtButton.primary(
-                                                  label: AppLocalizations.of(context)!.continueAction,
+                                                  label:
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.continueAction,
                                                   icon: Icons.arrow_forward,
-                                                  onPressed: _phoneController.text.isNotEmpty ? _validateAndContinue : null,
+                                                  onPressed:
+                                                      _phoneController
+                                                              .text
+                                                              .isNotEmpty
+                                                          ? _validateAndContinue
+                                                          : null,
                                                 ),
-            
+
                                                 // Espace pour le safe area
                                                 SizedBox(
                                                   height:
@@ -481,5 +533,4 @@ class _RefillRecipientScreenState extends State<RefillRecipientScreen>
       ),
     );
   }
-
 }

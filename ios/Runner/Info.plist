@@ -28,6 +28,8 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>La caméra sert à scanner le QR code d'un ticket de recharge. L'image n'est ni enregistrée ni envoyée.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Cette application a besoin d'accéder à vos contacts pour vous permettre de sélectionner un destinataire.</string>
 	<key>NSFaceIDUsageDescription</key>
