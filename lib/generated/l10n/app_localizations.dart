@@ -209,32 +209,14 @@ abstract class AppLocalizations {
   /// No description provided for @forfaitReminderTitleFinal.
   ///
   /// In fr, this message translates to:
-  /// **'Votre forfait expire dans quelques heures'**
+  /// **'Votre forfait expire très bientôt'**
   String get forfaitReminderTitleFinal;
 
-  /// No description provided for @forfaitReminderEarly.
+  /// No description provided for @forfaitReminderBody.
   ///
   /// In fr, this message translates to:
-  /// **'{name} expire le {date}. Pensez à le renouveler.'**
-  String forfaitReminderEarly(String name, String date);
-
-  /// No description provided for @forfaitReminderEarlyData.
-  ///
-  /// In fr, this message translates to:
-  /// **'{name} expire le {date}. Il vous reste {left} : pensez à le renouveler.'**
-  String forfaitReminderEarlyData(String name, String date, String left);
-
-  /// No description provided for @forfaitReminderFinal.
-  ///
-  /// In fr, this message translates to:
-  /// **'{name} expire le {date}. Pensez à le renouveler.'**
-  String forfaitReminderFinal(String name, String date);
-
-  /// No description provided for @forfaitReminderFinalData.
-  ///
-  /// In fr, this message translates to:
-  /// **'{name} expire le {date}. Sans nouveau forfait, votre internet mobile sera décompté de votre crédit.'**
-  String forfaitReminderFinalData(String name, String date);
+  /// **'{name} expire le {date}.'**
+  String forfaitReminderBody(String name, String date);
 
   /// No description provided for @forfaitReminderToggle.
   ///

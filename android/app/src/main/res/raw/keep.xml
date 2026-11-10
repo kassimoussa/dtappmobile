@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Le logo des notifications n'est référencé que par son nom (largeIcon de
+     flutter_local_notifications) : sans cette ligne, le réducteur de ressources
+     d'une version release le croit inutilisé et le supprime. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_notification_large" />

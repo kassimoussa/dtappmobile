@@ -29,6 +29,12 @@ const _forfaitExpiryType = 'forfait_expiry';
 /// sinon les notifs FCM et les notifs locales n'ont pas la même couleur.
 const _notificationAccent = Color(0xFFF8C02C);
 
+/// Logo en couleurs affiché à droite de la notification. La petite icône, elle,
+/// reste une silhouette d'une seule teinte : Android n'en garde que la forme.
+const _notificationLargeIcon = DrawableResourceAndroidBitmap(
+  'ic_notification_large',
+);
+
 const _chTransactions = AndroidNotificationChannel(
   _chTransactionsId,
   'Transactions',
@@ -333,6 +339,7 @@ class NotificationService {
       showWhen: true,
       number: badgeCount,
       color: _notificationAccent,
+      largeIcon: _notificationLargeIcon,
     );
 
     final notificationDetails = NotificationDetails(
@@ -407,6 +414,7 @@ class NotificationService {
           importance: Importance.high,
           priority: Priority.high,
           color: _notificationAccent,
+          largeIcon: _notificationLargeIcon,
         ),
         iOS: DarwinNotificationDetails(
           presentAlert: true,

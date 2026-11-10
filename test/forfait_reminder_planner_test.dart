@@ -81,203 +81,62 @@ void main() {
 
   group('quels forfaits', () {
     test(
-      "par défaut, les forfaits internet et combo sont suivis, pas les autres",
+      "tous les forfaits sont suivis par défaut, quel que soit leur type",
       () {
-        final avecInternet = _forfait('Median', '12/11/2026 15:47:00');
-        final combo = _forfait(
-          'Combo',
-          '12/11/2026 15:47:00',
-          dataLeft: null,
-          voiceLeft: 600,
-        );
-        final vide = _forfait('Vide', '12/11/2026 15:47:00', dataLeft: null);
-
-        expect(ForfaitReminderPlanner.isEnabled(avecInternet, {}), isTrue);
-        expect(ForfaitReminderPlanner.isEnabled(combo, {}), isTrue);
-        expect(ForfaitReminderPlanner.isEnabled(vide, {}), isFalse);
-        expect(ForfaitReminderPlanner.plan([combo], now: now()), hasLength(2));
-        expect(ForfaitReminderPlanner.plan([vide], now: now()), isEmpty);
-      },
-    );
-
-    test("le choix de l'utilisateur l'emporte, dans les deux sens", () {
-      final avecInternet = _forfait(
-        'Median',
-        '12/11/2026 15:47:00',
-        produitId: 7,
-      );
-      final sansInternet = _forfait(
-        'Voix',
-        '12/11/2026 15:47:00',
-        produitId: 8,
-        dataLeft: null,
-      );
-      const overrides = {7: false, 8: true};
-
-      expect(
-        ForfaitReminderPlanner.isEnabled(avecInternet, overrides),
-        isFalse,
-      );
-      expect(ForfaitReminderPlanner.isEnabled(sansInternet, overrides), isTrue);
-      expect(
-        ForfaitReminderPlanner.plan(
-          [avecInternet, sansInternet],
-          overrides: overrides,
-          now: now(),
-        ).map((r) => r.forfaitName).toSet(),
-        {'Voix'},
-      );
-    });
-
-    test('pas de rappel quand les données sont déjà épuisées', () {
-      final plan = ForfaitReminderPlanner.plan([
-        _forfait('Median', '12/11/2026 15:47:00', dataLeft: 0),
-      ], now: now());
-
-      expect(plan, isEmpty);
-    });
-
-    test('un « oui » explicite est honoré même données épuisées', () {
-      final plan = ForfaitReminderPlanner.plan(
-        [_forfait('Median', '12/11/2026 15:47:00', dataLeft: 0)],
-        overrides: const {1: true},
-        now: now(),
-      );
-
-      expect(plan, hasLength(2));
-      expect(plan.first.dataLeft, isNull);
-      expect(plan.first.hasData, isTrue);
-    });
-
-    test(
-      "pas de rappel si un autre forfait avec internet dure plus longtemps",
-      () {
-        final plan = ForfaitReminderPlanner.plan([
-          _forfait('Court', '10/11/2026 15:00:00', produitId: 1),
-          _forfait('Long', '20/11/2026 15:00:00', produitId: 2),
-        ], now: now());
-
-        expect(plan.map((r) => r.forfaitName).toSet(), {'Long'});
-      },
-    );
-
-    test("un forfait combo ne couvre pas un forfait internet", () {
-      final plan = ForfaitReminderPlanner.plan([
-        _forfait('Internet', '10/11/2026 15:00:00', produitId: 1),
-        _forfait(
-          'Combo',
-          '20/11/2026 15:00:00',
-          produitId: 2,
-          dataLeft: null,
-          voiceLeft: 600,
-        ),
-      ], now: now());
-
-      expect(plan.map((r) => r.forfaitName).toSet(), {'Internet', 'Combo'});
-    });
-
-    test("un forfait internet ne couvre pas un forfait combo", () {
-      final plan = ForfaitReminderPlanner.plan([
-        _forfait(
-          'Combo',
-          '10/11/2026 15:00:00',
-          produitId: 1,
-          dataLeft: null,
-          voiceLeft: 600,
-        ),
-        _forfait('Internet', '20/11/2026 15:00:00', produitId: 2),
-      ], now: now());
-
-      expect(plan.map((r) => r.forfaitName).toSet(), {'Combo', 'Internet'});
-    });
-
-    test("un autre forfait combo plus long couvre un forfait combo", () {
-      final plan = ForfaitReminderPlanner.plan([
-        _forfait(
-          'Court',
-          '10/11/2026 15:00:00',
-          produitId: 1,
-          dataLeft: null,
-          voiceLeft: 600,
-        ),
-        _forfait(
-          'Long',
-          '20/11/2026 15:00:00',
-          produitId: 2,
-          dataLeft: null,
-          voiceLeft: 600,
-        ),
-      ], now: now());
-
-      expect(plan.map((r) => r.forfaitName).toSet(), {'Long'});
-    });
-
-    test("un forfait mixte couvre les deux types", () {
-      final plan = ForfaitReminderPlanner.plan([
-        _forfait('Internet', '10/11/2026 15:00:00', produitId: 1),
-        _forfait(
-          'Combo',
-          '11/11/2026 15:00:00',
-          produitId: 2,
-          dataLeft: null,
-          voiceLeft: 600,
-        ),
-        _forfait('Mixte', '20/11/2026 15:00:00', produitId: 3, voiceLeft: 600),
-      ], now: now());
-
-      expect(plan.map((r) => r.forfaitName).toSet(), {'Mixte'});
-    });
-
-    test(
-      "un forfait mixte est suivi dès qu'un de ses types n'est pas couvert",
-      () {
-        final plan = ForfaitReminderPlanner.plan([
+        final forfaits = [
+          _forfait('Internet', '12/11/2026 15:47:00', produitId: 1),
           _forfait(
-            'Mixte',
-            '10/11/2026 15:00:00',
-            produitId: 1,
+            'Combo',
+            '12/11/2026 15:47:00',
+            produitId: 2,
+            dataLeft: null,
             voiceLeft: 600,
           ),
-          _forfait('Internet', '20/11/2026 15:00:00', produitId: 2),
-        ], now: now());
+          _forfait(
+            'Mixte',
+            '12/11/2026 15:47:00',
+            produitId: 3,
+            voiceLeft: 600,
+          ),
+          _forfait(
+            'Sans compteur',
+            '12/11/2026 15:47:00',
+            produitId: 4,
+            dataLeft: null,
+          ),
+          _forfait('Épuisé', '12/11/2026 15:47:00', produitId: 5, dataLeft: 0),
+        ];
 
-        // L'internet est couvert, pas les appels : le rappel reste utile.
-        expect(plan.map((r) => r.forfaitName).toSet(), {'Mixte', 'Internet'});
+        for (final forfait in forfaits) {
+          expect(ForfaitReminderPlanner.isEnabled(forfait, {}), isTrue);
+          expect(
+            ForfaitReminderPlanner.plan([forfait], now: now()),
+            hasLength(ForfaitReminderPlanner.leadTimes.length),
+            reason: forfait.nom,
+          );
+        }
       },
     );
 
-    test("un forfait épuisé ne déclenche pas de rappel combo", () {
+    test("un autre forfait valide ne supprime pas le rappel", () {
       final plan = ForfaitReminderPlanner.plan([
-        _forfait('Combo', '10/11/2026 15:00:00', dataLeft: null, voiceLeft: 0),
+        _forfait('Court', '10/11/2026 15:00:00', produitId: 1),
+        _forfait('Long', '20/11/2026 15:00:00', produitId: 2),
+        _forfait(
+          'Combo',
+          '25/11/2026 15:00:00',
+          produitId: 3,
+          dataLeft: null,
+          voiceLeft: 600,
+        ),
       ], now: now());
 
-      expect(plan, isEmpty);
+      expect(plan.map((r) => r.forfaitName).toSet(), {
+        'Court',
+        'Long',
+        'Combo',
+      });
     });
-
-    test(
-      "un autre forfait du même type suffit, même sans données restantes",
-      () {
-        final plan = ForfaitReminderPlanner.plan([
-          _forfait('Court', '10/11/2026 15:00:00', produitId: 1),
-          _forfait('Long', '20/11/2026 15:00:00', produitId: 2, dataLeft: 0),
-        ], now: now());
-
-        expect(plan, isEmpty);
-      },
-    );
-
-    test(
-      "un forfait qui expire avant ne couvre pas : le dernier est suivi",
-      () {
-        final plan = ForfaitReminderPlanner.plan([
-          _forfait('Court', '10/11/2026 15:00:00', produitId: 1),
-          _forfait('Milieu', '20/11/2026 15:00:00', produitId: 2),
-          _forfait('Dernier', '30/11/2026 15:00:00', produitId: 3),
-        ], now: now());
-
-        expect(plan.map((r) => r.forfaitName).toSet(), {'Dernier'});
-      },
-    );
 
     test('deux forfaits qui expirent ensemble sont suivis tous les deux', () {
       final plan = ForfaitReminderPlanner.plan([
@@ -288,50 +147,103 @@ void main() {
       expect(plan.map((r) => r.forfaitName).toSet(), {'A', 'B'});
     });
 
-    test("un « oui » explicite est honoré même si un autre forfait couvre", () {
+    test("l'utilisateur peut couper le rappel d'un forfait", () {
       final plan = ForfaitReminderPlanner.plan(
         [
-          _forfait('Court', '10/11/2026 15:00:00', produitId: 1),
-          _forfait('Long', '20/11/2026 15:00:00', produitId: 2),
+          _forfait('Median', '12/11/2026 15:47:00', produitId: 7),
+          _forfait('Express', '12/11/2026 15:47:00', produitId: 8),
         ],
-        overrides: const {1: true},
+        overrides: const {7: false},
         now: now(),
       );
 
-      expect(plan.where((r) => r.forfaitName == 'Court'), hasLength(2));
+      expect(
+        ForfaitReminderPlanner.isEnabled(
+          _forfait('x', '', produitId: 7),
+          const {7: false},
+        ),
+        isFalse,
+      );
+      expect(plan.map((r) => r.forfaitName).toSet(), {'Express'});
+    });
+
+    test('un forfait épuisé est suivi', () {
+      final plan = ForfaitReminderPlanner.plan([
+        _forfait('Median', '12/11/2026 15:47:00', dataLeft: 0),
+      ], now: now());
+
+      expect(plan, hasLength(ForfaitReminderPlanner.leadTimes.length));
     });
   });
 
   group('quand', () {
-    test("prévient 24 h puis 3 h avant l'expiration", () {
+    test("prévient 24 h, 3 h, 1 h, 30 min puis 10 min avant l'expiration", () {
       final plan = ForfaitReminderPlanner.plan([
         _forfait('Median', '12/11/2026 15:47:00'),
       ], now: now());
 
-      expect(plan, hasLength(2));
-      expect(plan[0].at, _at(11, 15, 47));
-      expect(plan[1].at, _at(12, 12, 47));
-      expect(plan[0].isFinal, isFalse);
-      expect(plan[1].isFinal, isTrue);
+      expect(plan.map((r) => r.at).toList(), [
+        _at(11, 15, 47),
+        _at(12, 12, 47),
+        _at(12, 14, 47),
+        _at(12, 15, 17),
+        _at(12, 15, 37),
+      ]);
+      // Le ton devient pressant à partir de 1 h.
+      expect(plan.map((r) => r.isFinal).toList(), [
+        false,
+        false,
+        true,
+        true,
+        true,
+      ]);
     });
 
     test('ne programme pas un rappel déjà passé', () {
-      // Expire dans 10 h : le rappel de 24 h avant est passé, pas celui de 3 h.
+      // Expire dans 10 h : le rappel de 24 h avant est passé.
       final plan = ForfaitReminderPlanner.plan([
         _forfait('Express', '05/11/2026 20:00:00'),
       ], now: now());
 
-      expect(plan, hasLength(1));
-      expect(plan.single.at, _at(5, 17));
+      expect(plan.map((r) => r.at).toList(), [
+        _at(5, 17),
+        _at(5, 19),
+        _at(5, 19, 30),
+        _at(5, 19, 50),
+      ]);
     });
 
-    test('ne programme rien pour un forfait qui expire dans moins de 3 h', () {
+    test('un forfait qui expire dans 2 h garde ses derniers rappels', () {
       final plan = ForfaitReminderPlanner.plan([
         _forfait('Express', '05/11/2026 12:00:00'),
       ], now: now());
 
-      expect(plan, isEmpty);
+      expect(plan.map((r) => r.at).toList(), [
+        _at(5, 11),
+        _at(5, 11, 30),
+        _at(5, 11, 50),
+      ]);
     });
+
+    test('un forfait qui expire dans 20 min a quand même un rappel', () {
+      final plan = ForfaitReminderPlanner.plan([
+        _forfait('Express', '05/11/2026 10:20:00'),
+      ], now: now());
+
+      expect(plan.map((r) => r.at).toList(), [_at(5, 10, 10)]);
+      expect(plan.single.isFinal, isTrue);
+    });
+
+    test(
+      'ne programme rien pour un forfait qui expire dans moins de 10 min',
+      () {
+        final plan = ForfaitReminderPlanner.plan([
+          _forfait('Express', '05/11/2026 10:08:00'),
+        ], now: now());
+
+        expect(plan, isEmpty);
+      },
+    );
 
     test('ignore un forfait déjà expiré ou à la date illisible', () {
       final plan = ForfaitReminderPlanner.plan([
@@ -343,7 +255,8 @@ void main() {
     });
 
     test('jamais la nuit : un rappel nocturne part la veille à 21 h 30', () {
-      // Expire à 04:00 : 24 h avant = 04:00 (nuit), 3 h avant = 01:00 (nuit).
+      // Expire à 04:00 : 24 h avant, 3 h avant (01:00), 1 h, 30 min et 10 min
+      // avant (de 03:00 à 03:50) tombent tous la nuit.
       final plan = ForfaitReminderPlanner.plan([
         _forfait('Nuit', '12/11/2026 04:00:00'),
       ], now: now());
@@ -352,6 +265,18 @@ void main() {
         _at(10, 21, 30),
         _at(11, 21, 30),
       ]);
+    });
+
+    test("des rappels ramenés à la même heure par la nuit n'en font qu'un", () {
+      // Les rappels de 3 h, 1 h, 30 min et 10 min tombent tous à 21 h 30 le
+      // 11 : seul le plus éloigné part.
+      final plan = ForfaitReminderPlanner.plan([
+        _forfait('Nuit', '12/11/2026 04:00:00'),
+      ], now: now());
+
+      expect(plan.last.at, _at(11, 21, 30));
+      expect(plan.last.lead, const Duration(hours: 3));
+      expect(plan.last.isFinal, isFalse);
     });
 
     test('un rappel après 22 h part le soir même à 21 h 30', () {
@@ -364,22 +289,18 @@ void main() {
     });
 
     test("7 h pile reste autorisé, 22 h est déjà la nuit", () {
-      final plan = ForfaitReminderPlanner.plan(
-        [
-          _forfait('Matin', '12/11/2026 10:00:00', produitId: 1),
-          _forfait('Soir', '20/11/2026 01:00:00', produitId: 2),
-        ],
-        overrides: const {1: true, 2: true},
-        now: now(),
-      );
+      final plan = ForfaitReminderPlanner.plan([
+        _forfait('Matin', '12/11/2026 10:00:00', produitId: 1),
+        _forfait('Soir', '20/11/2026 01:00:00', produitId: 2),
+      ], now: now());
 
       expect(plan.map((r) => r.at), contains(_at(12, 7)));
       expect(plan.map((r) => r.at), isNot(contains(_at(19, 22))));
     });
 
     test("ne dérange pas si le rappel décalé est déjà passé", () {
-      // Il est 22:30. Expire à 04:00 le 6 : les deux rappels, ramenés à 21:30,
-      // sont derrière nous.
+      // Il est 22:30. Expire à 04:00 le 6 : les rappels, ramenés à 21:30 ou
+      // déjà passés, sont derrière nous.
       final plan = ForfaitReminderPlanner.plan([
         _forfait('Nuit', '06/11/2026 04:00:00'),
       ], now: _at(5, 22, 30));
@@ -390,18 +311,17 @@ void main() {
 
   group('plan', () {
     test('trie par date et numérote depuis le début de la plage réservée', () {
-      final plan = ForfaitReminderPlanner.plan(
-        [
-          _forfait('Tard', '20/11/2026 10:00:00', produitId: 1),
-          _forfait('Tôt', '08/11/2026 10:00:00', produitId: 2),
-        ],
-        overrides: const {1: true, 2: true},
-        now: now(),
-      );
+      final plan = ForfaitReminderPlanner.plan([
+        _forfait('Tard', '20/11/2026 10:00:00', produitId: 1),
+        _forfait('Tôt', '09/11/2026 10:00:00', produitId: 2),
+      ], now: now());
 
-      expect(plan.map((r) => r.forfaitName), ['Tôt', 'Tôt', 'Tard', 'Tard']);
+      expect(plan.map((r) => r.forfaitName), [
+        ...List.filled(5, 'Tôt'),
+        ...List.filled(5, 'Tard'),
+      ]);
       expect(plan.map((r) => r.id), [
-        for (var i = 0; i < 4; i++) ForfaitReminderPlanner.idBase + i,
+        for (var i = 0; i < 10; i++) ForfaitReminderPlanner.idBase + i,
       ]);
       final dates = plan.map((r) => r.at).toList();
       expect(dates, [...dates]..sort());
@@ -417,11 +337,7 @@ void main() {
           ),
       ];
 
-      final plan = ForfaitReminderPlanner.plan(
-        forfaits,
-        overrides: {for (var day = 1; day <= 28; day++) day: true},
-        now: now(),
-      );
+      final plan = ForfaitReminderPlanner.plan(forfaits, now: now());
 
       expect(plan, hasLength(ForfaitReminderPlanner.maxReminders));
       expect(plan.first.forfaitName, 'F1');
@@ -435,73 +351,38 @@ void main() {
       await AppLocalizations.delegate.load(const Locale('en')),
     ];
 
-    List<ForfaitReminder> plan({int? dataLeft = 200 * 1024 * 1024}) =>
-        ForfaitReminderPlanner.plan(
-          [_forfait('Median', '12/11/2026 15:47:00', dataLeft: dataLeft)],
-          overrides: const {1: true},
-          now: now(),
-        );
+    List<ForfaitReminder> plan() => ForfaitReminderPlanner.plan([
+      _forfait('Median', '12/11/2026 15:47:00'),
+    ], now: now());
 
-    test("le premier rappel annonce ce qu'il reste", () async {
+    test("le texte dit seulement quel forfait expire, et quand", () async {
       final [fr, en] = await locales();
-      final early = plan().first;
 
-      expect(
-        ForfaitReminderPlanner.message(fr, early).body,
-        'Median expire le 12/11/2026 15:47. Il vous reste 200,0 Mo : pensez à le renouveler.',
-      );
-      expect(
-        ForfaitReminderPlanner.message(en, early).body,
-        contains('200,0 Mo left'),
-      );
+      for (final r in plan()) {
+        expect(
+          ForfaitReminderPlanner.message(fr, r).body,
+          'Median expire le 12/11/2026 15:47.',
+        );
+        expect(
+          ForfaitReminderPlanner.message(en, r).body,
+          'Median expires on 12/11/2026 15:47.',
+        );
+      }
     });
 
-    test(
-      "le dernier rappel dit que l'internet sera décompté du crédit",
-      () async {
-        final [fr, en] = await locales();
-        final last = plan().last;
-
-        expect(
-          ForfaitReminderPlanner.message(fr, last).body,
-          contains('crédit'),
-        );
-        expect(
-          ForfaitReminderPlanner.message(en, last).body,
-          contains('credit'),
-        );
-      },
-    );
-
-    test(
-      "sans internet, aucun propos sur le crédit ni sur les données",
-      () async {
-        final [fr, _] = await locales();
-        final reminders = ForfaitReminderPlanner.plan([
-          _forfait(
-            'Voix',
-            '12/11/2026 15:47:00',
-            dataLeft: null,
-            voiceLeft: 600,
-          ),
-        ], now: now());
-
-        for (final r in reminders) {
-          final body = ForfaitReminderPlanner.message(fr, r).body;
-          expect(body, isNot(contains('crédit')));
-          expect(body, isNot(contains('Il vous reste')));
-        }
-      },
-    );
-
-    test('le titre du dernier rappel est plus pressant', () async {
+    test('le titre est plus pressant à partir de 1 h', () async {
       final [fr, _] = await locales();
-      final reminders = plan();
+      final titles = [
+        for (final r in plan()) ForfaitReminderPlanner.message(fr, r).title,
+      ];
 
-      expect(
-        ForfaitReminderPlanner.message(fr, reminders.first).title,
-        isNot(ForfaitReminderPlanner.message(fr, reminders.last).title),
-      );
+      expect(titles, [
+        fr.forfaitReminderTitle,
+        fr.forfaitReminderTitle,
+        fr.forfaitReminderTitleFinal,
+        fr.forfaitReminderTitleFinal,
+        fr.forfaitReminderTitleFinal,
+      ]);
     });
   });
 }

@@ -11,17 +11,9 @@ class ForfaitReminder {
   final String forfaitName;
   final tz.TZDateTime expiresAt;
 
-  /// Délai « théorique » avant l'expiration (24 h, 3 h) : le rappel peut partir
-  /// plus tôt si l'heure tombe la nuit.
+  /// Délai « théorique » avant l'expiration (24 h, 3 h, 1 h, 30 min, 10 min) :
+  /// le rappel peut partir plus tôt si l'heure tombe la nuit.
   final Duration lead;
-
-  /// Le forfait donne accès à internet : après son expiration, la connexion est
-  /// décomptée du crédit.
-  final bool hasData;
-
-  /// Données restantes, lisibles ("120,0 Mo"). Null s'il n'en reste pas ou si
-  /// le forfait n'a pas d'internet.
-  final String? dataLeft;
 
   const ForfaitReminder({
     required this.id,
@@ -29,38 +21,37 @@ class ForfaitReminder {
     required this.forfaitName,
     required this.expiresAt,
     required this.lead,
-    required this.hasData,
-    required this.dataLeft,
   });
 
-  /// Dernier rappel avant l'expiration : le ton est plus pressant.
-  bool get isFinal => lead == ForfaitReminderPlanner.leadTimes.last;
+  /// Rappel de dernière minute (1 h ou moins avant) : le ton est plus pressant.
+  bool get isFinal => lead <= ForfaitReminderPlanner.finalWithin;
 }
-
-/// Ce qu'un forfait donne à consommer : un forfait n'en couvre un autre que s'il
-/// fournit le même service.
-enum _Service { data, voice }
 
 /// Calcule les rappels d'expiration à programmer. Fonction pure : aucune
 /// notification n'est envoyée ici, voir `ForfaitReminderService`.
 ///
-/// Un rappel « intelligent » ne dérange que lorsqu'il sert :
-/// - par défaut, seuls les forfaits avec internet ou avec appels/SMS sont
-///   suivis : c'est leur expiration qui fait fondre le crédit. L'utilisateur
-///   peut en décider autrement forfait par forfait (voir `overrides`) ;
-/// - par défaut aussi, pas de rappel si l'utilisateur a un autre forfait du
-///   même type qui dure plus longtemps : un forfait internet est couvert par un
-///   autre forfait internet, un forfait d'appels/SMS par un autre forfait
-///   d'appels/SMS. Un forfait d'un autre type ne couvre rien. Le rappel viendra
-///   avec le dernier forfait de chaque type à expirer. Pas de rappel non plus
-///   si le forfait est déjà épuisé (le crédit est déjà entamé : un rappel
-///   d'expiration n'apprendrait rien) ;
+/// - Tous les forfaits sont suivis, quel que soit leur type ou ce qu'il leur
+///   reste. L'utilisateur peut couper le rappel d'un forfait (voir
+///   `overrides`) ;
+/// - plusieurs rappels par forfait, voir [leadTimes] ;
 /// - jamais la nuit : un rappel qui tomberait entre [quietFromHour] et
 ///   [quietUntilHour] part la veille au soir ;
 /// - le texte dit ce qui est en jeu (voir [message]).
 class ForfaitReminderPlanner {
-  /// Délais avant l'expiration auxquels l'utilisateur est prévenu.
-  static const leadTimes = [Duration(hours: 24), Duration(hours: 3)];
+  /// Délais avant l'expiration auxquels l'utilisateur est prévenu, du plus
+  /// éloigné au plus proche. Le plus proche sert aux forfaits découverts tard :
+  /// un forfait qui expire dans 20 min n'aurait sinon aucun rappel.
+  static const leadTimes = [
+    Duration(hours: 24),
+    Duration(hours: 3),
+    Duration(hours: 1),
+    Duration(minutes: 30),
+    Duration(minutes: 10),
+  ];
+
+  /// À partir de ce délai, le rappel est « final » (voir
+  /// `ForfaitReminder.isFinal`).
+  static const finalWithin = Duration(hours: 1);
 
   /// Plage d'identifiants de notification réservée aux rappels. Les autres
   /// notifications locales ont pour identifiant un horodatage en secondes
@@ -113,23 +104,15 @@ class ForfaitReminderPlanner {
     }
   }
 
-  /// Le forfait donne accès à internet.
-  static bool hasData(ForfaitActif2 forfait) => forfait.dataCompteur != null;
-
-  /// Le forfait comprend des appels ou des SMS.
-  static bool hasVoice(ForfaitActif2 forfait) =>
-      forfait.minutesCompteur != null || forfait.smsCompteur != null;
-
-  /// Le rappel est-il actif pour ce forfait ? Le choix de l'utilisateur
-  /// ([overrides], par produit) l'emporte ; sinon, actif pour les forfaits avec
-  /// internet ou avec appels/SMS. Sert aussi à l'état de la cloche.
+  /// Le rappel est-il actif pour ce forfait ? Actif par défaut ; le choix de
+  /// l'utilisateur ([overrides], par produit) l'emporte. Sert aussi à l'état de
+  /// la cloche.
   static bool isEnabled(ForfaitActif2 forfait, Map<int, bool> overrides) =>
-      overrides[forfait.produitId] ?? (hasData(forfait) || hasVoice(forfait));
+      overrides[forfait.produitId] ?? true;
 
   /// Rappels à programmer pour [forfaits], triés par date.
   ///
   /// [overrides] : choix explicite par produit (`produitId` → actif ou non).
-  /// Un « oui » explicite est honoré tel quel, sans les filtres ci-dessus.
   static List<ForfaitReminder> plan(
     Iterable<ForfaitActif2> forfaits, {
     Map<int, bool> overrides = const {},
@@ -137,36 +120,28 @@ class ForfaitReminderPlanner {
   }) {
     final current = now ?? tz.TZDateTime.now(location);
 
-    final known = <({ForfaitActif2 forfait, tz.TZDateTime expiresAt})>[];
+    final due = <ForfaitReminder>[];
     for (final forfait in forfaits) {
+      if (!isEnabled(forfait, overrides)) continue;
       final expiresAt = parseExpiry(forfait.dateFin);
       if (expiresAt == null) continue;
-      known.add((forfait: forfait, expiresAt: expiresAt));
-    }
 
-    final due = <ForfaitReminder>[];
-    for (final item in known) {
-      final forfait = item.forfait;
-      final explicit = overrides[forfait.produitId];
-      if (explicit == false) continue;
-      if (explicit == null && !_worthWarning(item, known)) continue;
-
-      final data = forfait.dataCompteur;
+      final sentAt = <int>{};
       for (final lead in leadTimes) {
-        final at = _outsideQuietHours(item.expiresAt.subtract(lead));
+        final at = _outsideQuietHours(expiresAt.subtract(lead));
         // Passé, ou décalé avant maintenant : l'utilisateur est dans l'app à ce
         // moment-là, on ne le dérange pas.
         if (!at.isAfter(current)) continue;
+        // Plusieurs rappels ramenés à la même heure par la nuit : un seul part
+        // (le plus éloigné, puisque [leadTimes] va du plus loin au plus près).
+        if (!sentAt.add(at.millisecondsSinceEpoch)) continue;
         due.add(
           ForfaitReminder(
             id: 0,
             at: at,
             forfaitName: forfait.nom,
-            expiresAt: item.expiresAt,
+            expiresAt: expiresAt,
             lead: lead,
-            hasData: data != null,
-            dataLeft:
-                data != null && data.valeurRestante > 0 ? data.vrLisible : null,
           ),
         );
       }
@@ -181,48 +156,9 @@ class ForfaitReminderPlanner {
           forfaitName: due[i].forfaitName,
           expiresAt: due[i].expiresAt,
           lead: due[i].lead,
-          hasData: due[i].hasData,
-          dataLeft: due[i].dataLeft,
         ),
     ];
   }
-
-  /// Vrai si l'expiration de [item] laisserait l'utilisateur sans l'un des
-  /// services qu'il lui reste à consommer (internet, appels/SMS) : aucun autre
-  /// forfait fournissant ce service ne dure plus longtemps.
-  ///
-  /// « Valide » se juge à l'heure de l'expiration de [item], pas à l'heure
-  /// actuelle : un forfait qui expire avant ne couvre rien. Sinon, avec deux
-  /// forfaits, aucun des deux ne déclencherait de rappel.
-  static bool _worthWarning(
-    ({ForfaitActif2 forfait, tz.TZDateTime expiresAt}) item,
-    List<({ForfaitActif2 forfait, tz.TZDateTime expiresAt})> all,
-  ) {
-    return _remaining(item.forfait).any(
-      (service) =>
-          !all.any(
-            (other) =>
-                !identical(other.forfait, item.forfait) &&
-                other.expiresAt.isAfter(item.expiresAt) &&
-                _provided(other.forfait).contains(service),
-          ),
-    );
-  }
-
-  /// Services que fournit [forfait], épuisés ou non. Un forfait mixte (internet
-  /// et appels) en fournit deux.
-  static Set<_Service> _provided(ForfaitActif2 forfait) => {
-    if (hasData(forfait)) _Service.data,
-    if (hasVoice(forfait)) _Service.voice,
-  };
-
-  /// Services de [forfait] dont il reste quelque chose à consommer.
-  static Set<_Service> _remaining(ForfaitActif2 forfait) => {
-    if ((forfait.dataCompteur?.valeurRestante ?? 0) > 0) _Service.data,
-    if ((forfait.minutesCompteur?.valeurRestante ?? 0) > 0 ||
-        (forfait.smsCompteur?.valeurRestante ?? 0) > 0)
-      _Service.voice,
-  };
 
   /// Avance à 21 h 30 la veille au soir un instant tombant dans la nuit.
   static tz.TZDateTime _outsideQuietHours(tz.TZDateTime at) {
@@ -239,31 +175,22 @@ class ForfaitReminderPlanner {
     );
   }
 
-  /// Titre et texte de [reminder] dans la langue de [l10n]. Le premier rappel
-  /// donne ce qu'il reste ; le dernier dit ce qui se passe sans nouveau forfait.
+  /// Titre et texte de [reminder] dans la langue de [l10n]. Le titre est plus
+  /// pressant pour les rappels de dernière minute ; le texte dit seulement quel
+  /// forfait expire, et quand.
   static ({String title, String body}) message(
     AppLocalizations l10n,
     ForfaitReminder reminder,
   ) {
-    final name = reminder.forfaitName;
-    final date = _displayFormat.format(reminder.expiresAt);
-
-    if (reminder.isFinal) {
-      return (
-        title: l10n.forfaitReminderTitleFinal,
-        body:
-            reminder.hasData
-                ? l10n.forfaitReminderFinalData(name, date)
-                : l10n.forfaitReminderFinal(name, date),
-      );
-    }
-    final left = reminder.dataLeft;
     return (
-      title: l10n.forfaitReminderTitle,
-      body:
-          left != null
-              ? l10n.forfaitReminderEarlyData(name, date, left)
-              : l10n.forfaitReminderEarly(name, date),
+      title:
+          reminder.isFinal
+              ? l10n.forfaitReminderTitleFinal
+              : l10n.forfaitReminderTitle,
+      body: l10n.forfaitReminderBody(
+        reminder.forfaitName,
+        _displayFormat.format(reminder.expiresAt),
+      ),
     );
   }
 }

@@ -68,27 +68,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get forfaitReminderTitle => 'Votre forfait expire bientôt';
 
   @override
-  String get forfaitReminderTitleFinal =>
-      'Votre forfait expire dans quelques heures';
+  String get forfaitReminderTitleFinal => 'Votre forfait expire très bientôt';
 
   @override
-  String forfaitReminderEarly(String name, String date) {
-    return '$name expire le $date. Pensez à le renouveler.';
-  }
-
-  @override
-  String forfaitReminderEarlyData(String name, String date, String left) {
-    return '$name expire le $date. Il vous reste $left : pensez à le renouveler.';
-  }
-
-  @override
-  String forfaitReminderFinal(String name, String date) {
-    return '$name expire le $date. Pensez à le renouveler.';
-  }
-
-  @override
-  String forfaitReminderFinalData(String name, String date) {
-    return '$name expire le $date. Sans nouveau forfait, votre internet mobile sera décompté de votre crédit.';
+  String forfaitReminderBody(String name, String date) {
+    return '$name expire le $date.';
   }
 
   @override
