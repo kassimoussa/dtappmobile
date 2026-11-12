@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' hide PermissionStatus;
 import 'package:permission_handler/permission_handler.dart';
 import '../generated/l10n/app_localizations.dart';
+import '../services/recent_recipients_service.dart';
+import 'recent_recipients_bar.dart';
 
 class PhoneNumberSelector extends StatefulWidget {
   final TextEditingController controller;
@@ -16,6 +18,9 @@ class PhoneNumberSelector extends StatefulWidget {
   final bool showCountryCode;
   final String countryCode;
 
+  /// Affiche sous le champ les destinataires déjà utilisés (récents, favoris).
+  final bool showRecents;
+
   const PhoneNumberSelector({
     super.key,
     required this.controller,
@@ -26,6 +31,7 @@ class PhoneNumberSelector extends StatefulWidget {
     this.validator,
     this.showCountryCode = true,
     this.countryCode = '+253',
+    this.showRecents = true,
   });
 
   @override
@@ -289,6 +295,8 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
               : null,
           onTap: () {
             if (phoneNumber.isNotEmpty) {
+              // Le nom n'est écrit sur le téléphone que si l'opération aboutit.
+              RecentRecipientsService.noteContactName(phoneNumber, name);
               widget.controller.text = phoneNumber;
               if (widget.onChanged != null) {
                 widget.onChanged!(phoneNumber);
@@ -401,6 +409,15 @@ class _PhoneNumberSelectorState extends State<PhoneNumberSelector> {
             ],
           ),
         ),
+
+        if (widget.showRecents && widget.enabled)
+          RecentRecipientsBar(
+            onSelected: (number) {
+              final formatted = RecentRecipientsBar.format(number);
+              widget.controller.text = formatted;
+              widget.onChanged?.call(formatted);
+            },
+          ),
       ],
     );
   }

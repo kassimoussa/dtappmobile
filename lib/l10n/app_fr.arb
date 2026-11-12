@@ -821,6 +821,16 @@
     "consentDeclineNotice": "Refuser vous déconnectera de l'application. Vous pourrez accepter plus tard en vous reconnectant.",
     "consentCheckboxBoth": "J'ai lu et j'accepte ces deux documents",
     "privacyPolicyLinkText": "Politique de confidentialité",
+    "recentRecipientsTitle": "Récents et favoris",
+    "recipientAddFavorite": "Ajouter aux favoris",
+    "recipientRemoveFavorite": "Retirer des favoris",
+    "recipientForget": "Retirer de la liste",
+    "receiptShareAction": "Partager le reçu",
+    "receiptHeader": "Reçu DJIBTEL",
+    "receiptPurchaseTitle": "Achat de forfait",
+    "receiptShareError": "Impossible de partager le reçu",
+    "receiptShareAsImage": "Partager en image",
+    "receiptShareAsText": "Partager en texte",
     "balanceDisplay": "Solde: {amount} {currency}",
     "@balanceDisplay": {
       "placeholders": {

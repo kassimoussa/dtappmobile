@@ -3584,6 +3584,66 @@ abstract class AppLocalizations {
   /// **'Politique de confidentialité'**
   String get privacyPolicyLinkText;
 
+  /// No description provided for @recentRecipientsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récents et favoris'**
+  String get recentRecipientsTitle;
+
+  /// No description provided for @recipientAddFavorite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter aux favoris'**
+  String get recipientAddFavorite;
+
+  /// No description provided for @recipientRemoveFavorite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer des favoris'**
+  String get recipientRemoveFavorite;
+
+  /// No description provided for @recipientForget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer de la liste'**
+  String get recipientForget;
+
+  /// No description provided for @receiptShareAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager le reçu'**
+  String get receiptShareAction;
+
+  /// No description provided for @receiptHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reçu DJIBTEL'**
+  String get receiptHeader;
+
+  /// No description provided for @receiptPurchaseTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat de forfait'**
+  String get receiptPurchaseTitle;
+
+  /// No description provided for @receiptShareError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de partager le reçu'**
+  String get receiptShareError;
+
+  /// No description provided for @receiptShareAsImage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager en image'**
+  String get receiptShareAsImage;
+
+  /// No description provided for @receiptShareAsText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager en texte'**
+  String get receiptShareAsText;
+
   /// No description provided for @balanceDisplay.
   ///
   /// In fr, this message translates to:

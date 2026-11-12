@@ -1942,6 +1942,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyPolicyLinkText => 'Privacy Policy';
 
   @override
+  String get recentRecipientsTitle => 'Recent and favorites';
+
+  @override
+  String get recipientAddFavorite => 'Add to favorites';
+
+  @override
+  String get recipientRemoveFavorite => 'Remove from favorites';
+
+  @override
+  String get recipientForget => 'Remove from list';
+
+  @override
+  String get receiptShareAction => 'Share receipt';
+
+  @override
+  String get receiptHeader => 'DJIBTEL receipt';
+
+  @override
+  String get receiptPurchaseTitle => 'Package purchase';
+
+  @override
+  String get receiptShareError => 'Unable to share the receipt';
+
+  @override
+  String get receiptShareAsImage => 'Share as image';
+
+  @override
+  String get receiptShareAsText => 'Share as text';
+
+  @override
   String balanceDisplay(String amount, String currency) {
     return 'Balance: $amount $currency';
   }

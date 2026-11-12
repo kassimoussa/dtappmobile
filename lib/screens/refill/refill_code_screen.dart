@@ -2,12 +2,15 @@ import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/widgets/dt_button.dart';
 import 'package:dtservices/utils/responsive_size.dart';
+import 'package:dtservices/services/recent_recipients_service.dart';
 import 'package:dtservices/services/refill_service.dart';
 import 'package:dtservices/services/user_session.dart';
 import 'package:dtservices/models/refill_models.dart';
 import 'package:dtservices/screens/refill/refill_scan_screen.dart';
+import 'package:dtservices/utils/receipt.dart';
 import 'package:dtservices/utils/refill_code_input_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../providers/balance_provider.dart';
@@ -417,6 +420,12 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
     final newBalance = RefillService.getNewBalanceFromResponse(response);
     final refillAmount = RefillService.getRefillAmountFromResponse(response);
 
+    if (widget.isGift) {
+      RecentRecipientsService.record(widget.phoneNumber).ignore();
+    }
+    // Heure de la recharge, figée pour que le reçu ne porte pas l'heure du partage.
+    final refilledAt = DateTime.now();
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -497,6 +506,35 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
             ],
           ),
           actions: [
+            if (refillAmount != null)
+              Builder(
+                builder:
+                    (buttonContext) => TextButton(
+                      onPressed: () {
+                        final l10n = AppLocalizations.of(buttonContext)!;
+                        Receipt(
+                          title: l10n.refillTitle,
+                          lines: [
+                            (
+                              label: l10n.toLabel,
+                              value: '+253 ${widget.phoneNumber}',
+                            ),
+                            (
+                              label: l10n.refillAmount,
+                              value: '${refillAmount.toStringAsFixed(0)} DJF',
+                            ),
+                            (
+                              label: l10n.dateKey,
+                              value: DateFormat(
+                                'dd/MM/yyyy HH:mm',
+                              ).format(refilledAt),
+                            ),
+                          ],
+                        ).share(buttonContext);
+                      },
+                      child: Text(AppLocalizations.of(buttonContext)!.receiptShareAction),
+                    ),
+              ),
             TextButton(
               onPressed: () {
                 // Fermer le dialog et revenir à l'écran principal

@@ -779,6 +779,16 @@
     "consentDeclineNotice": "Declining will sign you out. You can accept later by signing in again.",
     "consentCheckboxBoth": "I have read and accept both documents",
     "privacyPolicyLinkText": "Privacy Policy",
+    "recentRecipientsTitle": "Recent and favorites",
+    "recipientAddFavorite": "Add to favorites",
+    "recipientRemoveFavorite": "Remove from favorites",
+    "recipientForget": "Remove from list",
+    "receiptShareAction": "Share receipt",
+    "receiptHeader": "DJIBTEL receipt",
+    "receiptPurchaseTitle": "Package purchase",
+    "receiptShareError": "Unable to share the receipt",
+    "receiptShareAsImage": "Share as image",
+    "receiptShareAsText": "Share as text",
     "balanceDisplay": "Balance: {amount} {currency}",
     "@balanceDisplay": {
       "placeholders": {

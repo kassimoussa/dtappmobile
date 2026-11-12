@@ -4,6 +4,8 @@ import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
 import '../models/activity.dart';
 import '../generated/l10n/app_localizations.dart';
+import '../utils/receipt.dart';
+import 'dt_button.dart';
 
 /// Affiche les détails d'une activité dans une feuille modale.
 Future<void> showActivityDetailSheet(BuildContext context, Activity activity) {
@@ -161,6 +163,48 @@ class ActivityDetailSheet extends StatelessWidget {
     return fee != null ? '${fee.toStringAsFixed(0)} DJF' : null;
   }
 
+  // Lignes du tableau de détails, dans l'ordre d'affichage. Le reçu à partager
+  // reprend exactement les mêmes lignes, sans le signe devant le total.
+  List<({String label, String value})> _detailRows(
+    AppLocalizations l10n, {
+    required bool showGenericDescriptionRow,
+    required String totalPrefix,
+  }) {
+    final sender = _senderMsisdn;
+    final fixedLine = _fixedLineNumber;
+    final beneficiary = activity.beneficiaryMsisdn;
+    final packageCode = _packageCode;
+    final fee = _feeAmount;
+    final amount = activity.amount;
+    final total = activity.totalAmount;
+
+    return [
+      (label: l10n.transactionId, value: activity.transactionNo),
+      (label: l10n.dateKey, value: activity.formattedDate),
+      if (sender != null)
+        (label: l10n.fromLabel, value: sender)
+      else if (fixedLine != null && fixedLine.isNotEmpty)
+        (label: l10n.rechargedLineLabel, value: fixedLine)
+      else if (beneficiary != null && beneficiary.isNotEmpty)
+        (label: l10n.beneficiaryLabel, value: _cleanPhoneNumber(beneficiary)),
+      if (packageCode != null && packageCode.isNotEmpty)
+        (label: l10n.packageCodeLabel, value: packageCode),
+      // Sans frais, la ligne « Montant » ferait doublon avec le total
+      if (fee != null) ...[
+        if (amount != null)
+          (label: l10n.amountKey, value: '${amount.abs().toStringAsFixed(0)} DJF'),
+        (label: l10n.feeLabel, value: fee),
+      ],
+      if (showGenericDescriptionRow)
+        (label: l10n.descriptionLabel, value: activity.description!),
+      if (total != null)
+        (
+          label: l10n.totalAmountLabel,
+          value: '$totalPrefix${total.abs().toStringAsFixed(0)} DJF',
+        ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     ResponsiveSize.init(context);
@@ -189,6 +233,12 @@ class ActivityDetailSheet extends StatelessWidget {
         activity.description != null &&
         activity.description!.trim().isNotEmpty &&
         activity.description != activity.actionLabel;
+
+    final rows = _detailRows(
+      l10n,
+      showGenericDescriptionRow: showGenericDescriptionRow,
+      totalPrefix: amountPrefix,
+    );
 
     return Container(
       constraints: BoxConstraints(
@@ -337,54 +387,35 @@ class ActivityDetailSheet extends StatelessWidget {
 
               // Informations générales
               _buildCard([
-                _buildInfoRow(l10n.transactionId, activity.transactionNo),
-                _buildDivider(),
-                _buildInfoRow(l10n.dateKey, activity.formattedDate),
-                if (_senderMsisdn != null) ...[
-                  _buildDivider(),
-                  _buildInfoRow(l10n.fromLabel, _senderMsisdn!),
-                ] else if (_fixedLineNumber != null &&
-                    _fixedLineNumber!.isNotEmpty) ...[
-                  _buildDivider(),
-                  _buildInfoRow(l10n.rechargedLineLabel, _fixedLineNumber!),
-                ] else if (activity.beneficiaryMsisdn != null &&
-                    activity.beneficiaryMsisdn!.isNotEmpty) ...[
-                  _buildDivider(),
-                  _buildInfoRow(
-                    l10n.beneficiaryLabel,
-                    _cleanPhoneNumber(activity.beneficiaryMsisdn!),
-                  ),
-                ],
-                if (_packageCode != null && _packageCode!.isNotEmpty) ...[
-                  _buildDivider(),
-                  _buildInfoRow(l10n.packageCodeLabel, _packageCode!),
-                ],
-                if (_feeAmount != null) ...[
-                  // Sans frais, cette ligne ferait doublon avec le total
-                  if (activity.amount != null) ...[
-                    _buildDivider(),
-                    _buildInfoRow(
-                      l10n.amountKey,
-                      '${activity.amount!.abs().toStringAsFixed(0)} DJF',
-                    ),
-                  ],
-                  _buildDivider(),
-                  _buildInfoRow(l10n.feeLabel, _feeAmount!),
-                ],
-                if (showGenericDescriptionRow) ...[
-                  _buildDivider(),
-                  _buildInfoRow(l10n.descriptionLabel, activity.description!),
-                ],
-                if (activity.totalAmount != null) ...[
-                  _buildDivider(),
-                  _buildInfoRow(
-                    l10n.totalAmountLabel,
-                    "$amountPrefix${activity.totalAmount!.abs().toStringAsFixed(0)} DJF",
-                  ),
+                for (var i = 0; i < rows.length; i++) ...[
+                  if (i > 0) _buildDivider(),
+                  _buildInfoRow(rows[i].label, rows[i].value),
                 ],
               ]),
 
               SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
+
+              // Reçu à envoyer (opérations réussies seulement)
+              if (activity.status.toLowerCase() == 'success') ...[
+                Builder(
+                  builder:
+                      (buttonContext) => DtButton.secondary(
+                        label: l10n.receiptShareAction,
+                        icon: Icons.ios_share_rounded,
+                        onPressed:
+                            () => Receipt(
+                              title: activity.displayTitle(l10n),
+                              lines: _detailRows(
+                                l10n,
+                                showGenericDescriptionRow:
+                                    showGenericDescriptionRow,
+                                totalPrefix: '',
+                              ),
+                            ).share(buttonContext),
+                      ),
+                ),
+                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingS)),
+              ],
 
               // Bouton fermer
               SizedBox(

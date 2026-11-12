@@ -2,8 +2,11 @@ import 'package:dtservices/constants/app_theme.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/screens/core/main_screen.dart';
+import 'package:dtservices/utils/receipt.dart';
 import 'package:dtservices/utils/responsive_size.dart';
+import 'package:dtservices/widgets/dt_button.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'dart:async';
 import '../../generated/l10n/app_localizations.dart';
 
@@ -31,6 +34,9 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
     with SingleTickerProviderStateMixin {
   late Timer _redirectTimer;
   int _remainingSeconds = 5; // Compte à rebours de 5 secondes
+  bool _redirectPaused = false;
+  // Heure du transfert, figée pour que le reçu ne porte pas l'heure du partage.
+  final DateTime _transferredAt = DateTime.now();
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
@@ -85,6 +91,38 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
     _redirectTimer.cancel();
     _animationController.dispose();
     super.dispose();
+  }
+
+  /// Partage le reçu. L'utilisateur est en train d'agir : on arrête le retour
+  /// automatique à l'accueil, qui lui retirerait l'écran pendant le partage.
+  void _shareReceipt(BuildContext buttonContext, AppLocalizations l10n) {
+    _redirectTimer.cancel();
+    setState(() => _redirectPaused = true);
+
+    Receipt(
+      title: l10n.transferTitle,
+      lines: [
+        (label: l10n.fromLabel, value: '+253 ${widget.phoneNumber}'),
+        (label: l10n.toLabel, value: '+253 ${widget.recipient}'),
+        (
+          label: l10n.transferedAmount,
+          value: '${widget.amount.toStringAsFixed(0)} DJF',
+        ),
+        (
+          label: l10n.transferFees,
+          value: '${widget.transferFee.toStringAsFixed(0)} DJF',
+        ),
+        (
+          label: l10n.totalDebit,
+          value:
+              '${(widget.amount + widget.transferFee).toStringAsFixed(0)} DJF',
+        ),
+        (
+          label: l10n.dateKey,
+          value: DateFormat('dd/MM/yyyy HH:mm').format(_transferredAt),
+        ),
+      ],
+    ).share(buttonContext);
   }
 
   void _redirectToHome() {
@@ -320,7 +358,21 @@ class _TransferSuccessScreenState extends State<TransferSuccessScreen>
 
                         SizedBox(height: ResponsiveSize.getHeight(16)),
 
+                        Builder(
+                          builder: (buttonContext) => DtButton.secondary(
+                            label: AppLocalizations.of(context)!.receiptShareAction,
+                            icon: Icons.ios_share_rounded,
+                            onPressed: () => _shareReceipt(
+                              buttonContext,
+                              AppLocalizations.of(context)!,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: ResponsiveSize.getHeight(16)),
+
                         // Compte à rebours
+                        if (!_redirectPaused)
                         Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: ResponsiveSize.getWidth(

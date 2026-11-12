@@ -1974,6 +1974,36 @@ class AppLocalizationsFr extends AppLocalizations {
   String get privacyPolicyLinkText => 'Politique de confidentialité';
 
   @override
+  String get recentRecipientsTitle => 'Récents et favoris';
+
+  @override
+  String get recipientAddFavorite => 'Ajouter aux favoris';
+
+  @override
+  String get recipientRemoveFavorite => 'Retirer des favoris';
+
+  @override
+  String get recipientForget => 'Retirer de la liste';
+
+  @override
+  String get receiptShareAction => 'Partager le reçu';
+
+  @override
+  String get receiptHeader => 'Reçu DJIBTEL';
+
+  @override
+  String get receiptPurchaseTitle => 'Achat de forfait';
+
+  @override
+  String get receiptShareError => 'Impossible de partager le reçu';
+
+  @override
+  String get receiptShareAsImage => 'Partager en image';
+
+  @override
+  String get receiptShareAsText => 'Partager en texte';
+
+  @override
   String balanceDisplay(String amount, String currency) {
     return 'Solde: $amount $currency';
   }

@@ -6,6 +6,7 @@ import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/models/forfait.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
 import 'package:dtservices/services/purchase_offer_service.dart';
+import 'package:dtservices/services/recent_recipients_service.dart';
 import 'package:dtservices/services/user_session.dart';
 import 'package:dtservices/services/biometric_auth_service.dart';
 import 'package:dtservices/utils/responsive_size.dart';
@@ -195,6 +196,10 @@ class _ForfaitConfirmationScreenState extends State<ForfaitConfirmationScreen>
           widget.onAchatReussi?.call();
           context.read<BalanceProvider>().refreshBalance();
           context.read<TransactionProvider>().refresh();
+
+          if (_effectivePurchaseType == PurchaseType.gift) {
+            RecentRecipientsService.record(widget.phoneNumber).ignore();
+          }
 
           Navigator.pushReplacement(
             context,

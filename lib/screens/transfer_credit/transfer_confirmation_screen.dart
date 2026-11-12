@@ -3,6 +3,7 @@ import 'package:dtservices/widgets/dt_button.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/providers/balance_provider.dart';
 import 'package:dtservices/screens/transfer_credit/transfer_success_screen.dart';
+import 'package:dtservices/services/recent_recipients_service.dart';
 import 'package:dtservices/services/transfer_credit_service.dart';
 import 'package:dtservices/services/biometric_auth_service.dart';
 import 'package:dtservices/services/user_session.dart';
@@ -368,6 +369,8 @@ class _TransferConfirmationScreenState
 
           // Rafraîchir l'historique pour que le transfert apparaisse
           context.read<TransactionProvider>().refresh();
+
+          RecentRecipientsService.record(widget.recipient).ignore();
 
           // Navigation vers l'écran de succès
           Navigator.pushReplacement(

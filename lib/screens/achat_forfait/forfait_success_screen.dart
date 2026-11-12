@@ -5,8 +5,11 @@ import 'package:dtservices/extensions/color_extensions.dart';
 import 'package:dtservices/models/forfait.dart';
 import 'package:dtservices/routes/custom_route_transitions.dart';
 import 'package:dtservices/screens/core/main_screen.dart';
+import 'package:dtservices/utils/receipt.dart';
 import 'package:dtservices/utils/responsive_size.dart';
+import 'package:dtservices/widgets/dt_button.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'dart:async';
 import '../../generated/l10n/app_localizations.dart';
 import '../../utils/validity_translator.dart';
@@ -31,6 +34,9 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
     with SingleTickerProviderStateMixin {
   late Timer _redirectTimer;
   int _remainingSeconds = 5;
+  bool _redirectPaused = false;
+  // Heure de l'achat, figée pour que le reçu ne porte pas l'heure du partage.
+  final DateTime _purchasedAt = DateTime.now();
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
@@ -88,6 +94,32 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
     _redirectTimer.cancel();
     _animationController.dispose();
     super.dispose();
+  }
+
+  /// Partage le reçu. L'utilisateur est en train d'agir : on arrête le retour
+  /// automatique à l'accueil, qui lui retirerait l'écran pendant le partage.
+  void _shareReceipt(BuildContext buttonContext, AppLocalizations l10n) {
+    _redirectTimer.cancel();
+    setState(() => _redirectPaused = true);
+
+    Receipt(
+      title: l10n.receiptPurchaseTitle,
+      lines: [
+        (label: l10n.packageLabel, value: widget.forfait.nom),
+        (label: l10n.recipientLabel, value: '+253 ${widget.phoneNumber}'),
+        (label: l10n.priceLabel, value: '${widget.forfait.prix} DJF'),
+        if (widget.forfait.data != null)
+          (label: l10n.internetLabel, value: widget.forfait.data!),
+        (
+          label: l10n.validityLabel,
+          value: translateValidity(widget.forfait.validite, l10n),
+        ),
+        (
+          label: l10n.dateKey,
+          value: DateFormat('dd/MM/yyyy HH:mm').format(_purchasedAt),
+        ),
+      ],
+    ).share(buttonContext);
   }
 
   void _redirectToHome() {
@@ -264,7 +296,16 @@ class _ForfaitSuccessScreenState extends State<ForfaitSuccessScreen>
                                         ),
                                       ),
                                     ),
+                                    SizedBox(height: ResponsiveSize.getHeight(12)),
+                                    Builder(
+                                      builder: (buttonContext) => DtButton.secondary(
+                                        label: l10n.receiptShareAction,
+                                        icon: Icons.ios_share_rounded,
+                                        onPressed: () => _shareReceipt(buttonContext, l10n),
+                                      ),
+                                    ),
                                     SizedBox(height: ResponsiveSize.getHeight(16)),
+                                    if (!_redirectPaused)
                                     Container(
                                       padding: EdgeInsets.symmetric(
                                         horizontal: ResponsiveSize.getWidth(16),
