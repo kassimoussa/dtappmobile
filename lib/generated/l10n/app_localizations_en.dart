@@ -630,13 +630,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refillInstructions =>
-      '• Scratch the card to reveal the 12-digit code, or scan the QR code on your voucher\n• Enter the full code without spaces or dashes\n• Credit will be added immediately after validation\n• Each code can only be used once';
+      '• Scratch card: scratch to reveal the 12-digit code, then enter it (spaces are added automatically)\n• Voucher: scan the QR code, or enter the printed code\n• Credit will be added immediately after validation\n• Each code can only be used once';
 
   @override
-  String get refillScanButton => 'Scan the voucher';
+  String get refillScanButton => 'Scan the QR code';
 
   @override
-  String get refillScanTitle => 'Scan the voucher';
+  String get refillScanTitle => 'Scan the QR code';
 
   @override
   String get refillScanHint => 'Place the voucher\'s QR code inside the frame';

@@ -1247,19 +1247,19 @@ abstract class AppLocalizations {
   /// No description provided for @refillInstructions.
   ///
   /// In fr, this message translates to:
-  /// **'• Grattez la carte pour révéler le code à 12 chiffres, ou scannez le QR code de votre ticket\n• Saisissez le code complet sans espaces ni tirets\n• Le crédit sera ajouté immédiatement après validation\n• Chaque code ne peut être utilisé qu\'une seule fois'**
+  /// **'• Carte à gratter : grattez pour révéler le code à 12 chiffres, puis saisissez-le (les espaces s\'ajoutent tout seuls)\n• Ticket : scannez le QR code, ou saisissez le code imprimé\n• Le crédit sera ajouté immédiatement après validation\n• Chaque code ne peut être utilisé qu\'une seule fois'**
   String get refillInstructions;
 
   /// No description provided for @refillScanButton.
   ///
   /// In fr, this message translates to:
-  /// **'Scanner le ticket'**
+  /// **'Scanner le QR code'**
   String get refillScanButton;
 
   /// No description provided for @refillScanTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Scanner le ticket'**
+  /// **'Scanner le QR code'**
   String get refillScanTitle;
 
   /// No description provided for @refillScanHint.

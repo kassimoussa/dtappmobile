@@ -302,7 +302,7 @@ class _RefillCodeScreenState extends State<RefillCodeScreen> {
     final bool isFormValid = _codeError == null && cleanCode.length == 12;
 
     return DtButton.primary(
-      label: AppLocalizations.of(context)!.confirm,
+      label: AppLocalizations.of(context)!.confirmRefill,
       loading: _isLoading,
       onPressed: isFormValid ? _validateAndProcessRefill : null,
     );

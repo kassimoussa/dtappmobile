@@ -639,13 +639,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get refillInstructions =>
-      '• Grattez la carte pour révéler le code à 12 chiffres, ou scannez le QR code de votre ticket\n• Saisissez le code complet sans espaces ni tirets\n• Le crédit sera ajouté immédiatement après validation\n• Chaque code ne peut être utilisé qu\'une seule fois';
+      '• Carte à gratter : grattez pour révéler le code à 12 chiffres, puis saisissez-le (les espaces s\'ajoutent tout seuls)\n• Ticket : scannez le QR code, ou saisissez le code imprimé\n• Le crédit sera ajouté immédiatement après validation\n• Chaque code ne peut être utilisé qu\'une seule fois';
 
   @override
-  String get refillScanButton => 'Scanner le ticket';
+  String get refillScanButton => 'Scanner le QR code';
 
   @override
-  String get refillScanTitle => 'Scanner le ticket';
+  String get refillScanTitle => 'Scanner le QR code';
 
   @override
   String get refillScanHint => 'Placez le QR code du ticket dans le cadre';

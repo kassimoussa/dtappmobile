@@ -512,26 +512,26 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         SizedBox(height: _metrics.beforeDots),
-        // Dots indicator
+        // Indicateur de page : ronds, sur le fond clair sous les cartes (le bleu
+        // s'arrête au-dessus). Le rond inactif doit rester visible, sinon on ne
+        // voit pas qu'il existe une deuxième carte.
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(2, (index) {
+            final dot = ResponsiveSize.getWidth(8);
             return AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               margin: EdgeInsets.symmetric(
                 horizontal: ResponsiveSize.getWidth(4),
               ),
-              height: ResponsiveSize.getHeight(6),
-              width:
-                  _currentBalancePage == index
-                      ? ResponsiveSize.getWidth(24)
-                      : ResponsiveSize.getWidth(8),
+              height: dot,
+              width: dot,
               decoration: BoxDecoration(
+                shape: BoxShape.circle,
                 color:
                     _currentBalancePage == index
-                        ? AppTheme.dtYellow
-                        : Colors.white.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(10),
+                        ? AppTheme.dtBlue
+                        : AppTheme.dtBlueO30,
               ),
             );
           }),
