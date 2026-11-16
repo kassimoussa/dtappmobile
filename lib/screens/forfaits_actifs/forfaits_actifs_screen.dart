@@ -1,5 +1,7 @@
 // lib/screens/forfaits_actifs_screen.dart
 import 'package:dtservices/models/forfait_actif2.dart';
+import 'package:dtservices/screens/achat_forfait/forfait_recipient_screen.dart';
+import 'package:dtservices/services/user_session.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:dtservices/services/forfait_actif_service.dart';
 import 'package:dtservices/services/forfait_reminder_planner.dart';
@@ -8,6 +10,7 @@ import 'package:dtservices/widgets/cards/forfait_actif_card2.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/app_theme.dart';
+import '../../routes/custom_route_transitions.dart';
 import '../../utils/responsive_size.dart';
 import '../../generated/l10n/app_localizations.dart';
 
@@ -32,6 +35,18 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
     super.initState();
     _loadForfaitsActifs();
     _loadReminderOverrides();
+  }
+
+  /// Ouvre l'achat de forfaits, comme le bouton « Acheter un forfait » de
+  /// l'accueil (choix du numéro, puis catégories).
+  Future<void> _openPurchase() async {
+    final phoneNumber = await UserSession.getPhoneNumber();
+    if (!mounted) return;
+    Navigator.of(context).push(
+      CustomRouteTransitions.slideRightRoute(
+        page: ForfaitRecipientScreen(phoneNumber: phoneNumber),
+      ),
+    );
   }
 
   Future<void> _loadReminderOverrides() async {
@@ -283,10 +298,7 @@ class _ForfaitsActifsScreenState extends State<ForfaitsActifsScreen> {
             ),
             SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
             ElevatedButton.icon(
-              onPressed: () {
-                // Navigation vers l'écran d'achat de forfaits
-                Navigator.of(context).pop();
-              },
+              onPressed: _openPurchase,
               icon: const Icon(Icons.shopping_cart),
               label: Text(AppLocalizations.of(context)!.buyAPackage),
               style: ElevatedButton.styleFrom(

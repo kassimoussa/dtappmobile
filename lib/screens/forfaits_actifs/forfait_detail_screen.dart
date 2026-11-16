@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../constants/app_theme.dart';
-import '../../utils/forfait_state_translator.dart';
 import '../../utils/responsive_size.dart';
 import '../../generated/l10n/app_localizations.dart';
 
@@ -266,29 +265,6 @@ class _ForfaitDetailScreenState extends State<ForfaitDetailScreen> {
                         ),
                       ),
                     ],
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveSize.getWidth(AppTheme.spacingS),
-                    vertical: ResponsiveSize.getHeight(AppTheme.spacingXS),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(
-                      ResponsiveSize.getWidth(AppTheme.radiusS),
-                    ),
-                  ),
-                  child: Text(
-                    translateForfaitState(
-                      forfait.etatTexte,
-                      AppLocalizations.of(context)!,
-                    ),
-                    style: TextStyle(
-                      color: Colors.green,
-                      fontSize: ResponsiveSize.getFontSize(12),
-                      fontWeight: FontWeight.bold,
-                    ),
                   ),
                 ),
               ],
