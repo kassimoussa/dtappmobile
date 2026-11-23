@@ -517,7 +517,7 @@
       }
     },
     "checkFixedLine": "Consulter votre ligne fixe",
-    "enterFixedNumberInfo": "Veuillez entrer votre numéro de ligne fixe pour consulter ses soldes",
+    "enterFixedNumberInfo": "Mêmes identifiants que sur le portail client",
     "fixedLineNumberKey": "Numéro de ligne fixe",
     "fixedLineNumberHint": "Ex: 21XXXXXX",
     "fixedBalances": "Soldes Fixes",
@@ -711,6 +711,23 @@
     "quickActions": "Actions rapides",
     "fixedNumberRequired": "Veuillez entrer un numéro de téléphone fixe",
     "fixedNumberFormatError": "Le numéro doit commencer par 21 ou 27 (ou 25321, 25327) et contenir 8 ou 11 chiffres",
+    "fixedLinePinLabel": "Code PIN de la ligne",
+    "fixedLinePinRequired": "Veuillez entrer le code PIN de votre ligne",
+    "fixedLinePinFormatError": "Le code PIN contient de 3 à 12 chiffres",
+    "fixedLinePinWrong": "Numéro ou code PIN incorrect. Après plusieurs essais infructueux, la ligne est bloquée quelques minutes.",
+    "fixedLinePinInvalid": "Numéro ou code PIN invalide. Vérifiez votre saisie.",
+    "fixedLinePinLocked": "Trop de tentatives. Réessayez dans {time}.",
+    "@fixedLinePinLocked": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "fixedLinePinLockedLater": "Trop de tentatives. Réessayez plus tard.",
+    "fixedLinePinTooManyRequests": "Trop de requêtes. Réessayez dans un instant.",
+    "fixedLinePinUnavailable": "Service momentanément indisponible. Réessayez.",
+    "fixedLinePinForgot": "Code PIN oublié ? Contactez le service client de Djibouti Telecom.",
     "fixedHistory": "Historique\nFixe",
     "confirm": "Confirmer",
     "searchActionHint": "Rechercher une action...",

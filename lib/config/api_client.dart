@@ -137,6 +137,42 @@ class ApiClient {
     return _check(response);
   }
 
+  /// POST protégé dont un 401 peut être un refus métier (mauvais PIN) et non
+  /// une session expirée. [answerKey] est la clé que le serveur place dans le
+  /// corps quand c'est lui qui refuse (ex. `verified`) : si elle est présente,
+  /// la session est conservée ; sinon c'est bien la session qui est invalide et
+  /// on applique l'intercepteur habituel.
+  ///
+  /// Le corps de la requête n'est jamais journalisé : il peut contenir un PIN.
+  static Future<http.Response> postKeepingSessionOnAnswer(
+    String path,
+    Map<String, dynamic> body, {
+    required String answerKey,
+    Duration timeout = const Duration(seconds: 20),
+  }) async {
+    final response = await http
+        .post(
+          Uri.parse('${AppConfig.baseUrl}$path'),
+          headers: await authHeaders(),
+          body: jsonEncode(body),
+        )
+        .timeout(timeout);
+    if (response.statusCode == 401 && !_bodyHasKey(response.body, answerKey)) {
+      debugPrint('🔒 ApiClient: session expirée (401) → redirection login');
+      await _handleSessionExpired();
+    }
+    return response;
+  }
+
+  static bool _bodyHasKey(String body, String key) {
+    try {
+      final decoded = jsonDecode(body);
+      return decoded is Map && decoded.containsKey(key);
+    } catch (_) {
+      return false;
+    }
+  }
+
   static Future<http.Response> put(String path,
       [Map<String, dynamic>? body]) async {
     final response = await http

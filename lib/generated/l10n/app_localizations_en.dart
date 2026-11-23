@@ -1246,7 +1246,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get enterFixedNumberInfo =>
-      'Please enter your landline number to check balances';
+      'Same credentials as on the customer portal';
 
   @override
   String get fixedLineNumberKey => 'Landline Number';
@@ -1694,6 +1694,43 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get fixedNumberFormatError =>
       'Number must start with 21 or 27 (or 25321, 25327) and contain 8 or 11 digits';
+
+  @override
+  String get fixedLinePinLabel => 'Line PIN code';
+
+  @override
+  String get fixedLinePinRequired => 'Please enter your line PIN code';
+
+  @override
+  String get fixedLinePinFormatError => 'The PIN code has 3 to 12 digits';
+
+  @override
+  String get fixedLinePinWrong =>
+      'Incorrect number or PIN code. After several failed attempts, the line is locked for a few minutes.';
+
+  @override
+  String get fixedLinePinInvalid =>
+      'Invalid number or PIN code. Check what you entered.';
+
+  @override
+  String fixedLinePinLocked(String time) {
+    return 'Too many attempts. Try again in $time.';
+  }
+
+  @override
+  String get fixedLinePinLockedLater => 'Too many attempts. Try again later.';
+
+  @override
+  String get fixedLinePinTooManyRequests =>
+      'Too many requests. Please try again in a moment.';
+
+  @override
+  String get fixedLinePinUnavailable =>
+      'Service temporarily unavailable. Please try again.';
+
+  @override
+  String get fixedLinePinForgot =>
+      'Forgot your PIN code? Contact Djibouti Telecom customer service.';
 
   @override
   String get fixedHistory => 'Landline\nHistory';

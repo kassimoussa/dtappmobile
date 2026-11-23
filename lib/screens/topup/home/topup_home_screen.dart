@@ -1,5 +1,8 @@
 // lib/screens/topup/topup_home_screen.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:dtservices/widgets/dt_button.dart';
 import 'package:dtservices/widgets/glass_app_bar.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +14,7 @@ import '../../../exceptions/topup_exception.dart';
 import '../../../providers/topup_provider.dart';
 import '../../../providers/balance_provider.dart';
 import '../../../routes/custom_route_transitions.dart';
+import '../../../services/fixed_line_pin_service.dart';
 import '../packages/topup_package_screen.dart';
 import '../subscription/topup_subscription_screen.dart';
 import '../recharge/topup_recharge_screen.dart';
@@ -25,20 +29,39 @@ class TopUpHomeScreen extends StatefulWidget {
 
 class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   final TextEditingController _fixedNumberController = TextEditingController();
+  final TextEditingController _pinController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  /// Message du serveur sous le champ PIN (PIN faux, service indisponible…).
+  String? _pinError;
+
+  /// Secondes restantes avant de pouvoir réessayer (verrou anti brute-force).
+  int _lockSeconds = 0;
+  Timer? _lockTimer;
+
+  /// Garde contre le double envoi : chaque essai raté consomme une tentative.
+  bool _submitting = false;
 
   @override
   void initState() {
     super.initState();
-    // Initialiser le provider TopUp
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TopUpProvider>().initialize();
+    // Initialiser le provider TopUp, puis préremplir la dernière ligne utilisée
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = context.read<TopUpProvider>();
+      await provider.initialize();
+      if (!mounted) return;
+      final saved = provider.savedFixedNumber;
+      if (saved != null && _fixedNumberController.text.isEmpty) {
+        _fixedNumberController.text = saved;
+      }
     });
   }
 
   @override
   void dispose() {
+    _lockTimer?.cancel();
     _fixedNumberController.dispose();
+    _pinController.dispose();
     super.dispose();
   }
 
@@ -125,10 +148,85 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
   }
 
   Future<void> _consultBalances() async {
+    if (_submitting || _lockSeconds > 0) return;
     if (!_formKey.currentState!.validate()) return;
 
     final topUpProvider = context.read<TopUpProvider>();
-    await topUpProvider.startSession(_fixedNumberController.text.trim());
+    final l10n = AppLocalizations.of(context)!;
+    final number = _fixedNumberController.text.trim();
+    final pin = _pinController.text;
+
+    setState(() {
+      _submitting = true;
+      _pinError = null;
+    });
+
+    final result = await topUpProvider.signIn(fixedNumber: number, pin: pin);
+
+    // Le PIN ne reste jamais dans le champ, que l'essai réussisse ou non.
+    _pinController.clear();
+    if (!mounted) return;
+
+    setState(() {
+      _submitting = false;
+      switch (result.status) {
+        case FixedLinePinStatus.verified:
+        case FixedLinePinStatus.sessionExpired:
+          // Succès : les soldes s'affichent. Session expirée : l'app a déjà
+          // renvoyé vers la connexion, rien à dire ici.
+          break;
+        case FixedLinePinStatus.wrongPin:
+          _pinError = l10n.fixedLinePinWrong;
+        case FixedLinePinStatus.invalidFormat:
+          _pinError = l10n.fixedLinePinInvalid;
+        case FixedLinePinStatus.locked:
+          if (result.retryAfterSeconds != null) {
+            _startLockCountdown(result.retryAfterSeconds!);
+          } else {
+            _pinError = l10n.fixedLinePinLockedLater;
+          }
+        case FixedLinePinStatus.tooManyRequests:
+          _pinError = l10n.fixedLinePinTooManyRequests;
+        case FixedLinePinStatus.unavailable:
+          _pinError = l10n.fixedLinePinUnavailable;
+      }
+    });
+  }
+
+  /// Bloque le bouton et affiche un décompte jusqu'à la fin du verrou.
+  void _startLockCountdown(int seconds) {
+    _lockTimer?.cancel();
+    _lockSeconds = seconds;
+    _lockTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        _lockSeconds--;
+        if (_lockSeconds <= 0) {
+          _lockSeconds = 0;
+          timer.cancel();
+        }
+      });
+    });
+  }
+
+  String _formatCountdown(int seconds) {
+    final minutes = seconds ~/ 60;
+    final rest = (seconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$rest';
+  }
+
+  String? _validatePin(String? value) {
+    final l10n = AppLocalizations.of(context)!;
+    if (value == null || value.isEmpty) {
+      return l10n.fixedLinePinRequired;
+    }
+    if (!FixedLinePinService.isValidPinFormat(value)) {
+      return l10n.fixedLinePinFormatError;
+    }
+    return null;
   }
 
   String? _validateFixedNumber(String? value) {
@@ -171,6 +269,7 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
     if (confirmed == true) {
       await topUpProvider.endSession();
       _fixedNumberController.clear();
+      _pinController.clear();
     }
   }
 
@@ -224,7 +323,8 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
               if (topUpProvider.errorMessage != null) _buildErrorState(topUpProvider),
 
               // Résultats (toujours affichés s'ils existent)
-              if (topUpProvider.balanceResponse != null) ...[
+              if (topUpProvider.hasActiveSession &&
+                  topUpProvider.balanceResponse != null) ...[
                 _buildBalanceSummary(topUpProvider),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
                 _buildActionButtons(topUpProvider),
@@ -280,7 +380,9 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                 TextFormField(
                   controller: _fixedNumberController,
                   keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.next,
                   validator: _validateFixedNumber,
+                  onChanged: (_) => _clearServerError(),
                   decoration: InputDecoration(
                     labelText: l10n.fixedLineNumberKey,
                     hintText: l10n.fixedLineNumberHint,
@@ -298,11 +400,80 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
                     ),
                   ),
                 ),
+                SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingM)),
+                TextFormField(
+                  controller: _pinController,
+                  obscureText: true,
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  // Un PIN ne se mémorise, ne se suggère et ne se colle pas.
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  enableInteractiveSelection: false,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(12),
+                  ],
+                  validator: _validatePin,
+                  onChanged: (_) => _clearServerError(),
+                  onFieldSubmitted: (_) => _consultBalances(),
+                  decoration: InputDecoration(
+                    labelText: l10n.fixedLinePinLabel,
+                    prefixIcon: const Icon(Icons.lock, color: AppTheme.dtBlue),
+                    // Aide « PIN oublié » dans une bulle, à la demande : elle ne
+                    // surcharge pas le formulaire pour qui connaît son PIN.
+                    suffixIcon: Tooltip(
+                      message: l10n.fixedLinePinForgot,
+                      triggerMode: TooltipTriggerMode.tap,
+                      preferBelow: false,
+                      showDuration: const Duration(seconds: 6),
+                      margin: EdgeInsets.symmetric(
+                        horizontal: ResponsiveSize.getWidth(AppTheme.spacingL),
+                      ),
+                      padding: EdgeInsets.all(ResponsiveSize.getWidth(12)),
+                      decoration: BoxDecoration(
+                        color: AppTheme.dtBlue,
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveSize.getWidth(AppTheme.radiusS),
+                        ),
+                      ),
+                      textStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: ResponsiveSize.getFontSize(13),
+                        height: 1.3,
+                      ),
+                      // C'est le Tooltip qui reçoit le toucher (et programme la
+                      // disparition de la bulle) : pas de bouton à l'intérieur.
+                      child: const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Icon(
+                          Icons.info_outline,
+                          color: AppTheme.dtBlue,
+                        ),
+                      ),
+                    ),
+                    errorText: _lockSeconds > 0
+                        ? l10n.fixedLinePinLocked(_formatCountdown(_lockSeconds))
+                        : _pinError,
+                    errorMaxLines: 3,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(
+                        ResponsiveSize.getWidth(AppTheme.radiusS),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(
+                        ResponsiveSize.getWidth(AppTheme.radiusS),
+                      ),
+                      borderSide: const BorderSide(color: AppTheme.dtBlue, width: 2),
+                    ),
+                  ),
+                ),
                 SizedBox(height: ResponsiveSize.getHeight(AppTheme.spacingL)),
                 DtButton.primary(
                   label: l10n.consult,
-                  loading: provider.isLoading,
-                  onPressed: _consultBalances,
+                  loading: provider.isLoading || _submitting,
+                  onPressed: _lockSeconds > 0 ? null : _consultBalances,
                 ),
               ],
             ),
@@ -310,6 +481,11 @@ class _TopUpHomeScreenState extends State<TopUpHomeScreen> {
         ),
       ),
     );
+  }
+
+  /// Efface le message du serveur dès que l'utilisateur corrige sa saisie.
+  void _clearServerError() {
+    if (_pinError != null) setState(() => _pinError = null);
   }
 
   Widget _buildLoadingState() {

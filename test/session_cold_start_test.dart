@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dtservices/providers/auth_provider.dart';
+import 'package:dtservices/services/topup_session.dart';
 import 'package:dtservices/services/user_session.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -11,7 +12,10 @@ const _phone = '25377000000';
 const _token = 'tok-1234567890';
 
 /// État du disque comme l'exécution précédente l'a laissé.
-Future<void> _persistSession({required Duration idle}) async {
+Future<void> _persistSession({
+  required Duration idle,
+  Map<String, Object> extra = const {},
+}) async {
   // Repart d'une mémoire vide, comme un processus neuf.
   SharedPreferences.setMockInitialValues({});
   await UserSession.clearSession();
@@ -21,6 +25,7 @@ Future<void> _persistSession({required Duration idle}) async {
     'last_activity_time': DateTime.now().subtract(idle).millisecondsSinceEpoch,
     'session_token': _token,
     'has_pin': true,
+    ...extra,
   });
 }
 
@@ -58,6 +63,26 @@ void main() {
       expect(await UserSession.isAuthenticated(), isFalse);
       // Le numéro reste proposé sur l'écran de connexion.
       expect(prefs.getString('last_used_phone'), _phone);
+    },
+  );
+
+  test(
+    'la dernière ligne « Ma ligne » reste mémorisée pour préremplir le champ',
+    () async {
+      await _persistSession(
+        idle: const Duration(minutes: 1),
+        extra: {
+          'topup_fixed_number': '21364425',
+          'topup_mobile_number': _phone,
+        },
+      );
+
+      await _coldStart(expectedRequests: 1);
+
+      // La session de l'app est terminée, mais pas le numéro de la ligne :
+      // ce n'est qu'un préremplissage, l'accès exige toujours le PIN.
+      expect(await UserSession.isAuthenticated(), isFalse);
+      expect(await TopUpSession.getFixedNumber(), '21364425');
     },
   );
 

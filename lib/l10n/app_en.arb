@@ -475,7 +475,7 @@
       }
     },
     "checkFixedLine": "Check your landline",
-    "enterFixedNumberInfo": "Please enter your landline number to check balances",
+    "enterFixedNumberInfo": "Same credentials as on the customer portal",
     "fixedLineNumberKey": "Landline Number",
     "fixedLineNumberHint": "Ex: 21XXXXXX",
     "fixedBalances": "Landline Balances",
@@ -669,6 +669,23 @@
     "quickActions": "Quick Actions",
     "fixedNumberRequired": "Please enter a landline number",
     "fixedNumberFormatError": "Number must start with 21 or 27 (or 25321, 25327) and contain 8 or 11 digits",
+    "fixedLinePinLabel": "Line PIN code",
+    "fixedLinePinRequired": "Please enter your line PIN code",
+    "fixedLinePinFormatError": "The PIN code has 3 to 12 digits",
+    "fixedLinePinWrong": "Incorrect number or PIN code. After several failed attempts, the line is locked for a few minutes.",
+    "fixedLinePinInvalid": "Invalid number or PIN code. Check what you entered.",
+    "fixedLinePinLocked": "Too many attempts. Try again in {time}.",
+    "@fixedLinePinLocked": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "fixedLinePinLockedLater": "Too many attempts. Try again later.",
+    "fixedLinePinTooManyRequests": "Too many requests. Please try again in a moment.",
+    "fixedLinePinUnavailable": "Service temporarily unavailable. Please try again.",
+    "fixedLinePinForgot": "Forgot your PIN code? Contact Djibouti Telecom customer service.",
     "fixedHistory": "Landline\nHistory",
     "confirm": "Confirm",
     "searchActionHint": "Search for an action...",

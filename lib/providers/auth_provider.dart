@@ -108,7 +108,8 @@ class AuthProvider extends ChangeNotifier {
       final token = await UserSession.getSessionToken();
       // Local d'abord : la révocation serveur est lente et facultative.
       await UserSession.clearSession();
-      await TopUpSession.clearSession();
+      // La ligne « Ma ligne » mémorisée reste : ce n'est qu'un préremplissage,
+      // l'accès exige le PIN à chaque session (voir TopUpProvider).
       debugPrint('AuthProvider: Session de l\'exécution précédente terminée');
 
       if (token != null && token.isNotEmpty) {
@@ -635,8 +636,8 @@ class AuthProvider extends ChangeNotifier {
       final success = await LogoutService.logout();
 
       if (success) {
-        // Nettoyer la session TopUp
-        await TopUpSession.clearSession();
+        // La ligne « Ma ligne » mémorisée reste (préremplissage seulement) :
+        // _createSession l'efface si un autre numéro mobile se connecte.
 
         // Nettoyer l'état local
         _phoneNumber = null;
@@ -659,7 +660,6 @@ class AuthProvider extends ChangeNotifier {
       debugPrint('AuthProvider: Erreur déconnexion: $e');
 
       // Nettoyer quand même localement en cas d'erreur
-      await TopUpSession.clearSession();
       _phoneNumber = null;
       _sessionToken = null;
       _isAuthenticated = false;

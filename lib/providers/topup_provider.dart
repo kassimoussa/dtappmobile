@@ -1,6 +1,7 @@
 // lib/providers/topup_provider.dart
 import 'package:flutter/foundation.dart';
 import '../models/topup_balance.dart';
+import '../services/fixed_line_pin_service.dart';
 import '../services/topup_api_service.dart';
 import '../services/topup_session.dart';
 import '../services/user_session.dart';
@@ -11,7 +12,21 @@ class TopUpProvider extends ChangeNotifier {
   // État de la session
   String? _mobileNumber;
   String? _fixedNumber;
+
+  /// Dernière ligne utilisée, pour préremplir le champ. Ce n'est PAS une
+  /// session : seul le PIN, saisi dans cette exécution de l'app, en ouvre une.
+  String? _savedFixedNumber;
+
+  /// Vrai quand la ligne est ouverte : PIN vérifié dans cette session de l'app,
+  /// ou vérifié récemment et restauré depuis le disque (voir [TopUpSession]).
   bool _hasActiveSession = false;
+
+  /// Jeton de la session de l'app, tel que transmis par [bindSession], et jeton
+  /// pour lequel la ligne a été ouverte. Dès qu'ils diffèrent (déconnexion,
+  /// expiration, autre compte), la ligne se referme en mémoire ; elle se rouvre
+  /// à l'écran suivant si sa vérification sur disque est encore valable.
+  String? _boundToken;
+  String? _verifiedToken;
 
   // Données de balance
   TopUpBalanceResponse? _balanceResponse;
@@ -31,6 +46,7 @@ class TopUpProvider extends ChangeNotifier {
   // Getters
   String? get mobileNumber => _mobileNumber;
   String? get fixedNumber => _fixedNumber;
+  String? get savedFixedNumber => _savedFixedNumber;
   bool get hasActiveSession => _hasActiveSession;
   TopUpBalanceResponse? get balanceResponse => _balanceResponse;
   Map<String, dynamic>? get numberStatus => _numberStatus;
@@ -43,70 +59,133 @@ class TopUpProvider extends ChangeNotifier {
       _lastBalanceLoadTime != null &&
       DateTime.now().difference(_lastBalanceLoadTime!).inMinutes < _cacheValidityDuration.inMinutes;
 
-  /// Initialise le provider en chargeant les données de session
+  /// Rattache le provider à la session de l'app (jeton de [AuthProvider]).
+  ///
+  /// La ligne ouverte en mémoire ne vaut que pour la session de l'app où elle l'a
+  /// été : à la déconnexion, à l'expiration ou au changement de compte, le jeton
+  /// change, soldes et état sont oubliés, et [initialize] décide de la rouvrir.
+  void bindSession(String? token) {
+    if (token == _boundToken) return;
+    _boundToken = token;
+    if (_hasActiveSession && token != _verifiedToken) {
+      debugPrint('TopUpProvider: session de l\'app terminée, PIN à ressaisir');
+      _dropVerification();
+      // Appelé pendant la construction des providers : on notifie après.
+      Future.microtask(() {
+        if (hasListeners) notifyListeners();
+      });
+    }
+  }
+
+  /// Oublie la vérification et tout ce qu'elle a chargé (soldes, statut).
+  /// Garde [_savedFixedNumber] : c'est un simple préremplissage.
+  void _dropVerification() {
+    _fixedNumber = null;
+    _hasActiveSession = false;
+    _verifiedToken = null;
+    _balanceResponse = null;
+    _numberStatus = null;
+    _isNumberSuspended = false;
+    _isLoading = false;
+    _errorMessage = null;
+    _lastBalanceLoadTime = null;
+  }
+
+  /// Rouvre la ligne mémorisée si son PIN a été vérifié, pour ce compte mobile,
+  /// il y a moins de [TopUpSession.verificationValidity]. Sinon le PIN est
+  /// redemandé. Sans numéro mobile (session de l'app terminée), on ne touche à
+  /// rien : ce n'est pas la vérification qui est en cause.
+  Future<bool> _restoreVerifiedLine() async {
+    final mobile = _mobileNumber;
+    final fixed = await TopUpSession.getFixedNumber();
+    if (mobile == null || fixed == null || fixed.isEmpty) return false;
+
+    if (!await TopUpSession.isLineVerifiedFor(mobile)) {
+      // Expirée, ou jamais vérifiée (session d'une ancienne version de l'app).
+      await TopUpSession.clearVerification();
+      return false;
+    }
+
+    _fixedNumber = fixed;
+    _hasActiveSession = true;
+    _verifiedToken = _boundToken;
+    debugPrint('TopUpProvider: ligne vérifiée récemment, rouverte sans PIN');
+    return true;
+  }
+
+  /// Initialise le provider : numéro mobile, dernière ligne utilisée, et
+  /// réouverture de la ligne si son PIN a été vérifié récemment.
   Future<void> initialize() async {
     debugPrint('TopUpProvider: Initialisation...');
 
-    // Charger le numéro mobile de l'utilisateur
     _mobileNumber = await UserSession.getPhoneNumber();
 
-    // Vérifier s'il y a une session TopUp active
-    _hasActiveSession = await TopUpSession.hasActiveSession();
-
     if (_hasActiveSession) {
-      // Récupérer les données de session
-      final sessionData = await TopUpSession.getSessionData();
-      _fixedNumber = sessionData['fixed'];
-
-      debugPrint('TopUpProvider: Session active trouvée - $_mobileNumber -> $_fixedNumber');
-
-      // Charger automatiquement les soldes
+      // Déjà vérifiée dans cette session de l'app (retour sur l'écran).
       if (_fixedNumber != null && _mobileNumber != null) {
         await loadBalances();
       }
     } else {
-      debugPrint('TopUpProvider: Aucune session active');
+      _savedFixedNumber = await TopUpSession.getFixedNumber();
+      if (await _restoreVerifiedLine()) {
+        await loadBalances();
+      } else {
+        debugPrint('TopUpProvider: PIN requis pour ouvrir la ligne');
+      }
     }
 
     notifyListeners();
   }
 
-  /// Démarre une nouvelle session TopUp
-  Future<bool> startSession(String fixedNumber) async {
-    debugPrint('TopUpProvider: Démarrage session pour $fixedNumber');
+  /// Ouvre « Ma ligne » : vérifie le couple (numéro fixe, PIN) côté serveur,
+  /// puis charge les soldes. Le PIN n'est ni conservé ni journalisé.
+  Future<FixedLinePinResult> signIn({
+    required String fixedNumber,
+    required String pin,
+  }) async {
+    debugPrint('TopUpProvider: Vérification du PIN pour $fixedNumber');
 
     _mobileNumber ??= await UserSession.getPhoneNumber();
 
     if (_mobileNumber == null) {
-      _errorMessage = 'Impossible de récupérer le numéro mobile';
+      // Pas de numéro mobile : rien à vérifier, mais on le dit à l'écran.
+      return const FixedLinePinResult(FixedLinePinStatus.unavailable);
+    }
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    final result = await FixedLinePinService.verify(cli: fixedNumber, pin: pin);
+
+    if (!result.isVerified) {
+      _isLoading = false;
       notifyListeners();
-      return false;
+      return result;
     }
 
     try {
-      // Sauvegarder la session
       await TopUpSession.saveSession(
         mobileNumber: _mobileNumber!,
         fixedNumber: fixedNumber,
       );
-
-      _fixedNumber = fixedNumber;
-      _hasActiveSession = true;
-      _errorMessage = null;
-
-      debugPrint('TopUpProvider: Session démarrée avec succès');
-
-      // Charger les soldes
-      await loadBalances();
-
-      notifyListeners();
-      return true;
+      await TopUpSession.markVerified();
     } catch (e) {
-      debugPrint('TopUpProvider: Erreur démarrage session - $e');
-      _errorMessage = 'Erreur lors du démarrage de la session';
-      notifyListeners();
-      return false;
+      // Sans mémoire sur l'appareil, l'accès reste ouvert pour cette session.
+      debugPrint('TopUpProvider: vérification non mémorisée - $e');
     }
+
+    _fixedNumber = fixedNumber;
+    _savedFixedNumber = fixedNumber;
+    _hasActiveSession = true;
+    _verifiedToken = _boundToken;
+    _errorMessage = null;
+
+    // Charger les soldes (gère _isLoading et ses propres erreurs)
+    await loadBalances(forceRefresh: true);
+
+    notifyListeners();
+    return result;
   }
 
   /// Charge les soldes du numéro fixe
@@ -195,19 +274,15 @@ class TopUpProvider extends ChangeNotifier {
     }
   }
 
-  /// Termine la session TopUp
+  /// Termine la session TopUp (déconnexion volontaire de la ligne) : le
+  /// numéro n'est plus mémorisé non plus.
   Future<void> endSession() async {
     debugPrint('TopUpProvider: Fin de session');
 
     await TopUpSession.clearSession();
 
-    _fixedNumber = null;
-    _hasActiveSession = false;
-    _balanceResponse = null;
-    _numberStatus = null;
-    _isNumberSuspended = false;
-    _errorMessage = null;
-    _lastBalanceLoadTime = null;
+    _dropVerification();
+    _savedFixedNumber = null;
 
     notifyListeners();
   }
@@ -217,14 +292,8 @@ class TopUpProvider extends ChangeNotifier {
     debugPrint('TopUpProvider: Reset complet');
 
     _mobileNumber = null;
-    _fixedNumber = null;
-    _hasActiveSession = false;
-    _balanceResponse = null;
-    _numberStatus = null;
-    _isNumberSuspended = false;
-    _isLoading = false;
-    _errorMessage = null;
-    _lastBalanceLoadTime = null;
+    _savedFixedNumber = null;
+    _dropVerification();
 
     notifyListeners();
   }

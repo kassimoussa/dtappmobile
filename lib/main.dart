@@ -69,7 +69,13 @@ Future<void> _startApp() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BalanceProvider()),
-        ChangeNotifierProvider(create: (_) => TopUpProvider()),
+        // « Ma ligne » suit la session de l'app : la vérification du PIN de la
+        // ligne tombe à la déconnexion, à l'expiration ou au changement de compte.
+        ChangeNotifierProxyProvider<AuthProvider, TopUpProvider>(
+          create: (_) => TopUpProvider(),
+          update: (_, auth, topUp) =>
+              (topUp ?? TopUpProvider())..bindSession(auth.sessionToken),
+        ),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
       ],

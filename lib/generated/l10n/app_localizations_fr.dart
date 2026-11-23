@@ -1260,7 +1260,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get enterFixedNumberInfo =>
-      'Veuillez entrer votre numéro de ligne fixe pour consulter ses soldes';
+      'Mêmes identifiants que sur le portail client';
 
   @override
   String get fixedLineNumberKey => 'Numéro de ligne fixe';
@@ -1713,6 +1713,46 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get fixedNumberFormatError =>
       'Le numéro doit commencer par 21 ou 27 (ou 25321, 25327) et contenir 8 ou 11 chiffres';
+
+  @override
+  String get fixedLinePinLabel => 'Code PIN de la ligne';
+
+  @override
+  String get fixedLinePinRequired =>
+      'Veuillez entrer le code PIN de votre ligne';
+
+  @override
+  String get fixedLinePinFormatError =>
+      'Le code PIN contient de 3 à 12 chiffres';
+
+  @override
+  String get fixedLinePinWrong =>
+      'Numéro ou code PIN incorrect. Après plusieurs essais infructueux, la ligne est bloquée quelques minutes.';
+
+  @override
+  String get fixedLinePinInvalid =>
+      'Numéro ou code PIN invalide. Vérifiez votre saisie.';
+
+  @override
+  String fixedLinePinLocked(String time) {
+    return 'Trop de tentatives. Réessayez dans $time.';
+  }
+
+  @override
+  String get fixedLinePinLockedLater =>
+      'Trop de tentatives. Réessayez plus tard.';
+
+  @override
+  String get fixedLinePinTooManyRequests =>
+      'Trop de requêtes. Réessayez dans un instant.';
+
+  @override
+  String get fixedLinePinUnavailable =>
+      'Service momentanément indisponible. Réessayez.';
+
+  @override
+  String get fixedLinePinForgot =>
+      'Code PIN oublié ? Contactez le service client de Djibouti Telecom.';
 
   @override
   String get fixedHistory => 'Historique\nFixe';

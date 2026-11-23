@@ -2315,7 +2315,7 @@ abstract class AppLocalizations {
   /// No description provided for @enterFixedNumberInfo.
   ///
   /// In fr, this message translates to:
-  /// **'Veuillez entrer votre numéro de ligne fixe pour consulter ses soldes'**
+  /// **'Mêmes identifiants que sur le portail client'**
   String get enterFixedNumberInfo;
 
   /// No description provided for @fixedLineNumberKey.
@@ -3139,6 +3139,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Le numéro doit commencer par 21 ou 27 (ou 25321, 25327) et contenir 8 ou 11 chiffres'**
   String get fixedNumberFormatError;
+
+  /// No description provided for @fixedLinePinLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code PIN de la ligne'**
+  String get fixedLinePinLabel;
+
+  /// No description provided for @fixedLinePinRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez entrer le code PIN de votre ligne'**
+  String get fixedLinePinRequired;
+
+  /// No description provided for @fixedLinePinFormatError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code PIN contient de 3 à 12 chiffres'**
+  String get fixedLinePinFormatError;
+
+  /// No description provided for @fixedLinePinWrong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro ou code PIN incorrect. Après plusieurs essais infructueux, la ligne est bloquée quelques minutes.'**
+  String get fixedLinePinWrong;
+
+  /// No description provided for @fixedLinePinInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro ou code PIN invalide. Vérifiez votre saisie.'**
+  String get fixedLinePinInvalid;
+
+  /// No description provided for @fixedLinePinLocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Réessayez dans {time}.'**
+  String fixedLinePinLocked(String time);
+
+  /// No description provided for @fixedLinePinLockedLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Réessayez plus tard.'**
+  String get fixedLinePinLockedLater;
+
+  /// No description provided for @fixedLinePinTooManyRequests.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de requêtes. Réessayez dans un instant.'**
+  String get fixedLinePinTooManyRequests;
+
+  /// No description provided for @fixedLinePinUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Service momentanément indisponible. Réessayez.'**
+  String get fixedLinePinUnavailable;
+
+  /// No description provided for @fixedLinePinForgot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code PIN oublié ? Contactez le service client de Djibouti Telecom.'**
+  String get fixedLinePinForgot;
 
   /// No description provided for @fixedHistory.
   ///
