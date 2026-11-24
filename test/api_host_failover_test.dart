@@ -145,7 +145,7 @@ void main() {
   });
 
   test('une base publiée sur mesure n\'a pas de secours deviné', () async {
-    await AppConfig.applyRemoteBase('https://backup.dj');
+    await AppConfig.applyRemoteBase('https://api.djiboutitelecom.dj');
     var appels = 0;
     final client = BackendFailoverClient(
       inner: MockClient((request) async {

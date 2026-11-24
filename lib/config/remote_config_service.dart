@@ -14,9 +14,14 @@ import 'app_config.dart';
 ///  - clé : `api_base_url`
 ///  - valeur : l'origine du backend, **sans** `/api`
 ///    (ex. `https://mydtapp.djiboutitelecom.dj`, ou `http://196.201.193.252`,
-///    un port explicite est accepté : `https://host:8443`)
-///  - une valeur vide ou invalide est ignorée : l'app garde sa configuration
-///    précédente plutôt que de se retrouver sans backend.
+///    un port explicite est accepté : `https://api.djiboutitelecom.dj:8443`)
+///  - hôtes acceptés : `mydtapp.djiboutitelecom.dj`, `196.201.193.252` et tout
+///    sous-domaine de `djiboutitelecom.dj`. Le HTTP en clair n'est accepté que
+///    vers l'IP (soupape de panne du 443). Tout autre hôte est refusé : c'est
+///    ce qui empêche qu'une publication malveillante ou erronée envoie les
+///    jetons, OTP et PIN des utilisateurs ailleurs.
+///  - une valeur vide, invalide ou refusée est ignorée : l'app garde sa
+///    configuration précédente plutôt que de se retrouver sans backend.
 ///
 /// Remote Config passe par les serveurs Google, pas par le backend DT : même
 /// backend injoignable, une nouvelle adresse peut donc toujours être poussée.

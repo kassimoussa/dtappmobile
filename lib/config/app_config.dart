@@ -12,7 +12,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///  1. **Firebase Remote Config** (`api_base_url`) : permet de déplacer le
 ///     backend sans republier l'app (voir remote_config_service.dart). La
 ///     valeur reçue est mémorisée localement, donc elle survit à un démarrage
-///     hors ligne.
+///     hors ligne. Seuls [domainHost], [ipHost] et les sous-domaines de
+///     [trustedDomain] sont acceptés ([isAllowedBackendHost]) : déplacer le
+///     backend vers un autre domaine ou une autre IP exige une nouvelle version.
 ///  2. **Hôte appris** : sondé au démarrage et corrigé à chaud par le client à
 ///     bascule (failover_http_client.dart), qui bascule entre [domainHost] et
 ///     [ipHost] — les deux servent le même backend et présentent chacun un
@@ -130,9 +132,16 @@ class AppConfig {
       final prefs = await SharedPreferences.getInstance();
 
       final base = prefs.getString(_remoteBaseKey);
-      if (base != null && base.isNotEmpty && _applyBase(base)) {
-        _appliedRemoteBase = base;
-        debugPrint('🌐 AppConfig: base distante restaurée → $base');
+      if (base != null && base.isNotEmpty) {
+        if (_applyBase(base)) {
+          _appliedRemoteBase = base;
+          debugPrint('🌐 AppConfig: base distante restaurée → $base');
+        } else {
+          // Valeur mémorisée refusée (publiée avant la liste des hôtes
+          // autorisés, ou écrite par un tiers) : on l'oublie.
+          await prefs.remove(_remoteBaseKey);
+          debugPrint('⚠️ AppConfig: base mémorisée refusée, oubliée → "$base"');
+        }
       }
 
       // L'hôte appris ne s'applique qu'entre les deux hôtes connus : une base
@@ -152,16 +161,21 @@ class AppConfig {
   /// Applique une base publiée à distance, ex. `https://mydtapp.djiboutitelecom.dj`.
   ///
   /// La valeur attendue est l'origine du backend **sans** `/api` (un `/api`
-  /// final est toléré et retiré). Une valeur invalide est ignorée : l'app
-  /// continue sur la configuration précédente plutôt que de se retrouver sans
-  /// backend. Renvoie `true` si la configuration active a changé.
+  /// final est toléré et retiré). Une valeur invalide ou dont l'hôte n'est pas
+  /// autorisé ([isAllowedBackendHost]) est ignorée : l'app continue sur la
+  /// configuration précédente plutôt que de se retrouver sans backend, ou de
+  /// confier ses jetons à un hôte inconnu. Renvoie `true` si la configuration
+  /// active a changé.
   static Future<bool> applyRemoteBase(String? raw) async {
     final value = raw?.trim() ?? '';
     if (value.isEmpty) return false;
     if (value == _appliedRemoteBase) return false;
 
     if (!_applyBase(value)) {
-      debugPrint('⚠️ AppConfig: base distante invalide, ignorée → "$value"');
+      debugPrint(
+        '⚠️ AppConfig: base distante invalide ou hôte non autorisé, ignorée '
+        '→ "$value"',
+      );
       return false;
     }
 
@@ -179,12 +193,37 @@ class AppConfig {
     return true;
   }
 
-  /// Parse et installe une base. Renvoie `false` si la valeur est inutilisable.
+  /// Domaine dont tout sous-domaine peut servir de backend (ex.
+  /// `api.djiboutitelecom.dj`). Le domaine nu n'en fait pas partie : c'est le
+  /// site de l'opérateur, pas une API.
+  static const String trustedDomain = 'djiboutitelecom.dj';
+
+  /// Vrai si [host] peut recevoir le trafic de l'app : les deux hôtes connus, ou
+  /// un sous-domaine de [trustedDomain].
+  ///
+  /// Cette liste est la défense contre une publication Remote Config
+  /// malveillante ou erronée : sans elle, quiconque peut publier dans la
+  /// console Firebase enverrait à son propre serveur les jetons, OTP et PIN de
+  /// tous les utilisateurs. Le point devant [trustedDomain] est voulu :
+  /// `evil-djiboutitelecom.dj` ne passe pas.
+  static bool isAllowedBackendHost(String host) =>
+      isKnownHost(host) || host.endsWith('.$trustedDomain');
+
+  /// Parse et installe une base. Renvoie `false` si la valeur est inutilisable
+  /// ou refusée : hôte hors [isAllowedBackendHost], identifiants dans l'URL, ou
+  /// HTTP en clair vers autre chose que l'IP de la soupape ([ipHost]).
   static bool _applyBase(String raw) {
     final uri = Uri.tryParse(raw.trim());
     if (uri == null) return false;
     if (uri.scheme != httpScheme && uri.scheme != httpsScheme) return false;
     if (uri.host.isEmpty) return false;
+    // `https://hôte-de-confiance@pirate.com` : l'hôte réel est ce qui suit le @,
+    // mais mieux vaut ne jamais accepter d'identifiants dans une adresse de base.
+    if (uri.userInfo.isNotEmpty) return false;
+    if (!isAllowedBackendHost(uri.host)) return false;
+    // Le clair n'est toléré que pour la soupape documentée : l'IP du backend,
+    // le jour où le 443 serait bloqué par le réseau mobile.
+    if (uri.scheme == httpScheme && uri.host != ipHost) return false;
 
     var prefix = uri.path.replaceAll(RegExp(r'/+$'), '');
     // Tolère une valeur publiée avec le suffixe /api : la base attendue est
