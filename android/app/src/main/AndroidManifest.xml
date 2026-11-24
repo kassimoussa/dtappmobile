@@ -18,6 +18,7 @@
         android:label="DJIBTEL"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
+        android:allowBackup="false"
         android:networkSecurityConfig="@xml/network_security_config">
 
         <!-- Google Maps API key (Maps SDK for Android), restricted by package
@@ -36,12 +37,10 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/notification_accent" />
 
-        <receiver android:name="com.jaumard.smsautofill.SmsAutoFillReceiver"
-          android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED" />
-            </intent-filter>
-        </receiver>
+        <!-- Pas de récepteur SMS_RETRIEVED déclaré ici : sms_autofill enregistre le
+             sien à l'exécution (listenForCode). L'ancienne déclaration visait une
+             classe qui n'existe pas (SmsAutoFillReceiver) et laissait un composant
+             exporté sans permission. -->
 
         <!-- Sans ces deux récepteurs, flutter_local_notifications n'affiche
              jamais une notification programmée. -->

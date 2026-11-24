@@ -82,6 +82,28 @@ flutter {
     source = "../.."
 }
 
+// La clé debug est commitée dans le dépôt : n'importe qui peut signer avec. Un
+// bundle de publication (bundleRelease, envoyé à Google Play) ne doit donc jamais
+// en sortir, et Play le refuserait de toute façon. `flutter run --release` et
+// `flutter build apk --release` gardent le repli sur la clé debug pour les essais
+// locaux, avec un avertissement : cet APK n'est pas à distribuer.
+gradle.taskGraph.whenReady {
+    if (!keystorePropertiesFile.exists()) {
+        if (hasTask(":app:bundleRelease")) {
+            throw GradleException(
+                "android/key.properties est introuvable : un bundle de publication " +
+                    "ne peut pas être signé avec la clé debug. Voir ANDROID_PLAY_STORE_GUIDE.md."
+            )
+        }
+        if (hasTask(":app:assembleRelease")) {
+            logger.warn(
+                "ATTENTION : android/key.properties est introuvable, l'APK release est " +
+                    "signé avec la clé debug (publique). Ne pas le distribuer."
+            )
+        }
+    }
+}
+
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

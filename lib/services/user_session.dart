@@ -387,6 +387,14 @@ class UserSession {
 
   static const _secureStorage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    // iOS : « cet appareil seulement ». Par défaut le PIN rejoindrait les
+    // sauvegardes chiffrées et suivrait l'utilisateur sur un autre iPhone ;
+    // ici il reste sur celui où il a été saisi. La lecture d'un PIN déjà
+    // enregistré sous l'ancien réglage continue de fonctionner, et le plugin
+    // le réécrit sous le nouveau à la prochaine sauvegarde.
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.unlocked_this_device,
+    ),
   );
 
   static const String _securePinPrefix = 'secure_pin_';

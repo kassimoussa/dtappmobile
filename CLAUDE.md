@@ -212,11 +212,16 @@ The app includes sophisticated phone number validation in `PhoneNumberValidator`
 
 ### Android
 - **OTP auto-fill**: uses the SMS Retriever API (`sms_autofill`), which needs **no** SMS permission. Do not add `READ_SMS` / `RECEIVE_SMS` back: Google Play reserves them for default SMS apps. The SMS must end with the app signature hash, which depends on the signing key (see `ANDROID_PLAY_STORE_GUIDE.md`).
-- **Release signing**: `android/key.properties` (git-ignored) is required; without it the release build falls back to the debug key, which Google Play rejects.
+  The plugin registers its own receiver at runtime (`listenForCode`): do not declare a `SMS_RETRIEVED` `<receiver>` in the manifest (the old `SmsAutoFillReceiver` class does not exist).
+- **Release signing**: `android/key.properties` (git-ignored) is required. Without it `bundleRelease` **fails on purpose** (the debug key is committed, so public); `assembleRelease` / `flutter run --release` still fall back to the debug key, with a warning, for local tests only.
+- **Backups**: `android:allowBackup="false"`. The session token and the secure PIN must not leave the device, and an encrypted-preferences file restored on another phone cannot be decrypted anyway (the Keystore key does not follow).
+- **Recents preview**: `MainActivity` hides the screen capture shown in the recent apps list (`setRecentsScreenshotEnabled(false)` on Android 13+, `FLAG_SECURE` set in `onPause` before). The user's own screenshots stay allowed; blocking them too would be a one-line `FLAG_SECURE` in `onCreate`, a product decision.
 
 ### iOS
 - **SMS Integration**: Uses native iOS SMS handling
 - **Privacy Permissions**: Proper permission handling for contacts and SMS
+- **App switcher preview**: `AppDelegate` covers the windows in DT blue on `didEnterBackground` (not `willResignActive`, which also fires for Face ID and Control Center) and removes the cover on `didBecomeActive`.
+- **Keychain**: the biometric PIN (`UserSession._secureStorage`) uses `unlocked_this_device`, so it never joins an encrypted backup restored on another iPhone. An existing PIN stays readable and is rewritten under the new setting on the next save.
 
 ## Performance Optimization
 
