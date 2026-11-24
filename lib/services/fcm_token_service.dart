@@ -217,7 +217,7 @@ class FCMTokenService {
   /// Écoute les renouvellements de token Firebase et synchronise avec le serveur
   static void listenToTokenRefresh() {
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
-      debugPrint('🔄 FCM: nouveau token — ${newToken.substring(0, 20)}...');
+      debugPrint('🔄 FCM: nouveau token reçu');
       // Nouveau token Firebase → jamais enregistré, on force la mise à jour
       await _clearRegisteredToken();
 

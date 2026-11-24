@@ -29,9 +29,7 @@ class ProfileService {
         return null;
       }
 
-      debugPrint(
-        'Profile Service: Récupération profil avec token: ${sessionToken.substring(0, 10)}...',
-      );
+      debugPrint('Profile Service: récupération du profil');
 
       // Appeler l'API
       final response = await http.post(
@@ -75,9 +73,7 @@ class ProfileService {
         return false;
       }
 
-      debugPrint(
-        'Update Profile: Mise à jour avec token: ${sessionToken.substring(0, 10)}...',
-      );
+      debugPrint('Update Profile: mise à jour du profil');
 
       // Préparer les données
       final payload = {'session_token': sessionToken};

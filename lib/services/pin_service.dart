@@ -51,9 +51,9 @@ class PinService {
         body: jsonEncode(body),
       );
 
-      debugPrint(
-        'PinService: Response ${response.statusCode} - ${response.body}',
-      );
+      // Le corps n'est pas journalisé : la réponse de connexion porte le jeton
+      // de session.
+      debugPrint('PinService: Response ${response.statusCode}');
 
       final responseData = jsonDecode(response.body);
 
@@ -141,9 +141,9 @@ class PinService {
         }),
       );
 
-      debugPrint(
-        'PinService: Response ${response.statusCode} - ${response.body}',
-      );
+      // Le corps n'est pas journalisé : la réponse de connexion porte le jeton
+      // de session.
+      debugPrint('PinService: Response ${response.statusCode}');
 
       final responseData = jsonDecode(response.body);
 
@@ -218,9 +218,9 @@ class PinService {
         }),
       );
 
-      debugPrint(
-        'PinService: Response ${response.statusCode} - ${response.body}',
-      );
+      // Le corps n'est pas journalisé : la réponse de connexion porte le jeton
+      // de session.
+      debugPrint('PinService: Response ${response.statusCode}');
 
       final responseData = jsonDecode(response.body);
 
@@ -287,17 +287,15 @@ class PinService {
         'new_pin_confirmation': newPinConfirmation,
       };
 
-      debugPrint('PinService: Sending Reset PIN Body: ${jsonEncode(body)}');
-
       final response = await http.post(
         Uri.parse('$baseUrl/mobile/reset-pin'),
         headers: await ApiClient.authHeaders(),
         body: jsonEncode(body),
       );
 
-      debugPrint(
-        'PinService: Response ${response.statusCode} - ${response.body}',
-      );
+      // Le corps n'est pas journalisé : la réponse de connexion porte le jeton
+      // de session.
+      debugPrint('PinService: Response ${response.statusCode}');
 
       final responseData = jsonDecode(response.body);
 

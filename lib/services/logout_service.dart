@@ -56,9 +56,7 @@ class LogoutService {
         return true;
       }
 
-      debugPrint(
-        'Logout: Appel API avec token: ${sessionToken.substring(0, 10)}...',
-      );
+      debugPrint('Logout: appel API de révocation du jeton');
 
       // Le token FCM est conservé volontairement pour continuer à recevoir
       // les notifications même après déconnexion (transferts, cadeaux, etc.)

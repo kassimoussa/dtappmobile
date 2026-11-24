@@ -254,7 +254,7 @@ class AuthProvider extends ChangeNotifier {
     _sessionCreatedAt = DateTime.now();
 
     debugPrint(
-      'AuthProvider: Session créée - Phone: $phoneNumber, Token: ${sessionToken?.substring(0, 10)}..., PIN: $hasPin',
+      'AuthProvider: Session créée - Phone: $phoneNumber, Token: ${sessionToken != null}, PIN: $hasPin',
     );
   }
 

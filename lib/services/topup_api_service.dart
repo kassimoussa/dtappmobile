@@ -32,6 +32,12 @@ class TopUpApiService {
     final clean = number.replaceAll(RegExp(r'\s+'), '');
     return clean.startsWith('253') ? clean : '253$clean';
   }
+
+  /// Corps de requête destiné aux journaux : le code PIN n'y figure jamais.
+  static String _loggable(Map<String, dynamic> body) => json.encode({
+        ...body,
+        if (body.containsKey('pincode')) 'pincode': '***',
+      });
   
   /// Récupère les soldes d'un numéro fixe
   Future<TopUpBalanceResponse> getBalances({
@@ -173,7 +179,7 @@ class TopUpApiService {
     
     debugPrint('TopUp API - Souscription package: $msisdn -> $isdn ($packageCode)');
     debugPrint('TopUp API - URL: $baseUrl/subscribe-package');
-    debugPrint('TopUp API - Payload: ${json.encode(requestBody)}');
+    debugPrint('TopUp API - Payload: ${_loggable(requestBody)}');
     
     // Exécuter la requête avec retry
     final response = await _executeWithRetry(() async {
@@ -293,7 +299,7 @@ class TopUpApiService {
     
     debugPrint('TopUp API - Recharge compte: $msisdn -> $isdn (${amount.toStringAsFixed(0)} DJF)');
     debugPrint('TopUp API - URL: $baseUrl/recharge-account');
-    debugPrint('TopUp API - Payload: ${json.encode(requestBody)}');
+    debugPrint('TopUp API - Payload: ${_loggable(requestBody)}');
     
     // Exécuter la requête avec retry
     final response = await _executeWithRetry(() async {

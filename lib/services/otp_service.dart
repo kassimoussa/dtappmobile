@@ -45,24 +45,18 @@ class OtpService {
         body: jsonEncode({'to': cleanPhoneNumber, 'from': senderName}),
       );
 
-      debugPrint('Réponse API: ${response.statusCode} - ${response.body}');
+      // Le corps n'est pas journalisé : il peut contenir le jeton de session.
+      debugPrint('Réponse API: ${response.statusCode}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
-        debugPrint('Données décodées: $responseData');
 
-        // S'assurer de retourner un Map<String, dynamic> cohérent
-        final otp = responseData['debug']?['otp'];
-        if (otp != null) {
-          debugPrint('==========================================');
-          debugPrint('🔑 OTP POUR TEST : $otp');
-          debugPrint('==========================================');
-        }
-
+        // Le serveur ne doit jamais renvoyer l'OTP en production. Si un champ
+        // `debug` arrive quand même, il n'est ni journalisé ni transmis : le
+        // code ne doit exister que dans le SMS.
         return {
           'status': responseData['status'] ?? 'success',
           'message': responseData['message'] ?? 'Code OTP envoyé avec succès',
-          'debug': responseData['debug'] ?? {},
         };
       } else {
         final errorData = jsonDecode(response.body);
@@ -99,7 +93,7 @@ class OtpService {
         };
       }
 
-      debugPrint('Vérification OTP: $otp pour le numéro: $cleanPhoneNumber');
+      debugPrint('Vérification OTP pour le numéro: $cleanPhoneNumber');
 
       // Collecter les informations du device
       final deviceInfo = await _getDeviceInfo();
@@ -117,8 +111,6 @@ class OtpService {
         },
       };
 
-      debugPrint('Payload OTP avec device_info: ${jsonEncode(payload)}');
-
       final response = await http.post(
         Uri.parse(verifyOtpUrl),
         headers: {
@@ -128,7 +120,8 @@ class OtpService {
         body: jsonEncode(payload),
       );
 
-      debugPrint('Réponse API: ${response.statusCode} - ${response.body}');
+      // Le corps n'est pas journalisé : il peut contenir le jeton de session.
+      debugPrint('Réponse API: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);

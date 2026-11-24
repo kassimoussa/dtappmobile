@@ -15,6 +15,7 @@ import 'generated/l10n/app_localizations.dart';
 import 'screens/auth/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'widgets/connectivity_banner.dart';
+import 'utils/release_logging.dart';
 import 'utils/responsive_size.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,6 +29,10 @@ import 'services/user_session.dart';
 import 'package:dtservices/constants/app_theme.dart';
 
 Future<void> main() async {
+  // En premier : rien ne doit être écrit dans les journaux d'une version
+  // release (jetons, OTP, corps de réponses). Voir release_logging.dart.
+  silenceDebugPrintInRelease();
+
   // Tous les appels HTTP de l'app (ApiClient comme http.get/post directs)
   // passent par le client à bascule : si le domaine devient injoignable, les
   // requêtes repartent sur l'IP du même backend, toujours en HTTPS.
