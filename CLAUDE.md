@@ -223,6 +223,11 @@ The app includes sophisticated phone number validation in `PhoneNumberValidator`
 - **App switcher preview**: `AppDelegate` covers the windows in DT blue on `didEnterBackground` (not `willResignActive`, which also fires for Face ID and Control Center) and removes the cover on `didBecomeActive`.
 - **Keychain**: the biometric PIN (`UserSession._secureStorage`) uses `unlocked_this_device`, so it never joins an encrypted backup restored on another iPhone. An existing PIN stays readable and is rewritten under the new setting on the next save.
 
+## Links and cached data
+
+- **Server links** (banners, popups): open them only through `parseWebLink` (`lib/utils/safe_link.dart`): HTTPS only, no credentials in the URL. Use `launchUrl` without `canLaunchUrl`, which answers "no" on Android 11+ without `<queries>`.
+- **Responses cached on disk** (TopUp balances/packages, active forfaits): their key prefixes live in `PersistedApiCache` (`lib/services/persisted_api_cache.dart`), and `UserSession.clearSession` / `clearAllData` erase them. A new persisted cache must take its prefix from there.
+
 ## Performance Optimization
 
 - **Responsive Caching**: UserSession and ResponsiveSize use caching

@@ -9,15 +9,16 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'forfait_reminder_service.dart';
+import 'persisted_api_cache.dart';
 import 'user_session.dart';
 
 class ForfaitActifService {
   // URL de base de l'API
   static String get baseUrl => AppConfig.baseUrl;
   
-  // Préfixes pour le cache
-  static const String _cachePrefix = 'api_cache_';
-  static const String _cacheTTLPrefix = 'api_ttl_';
+  // Préfixes pour le cache (partagés : la fin de session les efface)
+  static const String _cachePrefix = PersistedApiCache.forfaitData;
+  static const String _cacheTTLPrefix = PersistedApiCache.forfaitTtl;
   static const String apiTimeout = 'api_timeout';
   
   static Future<Map<String, String>> _headers() => ApiClient.authHeaders();

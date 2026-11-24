@@ -5,6 +5,7 @@ import '../models/popup.dart';
 import '../services/popup_service.dart';
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
+import '../utils/safe_link.dart';
 
 class PromoPopupDialog {
   /// Affiché une seule fois par session (réinitialisé au redémarrage de l'app).
@@ -118,10 +119,14 @@ class PromoPopupDialog {
   }
 
   static Future<void> _onTap(BuildContext context, PromoPopup popup) async {
-    if (popup.link == null || popup.link!.isEmpty) return;
-    final uri = Uri.tryParse(popup.link!);
-    if (uri != null && await canLaunchUrl(uri)) {
+    // Lien venu du serveur : HTTPS seulement (voir parseWebLink), sans
+    // canLaunchUrl qui répond « non » sur Android 11+ faute de <queries>.
+    final uri = parseWebLink(popup.link);
+    if (uri == null) return;
+    try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      debugPrint('Popup : ouverture du lien impossible ($e)');
     }
   }
 }

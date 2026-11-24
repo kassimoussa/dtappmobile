@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../enums/payment_auth_method.dart';
+import 'persisted_api_cache.dart';
 import 'profile_cache.dart';
 
 /// Service pour gérer la session utilisateur
@@ -265,6 +266,10 @@ class UserSession {
     // Conserver _lastUsedPhoneKey pour pré-remplir le champ de connexion
     // Conserver les préférences utilisateur (biométrie par numéro, _isPinEnabledKey, _isOtpEnabledKey)
 
+    // Soldes, packages et forfaits gardés sur disque : liés à la ligne de la
+    // session qui se termine.
+    await PersistedApiCache.clear(prefs);
+
     // Réinitialiser le cache
     _cachedPhoneNumber = null;
     _cachedIsAuthenticated = false;
@@ -291,6 +296,7 @@ class UserSession {
     // await prefs.remove('$_isBiometricEnabledPrefix<phoneNumber>');
     // await prefs.remove(_isPinEnabledKey);
     // await prefs.remove(_isOtpEnabledKey);
+    await PersistedApiCache.clear(prefs);
 
     // Réinitialiser tout le cache
     _cachedPhoneNumber = null;

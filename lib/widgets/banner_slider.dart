@@ -6,6 +6,7 @@ import '../models/banner.dart';
 import '../services/banner_service.dart';
 import '../constants/app_theme.dart';
 import '../utils/responsive_size.dart';
+import '../utils/safe_link.dart';
 
 class BannerSlider extends StatefulWidget {
   const BannerSlider({super.key});
@@ -67,10 +68,15 @@ class _BannerSliderState extends State<BannerSlider> {
   }
 
   Future<void> _onBannerTap(PromoBanner banner) async {
-    if (banner.link == null || banner.link!.isEmpty) return;
-    final uri = Uri.tryParse(banner.link!);
-    if (uri != null && await canLaunchUrl(uri)) {
+    // Le lien vient du serveur : HTTPS seulement (voir parseWebLink). Pas de
+    // canLaunchUrl : sur Android 11+ il répond « non » faute de déclaration
+    // <queries>, alors que launchUrl ouvre bien le navigateur.
+    final uri = parseWebLink(banner.link);
+    if (uri == null) return;
+    try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      debugPrint('Bannière : ouverture du lien impossible ($e)');
     }
   }
 

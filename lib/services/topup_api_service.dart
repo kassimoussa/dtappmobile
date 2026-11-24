@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/topup_balance.dart';
 import '../exceptions/topup_exception.dart';
+import 'persisted_api_cache.dart';
 
 class TopUpApiService {
   // Configuration de l'API
@@ -17,9 +18,9 @@ class TopUpApiService {
   static const int _maxRetries = 3;
   static const Duration _retryDelay = Duration(seconds: 1);
   
-  // Clés pour le cache
-  static const String _cachePrefix = 'topup_cache_';
-  static const String _cacheTTLPrefix = 'topup_ttl_';
+  // Clés pour le cache (préfixes partagés : la fin de session les efface)
+  static const String _cachePrefix = PersistedApiCache.topUpData;
+  static const String _cacheTTLPrefix = PersistedApiCache.topUpTtl;
   
   final http.Client _client;
   
