@@ -11,7 +11,12 @@ import 'package:local_auth/local_auth.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 
 class BiometricAuthService {
-  static final LocalAuthentication _localAuth = LocalAuthentication();
+  static LocalAuthentication _localAuth = LocalAuthentication();
+
+  /// Remplace le plugin système par un double — tests uniquement.
+  @visibleForTesting
+  static set localAuthForTest(LocalAuthentication value) =>
+      _localAuth = value;
 
   /// Vérifie si l'authentification biométrique est disponible sur l'appareil
   static Future<bool> isAvailable() async {
@@ -169,26 +174,13 @@ class BiometricAuthService {
   }) async {
     final String reason = 'Authentifiez-vous pour confirmer l\'achat de "$itemName" pour ${amount.toStringAsFixed(0)} $currency';
     
-    final result = await authenticate(
+    // Pas d'exception pour les erreurs de canal ou « inconnues » : une
+    // authentification qui échoue refuse l'achat, jamais l'inverse. L'écran
+    // appelant propose alors le PIN de repli, ou affiche l'erreur.
+    return authenticate(
       reason: reason,
       localizedFallbackTitle: 'Utiliser votre méthode d\'authentification',
     );
-    
-    // Si erreur de canal, permettre quand même l'achat après avertissement
-    if (!result.success && result.errorType == BiometricAuthErrorType.unknown) {
-      if (result.errorMessage?.contains('canal') == true || 
-          result.errorMessage?.contains('channel') == true ||
-          result.errorMessage?.contains('communication') == true) {
-        debugPrint('Contournement de l\'authentification pour erreur de canal - achat');
-        return BiometricAuthResult(
-          success: true,
-          errorMessage: null,
-          errorType: null,
-        );
-      }
-    }
-    
-    return result;
   }
 
   /// Authentifie l'utilisateur pour un transfert (biométrie, PIN, schéma, etc.)
@@ -199,26 +191,11 @@ class BiometricAuthService {
   }) async {
     final String reason = 'Authentifiez-vous pour confirmer le transfert de ${amount.toStringAsFixed(0)} $currency vers $recipient';
     
-    final result = await authenticate(
+    // Même règle que pour un achat : en cas d'erreur, le transfert est refusé.
+    return authenticate(
       reason: reason,
       localizedFallbackTitle: 'Utiliser votre méthode d\'authentification',
     );
-    
-    // Si erreur de canal, permettre quand même le transfert après avertissement
-    if (!result.success && result.errorType == BiometricAuthErrorType.unknown) {
-      if (result.errorMessage?.contains('canal') == true || 
-          result.errorMessage?.contains('channel') == true ||
-          result.errorMessage?.contains('communication') == true) {
-        debugPrint('Contournement de l\'authentification pour erreur de canal - transfert');
-        return BiometricAuthResult(
-          success: true,
-          errorMessage: null,
-          errorType: null,
-        );
-      }
-    }
-    
-    return result;
   }
 
   /// Retourne une description des méthodes d'authentification disponibles
